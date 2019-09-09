@@ -1,0 +1,12 @@
+{
+    // this is in addition to response header.
+  
+    "devs": [{
+        "lineid": 1,                             // C_UINT16   
+        "dev": 1,                                // C_UINT16    
+  
+        "values": [{
+              "alias": 33,                       // C_UINT16 string, the alias specified in the request.
+              "res": 0                           // C_INT    integer, read result, 0 ok, >= 1 error.
+        }]}]
+}

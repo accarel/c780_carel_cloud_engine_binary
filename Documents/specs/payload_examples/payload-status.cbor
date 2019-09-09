@@ -1,0 +1,55 @@
+{
+	"ver": 100,									  // C_UINT16 					
+
+	"time": 1557845997,                           // C_TIME     integer, gw unix epoch
+
+	"uptime": 86400,                              // C_INT32   integer, seconds since power on
+
+	"freeMemory": 4194304,                        // C_UINT32   integer, free memory in bytes
+
+	"cpuLoad": 0.98,                              // TOGLIAMO? [optional] real[0,1], cpu load in 
+                                                  // the last minute divided by the CPU number
+	"temperature": 48,                            // [optional], integer, 
+                                                  // cpu temperature in Celsius scale
+    
+    "engineStatus": 1,                            // C_BYTE     integer, 0: not valid, 1: running, 2: stopped.
+
+	"cloudifaces": [{
+                                                  // this is an example of wifi interface
+			"id": 1,                              // C_UINT16     integer, iface id as in the hello message
+			"status": 1,                          // C_BYTE       integer, 0: disconnected, 1: connected 
+            "ssid": "wifi-ssid"                   // C_BYTE[34]   ssid of the wifi to which is connected, 
+                                                  //              zeroed if not connected.
+			"uptime": 100,                        // C_INT32      integer, seconds since connected or -1 
+                                                  //              if disconnected
+			"mode": 1,                            // C_BYTE       0: not valid, 1: client, 2: ap, 3:client+ap
+            "dhcp": 0,                            // 
+                                                  // configured via dhcp
+			"ip": "1.2.3.5",                      // C_IPV4
+			"netmask": "255.255.255.0",           // C_IPV4
+			"gw": "1.2.3.1",                      // C_IPV4  
+			
+			"linkSpeed": 54,                      // [optional] integer, mega bits per second
+			"channel": 11,                        // [optional]
+			"frequency": 2.462,                   // [optional] real, GHz
+			"quality": 0.75,                      // [optional] real[0,1]
+			
+			"signal": -47,                        // C_INT16     real, dBm 
+			
+			"noise": -100                         // [optional] real, dBm
+			
+		},
+		{
+			"id": 3,                              // C_UINT16     
+			"status": 0,                          // C_BYTE
+			"uptime": 0,                          // C_INT32
+            "dhcp": 0,                            // C_BYTE  
+			"ip": "1.2.3.4",                      // C_IPV4 
+			"netmask": "255.255.255.0",           // C_IPV4
+			"gw": "1.2.3.1",                      // C_IPV4 
+			"linkSpeed": 100                      // [optional]  
+		}
+	]                                             // array[object:connection], status of ifaces, 
+                                                  // mobile ifaces are omitted as there is a specific
+                                                  // topic, connection object fields depends on iface type.
+}

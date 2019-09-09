@@ -1,0 +1,28 @@
+{
+	"ver": 100,                               // C_UINT16   
+
+	"sims": [{
+		"id": 2,                              // C_UINT16   integer, it is the iface id as sent with the hello topic.
+		"status": 1,                          // C_BYTE     0: disconnected, 1: connected.
+		"gsmuptime": 72000,                   // C_INT32    seconds since connected or -1 if disconnected.
+
+		"sim": 1,                             // C_BYTE     0: absent, 1: present, 2: locked; 
+                                              //            1 means present and unlocked! 
+
+		"signalStrenght": -75,                // C_INT16    integer, dBm, it is the average of samples 
+                                              //            kept every 1 minute; for the GME TBV 
+                                              //            For the GHE refer to GHE for the out of range logic. 
+        "imei": "990000862471854",            // C_BYTE[]   imei of device
+		"imsi": "310150123456789",            // C_BYTE[]   [optional] string, international mobile subscriber  
+                                              //            identity (http://bit.ly/2VIehax).
+		"mcc": "222",                         // C_BYTE[3]  [optional] string, 
+                                              //            mobile country code (http://bit.ly/2VCOfVP).
+		"mnc": "88",                          // C_BYTE[3]  [optional] string, mobile 
+                                              //            network codes (http://bit.ly/2VCOfVP).
+		"lac": "12345",                       // C_BYTE[16] [optional] string, location area 
+                                              //            code (http://bit.ly/2VFXnZR).
+		"cid": "54321",                       // C_BYTE[16] [optional]  string, cell id (http://bit.ly/2Vz9Xu1).
+		"utranCid": "134217727"               // C_BYTE[16] [optional] string, a sort of cell id for 
+                                              //            UMTS (http://bit.ly/2Vz9Xu1).
+	}]                                        //            array[object:sim]
+}

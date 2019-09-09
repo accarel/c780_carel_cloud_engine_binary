@@ -1,0 +1,19 @@
+{
+  "ver": 100,                           // C_UINT16        
+
+  "lineid": 1,                          // C_UINT16,        the line id as specified by the gw in the hello message.
+  "dev": 1,                             // C_UINT16          integer, the device id as specified by the cloud 
+                                        //                   with the SET_DEV_CONFIG request.
+
+  "type": 1,                            // C_BYTE            0: not valid, 1: variabile, 2: device.
+  
+  "alias": 33,                          // C_UINT16          0 if type is not variable.
+  "code": 0,                            // C_BYTE            0: not valid, >= 1: see Device Alarms Table, 
+                                        //                   0 if type is not device.
+  
+  "starttime": 1549381647,              // C_INT32           unix time, instant at which alarm started, 
+                                        //                   always set, ie set in case alarm start and in case alarm end.
+  "endtime": 1549458601                 // C_INT32           unix time, instant at which alarm ended, 
+                                        //                   0 if this is not an alarm end message but it is an alarm 
+                                        //                   start message.
+}

@@ -1,0 +1,15 @@
+{
+	                                                    // this is the request header common to all requests.
+    
+	"ver": 100,											// C_UINT16				
+
+	"replyTo": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6", // C_BYTE[32]  string, the GW will publish the response to the
+                                                        // topic <uuid>/res/<replyTo>.
+    
+	"cmd": 1,                                           // C_UINT16    integer, the code of the command the GW 
+                                                        //             must execute.
+                                                        //             ^^^^^^ note the comma here, this is not a valid
+                                                        //             JSON, it will be after adding the command 
+                                                        //             specific information.
+	                                                    //             command specific information follows.
+}

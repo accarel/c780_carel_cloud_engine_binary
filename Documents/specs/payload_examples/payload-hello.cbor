@@ -1,0 +1,90 @@
+{
+	"ver": 100,                                  // C_INT16,    payload version, hexadecimal.
+	"model": "GME",                              // C_CHAR[4]   string[enum]: GME|GHE|BCU, model type.
+	"partNumber": "123-456-abc-xyz",             // C_CHAR[16]  string, model part number.
+	                                             //             zero terminated/zero filled 
+
+	"hwVersion": 201,                            // C_UINT16     string, hexadecimal
+	"fwVersion": 312,                            // C_UINT16     string, hexadecimal
+	
+	"cloudifaces": [{
+		"type": wifi,                            // C_BYTE      0:NA 1:wifi 2:eth 3:mobile, 4: so on.. iface type
+		"configured": 1,                         // C_BYTE      0:false, 1:true, 
+                                                 // whether the iface is configured or not, 
+                                                 // first time or after a factory reset will be false   TBC
+
+		"id": 1,                                 // C_UINT16    integer, iface id as assigned by the gw, 
+                                                 //             unique for the gw it self.
+		"name": "WIFI-1",                        // C_CHAR[16]  string, the iface name, initially assigned by the gw
+                                                 //             (example type + "-" + id => WIFI-1).
+												 //             zero terminated/zero filled 
+		"macAddress": D481D7B55A77,              // C_UCHAR[6]  [mandatory if type is wifi|eth] string, 
+                                                 //             iface mac address
+        
+        "mode": 2                                // C_CHAR      0: not valid 1:ap 2:client      TBC see status
+	},
+    {
+		"type": 3,                               // C_BYTE      0:NA 1:wifi 2:eth 3:mobile, 4: so on.. iface type 
+		"configured": 1,                         // C_BYTE      0:false, 1:true, 
+		"id": 2,                                 // C_UINT16    integer, iface id as assigned by the gw, 
+		"name": "SIM-1",                         // C_CHAR[16]  arrary of char, the iface name, initially assigned by the gw
+		                                         //             zero terminated/zero filled  
+		"imei": 301960018615360,                 // C_CHAR[16]  array of bytes  [mandatory if type is mobile] string, iface imei
+		                                         //             zero terminated/zero filled   
+        "subtype": 1                             // C_BYTE      0:NA 1:NA  2:2G 3:3G 4:4G 5:5G 6:4G_NBIOT  
+	}],                                          //             array[object:cloudiface], list of gw available cloud
+                                                 //             ifaces, macAddress and imei are available depending 
+                                                 //             on iface type.
+
+	"fieldifaces": [{
+		"type": 1,                               // C_BYTE      0:NA 1:RS485 2:ETH   
+		"baud": 9600,                            // C_UINT      ie. 4800/9600/19200/38400/115200 for serial baudrate, protocol 
+        "protocol": 1,                           // C_UINT      protocol enum see document
+                                                 //             for ETH ip, protocol
+		"portid": 1,                             // C_UINT      integer, line id as assigned by the gw, 
+                                                 //             unique for the gw it self, 
+                                                 //             eg: GME always 1; eg GHE >= 1
+                                                 
+		"name": "RS485-1"                        // C_CHAR[16]  string, iface name as assigned by the gw 
+                                                 //             (eg type + "-" + id => RS485-1)
+	}],                                          //             array[object:fieldiface], 
+                                                 //             list of gw available field ifaces.
+												 //             zero terminated/zero filled 
+
+	"capabilities": {
+		"compression": 1,                        // C_UINT      0:NA  1: hs(<l>,<w>) 2:lz4-framed  
+                                                 //             NOTE: <l> is lookhaead, <w> is window size means one different 
+												 //             enum for each combination 
+		"variableCode": 1,                       // C_BYTE      0: support only variable index , 1: support variable 
+                                                 //             by technical code, 0 support only variable index.
+		"mqttVersion": 1,                        // C_BYTE[3]   0/0/0:NA  3/1/1="3.1.1"  x/y/z,
+		"logValues": -1,                         // C_INT       integer, whether and how values logging is supported,
+                                                 //             -1: unlimited days back, 0 unsupported, 
+                                                 //             >= 1 number of days back. 
+
+		"logAlarms": -1,                         // C_INT       integer, whether and how alarms logging is supported,
+                                                 //             -1: unlimited days back, 0 unsupported, 
+                                                 //             >= 1 number of days back.
+		"logFrequencies": [60, 300],             // C_UINT[2]   array[uinteger], expressed in seconds
+                                                 //             ascending list of supported logging
+                                                 //             frequencies.
+		"lineProtocols": ["modbus", "bacnet"],   // C_UINT[X]   0:NA 1:"modbus" 2:"CAREL" 3:"bacnet" array[C_UINT:enum]
+                                                 //             list of supported protocols, 
+                                                 //             NOTE: this list is not line related, so it is assumed
+                                                 //             every line supports these protocols.            TBC
+        
+		"wifiEncryptions": [ "wpa", "wpa2", "wep", "wpa2psk"],   //TBC
+        "wifiModes": [ 1, 2 ]                    // C_BYTE       TBC array[integer]: 0: not valid, 
+                                                 //              1: client, 2: ap; 3:client+AP  list of supported modes
+	},
+
+	"uid": "abc-123xyz-098",                     // C_BYTE[8]    [optional] gw carel uid CAREL, N/A for GME.    
+	"serialNumber": "1234567890",                // C_CHAR[16]   [optional] string, N/A for GME. zero terminated/zero filled 
+
+	"modelGuids": [{
+		"line": 1,                               // C_BYTE  
+		"dev": 1,                                // C_UINT  
+		"guid": xxxxxxxxxx                       // C_BYTE[16]   byte array zeroed if model not present, 
+                                                 //              retrieved from model file
+	}]
+}

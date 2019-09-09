@@ -1,0 +1,36 @@
+{
+    // this is in addition to request header.
+  
+    "devs": [{
+        "lineid": 1,
+        "dev": 1,
+
+        "values": [{
+                                                    // GHE will recevice only the alias: it has the 
+                                                    // complete model.
+            "alias": "AIN_FLUX_AIR"                 // string
+        },
+        {
+                                                    // GME in addition to the alias that will be used 
+                                                    // in the response need to receive the full parameters
+                                                    // for addressing the variable.
+            "alias": 34,                            // C_UINT16     string.
+
+                                                    // using func, starting from addr address,read dim bits
+                                                    // and then take len bit starting from pos bit; 
+                                                    // multiply the so read val by a and then add b.
+            "func": 1,                              // C_BYTE integer, ModBus (read) function
+            "addr": 2,                              // C_BYTE integer, ModBus address (in)
+            "dim": 16,                              // C_BYTE integer, bits
+            "pos": 1,                               // C_BYTE integer, 0 based
+            "len": 4,                               // C_BYTE integer
+            "a": 1,                                 // C_FLOAT  real, val * A + b
+            "b": 0,                                 // C_FLOAT  real, val * a + B
+
+          
+            "flags", 0,	                            // C_BYTE   
+			                                        // 0=is FIXEDPOINT bit 1 = NA bit 2 = is IEEE
+                                                    // bit 3 = NA bit 4 = NA bit 5 = NA bit 6 = is signed 
+                                                    // bit 7 = is Big Endian          
+        }]}]
+}

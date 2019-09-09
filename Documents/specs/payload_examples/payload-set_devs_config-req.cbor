@@ -1,0 +1,15 @@
+{
+    // this is in addition to request header.
+
+    "devs": [{
+        "lineid": 1,                  // C_UINT16    integer, the line id 
+        "dev": 1,                     // C_UINT16    integer, the device address
+        
+        "user": "username",           // C_BYTE[16]  string, the user to be used for authenticating.
+        "password": "secret",         // C_BYTE[16]  string, the password to be used for authenticating.
+        
+        "uri": "https://carel.TDB.COM/files?id=1" 
+		                              // C_BYTE[64]   
+                                      // the uri from which retrieve the model for the specified device.
+    }]                                // array[object:devConf]
+}

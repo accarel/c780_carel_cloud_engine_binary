@@ -1,0 +1,11 @@
+{
+    // this is in addition to response header.
+  
+    "lineid": 1,                              //C_UINT16 as specified in the request
+
+    "devs": [{
+        "dev": 1,                             //C_UINT16  
+        "res": "ab1a23ff3c",                  //C_BYTE[512]  cmd17 response encoded in hex
+    }]                                        //             in case of no address responds correctly to cmd17 the array will be empty
+
+}

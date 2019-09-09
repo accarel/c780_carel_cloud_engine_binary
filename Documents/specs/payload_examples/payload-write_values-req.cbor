@@ -1,0 +1,34 @@
+{
+    // this is in addition to request header.
+  
+    "devs": [{
+        "lineid": 1,
+        "dev": 1,
+
+        "values": [{
+                                                                // GHE will receive only the alias: 
+                                                                // it has the complete model.
+            "alias": "AIN_FLUX_AIR"                             // string.
+            "val": 1.23                                         // number, values to be written
+        },
+        {
+                                                                // GME in addition to the alias that 
+                                                                // will be used in the response need to
+                                                                // receive the full parameters for 
+                                                                // addressing the variable.
+            "alias": 34,                                        // C_UINT16 string.
+            "val": 1.23,                                        // C_FLOAT  number, values to be written
+
+            "func": 1,                                          // C_BYTE   integer, ModBus (write) function
+            "addr": 2,                                          // C_BYTE   integer, ModBus address (out)
+            "dim": 16,                                          // C_BYTE   integer, bits
+            "pos": 1,                                           // C_BYTE   integer, 0 based
+            "len": 16,                                          // C_BYTE   integer
+            "a": 1.0,                                           // C_FLOAT  real, (val / a) - b
+            "b": 0,                                             // C_FLOAT  real, (val / a) - b
+            "flags": 0,	                                        // C_BYTE   0=is FIXEDPOINT bit 1 = NA bit 2 = is IEEE
+                                                                //          bit 3 = NA bit 4 = NA bit 5 = NA 
+                                                                //          bit 6 = is signed bit 7 = is Big Endian                                             
+																
+        }]}]
+}

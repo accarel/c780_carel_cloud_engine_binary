@@ -1,0 +1,9 @@
+{
+    // this is in addition to request header.
+
+    "user": "username",   // C_BYTE[32]  string, the user to be used for authenticating.
+    "password": "secret", // C_BYTE[32]  string, the password to be used for authenticating.
+        
+    "uri": "https://carel.TDB.COM/files?id=1", 
+	                      // C_URI  the uri from which retrieve the CA certificates.
+}
