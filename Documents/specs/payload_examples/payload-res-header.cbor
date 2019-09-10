@@ -10,7 +10,7 @@
 	"cmd": 1,                                           // C_UINT16     integer, the code of the command the GW 
                                                         //              must execute.
     
-    "res": 0,                                           // C_INT        integer, the command execution result,
+    "res": 0,                                           // C_INT16      integer, the command execution result,
                                                         //              interpretation depends on command, 
                                                         //              -1 is reserved for 'invalid command',
                                                         //              usually 0 is OK and >= 1 is ERROR.

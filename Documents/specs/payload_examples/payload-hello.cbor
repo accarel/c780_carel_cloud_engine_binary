@@ -1,5 +1,5 @@
 {
-	"ver": 100,                                  // C_INT16,    payload version, hexadecimal.
+	"ver": 100,                                  // C_UINT16,    payload version, hexadecimal.
 	"model": "GME",                              // C_CHAR[4]   string[enum]: GME|GHE|BCU, model type.
 	"partNumber": "123-456-abc-xyz",             // C_CHAR[16]  string, model part number.
 	                                             //             zero terminated/zero filled 

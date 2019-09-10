@@ -5,7 +5,7 @@
 
     "devs": [{
         "dev": 1,                             //C_UINT16  
-        "res": "ab1a23ff3c",                  //C_BYTE[512]  cmd17 response encoded in hex
+        "ret": "ab1a23ff3c",                  //C_BYTE[512]  cmd17 response encoded in hex
     }]                                        //             in case of no address responds correctly to cmd17 the array will be empty
 
 }
