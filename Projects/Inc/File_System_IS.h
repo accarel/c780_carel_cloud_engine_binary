@@ -1,16 +1,10 @@
-/*
-  File  : File_System_IS.h
-  
-  Scope : 
-  functions implementations specific related to the managment of the
-  file system.
-            
-  
-  Note  : 
-    
-*/
-
-
+/**
+ * @file File_System_IS.h
+ * @author carel
+ * @date 9 Sep 2019
+ * @brief  functions implementations specific related to the managment of the 
+ *         file system.
+ */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __FILE_SYSTEM_IS_H

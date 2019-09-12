@@ -1,22 +1,24 @@
-/*
-  File  : RTC_IS.c
-  
-  Scope : 
-  implementations target specific related to the managment of the
-  real time clock.
-            
-  
-  Note  : 
-    
-*/
-
-
+/**
+ * @file RTC_IS.c
+ * @author carel
+ * @date 9 Sep 2019
+ * @brief  implementations target specific related to the managment of the
+ *         real time clock.   
+ */
 #include "RTC_IS.h"
 
 
 
 /* Functions implementation -------------------------------------------------------*/
 
+/**
+ * @brief RTC_Init
+ *
+ * Description of what the function does. This part may refer to the parameters
+ * 
+ * @param none
+ * @return C_SUCCESS/C_FAIL 
+ */
 C_RES RTC_Init(void)
 { /* TO BE Implemented */
     
@@ -27,13 +29,19 @@ C_RES RTC_Init(void)
   }
   else
   {
+	  /* in this case the time is set to zero >= UTC 01 1 Jan 1970 00:00:00 */
 	  return C_FAIL;
-  }
-	    	
+  }	    	
   */  	
 }
 
-
+/**
+ * @brief RTC_Get_UTC_Current_Time
+ *        return the time in UTC format referred to GMT0 
+ * 
+ * @param none
+ * @return C_TIME UTC Time
+ */
 C_TIME RTC_Get_UTC_Current_Time(void)
 { /* TO BE Implemented  */
   C_TIME value = 0;

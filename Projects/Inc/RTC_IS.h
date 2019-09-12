@@ -1,15 +1,10 @@
-/*
-  File  : RTC_IS.h
-  
-  Scope : 
-  functions implementations specific related to the managment of the
-  real time clock.
-            
-  
-  Note  : 
-    
-*/
-
+/**
+ * @file RTC_IS.h
+ * @author carel
+ * @date 9 Sep 2019
+ * @brief  functions implementations specific related to the managment of the
+           real time clock.
+ */
 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -36,10 +31,7 @@
 
 /* Function prototypes -------------------------------------------------------*/
 C_RES RTC_Init(void);
-
 C_TIME RTC_Get_UTC_Current_Time(void);
-
-
 
 #ifdef __cplusplus
 }

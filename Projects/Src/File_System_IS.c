@@ -1,16 +1,16 @@
-/*
-  File  : File_System_IS.c
-  
-  Scope : 
-  functions implementations specific related to the managment of the
-  file system.
-            
-  
-  Note  : 
-  we assume that the stdio.h function are supported 
-  ie. fopen/fclose/fread/fwrite/fseek 
-    
-*/
+/**
+ * @file File_System_IS.c
+ * @author carel
+ * @date 9 Sep 2019
+ * @brief  functions implementations specific related to the managment of the
+ *         file system.
+ *         Note  : 
+ *         we assume that the stdio.h function are supported 
+ *         ie. fopen/fclose/fread/fwrite/fseek 
+ */
+
+
+
 
 
 
@@ -20,6 +20,14 @@
    
 
 /* Functions Implementation --------------------------------------------------*/
+
+/**
+ * @brief File_System_Init
+ *        Initialize the file system
+ * 
+ * @param none
+ * @return C_SUCCESS or C_FAIL
+ */
 C_RES File_System_Init(void)
 {  /* TO BE implemented */
    

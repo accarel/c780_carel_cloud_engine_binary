@@ -1,15 +1,9 @@
-/*
-  File  : data_types.h
-  
-  Scope : common definitions & data types         
-  
-  Note  : 
-  
-  - the software library use CBOR see RFC7049 due to that 
-    some of information below refer to it
-  
-  
-*/
+/**
+ * @file data_types.h
+ * @author carel
+ * @date 9 Sep 2019
+ * @brief  common definitions & data types
+ */
 
 #ifndef __DATA_TYPES_H
 #define __DATA_TYPES_H
@@ -42,12 +36,17 @@
 
 
 #ifdef IS_A_WIFI_GATEWAY
-/* in this case it contain the MAC address*/
+
+/**
+ * @brief in this case it contain the MAC address
+ */
 #define C_GATEWAY_ID C_BYTE[6]
 #endif
 
 #ifdef IS_A_GSM_GATEWAY
-/* in this case it contain the IMEI */
+/**
+ * @brief in this case it contain the IMEI 
+ */
 #define C_GATEWAY_ID C_BYTE[16]
 #endif
 

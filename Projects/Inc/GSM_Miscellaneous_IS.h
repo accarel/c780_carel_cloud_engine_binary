@@ -1,16 +1,10 @@
-/*
-  File  : GSM_Miscellanous_IS.h
-  
-  Scope : 
-  functions implementations specific related to the managment of the
-  real time clock.
-            
-  
-  Note  : 
-    
-*/
-
-
+/**
+ * @file GSM_Miscellanous_IS.h
+ * @author carel
+ * @date 9 Sep 2019
+ * @brief   functions implementations specific related to the managment of 
+ *          real time clock.
+ */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __GSM_MISCELLANOUS_IS_H
