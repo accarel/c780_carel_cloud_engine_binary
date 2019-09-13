@@ -33,7 +33,7 @@ void main_carel(void)
 {
   C_RES retval;
 
-  retval = Init_RTC();
+  retval = RTC_Init();
   
   if (retval != C_SUCCESS)
   {

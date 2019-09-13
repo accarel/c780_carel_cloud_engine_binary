@@ -1,12 +1,12 @@
 /**
- * @file data_types.h
+ * @file data_types_CAREL.h
  * @author carel
  * @date 9 Sep 2019
  * @brief  common definitions & data types
  */
 
-#ifndef __DATA_TYPES_H
-#define __DATA_TYPES_H
+#ifndef __DATA_TYPES_CAREL_H
+#define __DATA_TYPES_CAREL_H
 
 
 /* ==== Include ==== */
@@ -25,14 +25,17 @@
 #define C_TIME     C_INT32
 
 //ie 192.168.100.1    [0]=192 [1]=168 [2]=100 [3]=1
-#define C_IPV4     C_BYTE[4]
+typedef C_BYTE       C_IPV4[4];     
+                     
+typedef C_BYTE       C_USERNAME[34];
+typedef C_BYTE       C_PASSWORD[32]; 
+                     
+typedef C_BYTE       C_URI[64];      
+                     
+typedef C_INT16      C_RES;     
 
-#define C_USERNAME C_BYTE[34]
-#define C_PASSWORD C_BYTE[32]
 
-#define C_URI      C_BYTE[64]
-
-#define C_RES      C_INT16
+extern CRC_TABLE_TYPE CRCTABLE[256];
 
 
 #ifdef IS_A_WIFI_GATEWAY
@@ -77,6 +80,8 @@
 
 /* ==== Define types for CBOR ==== */
 #define C_CBOR_FLOAT_NaN 0xf97e00
+
+
 
 
 

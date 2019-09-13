@@ -15,8 +15,7 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "carel_types.h"   
-   
+#include "data_types_CAREL.h"      
    
    
 /* Exported types ------------------------------------------------------------*/ 
@@ -29,9 +28,9 @@
 
 
 /* Function prototypes -------------------------------------------------------*/
-void GSM_Misc_SMS_Config_Received();
+void GSM_Misc_SMS_Config_Received(void);
 
-void GSM_Misc_Get_Communication_Status();
+void GSM_Misc_Get_Communication_Status(void);
 
 void GSM_Misc_Get_Gateway_ID(C_BYTE *s_id);
 

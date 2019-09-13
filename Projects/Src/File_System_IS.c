@@ -33,8 +33,8 @@ C_RES File_System_Init(void)
    
    /* call the routine to initialize the file system */
   
-  /*	
-  if ( ... )
+	
+  if (1)
   {
       return C_SUCCESS;
   }
@@ -43,7 +43,7 @@ C_RES File_System_Init(void)
 	  return C_FAIL;
   }
 	    	
-  */	
+	
 }
 
 

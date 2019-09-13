@@ -8,7 +8,7 @@
 
 
 /* Includes ------------------------------------------------------------------*/
-#include "GSM_Miscellanous_IS.h"   
+#include "GSM_Miscellaneous_IS.h"   
 
  
    
@@ -23,7 +23,7 @@
  * @param param2 The second one, which follows @p param1.
  * @return none
  */
-void GSM_Misc_SMS_Config_Received(TBD)
+void GSM_Misc_SMS_Config_Received(void)
 { /* TO BE implemented */
 	
 }
@@ -38,7 +38,7 @@ void GSM_Misc_SMS_Config_Received(TBD)
  *
  * @return none
  */
-void GSM_Misc_Get_Communication_Status(TBD)
+void GSM_Misc_Get_Communication_Status(void)
 { /* TO BE implemented */
 
   /* this function return some parameters of the GSM module

@@ -22,8 +22,8 @@
 C_RES RTC_Init(void)
 { /* TO BE Implemented */
     
-  /*	
-  if ( ... )
+  	
+  if (1)
   {
       return C_SUCCESS;
   }
@@ -32,7 +32,7 @@ C_RES RTC_Init(void)
 	  /* in this case the time is set to zero >= UTC 01 1 Jan 1970 00:00:00 */
 	  return C_FAIL;
   }	    	
-  */  	
+    	
 }
 
 /**
