@@ -1,15 +1,11 @@
 {
     // this is in addition to response header.
-    
-    "devs": [{
-        "lineid": 1,                 // C_UINT16 integer, the line id as specified by the GW with hello message.
-        "dev": 1,                    // C_UINT16    
+                                     //TAG TYPE
+    "devs": [{                             
+        "lineid": 1,                 //LID C_UINT16 integer, the line id as specified by the GW with hello message.
+        "dev": 1,                    //DEV C_UINT16    
+									       
+        "res": 1                     //RES C_INT16  integer, configuration result, 0 ok, >= 1 failure.
+    }
 
-        "res": 1                     // C_INT16  integer, configuration result, 0 ok, >= 1 failure.
-    },
-    {
-        "lineid": 3,                   
-        "dev": 3,
-        "res": 2
-    }]                               // array[object:devConfResult]   
 }

@@ -1,6 +1,6 @@
 {
     // this is in addition to request header.
-  
-    "lineid": 1,                         //C_UINT16   integer, the line id.
+                                         //TAG TYPE
+    "lineid": 1,                         //LID C_UNT16   integer, the line id.
 
 }

@@ -1,39 +1,11 @@
-{
-	"ver": 100,                               // C_UINT16  
-	"st": 1555286400,                         // C_TIME   integer, unix time of starting sampling of these values
-	"et": 1555287000,                         // C_TIME   integer, unix time of ending sampling of these values
-	"timeslots": [{
-			"t": 1555286400,                  // C_TIME   integer, unit time of this slot
-			"devs": [{
-				"lineid": 1,                  // C_UINT16 integer, line id
-				"dev": 1,                     // C_UINT16 integer,  device id
-				"vars": {                     // pairs(string, number), where the first element is variable
-                                              // alias and second element is value (null allowed in case 
-                                              // of error in reading)
-					1: 1.0,                   // C_UINT16 + C_FLOAT
-					2: 2.5                    // C_UINT16 + C_FLOAT 
-				}
-			}]
-		},
-		{
-			"t": 1555286460,
-			"devs": [{
-				"lineid": 1,
-				"dev": 1,
-				"vars": {
-					1: null                    
-				}
-			}]
-		},
-		{
-			"t": 1555287000,
-			"devs": [{
-				"lineid": 1,
-				"dev": 1,
-				"vars": {
-					"5": 1.25
-				}
-			}]
-		}
-	]
+{                                             //TAG TYPE
+	"ver": 100,                               //VER C_UINT16  
+	"st": 1555286400,                         //STT C_TIME   integer, unix time of starting sampling of these values
+	"et": 1555287000,                         //ENT C_TIME   integer, unix time of ending sampling of these values
+	"lineid": 1,                              //LID C_UINT16 integer, line id
+	"dev": 1,                                 //DEV C_UINT16 integer,  device id	
+	"t": 1555286400,                          //TIM C_TIME   integer, unit time of this slot
+												    
+	"1": 1.0,                                 //    C_UINT16 + C_FLOAT
+	"2": 2.5                                  //    C_UINT16 + C_FLOAT 
 }

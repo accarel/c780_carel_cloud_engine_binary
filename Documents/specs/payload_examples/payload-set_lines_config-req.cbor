@@ -1,22 +1,12 @@
 {
     // this is in addition to request header.
-
-    "fieldifaces": [{
-                                           // this is for an ETH line
-        "portid": 1,                       // C_UINT16   integer, the port id as specified by the GW with hello message.
-        "lineid": 5,                       // C_UNIT16   integer, the line id the from now on cloud and GW use for
-                                           //            identify this line. 
-        "protocol": 1,                     // C_UINT16   integer, 0: NOT VALID, 1: modbus, 
-                                           //            WIP must differentiate among modbus-serial and modbus-eth?
-        
-        "gwip": "10.50.51.77"              // C_IPV4     string, ip address of the gateway
-        
-    },
-    {
-        // this is for an SERIAL line
-        "portid": 1,                       // C_UNIT16   integer, the line id as specified by the GW with hello message.        
-        "protocol": 1,                     // C_BYTE     integer, 0: NOT VALID, 1: modbus, ....        
-        "baud": 9600                       // C_UINT16   4800/9600/19200/38400/56800/115200
-                                          
-    }]                                     // array[object:lineConf]
+	                                       //TAG TYPE 
+    "fieldifaces": [                                   
+    {                                            
+        // this is for an SERIAL line            
+        "portid": 1,                       //PID C_UNIT16   integer, the line id as specified by the GW with hello message.        
+        "protocol": 1,                     //PRO C_BYTE     integer, 0: NOT VALID, 1: modbus, ....        
+        "baud": 9600                       //BAU C_UINT16   4800/9600/19200/38400/56800/115200
+											     
+    }]                                     //    array[object:lineConf]
 }
