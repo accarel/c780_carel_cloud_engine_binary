@@ -146,6 +146,136 @@ C_RES FSC_file_checksum_check(C_CHAR *fname)
 
 
 
+/**
+ * @brief File_System_Check_File
+ *        Checks CRC of the file
+ * 
+ * @param file name
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Check_File(C_CHAR* name)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_Config_Load
+ *        Loads info from configuration file to dedicated structure
+ * 
+ * @param file name
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Config_Load(C_CHAR* name)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_DefaultConfig_Load
+ *        Loads default configuration to dedicated structure
+ * 
+ * @param void
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_DefaultConfig_Load(void)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_Cert_Check
+ *        Checks certificate validity
+ * 
+ * @param file name
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Cert_Check(C_CHAR* name)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_Cert_Load
+ *        Loads certificate info to dedicated structure
+ * 
+ * @param file name
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Cert_Load(C_CHAR* name)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_Cert_Store
+ *        Saves certificate to file system
+ * 
+ * @param file name
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Cert_Store(C_CHAR* name)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_Model_Check
+ *        Checks model file
+ * 
+ * @param file name
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Model_Check(C_CHAR* name)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_Model_Load
+ *        Loads info in model file to dedicated structure
+ * 
+ * @param file name
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Model_Load(C_CHAR* name)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_DefaultConfig_Load
+ *        Loads default configuration to dedicated structure
+ * 
+ * @param void
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_DefaultModel_Load(void)
+{  /* TO BE implemented */
+       	
+	
+}
+
+/**
+ * @brief File_System_Model_Store
+ *        Saves model to file system
+ * 
+ * @param void
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES File_System_Model_Store(void)
+{  /* TO BE implemented */
+       	
+	
+}
+
 
 
 
