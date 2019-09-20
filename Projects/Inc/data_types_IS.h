@@ -31,7 +31,7 @@
 /* compiler data types                                     */
 typedef unsigned char   C_BYTE;     // 8 bit value
 typedef unsigned char   C_CHAR;     // 8 bit value
-typedef	int	        C_INT16;	// 16-bit value
+typedef	int	            C_INT16;	// 16-bit value
 typedef	unsigned int	C_UINT16;	// 16-bit value
 typedef	long	        C_INT32;	// 32-bit value
 typedef	unsigned long   C_UINT32;	// 32-bit value

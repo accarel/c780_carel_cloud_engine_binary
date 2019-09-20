@@ -14,6 +14,7 @@
 #include "data_types_CAREL.h"
 #include "File_System_IS.h"
 #include "RTC_IS.h"
+#include "MQTT_Interface_CAREL.h"
 
 
 #ifdef IS_A_GSM_GATEWAY
@@ -35,14 +36,43 @@ void main_carel(void)
 
   retval = RTC_Init();
   
-  if (retval != C_SUCCESS)
+  if (C_SUCCESS != retval)
   {
 	  //reboot ?
   }
 
 
+  
 
 
+  /* MQTT Initialize section */
+  
+  
+  broker_uri[0]=0x00;
+  broker_port = 0;
+  
+  //Get_Configuration_Broker_URI(broker_uri);
+  //Get_Configuration_Broker_Port(&broker_port);
+    
+  mqtt_client_set_uri(broker_uri, broker_port);
+  
+  retval = mqtt_client_init();
+  
+  if (C_FAIL == retval) 
+  {
+	  
+  }
+  else
+  {
+    retval = mqtt_client_start();
+    if (C_SUCCESS == retval) 
+    {
+	  mqtt_engine_status = MQTT_IS_CONNECTED;	 	  	 
+    }
+  }
+  
+  mqtt_subscribe_to_default_topics();
+  
 
 }
 

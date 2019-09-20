@@ -34,24 +34,16 @@ typedef C_BYTE       C_URI[64];
                      
 typedef C_INT16      C_RES;     
 
+typedef C_CHAR       C_MQTT_TOPIC[64];
 
 extern CRC_TABLE_TYPE CRCTABLE[256];
 
 
-#ifdef IS_A_WIFI_GATEWAY
+/** 
+@brief this data type is able to store both a WiFi or GSM ID
+*/
+typedef C_BYTE C_GATEWAY_ID[18];
 
-/**
- * @brief in this case it contain the MAC address
- */
-#define C_GATEWAY_ID C_BYTE[6]
-#endif
-
-#ifdef IS_A_GSM_GATEWAY
-/**
- * @brief in this case it contain the IMEI 
- */
-#define C_GATEWAY_ID C_BYTE[16]
-#endif
 
 
 /* ======================================================= */
