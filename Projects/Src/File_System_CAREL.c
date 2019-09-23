@@ -155,7 +155,7 @@ C_RES FSC_file_checksum_check(C_CHAR *fname)
  */
 C_RES File_System_Check_File(C_CHAR* name)
 {  /* TO BE implemented */
-       	
+	return 1;
 	
 }
 
@@ -168,7 +168,7 @@ C_RES File_System_Check_File(C_CHAR* name)
  */
 C_RES File_System_Config_Load(C_CHAR* name)
 {  /* TO BE implemented */
-       	
+       	return 1;
 	
 }
 
@@ -181,7 +181,7 @@ C_RES File_System_Config_Load(C_CHAR* name)
  */
 C_RES File_System_DefaultConfig_Load(void)
 {  /* TO BE implemented */
-       	
+	return 1;      	
 	
 }
 
@@ -194,7 +194,7 @@ C_RES File_System_DefaultConfig_Load(void)
  */
 C_RES File_System_Cert_Check(C_CHAR* name)
 {  /* TO BE implemented */
-       	
+	return 1;       	
 	
 }
 
@@ -207,7 +207,7 @@ C_RES File_System_Cert_Check(C_CHAR* name)
  */
 C_RES File_System_Cert_Load(C_CHAR* name)
 {  /* TO BE implemented */
-       	
+	return 1;   	
 	
 }
 
@@ -220,7 +220,7 @@ C_RES File_System_Cert_Load(C_CHAR* name)
  */
 C_RES File_System_Cert_Store(C_CHAR* name)
 {  /* TO BE implemented */
-       	
+	return 1;      	
 	
 }
 
@@ -233,7 +233,7 @@ C_RES File_System_Cert_Store(C_CHAR* name)
  */
 C_RES File_System_Model_Check(C_CHAR* name)
 {  /* TO BE implemented */
-       	
+	return 1;       	
 	
 }
 
@@ -246,7 +246,7 @@ C_RES File_System_Model_Check(C_CHAR* name)
  */
 C_RES File_System_Model_Load(C_CHAR* name)
 {  /* TO BE implemented */
-       	
+	return 1;       	
 	
 }
 
@@ -259,7 +259,7 @@ C_RES File_System_Model_Load(C_CHAR* name)
  */
 C_RES File_System_DefaultModel_Load(void)
 {  /* TO BE implemented */
-       	
+	return 1;       	
 	
 }
 
@@ -272,7 +272,7 @@ C_RES File_System_DefaultModel_Load(void)
  */
 C_RES File_System_Model_Store(void)
 {  /* TO BE implemented */
-       	
+	return 1;      	
 	
 }
 
