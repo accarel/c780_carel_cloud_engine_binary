@@ -36,6 +36,8 @@ typedef C_INT16      C_RES;
 
 typedef C_CHAR       C_MQTT_TOPIC[64];
 
+typedef C_BYTE	     C_GUID[16];
+
 extern CRC_TABLE_TYPE CRCTABLE[256];
 
 
@@ -44,6 +46,33 @@ extern CRC_TABLE_TYPE CRCTABLE[256];
 */
 typedef C_BYTE C_GATEWAY_ID[18];
 
+// type of cloud interface
+enum cloud_type {
+	notacloudtype = 0,
+	TYPEC_WIFI,
+	TYPEC_ETH,
+	TYPEC_MOBILE
+};
+
+// type of field interface
+enum field_type {
+	notafieldtype=0,
+	TYPEF_ETH=2,
+	TYPEF_RS485=5
+};
+
+// list of protocols
+enum list_protocols{
+	notaprotocol = 0,
+	LPR_MODBUS,
+	LPR_CAREL,
+	LPR_BACNET};
+
+#ifdef IS_A_WIFI_GATEWAY
+#define MACORIMEISIZE 	12
+#elif  IS_A_GSM_GATEWAY
+#define MACORIMEISIZE 	15
+#endif
 
 // temporarily put here to compile
 #define GW_TYPE "GME"

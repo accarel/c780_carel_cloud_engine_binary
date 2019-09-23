@@ -185,6 +185,16 @@ C_RES File_System_DefaultConfig_Load(void)
 	
 }
 
+C_UINT32 File_System_Config_Get_RS485_baudrate(void)
+{  /* TO BE implemented */
+	return 1;
+}
+
+C_UINT16 File_System_Config_Get_Device(void)
+{  /* TO BE implemented */
+	return 1;
+}
+
 /**
  * @brief File_System_Cert_Check
  *        Checks certificate validity
@@ -251,8 +261,8 @@ C_RES File_System_Model_Load(C_CHAR* name)
 }
 
 /**
- * @brief File_System_DefaultConfig_Load
- *        Loads default configuration to dedicated structure
+ * @brief File_System_DefaultModel_Load
+ *        Loads default model to dedicated structure
  * 
  * @param void
  * @return C_SUCCESS or C_FAIL
@@ -275,6 +285,13 @@ C_RES File_System_Model_Store(void)
 	return 1;      	
 	
 }
+
+C_RES File_System_Model_Get_Guid(C_BYTE* Guid)
+{  /* TO BE implemented */
+	
+	return 1;
+}
+
 
 
 

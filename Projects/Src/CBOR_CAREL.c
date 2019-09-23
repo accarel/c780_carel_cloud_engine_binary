@@ -9,7 +9,12 @@
  */
 #include "data_types_CAREL.h" 
 #include "CBOR_CAREL.h"
+#include "File_System_CAREL.h"
+#include "cbor.h"
+#include "Miscellaneous_IS.h"
 
+const char cannot_encode[]="cannot encode";
+const char cannot_add[]="cannot add";
    
 /* Exported types ------------------------------------------------------------*/ 
 
@@ -46,8 +51,9 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	CborEncoder encoder, mapEncoder, mapEncoder1, mapEncoder2, mapEncoder3;
 	size_t len;
 	int err;
+	C_GATEWAY_ID MacorImei;
 
-	cbor_encoder_init(&encoder, cbor_stream, 1000, 0);
+	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, 9);
 	DEBUG_ENC(err, "hello create main map");
@@ -87,12 +93,12 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	DEBUG_ENC(err, "create cloudinterfaces array/map");
 
 	// CIF map - elem1
-	err |= cbor_encode_text_stringz(&mapEncoder2, "TYP");
+	err |= cbor_encode_text_stringz(&mapEncoder2, "CTP");
 	DEBUG_ENC(err, "TYP");
 #ifdef IS_A_WIFI_GATEWAY
-	err |= cbor_encode_uint(&mapEncoder2, 1);
+	err |= cbor_encode_uint(&mapEncoder2, TYPEC_WIFI);
 #elif IS_A_GSM_GATEWAY
-	err |= cbor_encode_uint(&mapEncoder2, 3);
+	err |= cbor_encode_uint(&mapEncoder2, TYPEC_MOBILE);
 #endif
 	DEBUG_ADD(err, "cloudinterfaces, type");
 	// CIF map - elem2
@@ -113,7 +119,9 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	// CIF map - elem5
 	err |= cbor_encode_text_stringz(&mapEncoder2, "MAC");
 	DEBUG_ENC(err, "MAC");
-	err |= cbor_encode_text_stringz(&mapEncoder2, "D481D7B55A77");
+
+	Get_Gateway_ID((C_BYTE*)&MacorImei); 
+	err |= cbor_encode_byte_string(&mapEncoder2, MacorImei, MACORIMEISIZE);
 	DEBUG_ADD(err, "cloudinterfaces, mac address");
 	// CIF map - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder2, "OPM");
@@ -134,14 +142,14 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	DEBUG_ENC(err, "create fieldinterfaces array/map");
 
 	// FIF map, elem1
-	err |= cbor_encode_text_stringz(&mapEncoder2, "TYP");
+	err |= cbor_encode_text_stringz(&mapEncoder2, "FTP");
 	DEBUG_ENC(err, "TYP");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
+	err |= cbor_encode_uint(&mapEncoder2, TYPEF_RS485);
 	DEBUG_ADD(err, "fieldifaces, type");
 	// FIF map, elem2
 	err |= cbor_encode_text_stringz(&mapEncoder2, "BAU");
 	DEBUG_ENC(err, "BAU");
-	err |= cbor_encode_uint(&mapEncoder2, 9600);
+	err |= cbor_encode_uint(&mapEncoder2, File_System_Config_Get_RS485_baudrate());
 	DEBUG_ADD(err, "fieldifaces, baud");
 	// FIF map, elem3
 	err |= cbor_encode_text_stringz(&mapEncoder2, "PRO");
@@ -201,10 +209,9 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	// CAP map, elem6
 	cbor_encode_text_stringz(&mapEncoder2, "LPR");
 	DEBUG_ENC(err, "LPR");
-	err |= cbor_encoder_create_array(&mapEncoder2, &mapEncoder3, 2);
+	err |= cbor_encoder_create_array(&mapEncoder2, &mapEncoder3, 1);
 	DEBUG_ENC(err, "create capabilities protocols array/map");
-	cbor_encode_text_stringz(&mapEncoder3, "modbus");
-	cbor_encode_text_stringz(&mapEncoder3, "bacnet");
+	cbor_encode_uint(&mapEncoder3, LPR_MODBUS	);
 	cbor_encoder_close_container(&mapEncoder2, &mapEncoder3);
 
 	cbor_encoder_close_container(&mapEncoder1, &mapEncoder2);
@@ -223,11 +230,13 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	DEBUG_ADD(err, "modelGuids,line");
 	err |= cbor_encode_text_stringz(&mapEncoder2, "DEV");
 	DEBUG_ENC(err, "DEV");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
+	err |= cbor_encode_uint(&mapEncoder2, File_System_Config_Get_Device());
 	DEBUG_ADD(err, "modelGuids,dev");
 	err |= cbor_encode_text_stringz(&mapEncoder2, "GUI");
 	DEBUG_ENC(err, "GUI");
-	err |= cbor_encode_text_stringz(&mapEncoder2, "xxxxxxxxx");
+C_BYTE Guid[16];
+ File_System_Model_Get_Guid(Guid);
+	err |= cbor_encode_byte_string(&mapEncoder2, Guid, 16);
 	DEBUG_ADD(err, "modelGuids,guid");
 
 	cbor_encoder_close_container(&mapEncoder1, &mapEncoder2);
