@@ -32,9 +32,6 @@
 #define CMD_WRITE_VALUES		TODO
 #define CMD_READ_VALUES			TODO
 
-const char cannot_encode[]="cannot encode";
-const char cannot_add[]="cannot add";
-
 #define CAREL_DEBUG
 
 #ifdef CAREL_DEBUG
