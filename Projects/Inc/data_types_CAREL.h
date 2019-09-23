@@ -11,7 +11,7 @@
 
 /* ==== Include ==== */
 #include "data_types_IS.h"
-
+#include <stddef.h>
 
 #define  CAREL_TYPES_VERSION   100
 
@@ -45,6 +45,11 @@ extern CRC_TABLE_TYPE CRCTABLE[256];
 typedef C_BYTE C_GATEWAY_ID[18];
 
 
+// temporarily put here to compile
+#define GW_TYPE "GME"
+#define GW_PARTNUMBER "GTW000M2G0"
+#define GW_HW_REV  "100"
+#define GW_FW_REV  "100"
 
 /* ======================================================= */
 /*                 GENERAL PURPOSE DEFINE                  */
