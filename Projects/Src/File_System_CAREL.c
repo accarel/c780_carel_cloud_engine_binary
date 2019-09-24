@@ -148,7 +148,7 @@ C_RES FSC_file_checksum_check(C_CHAR *fname)
 
 /**
  * @brief File_System_Check_File
- *        Checks CRC of the file
+ *        Performs the action needed to validate a file
  * 
  * @param file name
  * @return C_SUCCESS or C_FAIL
@@ -185,11 +185,25 @@ C_RES File_System_DefaultConfig_Load(void)
 	
 }
 
+/**
+ * @brief File_System_Config_Get_RS485_baudrate
+ *        Gets RS485 baud rate from configuration file
+ * 
+ * @param void
+ * @return C_UINT32 contaning baud rate
+ */
 C_UINT32 File_System_Config_Get_RS485_baudrate(void)
 {  /* TO BE implemented */
 	return 1;
 }
 
+/**
+ * @brief File_System_Config_Get_Device
+ *        Gets RS485 slave device address from configuration file
+ * 
+ * @param void
+ * @return C_UINT16 contaning device address 
+ */
 C_UINT16 File_System_Config_Get_Device(void)
 {  /* TO BE implemented */
 	return 1;
@@ -286,13 +300,15 @@ C_RES File_System_Model_Store(void)
 	
 }
 
+/**
+ * @brief File_System_Model_Get_Guid
+ *        Gets guid from model file
+ * 
+ * @param void
+ * @return C_SUCCESS or C_FAIL
+ */
 C_RES File_System_Model_Get_Guid(C_BYTE* Guid)
 {  /* TO BE implemented */
 	
 	return 1;
 }
-
-
-
-
-
