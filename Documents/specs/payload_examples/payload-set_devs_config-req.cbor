@@ -1,14 +1,10 @@
 {                                                    //TAG TYPE
     // this is in addition to request header.              
+												       
+        "USR": "username",                          //USR C_USERNAME  string, the user to be used for authenticating.
+        "PWD": "secret",                            //PWD C_PASSWORD  string, the password to be used for authenticating.
 													       
-    "devs": [{                                             
-        "lineid": 1,                                 //LID C_UINT16    integer, the line id 
-        "dev": 1,                                    //DEV C_UINT16    integer, the device address
-													       
-        "user": "username",                          //USR C_USERNAME  string, the user to be used for authenticating.
-        "password": "secret",                        //PWD C_PASSWORD  string, the password to be used for authenticating.
-													       
-        "uri": "https://carel.TDB.COM/files?id=1"    //URI C_URI
-                                                     //    the uri from which retrieve the model for the specified device.
-     }]                                              //    array[object:devConf]
+        "URI": "https://carel.TDB.COM/files?id=1"   //URI C_URI
+                                                    //    the uri from which retrieve the model for the specified device.
+
 }

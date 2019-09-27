@@ -1,13 +1,10 @@
 {                                  //TAG TYPE
                                    //    this is the request header common to all response.
-									     
-    "lineid": 1,                   //LID C_UINT16     integer line identifier 
-    "server": "192.168.1.100",     //                 [optional only for modbus TCP]string, IP address
-    "port": "502",                 //                 [optional only for modbus TCP] IP port         
-    "sequence": 10                 //SEQ C_UINT16     integer, ADU identifier the same as request 
-    "val": "010300010001AABB"      //VAL C_BYTE[512]  string, Modbus response in hex format 
+
+    "SEQ": 10                      //SEQ C_UINT16     integer, ADU identifier the same as request 
+    "VAL": "010300010001AABB"      //VAL C_BYTE[512]  string, Modbus response in hex format 
                                    //                 null if res >=1  
-    "res":0                        //RES C_INT16      0:OK 1:pass through not enabled 2:no resp/timeout 
+    "RES":0                        //RES C_INT16      0:OK 1:pass through not enabled 2:no resp/timeout 
 									     
 }
 
