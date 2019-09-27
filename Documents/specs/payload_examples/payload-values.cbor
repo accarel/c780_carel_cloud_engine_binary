@@ -1,11 +1,17 @@
-{                                             //TAG TYPE
-	"ver": 100,                               //VER C_UINT16  
-	"st": 1555286400,                         //STT C_TIME   integer, unix time of starting sampling of these values
-	"et": 1555287000,                         //ENT C_TIME   integer, unix time of ending sampling of these values
-	"lineid": 1,                              //LID C_UINT16 integer, line id
-	"dev": 1,                                 //DEV C_UINT16 integer,  device id	
-	"t": 1555286400,                          //TIM C_TIME   integer, unit time of this slot
-												    
-	"1": 1.0,                                 //    C_UINT16 + C_FLOAT
-	"2": 2.5                                  //    C_UINT16 + C_FLOAT 
+{								// TAG 	TYPE
+	"VER": 100,					// VER 	C_UINT16  
+	"ST": 1555286400,			// ST  	C_TIME   unix time of starting sampling of these values
+	"ET": 1555287000,			// EN  	C_TIME   unix time of ending sampling of these values
+	"CNT": 0,					// CNT 	C_UINT16 counter from 0 to 4294967295 incremented at each generated payload 
+	"BTM": 1555286300,			// BTM	C_TIME   unit time of machine boot time (first NTP returned data)
+	"T": 1555286400,			// TIM 	C_TIME   unix time of the following values
+	"VLS": {					// VLS	map of values sampled at T
+		"1": "10",				// "alias": "value"
+		"2": null,				// value cannot be read (no modbus response or exception)
+		"3": "2.5"				// "alias": "value" 
+    },
+	"FRM": 1					// FRM	C_INT16 frame counter in a ST-ET interval, to allow message reconstruction when data is spread across different packets
+								//				FRM starts at 1, increases by 1 at each frame of the same ST-ET interval, 
+								//              last frame has FRM -n where n is total number of frames. 
+								//				FRM is -1 if whole message is composed by a single frame
 }
