@@ -6,57 +6,15 @@
 	"HWV": 201,								//HWV		C_UINT16	string, hexadecimal
 	"FWV": 312,								//FWV		C_UINT16	string, hexadecimal
 
-	"CIF": [{                               //CIF
-		"TYP": wifi,						//TYP		C_BYTE		0:NA 1:wifi 2:eth 3:mobile, 4: so on.. iface type
-		"CFG": 1,							//CFG    	C_BYTE		0:false, 1:true, whether the iface is configured or not, first time or after a factory reset will be false   TBC
-
-		"ID_": 1,							//ID_    	C_UINT16	integer, iface id as assigned by the gw, unique for the gw it self.
-		"NAM": "WIFI-1",					//NAM    	C_CHAR[16]	string, the iface name, initially assigned by the gw (example type + "-" + id => WIFI-1).
-		"MAC": D481D7B55A77,				//MAC		C_UCHAR[6]  [mandatory if type is wifi|eth] string, iface mac address
-        "MDE": 2							//OPM       C_BYTE      0: not valid 1:ap 2:client      TBC see status
-	},
-    {                                       //              
-		"TYP": 3,							//TYP		C_BYTE      0:NA 1:wifi 2:eth 3:mobile, 4: so on.. iface type 
-		"CFG": 1,							//CFG		C_BYTE      0:false, 1:true, 
-		"ID_": 2,							//ID_		C_UINT16    integer, iface id as assigned by the gw, 
-		"NAM": "SIM-1",						//NAM		C_CHAR[16]  arrary of char, the iface name, initially assigned by the gw
-		"IME": 301960018615360,				//IME		C_CHAR[16]  array of bytes  [mandatory if type is mobile] string, iface imei
-        "STY": 1							//STY		C_BYTE      0:NA 1:NA  2:2G 3:3G 4:4G 5:5G 6:4G_NBIOT  
-	}],										//                   	array[object:cloudiface], list of gw available cloud ifaces, macAddress and imei are available depending on iface type.
-
-	"FIF": [{								//FIF
-		"TYP": 1,							//TYP       C_BYTE      0:NA 1:RS485 2:ETH   
-		"BAU": 9600,						//BAU       C_UINT      ie. 4800/9600/19200/38400/115200 for serial baudrate, protocol 
-        "PRO": 1,							//PRO       C_UINT      protocol enum see document for ETH ip, protocol
-		"PID": 1,							//PID       C_UINT      integer, line id as assigned by the gw, unique for the gw it self, 
-											//                   	eg: GME always 1; eg GHE >= 1
-		"NAM": "RS485-1"					//NAM       C_CHAR[16]  string, iface name as assigned by the gw 
-											//                   	(eg type + "-" + id => RS485-1)
-	}],										//                   	array[object:fieldiface], 
-											//                   	list of gw available field ifaces.
-
-	"CAP": {								//CAP
-		"VCD": 1,							//VCD       C_BYTE      0: support only variable index , 1: support variable 
-											//                   	by technical code, 0 support only variable index.
-		"MQV": 1,							//MQV       C_BYTE[3]   0/0/0:NA  3/1/1="3.1.1"  x/y/z,
-		"LGV": -1,							//LGV       C_INT       integer, whether and how values logging is supported,
-											//                   	-1: unlimited days back, 0 unsupported, 
-											//                   	>= 1 number of days back. 
-		"LGA": -1,							//LGA       C_INT       integer, whether and how alarms logging is supported,
-											//                   	-1: unlimited days back, 0 unsupported, 
-											//                 	  >= 1 number of days back.
-		"LGF": [60, 300],					//LGF       C_UINT[2]   array[uinteger], expressed in seconds
+	"CFG": 1,								//CFG    	C_BYTE		0:false, 1:true, whether the iface is configured or not, first time or after a factory reset will be false   TBC
+	
+	"BAU": 9600,							//BAU       C_UINT      ie. 4800/9600/19200/38400/115200 for serial baudrate, protocol 
+    
+	"MQV": 1,								//MQV       C_BYTE[3]   0/0/0:NA  3/1/1="3.1.1"  x/y/z,
+	"LGF": [60, 300],						//LGF       C_UINT[2]   array[uinteger], expressed in seconds
 											//                   	ascending list of supported logging
 											//                  	 frequencies.
-		"LPR": ["modbus", "bacnet"],		//LPR       C_UINT[X]   0:NA 1:"modbus" 2:"CAREL" 3:"bacnet" array[C_UINT:enum]
-											//                  	list of supported protocols, 
-											//                 	  	NOTE: this list is not line related, so it is assumed
-											//                 		every line supports these protocols.            TBC
-	},                                                    
 
-	"MGU": [{								//MGU
-		"LIN": 1,							//LIN       C_BYTE  
-		"DEV": 1,							//DEV       C_UINT  
-		"GID": xxxxxxxxxx					//GID       C_BYTE[16]   byte array zeroed if model not present, retrieved from model file
-	}]
+	"GID": xxxxxxxxxx						//GID       C_BYTE[16]   byte array zeroed if model not present, retrieved from model file
+
 }
