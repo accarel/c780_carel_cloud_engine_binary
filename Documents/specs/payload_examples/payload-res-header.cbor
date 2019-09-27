@@ -1,22 +1,19 @@
 {                                                       //TAG TYPE
 	                                                    //    this is the response header common to all
                                                         //    requests.
-	"ver": 100,                                         //VER C_UINT16   
+	"VER": 100,                                         //VER C_UINT16   
 														      
-	"replyTo": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6", //RTO C_BYTE[32]   string, this is exactly what receviced in the
+	"RTO": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",     //RTO C_BYTE[32]   string, this is exactly what receviced in the
                                                         //                 request, the GW will publish the response to 
                                                         //                 the topic <uuid>/res/<replyTo>.
 														      
-	"cmd": 1,                                           //CMD C_UINT16     integer, the code of the command the GW 
+	"CMD": 1,                                           //CMD C_UINT16     integer, the code of the command the GW 
                                                         //                 must execute.
 														      
-    "res": 0,                                           //RES C_INT16      integer, the command execution result,
+    "RES": 0,                                           //RES C_INT16      integer, the command execution result,
                                                         //                 interpretation depends on command, 
                                                         //                 -1 is reserved for 'invalid command',
                                                         //                 usually 0 is OK and >= 1 is ERROR.
-                                                        //                 ^^^^^^ note the comma here, this is not a valid
-                                                        //                 JSON, it will be after adding the command 
-                                                        //                 specific information.      
-	                                                    //                 command specific information follows.
+
 														      
 }

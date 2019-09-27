@@ -1,11 +1,10 @@
 {
     // this is in addition to response header.
                                               //TAG TYPE 
-    "lineid": 1,                              //LIB C_UINT16 as specified in the request
-												    
-    "devs": [{                                      
-        "dev": 1,                             //DEV C_UINT16  
-        "ret": "ab1a23ff3c",                  //RET C_BYTE[512]  cmd17 response encoded in hex
-    }]                                        //                 in case of no address responds correctly to cmd17 the array will be empty
+    "LID": 1,                                 //LID C_UINT16 as specified in the request
+												                                     
+    "DEV": 1,                                 //DEV C_UINT16     null in case no response
+    "RET": xxxxxxxxx,                         //RET C_BYTE[512]  cmd17 response encoded in hex the array is zero filled
+                                              //                 in case of no address responds correctly to cmd17 the array will be empty
 												    
 }                                                   

@@ -1,11 +1,9 @@
 {                                  //TAG TYPE
                                    //    this is the request header common to all requests.
 									     
-    "lineid": 1,                   //LID C_UINT16       integer line identifier 
-    "server": "192.168.1.100",     //                   [optional only for modbus TCP]string, IP address
-    "port": "502",                 //                   [optional only for modbus TCP] IP port         
-    "sequence": 10                 //SEQ C_UINT16       integer, ADU identifier. Useful to detect wrong order in 
+    "LID": 1,                      //LID C_UINT16       integer line identifier       
+    "SEQ": 10                      //SEQ C_UINT16       integer, ADU identifier. Useful to detect wrong order in 
                                    //                   message de-queueing. GW must return as-is in the response.
-    "adu": "010300010001AABB"      //ADU C_BYTE[512]    string, Modbus request in hex format max. size id TBC.
+    "ADU": 010300010001AABB        //ADU C_BYTE[512]    string, Modbus request in hex format max. size id TBC.
         
 }

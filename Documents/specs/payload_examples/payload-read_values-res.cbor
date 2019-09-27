@@ -1,14 +1,8 @@
 {                                               //TAG TYPE 
-    // this is in addition to response header.
-  
-    "devs": [{
-        "lineid": 1,                            //LID C_UINT    
-        "dev": 1,                               //DEV C_UINT    
-  
-        "values": [{
-              "time": 1558616945,               //TIM C_TIME    [optional] time of the sample TBC
-              "alias": 33,                      //ALI C_UINT16  string, the alias specified in the request.
-              "val": 1.23,                      //VAL C_FLOAT   real, the value read as per request.NULL on error
-              "res": 0                          //RES C_INT16   read result, 0 ok, >= 1 error.
-        }]}]
+    // this is in addition to response header.    
+        
+		"VLS": {             
+              "33" : "1.23"                     //"alias" : "value" 
+              "RES": 0                          //RES C_INT16   read result, 0 ok, >= 1 error.
+        }
 }

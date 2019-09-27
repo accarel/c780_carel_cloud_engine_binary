@@ -1,5 +1,5 @@
 {                                             //TAG TYPE
-	"ver": 100,                               //VER C_UINT16   
+	"VER": 100,                               //VER C_UINT16   
 												    
 	"sims": [{                                      
 		"id": 2,                              //    C_UINT16   integer, it is the iface id as sent with the hello topic.
