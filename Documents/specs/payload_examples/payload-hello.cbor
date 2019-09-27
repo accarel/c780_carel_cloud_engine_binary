@@ -13,7 +13,7 @@
 	"LGF": [60, 300],						//LGF       C_UINT[2]   array[uinteger], expressed in seconds
 											//                   	ascending list of supported logging
 											//                  	 frequencies.
-
+	"DEV": 1,								//DEV       C_UINT  
 	"GID": xxxxxxxxxx						//GID       C_BYTE[16]   byte array zeroed if model not present, retrieved from model file
 
 }
