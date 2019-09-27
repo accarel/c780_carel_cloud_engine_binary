@@ -1,19 +1,12 @@
 {                                                          //TAG TYPE
                                                            //    this is in addition to request header.
 															     
-    "user": "username",                                    //USR C_USERNAME  string, the user to be used for authenticating.
-    "password": "secret",                                  //PWD C_PASSWORD  string, the password to be used for
+    "USR": "username",                                     //USR C_USERNAME  string, the user to be used for authenticating.
+    "PWD": "secret",                               		   //PWD C_PASSWORD  string, the password to be used for
                                                            //                authenticating.
 															     
-    "uri": "https://carel.TDB.COM/files?id=1",             //URI C_URI       the uri from which retrieve the FW
-															     
-															     
-															     
-    "chksumType": "sha256",                                //CHT string[enum]: sha256 | sha512, 
-                                                           //    checksum type computed on the FW
-															     
-    "chksum": "5d5b09f6dcb2d53a5fffc60c4ac0d55f",          //CHS 
-															     
-    "fileindex" : 10000,                                   //FID C_UINT16    the starting Modbus file index 	  
+    "URI": "https://carel.TDB.COM/files?id=1",             //URI C_URI       the uri from which retrieve the FW
+	
+    "FID" : 10000,                             		       //FID C_UINT16    the starting Modbus file index 	  
       
 }

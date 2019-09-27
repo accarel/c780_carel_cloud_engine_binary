@@ -1,9 +1,9 @@
 {
     // this is in addition to request header.
                                                   //TAG TYPE 
-    "user": "username",                           //USR C_USERNAME  string, the user to be used for authenticating.
-    "password": "secret",                         //PWD C_PASSWORD  string, the password to be used for authenticating.
+    "USR": "username",                            //USR C_USERNAME  string, the user to be used for authenticating.
+    "PWD": "secret",                  		      //PWD C_PASSWORD  string, the password to be used for authenticating.
         
-    "uri": "https://carel.TDB.COM/files?id=1", 
+    "URI": "https://carel.TDB.COM/files?id=1", 
 	                                              //URI C_URI  the uri from which retrieve the CA certificates.
 }

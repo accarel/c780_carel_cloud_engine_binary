@@ -1,9 +1,5 @@
 {                                         //TAG TYPE
                                           //    this is in addition to response header.
-											    
-    "lineid": [{                                
-        "id": 1,                          //LID C_UINT16 integer, the line id as specified by the GW with hello message.
-		"res": 1                          //RES C_INT16  integer, configuration result, 0 ok, >= 1 failure.
-    }]                                         
+    "RES": 1                          //RES C_INT16  integer, configuration result, 0 ok, >= 1 failure.
 
 }
