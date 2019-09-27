@@ -13,5 +13,4 @@
 	"FRM": 1					// FRM	C_INT16 frame counter in a ST-ET interval, to allow message reconstruction when data is spread across different packets
 								//				FRM starts at 1, increases by 1 at each frame of the same ST-ET interval, 
 								//              last frame has FRM -n where n is total number of frames. 
-								//				FRM is -1 if whole message is composed by a single frame
 }
