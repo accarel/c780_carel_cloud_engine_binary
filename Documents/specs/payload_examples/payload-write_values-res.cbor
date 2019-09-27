@@ -2,11 +2,9 @@
     // this is in addition to response header.
                                                  //TAG TYPE 
 
-        "lineid": 1,                             //LID C_UINT16   
-        "dev": 1,                                //DEV C_UINT16    
-  
-        "values": [{
-              "alias": 33,                       //ALI C_UINT16 string, the alias specified in the request.
-              "res": 0                           //RES C_INT16  integer, read result, 0 ok, >= 1 error.
+        "VLS": {
+              "33": null,                        //"alias":null
+              "RES": 0                           //RES C_INT16  integer, read result, 0 ok, >= 1 error.
+			  }
    
 }

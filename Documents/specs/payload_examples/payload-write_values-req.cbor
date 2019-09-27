@@ -1,24 +1,22 @@
 {
     // this is in addition to request header.
- 
-        
                                                                 // GME in addition to the alias that 
                                                                 // will be used in the response need to
                                                                 // receive the full parameters for 
                                                                 // addressing the variable.
 																
 																//TAG TYPE
-            "alias": 34,                                        //ALI C_UINT16 string.
-            "val": 1.23,                                        //VAL C_FLOAT  number, values to be written
+            "ALI": "34",                                        //ALI C_UINT16     string.
+            "VAL": "1.23",                                      //"alias" : "value" 
 
-            "func": 1,                                          //FUN C_BYTE   integer, ModBus (write) function
-            "addr": 2,                                          //ADR C_BYTE   integer, ModBus address (out)
-            "dim": 16,                                          //DIM C_BYTE   integer, bits
-            "pos": 1,                                           //POS C_BYTE   integer, 0 based
-            "len": 16,                                          //LEN C_BYTE   integer
-            "a": 1.0,                                           //L_A C_FLOAT  real, (val / a) - b
-            "b": 0,                                             //L_B C_FLOAT  real, (val / a) - b
-            "flags": 0,	                                        //FLG C_BYTE   0=is FIXEDPOINT bit 1 = NA bit 2 = is IEEE
+            "FUN": 1,                                           //FUN C_BYTE   integer, ModBus (write) function
+            "ADR": 2,                                           //ADR C_BYTE   integer, ModBus address (out)
+            "DIM": 16,                                          //DIM C_BYTE   integer, bits
+            "POS": 1,                                           //POS C_BYTE   integer, 0 based
+            "LEN": 16,                                          //LEN C_BYTE   integer
+            "A": "1.0",                                         //L_A C_FLOAT  real, (val / a) - b
+            "B": "0",                                           //L_B C_FLOAT  real, (val / a) - b
+            "FLG": 0,	                                        //FLG C_BYTE   0=is FIXEDPOINT bit 1 = NA bit 2 = is IEEE
                                                                 //             bit 3 = NA bit 4 = NA bit 5 = NA 
                                                                 //             bit 6 = is signed bit 7 = is Big Endian                                             
 																

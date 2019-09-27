@@ -12,8 +12,8 @@
             "DIM": 16,                              //DIM C_BYTE integer, bits (valid numbers 16 o 32)
             "POS": 1,                               //POS C_BYTE integer, 0 based
             "LEN": 4,                               //LEN C_BYTE integer
-            "A": 1,                                 //L_A C_FLOAT  real, val * A + b
-            "B": 0,                                 //L_B C_FLOAT  real, val * a + B
+            "A": "1.0",                             //A   C_FLOAT  real, val * A + b
+            "B": "0",                               //B   C_FLOAT  real, val * a + B
 													      
 													      
             "FLG", 0,	                            //FLG C_BYTE   
