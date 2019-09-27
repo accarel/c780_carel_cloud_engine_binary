@@ -1,7 +1,6 @@
 											//TAG		TYPE    
 {
 	"VER": 100,								//VER		C_UINT16,	payload version, hexadecimal.
-	"MDL": "GME",							//MDL		C_CHAR[4]	string[enum]: GME|GHE|BCU, model type.
 	"PN_": "123-456-abc-xyz",				//PN_		C_CHAR[16]	string, model part number
 	"HWV": 201,								//HWV		C_UINT16	string, hexadecimal
 	"FWV": 312,								//FWV		C_UINT16	string, hexadecimal
