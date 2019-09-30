@@ -5,14 +5,14 @@
 
 	"IME": "990000862471854",            	//IME C_BYTE[]   imei of device
 	"IMS": "310150123456789",           	//IMS C_BYTE[]   [optional] string, international mobile subscriber  
-                                              //               identity (http://bit.ly/2VIehax).
+                                            //               identity (http://bit.ly/2VIehax).
 	"MCC": "222",                         	//MCC C_BYTE[3]  [optional] string, 
-                                              //               mobile country code (http://bit.ly/2VCOfVP).
+                                            //               mobile country code (http://bit.ly/2VCOfVP).
 	"MNC": "88",                          	//MNC C_BYTE[3]  [optional] string, mobile 
-                                              //               network codes (http://bit.ly/2VCOfVP).
+                                            //               network codes (http://bit.ly/2VCOfVP).
 	"LAC": "12345",                       	//LAC C_BYTE[16] [optional] string, location area 
-                                              //               code (http://bit.ly/2VFXnZR).
+                                            //               code (http://bit.ly/2VFXnZR).
 	"CID": "54321",                       	//CID C_BYTE[16] [optional]  string, cell id (http://bit.ly/2Vz9Xu1).
 	"UCI": "134217727"		               	//UCI C_BYTE[16] [optional] string, a sort of cell id for 
-                                              //               UMTS (http://bit.ly/2Vz9Xu1).
+                                            //               UMTS (http://bit.ly/2Vz9Xu1).
 }

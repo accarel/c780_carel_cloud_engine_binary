@@ -3,12 +3,12 @@
 													    
 	"T": 1557845997,          	                  //UTC C_TIME     integer, gw unix epoch
 													    
-	"UPT": 86400,                                 //UPT C_INT32   corresponds to T-BTM, seconds since power on
+	"UPT": 86400,                                 //UPT C_INT32    corresponds to T-BTM, seconds since power on
 													    
 	"FME": 4194304,                        		  //FME C_UINT32   integer, free memory in bytes
 													    
     "EST": 1,      			                      //EST C_BYTE     integer, 0: not valid, 1: running, 2: stopped.
 	
-	"SGN": -47,                        		      //SGN C_INT16     real, dBm 
+	"SGN": -47,                          	      //SGN C_INT16    dBm 
 
 }                                                       
