@@ -8,6 +8,10 @@
                                      //                <statusPeriod> seconds, UI: N/A.
 									       
     "MKA": 60,				    	 //MKA C_UINT16    integer, seconds, the mqtt keep alive interval.
+	
+	"LSS":600,                       //LSS C_UINT16    low speed sampling value in seconds
+    
+    "HSS":300,                       //HSS C_UINT16    high speed sampling value in seconds
 ​                                           
 }                                          
 ​
