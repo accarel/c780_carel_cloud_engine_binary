@@ -3,7 +3,7 @@
                                                         //    requests.
 	"VER": 100,                                         //VER C_UINT16   
 														      
-	"RTO": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",     //RTO C_BYTE[32]   string, this is exactly what receviced in the
+	"RTO": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",     //RTO C_BYTE[32]   string zero terminated, this is exactly what receviced in the
                                                         //                 request, the GW will publish the response to 
                                                         //                 the topic <uuid>/res/<replyTo>.
 														      

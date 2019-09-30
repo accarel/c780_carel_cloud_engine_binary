@@ -1,6 +1,6 @@
 {
     // this is in addition to request header.
 	                                       //TAG TYPE 
-        "BAU": 9600                       //BAU C_UINT16   4800/9600/19200/38400/56800/115200
+        "BAU": 9600                        //BAU C_UINT16   4800/9600/19200/38400/56800/115200
 											     
 }
