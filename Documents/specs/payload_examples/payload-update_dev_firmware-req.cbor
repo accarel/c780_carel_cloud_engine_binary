@@ -5,6 +5,7 @@
     "PWD": "secret",                            	 //PWD C_PASSWORD string, the password to be used for authenticating.
 													       
     "URI": "https://carel.TDB.COM/files?id=1",       //URI C_URI      the uri from which retrieve the DEVFW
+	                                                 //               This is a string of max. 64 char 
 													       
     "FID": 5000,                               		 //FID C_UINT16   integer, 0..9999 file index, valid only for modbus file transf.
 													       

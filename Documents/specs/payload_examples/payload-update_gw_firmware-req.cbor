@@ -6,6 +6,7 @@
                                                            //                authenticating.
 															     
     "URI": "https://carel.TDB.COM/files?id=1",             //URI C_URI       the uri from which retrieve the FW
+	                                                       //                This is a string of max. 64 char 
 	
     "FID" : 10000,                             		       //FID C_UINT16    the starting Modbus file index 	  
       
