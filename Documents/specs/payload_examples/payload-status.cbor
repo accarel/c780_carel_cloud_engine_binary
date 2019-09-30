@@ -7,7 +7,7 @@
 													    
 	"FME": 4194304,                        		  //FME C_UINT32   integer, free memory in bytes
 													    
-    "EST": 1,      			                      //EST C_BYTE     integer, 0: not valid, 1: running, 2: stopped.
+    "EST": 1,      			                      //EST C_BYTE     integer, 0: not valid, 1: polling engine running, 2: polling engine stopped.
 	
 	"SGN": -47,                          	      //SGN C_INT16    dBm 
 

@@ -1,10 +1,9 @@
 {
     // this is in addition to response header.
-                                                 //TAG TYPE 
+                                    //TAG TYPE 
 
-        "VLS": {
-              "33": null,                        //"alias":null
-              "RES": 0                           //RES C_INT16  integer, read result, 0 ok, >= 1 error.
-			  }
-   
+    "VLS": {
+        "33": null,                 //"alias":null
+	}
+    "RES": 0                        //RES C_INT16  integer, read result, 0 ok, >= 1 error.   
 }

@@ -2,10 +2,10 @@
                                      //    all these fiels are optional, the gw will configure 
                                      //    only what specified.
     "PVA": 600,         			 //PVA C_UINT16    integer, seconds, the values message will published every
-                                     //                <valuesPeriod> seconds, UI: N/A.
+                                     //                PVA seconds, UI: N/A.
 									       
     "PST": 300,			             //PST C_UINT16    integer, seconds, the status message will published every
-                                     //                <statusPeriod> seconds, UI: N/A.
+                                     //                PST seconds, UI: N/A.
 									       
     "MKA": 60,				    	 //MKA C_UINT16    integer, seconds, the mqtt keep alive interval.
 	

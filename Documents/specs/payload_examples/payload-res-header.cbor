@@ -5,7 +5,7 @@
 														      
 	"RTO": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",     //RTO C_BYTE[32]   string zero terminated, this is exactly what receviced in the
                                                         //                 request, the GW will publish the response to 
-                                                        //                 the topic <uuid>/res/<replyTo>.
+                                                        //                 the topic <uuid>/res/<RTO>.
 														      
 	"CMD": 1,                                           //CMD C_UINT16     integer, the code of the command the GW 
                                                         //                 must execute.

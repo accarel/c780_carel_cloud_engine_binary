@@ -3,9 +3,9 @@
 										      										      
   "ATY": 1,                             //ATY C_BYTE            0: not valid, 1: variabile, 2: device.
 										      
-  "ALI": 33,                            //ALI C_UINT16          0 if type is not variable.
+  "ALI": 33,                            //ALI C_UINT16          0 if type is not variable, alias
   "ACO": 0,                             //ACO C_BYTE            0: not valid, >= 1: see Device Alarms Table, 
-                                        //                      0 if type is not device.
+                                        //                      0 if type is not device, alarm code
 										      
   "ST": 1549381647,                     //ST  C_INT32           unix time, instant at which alarm started, 
                                         //                      always set, ie set in case alarm start and in case alarm end.

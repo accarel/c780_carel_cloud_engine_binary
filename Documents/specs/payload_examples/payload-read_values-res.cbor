@@ -5,5 +5,5 @@
               "33" : "1.23"                     //"alias" : "value"              
         }
 		
-		 "RES": 0                               //RES C_INT16   read result, 0 ok, >= 1 error.
+		"RES": 0                                //RES C_INT16   read result, 0 ok, >= 1 error.
 }
