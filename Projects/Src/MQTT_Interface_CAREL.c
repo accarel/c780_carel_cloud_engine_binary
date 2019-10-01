@@ -1,5 +1,5 @@
 /**
- * @file   MQTT_Interface_IS.c
+ * @file   MQTT_Interface_CAREL.c
  * @author carel
  * @date 9 Sep 2019
  * @brief  functions implementations specific related to the managment of the
@@ -11,7 +11,9 @@
  */
 
 /* Includes ------------------------------------------------------------------*/
-#include "MQTT_Interface_IS.h"   
+#include <string.h>
+#include "MQTT_Interface_CAREL.h"   
+#include "File_System_CAREL.h"
 
 
 /**
@@ -24,13 +26,13 @@ C_BYTE mqtt_engine_status = MQTT_IS_NOT_CONNECTED;
  * @brief broker_uri contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
  */  
-C_URI broker_uri;
+//C_URI broker_uri;
 
 /**
  * @brief broker_port contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
  */  
-C_UINT broker_port;
+//C_UINT16 broker_port;
 
 
 
@@ -58,21 +60,18 @@ C_RES mqtt_subscribe_to_default_topics(void)
 
   /* /req topic is the topic that receive the command from the cloud */    
   topic[0]=0x00;
-  strcpy(topic,dev_id); 
-  strcat(topic, "/req");  
+  strcpy((char*)topic,(char*)dev_id); 
+  strcat((char*)topic, "/req");  
   resval = mqtt_client_subscribe(&topic[0], 0);
-  
   
   /* after the subscribing we communicate that we are connected */
   topic[0]=0x00;
-  strcpy(topic,dev_id); 
-  strcat(topic, "/connected");
-  mqtt_client_publish(&topic[0], "1", 1, 1, 1);
- 	
-  return C_SUCCESS;	
+  strcpy((char*)topic,(char*)dev_id); 
+  strcat((char*)topic, "/connected");
+  mqtt_client_publish(&topic[0], (C_BYTE*)"1", 1, 1, 1);
+
+  return C_SUCCESS;
 }	
-
-
 
 
 
