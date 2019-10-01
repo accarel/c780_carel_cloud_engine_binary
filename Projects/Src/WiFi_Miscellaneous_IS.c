@@ -11,13 +11,3 @@
 
  
 
-
-void Get_Gateway_ID(C_BYTE *s_id)
-{ /* TO BE implemented */
-  
-  /* this function return the MAC address of the WiFi module*/
-  	
-	
-}
-
-

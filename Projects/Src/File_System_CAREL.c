@@ -353,7 +353,7 @@ C_RES Get_RS485_Parity(C_BYTE* rs485_parity)
  * @brief Get_MQTT_broker
  *        Gets MQTT broker URI
  * 
- * @param C_BYTE* contaning the mqtt broker
+ * @param C_URI* contaning the mqtt broker
  * @return C_SUCCESS or C_FAIL
  */
 C_RES Get_MQTT_broker(C_URI* mqtt_broker)
@@ -372,4 +372,61 @@ C_RES Get_MQTT_Port(C_UINT16* mqtt_port)
 {  /* TO BE implemented */
 	return 1;
 }
+
+/**
+ * @brief Get_Gateway_ID
+ *        Gets MAC address of the WiFi device or IMEI of the 2G module
+ * 
+ * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_Gateway_ID(C_BYTE *s_id)
+{ /* TO BE implemented */
+
+#if (NETWORK_INTERFACE == WIFI_INTERFACE)
+  /* this function returns the MAC address of the WiFi appliance */
+
+#elif (NETWORK_INTERFACE == GSM_INTERFACE)
+  /* this function returns the IMEI of the GSM module*/
+
+#endif
+	return 1;
+}
+
+/**
+ * @brief Get_DNS
+ *        Gets DNS server address
+ * 
+ * @param C_IPV4* contaning the address of the DNS server
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_DNS(C_IPV4* dns_address)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_NTP_server
+ *        Gets NTP server name
+ * 
+ * @param C_URI* contaning the URI of the NTP server
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_NTP_server(C_URI* ntp_server)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_NTP_port
+ *        Gets NTP port
+ * 
+ * @param C_UINT16* contaning the port to be used with the NTP server
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_NTP_port(C_UINT16* ntp_port)
+{  /* TO BE implemented */
+	return 1;
+}
+
 

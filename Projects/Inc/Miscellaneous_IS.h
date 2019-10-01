@@ -38,10 +38,6 @@ void GSM_Misc_SMS_Config_Received(void);
 void GSM_Misc_Get_Communication_Status(void);
 #endif
 
-
-void Get_Gateway_ID(C_BYTE *s_id);
-
-
 #ifdef __cplusplus
 }
 #endif
