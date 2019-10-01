@@ -51,4 +51,15 @@ void GSM_Misc_Get_Communication_Status(void)
 	
 }
 
+/**
+ * @brief GSM_Init
+ *        Initializes GSM connection
+ *        
+ * @param param C_CHAR* apn
+ * @return none
+ */
+void GSM_Init(C_CHAR* apn)
+{ /* TO BE implemented */
 
+	
+}

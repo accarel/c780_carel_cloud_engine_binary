@@ -9,5 +9,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "Miscellaneous_IS.h"   
 
- 
+/**
+ * @brief WiFi_Init
+ *        Initializes WiFi connection
+ *        
+ * @param ????
+ * @return none
+ */
+void WiFi_Init()
+{ /* TO BE implemented */
 
+	
+}

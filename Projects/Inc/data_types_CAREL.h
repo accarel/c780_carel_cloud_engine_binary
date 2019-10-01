@@ -70,7 +70,8 @@ enum list_protocols{
 
 #ifdef IS_A_WIFI_GATEWAY
 #define MACORIMEISIZE 	12
-#elif  IS_A_GSM_GATEWAY
+#endif
+#ifdef  IS_A_GSM_GATEWAY
 #define MACORIMEISIZE 	15
 #endif
 

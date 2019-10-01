@@ -2,8 +2,7 @@
  * @file GSM_Miscellanous_IS.h
  * @author carel
  * @date 9 Sep 2019
- * @brief   functions implementations specific related to the managment of 
- *          real time clock.
+ * @brief   functions implementations specific related to the management of GSM
  */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
@@ -34,7 +33,7 @@ void GSM_Misc_Get_Communication_Status(void);
 
 void GSM_Misc_Get_Gateway_ID(C_BYTE *s_id);
 
-
+void GSM_Init(C_CHAR* apn);
 #ifdef __cplusplus
 }
 #endif

@@ -105,6 +105,7 @@ C_RES Get_Gateway_ID(C_BYTE *s_id);
 C_RES Get_DNS(C_IPV4* dns_address);
 C_RES Get_NTP_server(C_URI* ntp_server);
 C_RES Get_NTP_port(C_UINT16* ntp_port);
+C_RES Get_GSM_APN(C_CHAR* apn);
 #ifdef __cplusplus
 }
 #endif

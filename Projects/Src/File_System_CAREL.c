@@ -429,4 +429,16 @@ C_RES Get_NTP_port(C_UINT16* ntp_port)
 	return 1;
 }
 
+/**
+ * @brief Get_GSM_APN
+ *        Gets APN for GSM connection
+ * 
+ * @param C_CHAR* contaning the apn to be used for GSM connection
+ * @return C_SUCCESS or C_FAIL
+ */
+
+C_RES Get_GSM_APN(C_CHAR* apn)
+{  /* TO BE implemented */
+	return 1;
+}
 
