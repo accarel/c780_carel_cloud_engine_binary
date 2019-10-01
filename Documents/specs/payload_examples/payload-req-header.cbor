@@ -3,7 +3,7 @@
 														      
 	"VER": 100,											//VER C_UINT16				
 														      
-	"RTO": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",     //RTO C_BYTE[32]  string zero terminated the GW will publish 
+	"RTO": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",     //RTO C_RTO 48 char string zero terminated the GW will publish 
 	                                                    //                the response to the
                                                         //                topic <uuid>/res/<RTO>.
 														      
