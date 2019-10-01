@@ -48,199 +48,78 @@ void CBOR_Alarms(C_UINT16 alias, C_TIME tstart, C_TIME tstop, C_BYTE alarm_issue
 
 size_t CBOR_Hello(C_CHAR* cbor_stream)
 {
-	CborEncoder encoder, mapEncoder, mapEncoder1, mapEncoder2, mapEncoder3;
+	CborEncoder encoder, mapEncoder, mapEncoder1;
 	size_t len;
 	int err;
-	C_GATEWAY_ID MacorImei;
 
 	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
-	err = cbor_encoder_create_map(&encoder, &mapEncoder, 9);
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "hello create main map");
-	// encode VER - elem1, map1
+	// encode VER - elem1
 	err |= cbor_encode_text_stringz(&mapEncoder, "VER");
 	DEBUG_ENC(err, "VER");
 	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
 	DEBUG_ADD(err, "version");
 
-	// encode MOD - elem2, map1
-	err |= cbor_encode_text_stringz(&mapEncoder, "MDL");
-	DEBUG_ENC(err, "MDL");
-	err |= cbor_encode_text_stringz(&mapEncoder, GW_TYPE);
-	DEBUG_ADD(err, "model");
-	// encode PN_ - elem3, map1
+	// encode PN_ - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "PN_");
 	DEBUG_ENC(err, "PN_");
 	err |= cbor_encode_text_stringz(&mapEncoder, GW_PARTNUMBER);
 	DEBUG_ADD(err, "part number");
-	// encode HWV - elem4, map1
+
+	// encode HWV - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "HWV");
 	DEBUG_ENC(err, "HWV");
 	err |= cbor_encode_uint(&mapEncoder, atoi(GW_HW_REV));
 	DEBUG_ADD(err, "hw version");
-	// encode FWV - elem5, map1
+
+	// encode FWV - elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "FWV");
 	DEBUG_ENC(err, "FWV");
 	err |= cbor_encode_uint(&mapEncoder, atoi(GW_FW_REV));
 	DEBUG_ADD(err, "fw version");
-	// encode CIF - elem6, map1
-	err |= cbor_encode_text_stringz(&mapEncoder, "CIF");
-	DEBUG_ENC(err, "CIF");
-	// CIF array
-	err |= cbor_encoder_create_array(&mapEncoder, &mapEncoder1, 1);
-	// CIF map
-	err |= cbor_encoder_create_map(&mapEncoder1, &mapEncoder2, 6);
-	DEBUG_ENC(err, "create cloudinterfaces array/map");
 
-	// CIF map - elem1
-	err |= cbor_encode_text_stringz(&mapEncoder2, "CTP");
-	DEBUG_ENC(err, "TYP");
-#ifdef IS_A_WIFI_GATEWAY
-	err |= cbor_encode_uint(&mapEncoder2, TYPEC_WIFI);
-#elif IS_A_GSM_GATEWAY
-	err |= cbor_encode_uint(&mapEncoder2, TYPEC_MOBILE);
-#endif
-	DEBUG_ADD(err, "cloudinterfaces, type");
-	// CIF map - elem2
-	err |= cbor_encode_text_stringz(&mapEncoder2, "CFG");
+	// encode CFG - elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "CFG");
 	DEBUG_ENC(err, "CFG");
-	err |= cbor_encode_uint(&mapEncoder2, 1);			//CONFIGURED?
-	DEBUG_ADD(err, "cloudinterfaces, configured");
-	// CIF map - elem3
-	err |= cbor_encode_text_stringz(&mapEncoder2, "ID_");
-	DEBUG_ENC(err, "ID_");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
-	DEBUG_ADD(err, "cloudinterfaces, id");
-	// CIF map - elem4
-	err |= cbor_encode_text_stringz(&mapEncoder2, "NAM");
-	DEBUG_ENC(err, "NAM");
-	err |= cbor_encode_text_stringz(&mapEncoder2, "WIFI-1");
-	DEBUG_ADD(err, "cloudinterfaces, name");
-	// CIF map - elem5
-	err |= cbor_encode_text_stringz(&mapEncoder2, "MAC");
-	DEBUG_ENC(err, "MAC");
+	err |= cbor_encode_uint(&mapEncoder, 1);			//CONFIGURED?
+	DEBUG_ADD(err, "configured");
 
-	Get_Gateway_ID((C_BYTE*)&MacorImei); 
-	err |= cbor_encode_byte_string(&mapEncoder2, MacorImei, MACORIMEISIZE);
-	DEBUG_ADD(err, "cloudinterfaces, mac address");
-	// CIF map - elem6
-	err |= cbor_encode_text_stringz(&mapEncoder2, "OPM");
-	DEBUG_ENC(err, "OPM");
-	err |= cbor_encode_uint(&mapEncoder2, 2);
-	DEBUG_ADD(err, "cloudinterfaces, operating mode");
-
-	cbor_encoder_close_container(&mapEncoder1, &mapEncoder2);
-	cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
-
-	// encode FIF - elem7, map1
-	err |= cbor_encode_text_stringz(&mapEncoder, "FIF");
-	DEBUG_ENC(err, "FIF");
-	// FIF array
-	err |= cbor_encoder_create_array(&mapEncoder, &mapEncoder1, 1);
-	// FIF map
-	err |= cbor_encoder_create_map(&mapEncoder1, &mapEncoder2, 5);
-	DEBUG_ENC(err, "create fieldinterfaces array/map");
-
-	// FIF map, elem1
-	err |= cbor_encode_text_stringz(&mapEncoder2, "FTP");
-	DEBUG_ENC(err, "TYP");
-	err |= cbor_encode_uint(&mapEncoder2, TYPEF_RS485);
-	DEBUG_ADD(err, "fieldifaces, type");
-	// FIF map, elem2
-	err |= cbor_encode_text_stringz(&mapEncoder2, "BAU");
+	// encode BAU - elem6
+	err |= cbor_encode_text_stringz(&mapEncoder, "BAU");
 	DEBUG_ENC(err, "BAU");
-	err |= cbor_encode_uint(&mapEncoder2, File_System_Config_Get_RS485_baudrate());
-	DEBUG_ADD(err, "fieldifaces, baud");
-	// FIF map, elem3
-	err |= cbor_encode_text_stringz(&mapEncoder2, "PRO");
-	DEBUG_ENC(err, "PRO");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
-	DEBUG_ADD(err, "fieldifaces, protocol");
-	// FIF map, elem4
-	err |= cbor_encode_text_stringz(&mapEncoder2, "PID");
-	DEBUG_ENC(err, "PID");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
-	DEBUG_ADD(err, "fieldifaces, portid");
-	// FIF map, elem5
-	err |= cbor_encode_text_stringz(&mapEncoder2, "NAM");
-	DEBUG_ENC(err, "NAM");
-	err |= cbor_encode_text_stringz(&mapEncoder2, "RS485-1");
-	DEBUG_ADD(err, "fieldifaces, name");
-	cbor_encoder_close_container(&mapEncoder1, &mapEncoder2);
-	cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
+	err |= cbor_encode_uint(&mapEncoder, Get_RS485_baudrate());
+	DEBUG_ADD(err, "baud rate");
 
-	// encode CAP - elem8, map1
-	cbor_encode_text_stringz(&mapEncoder, "CAP");
-	DEBUG_ENC(err, "CAP");
-	// CAP array
-	err |= cbor_encoder_create_array(&mapEncoder, &mapEncoder1, 1);
-	// CAP map
-	err |= cbor_encoder_create_map(&mapEncoder1, &mapEncoder2, 6);
-	DEBUG_ENC(err, "create capabilities array/map");
-
-	// CAP map, elem1
-	err |= cbor_encode_text_stringz(&mapEncoder2, "VCD");
-	DEBUG_ENC(err, "VCD");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
-	DEBUG_ADD(err, "capabilities, variablecode");
-	// CAP map, elem2
-	err |= cbor_encode_text_stringz(&mapEncoder2, "MQV");
+	// encode MQV - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "MQV");
 	DEBUG_ENC(err, "MQV");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
+	err |= cbor_encode_uint(&mapEncoder, 1);
 	DEBUG_ADD(err, "capabilities, mqttversion");
-	// CAP map, elem3
-	err |= cbor_encode_text_stringz(&mapEncoder2, "LGV");
-	DEBUG_ENC(err, "LGV");
-	err |= cbor_encode_int(&mapEncoder2, -1);
-	DEBUG_ADD(err, "capabilities, logvalues");
-	// CAP map, elem4
-	err |= cbor_encode_text_stringz(&mapEncoder2, "LGA");
-	DEBUG_ENC(err, "LGA");
-	err |= cbor_encode_int(&mapEncoder2, -1);
-	DEBUG_ADD(err, "capabilities, logalarms");
-	// CAP map, elem5
-	err |= cbor_encode_text_stringz(&mapEncoder2, "LGF");
+
+	// encode LGF - elem8
+	err |= cbor_encode_text_stringz(&mapEncoder, "LGF");
 	DEBUG_ENC(err, "capabilities, LGF");
-	err |= cbor_encoder_create_array(&mapEncoder2, &mapEncoder3, 2);
+	err |= cbor_encoder_create_array(&mapEncoder, &mapEncoder1, 2);
 	DEBUG_ENC(err, "create capabilities logfrequency array/map");
-	cbor_encode_uint(&mapEncoder3, 60);
-	cbor_encode_uint(&mapEncoder3, 300);
-	cbor_encoder_close_container(&mapEncoder2, &mapEncoder3);
-	// CAP map, elem6
-	cbor_encode_text_stringz(&mapEncoder2, "LPR");
-	DEBUG_ENC(err, "LPR");
-	err |= cbor_encoder_create_array(&mapEncoder2, &mapEncoder3, 1);
-	DEBUG_ENC(err, "create capabilities protocols array/map");
-	cbor_encode_uint(&mapEncoder3, LPR_MODBUS	);
-	cbor_encoder_close_container(&mapEncoder2, &mapEncoder3);
-
-	cbor_encoder_close_container(&mapEncoder1, &mapEncoder2);
+	cbor_encode_uint(&mapEncoder1, 60);
+	cbor_encode_uint(&mapEncoder1, 300);
 	cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
 
-	//encode GUI - elem9, map1
-	err |= cbor_encode_text_stringz(&mapEncoder, "GUI");
-	DEBUG_ENC(err, "GUI");
-	err |= cbor_encoder_create_array(&mapEncoder, &mapEncoder1, 1);
-	err |= cbor_encoder_create_map(&mapEncoder1, &mapEncoder2, 3);
-	DEBUG_ENC(err, "create modelguid array/map");
-
-	err |= cbor_encode_text_stringz(&mapEncoder2, "LIN");
-	DEBUG_ENC(err, "LIN");
-	err |= cbor_encode_uint(&mapEncoder2, 1);
-	DEBUG_ADD(err, "modelGuids,line");
-	err |= cbor_encode_text_stringz(&mapEncoder2, "DEV");
+	// encode DEV - elem9
+	err |= cbor_encode_text_stringz(&mapEncoder, "DEV");
 	DEBUG_ENC(err, "DEV");
-	err |= cbor_encode_uint(&mapEncoder2, File_System_Config_Get_Device());
-	DEBUG_ADD(err, "modelGuids,dev");
-	err |= cbor_encode_text_stringz(&mapEncoder2, "GUI");
-	DEBUG_ENC(err, "GUI");
-C_BYTE Guid[16];
- File_System_Model_Get_Guid(Guid);
-	err |= cbor_encode_byte_string(&mapEncoder2, Guid, 16);
-	DEBUG_ADD(err, "modelGuids,guid");
+	err |= cbor_encode_uint(&mapEncoder, Get_Device_Address());
+	DEBUG_ADD(err, "dev");
 
-	cbor_encoder_close_container(&mapEncoder1, &mapEncoder2);
-	cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
+	// encode GID - elem10
+	err |= cbor_encode_text_stringz(&mapEncoder, "GID");
+	DEBUG_ENC(err, "GID");
+	C_BYTE Guid[16];
+	Get_Guid(Guid);
+	err |= cbor_encode_byte_string(&mapEncoder, Guid, 16);
+	DEBUG_ADD(err, "modelGuids,guid");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
