@@ -81,8 +81,7 @@ C_RES FSC_file_checksum_check(C_CHAR *fname);
 C_RES File_System_Check_File(C_CHAR* name);
 C_RES File_System_Config_Load(C_CHAR* name);
 C_RES File_System_DefaultConfig_Load(void);
-C_UINT32 Get_RS485_baudrate(void);
-C_UINT16 Get_Device_Address(void);
+
 C_RES File_System_Cert_Check(C_CHAR* name);
 C_RES File_System_Cert_Load(C_CHAR* name);
 C_RES File_System_Cert_Store(C_CHAR* name);
@@ -91,7 +90,16 @@ C_RES File_System_Model_Load(C_CHAR* name);
 C_RES File_System_DefaultModel_Load(void);
 C_RES File_System_Model_Store(void);
 
+C_UINT32 Get_RS485_baudrate(void);
+C_UINT16 Get_Device_Address(void);
 C_RES Get_Guid(C_BYTE* Guid);
+
+C_RES Get_RS485_TTL(C_BYTE* rs485_port);
+C_RES Get_RS485_BaudRate(C_UINT32* rs485_baud_rate);
+C_RES Get_RS485_StopBits(C_BYTE* rs485_stop_bits);
+C_RES Get_RS485_Parity(C_BYTE* rs485_parity);
+C_RES Get_MQTT_broker(C_URI* mqtt_broker);
+C_RES Get_MQTT_Port(C_UINT16* mqtt_port);
 #ifdef __cplusplus
 }
 #endif

@@ -186,30 +186,6 @@ C_RES File_System_DefaultConfig_Load(void)
 }
 
 /**
- * @brief Get_RS485_baudrate
- *        Gets RS485 baud rate from configuration file
- * 
- * @param void
- * @return C_UINT32 contaning baud rate
- */
-C_UINT32 Get_RS485_baudrate(void)
-{  /* TO BE implemented */
-	return 1;
-}
-
-/**
- * @brief Get_Device_Address
- *        Gets RS485 slave device address from configuration file
- * 
- * @param void
- * @return C_UINT16 contaning device address 
- */
-C_UINT16 Get_Device_Address(void)
-{  /* TO BE implemented */
-	return 1;
-}
-
-/**
  * @brief File_System_Cert_Check
  *        Checks certificate validity
  * 
@@ -301,6 +277,30 @@ C_RES File_System_Model_Store(void)
 }
 
 /**
+ * @brief Get_RS485_baudrate
+ *        Gets RS485 baud rate 
+ * 
+ * @param C_UINT32 contaning baud rate
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_RS485_BaudRate(C_UINT32* rs485_baud_rate)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_Device_Address
+ *        Gets RS485 slave device address
+ * 
+ * @param void
+ * @return C_UINT16 contaning device address 
+ */
+C_UINT16 Get_Device_Address(void)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
  * @brief Get_Guid
  *        Gets guid from model file
  * 
@@ -312,3 +312,64 @@ C_RES Get_Guid(C_BYTE* Guid)
 	
 	return 1;
 }
+
+/**
+ * @brief Get_RS485_TTL
+ *        Gets RS485 port to be used (TTL/3-way RS485) 
+ * 
+ * @param C_UINT32 contaning 0 to use 3-way connector and 1 for TTL connector
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_RS485_TTL(C_BYTE* rs485_port)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_RS485_StopBits
+ *        Gets RS485 number of stop bits 
+ * 
+ * @param C_BYTE contaning the number of stop bits
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_RS485_StopBits(C_BYTE* rs485_stop_bits)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_RS485_Parity
+ *        Gets RS485 parity
+ * 
+ * @param C_BYTE contaning the parity
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_RS485_Parity(C_BYTE* rs485_parity)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_MQTT_broker
+ *        Gets MQTT broker URI
+ * 
+ * @param C_BYTE* contaning the mqtt broker
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_MQTT_broker(C_URI* mqtt_broker)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_MQTT_Port
+ *        Gets MQTT broker port
+ * 
+ * @param C_UINT16* contaning the mqtt portbroker
+ * @return C_SUCCESS or C_FAIL
+ */
+C_RES Get_MQTT_Port(C_UINT16* mqtt_port)
+{  /* TO BE implemented */
+	return 1;
+}
+
