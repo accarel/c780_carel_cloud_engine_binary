@@ -29,7 +29,7 @@
 
 
 /* Function prototypes -------------------------------------------------------*/
-C_RES RTC_Init(void);
+C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port);
 C_TIME RTC_Get_UTC_Current_Time(void);
 
 #ifdef __cplusplus

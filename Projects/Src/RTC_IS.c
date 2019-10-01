@@ -16,10 +16,11 @@
  *
  * Description of what the function does. This part may refer to the parameters
  * 
- * @param none
+ * @param C_URI ntp_server
+ * @param C_UINT16 ntp_port
  * @return C_SUCCESS/C_FAIL 
  */
-C_RES RTC_Init(void)
+C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
 { /* TO BE Implemented */
     
   	
