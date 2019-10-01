@@ -380,7 +380,7 @@ C_RES Get_MQTT_Port(C_UINT16* mqtt_port)
  * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
  * @return C_SUCCESS or C_FAIL
  */
-C_RES Get_Gateway_ID(C_BYTE *s_id)
+C_RES Get_Gateway_ID(C_GATEWAY_ID *s_id)
 { /* TO BE implemented */
 
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)
