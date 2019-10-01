@@ -28,7 +28,7 @@
 typedef C_BYTE       C_IPV4[4];     
                      
 typedef C_BYTE       C_USERNAME[34];
-typedef C_BYTE       C_PASSWORD[32]; 
+typedef C_BYTE       C_PASSWORD[34]; 
                      
 typedef C_BYTE       C_URI[64];      
                      
@@ -37,6 +37,8 @@ typedef C_INT16      C_RES;
 typedef C_CHAR       C_MQTT_TOPIC[64];
 
 typedef C_BYTE	     C_GUID[16];
+
+typedef C_BYTE	     C_RTO[48];
 
 extern CRC_TABLE_TYPE CRCTABLE[256];
 
