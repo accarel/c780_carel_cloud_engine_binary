@@ -11,5 +11,6 @@
 	"DEV": 1,								//DEV       C_UINT16 	Modbus address of connected device
 	"GID": xxxxxxxxxx						//GID       C_BYTE[16]  byte array zeroed if model not present, retrieved from model file
 	"CRC": 0123456789012345					//CRC		C_UINT16 	CRC of model file
+	"CID": xxxxx                            //CID       
 
 }
