@@ -47,6 +47,9 @@ C_TIME RTC_Get_UTC_Current_Time(void)
 { /* TO BE Implemented  */
   C_TIME value = 0;
   
+  return value;
+}
+  
 /**
  * @brief RTC_Get_UTC_Boot_Time
  *        return boot time in UTC format
@@ -73,10 +76,7 @@ void RTC_Set_UTC_Boot_Time(void)
 	
 	return;
 }
-  
-  
-  return value;  
-}
+
 
 
 
