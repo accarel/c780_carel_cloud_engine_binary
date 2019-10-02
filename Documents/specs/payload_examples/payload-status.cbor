@@ -1,14 +1,9 @@
 {                                                 //TAG TYPE
-	"VER": 100,									  //VER C_UINT16 					
-													    
-	"T": 1557845997,          	                  //UTC C_TIME     integer, gw unix epoch
-													    
-	"UPT": 86400,                                 //UPT C_INT32    corresponds to T-BTM, seconds since power on
-													    
-	"FME": 4194304,                        		  //FME C_UINT32   integer, free memory in bytes
-													    
-    "EST": 1,      			                      //EST C_BYTE     integer, 0: not valid, 1: polling engine running, 2: polling engine stopped.
-	
-	"SGN": -47,                          	      //SGN C_INT16    dBm 
+	"ver": 100,									  //VER C_UINT16 		
+	"t": 1557845997,          	                  //UTC C_TIME     integer, gw unix epoch													    
+	"upt": 86400,                                 //UPT C_INT32    corresponds to T-BTM, seconds since power on													    
+	"fme": 4194304,                        		  //FME C_UINT32   integer, free memory in bytes													    
+    "est": 1,      			                      //EST C_BYTE     integer, 0: not valid, 1: polling engine running, 2: polling engine stopped
+	"sgn": -47,                          	      //SGN C_INT16    dBm 
 
 }                                                       
