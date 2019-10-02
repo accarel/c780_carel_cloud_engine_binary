@@ -56,75 +56,72 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "hello create main map");
-	// encode VER - elem1
-	err |= cbor_encode_text_stringz(&mapEncoder, "VER");
-	DEBUG_ENC(err, "VER");
+	// encode ver - elem1
+	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
 	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
 	DEBUG_ADD(err, "version");
 
-	// encode PN_ - elem2
-	err |= cbor_encode_text_stringz(&mapEncoder, "PN_");
-	DEBUG_ENC(err, "PN_");
+	// encode pn - elem2
+	err |= cbor_encode_text_stringz(&mapEncoder, "pn");
 	err |= cbor_encode_text_stringz(&mapEncoder, GW_PARTNUMBER);
 	DEBUG_ADD(err, "part number");
 
-	// encode HWV - elem3
-	err |= cbor_encode_text_stringz(&mapEncoder, "HWV");
-	DEBUG_ENC(err, "HWV");
+	// encode hwv - elem3
+	err |= cbor_encode_text_stringz(&mapEncoder, "hwv");
 	err |= cbor_encode_uint(&mapEncoder, atoi(GW_HW_REV));
 	DEBUG_ADD(err, "hw version");
 
-	// encode FWV - elem4
-	err |= cbor_encode_text_stringz(&mapEncoder, "FWV");
-	DEBUG_ENC(err, "FWV");
+	// encode fwv - elem4
+	err |= cbor_encode_text_stringz(&mapEncoder, "fwv");
 	err |= cbor_encode_uint(&mapEncoder, atoi(GW_FW_REV));
 	DEBUG_ADD(err, "fw version");
 
-	// encode CFG - elem5
-	err |= cbor_encode_text_stringz(&mapEncoder, "CFG");
-	DEBUG_ENC(err, "CFG");
-	err |= cbor_encode_uint(&mapEncoder, 1);			//CONFIGURED?
+	// encode cfg - elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "cfg");
+	err |= cbor_encode_uint(&mapEncoder, Is_GME_Configured());			//CONFIGURED?
 	DEBUG_ADD(err, "configured");
 
-	// encode BAU - elem6
-	err |= cbor_encode_text_stringz(&mapEncoder, "BAU");
-	DEBUG_ENC(err, "BAU");
-	err |= cbor_encode_uint(&mapEncoder, Get_RS485_baudrate());
+	// encode bau - elem6
+	err |= cbor_encode_text_stringz(&mapEncoder, "bau");
+	C_UINT32 baud_rate;
+	Get_RS485_BaudRate(&baud_rate);
+	err |= cbor_encode_uint(&mapEncoder, baud_rate);
 	DEBUG_ADD(err, "baud rate");
 
-	// encode MQV - elem7
-	err |= cbor_encode_text_stringz(&mapEncoder, "MQV");
-	DEBUG_ENC(err, "MQV");
+	// encode mqv - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "mqv");
 	err |= cbor_encode_uint(&mapEncoder, 1);
 	DEBUG_ADD(err, "capabilities, mqttversion");
 
-	// encode LGF - elem8
-	err |= cbor_encode_text_stringz(&mapEncoder, "LGF");
-	DEBUG_ENC(err, "capabilities, LGF");
+	// encode lgf - elem8
+	err |= cbor_encode_text_stringz(&mapEncoder, "lgf");
 	err |= cbor_encoder_create_array(&mapEncoder, &mapEncoder1, 2);
 	DEBUG_ENC(err, "create capabilities logfrequency array/map");
-	cbor_encode_uint(&mapEncoder1, 60);
-	cbor_encode_uint(&mapEncoder1, 300);
+	C_UINT16 stime;
+	Get_HighSpeedSamplingTime(&stime);
+	cbor_encode_uint(&mapEncoder1, stime);
+	Get_LowSpeedSamplingTime(&stime);
+	cbor_encode_uint(&mapEncoder1, stime);
 	cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
 
-	// encode DEV - elem9
-	err |= cbor_encode_text_stringz(&mapEncoder, "DEV");
-	DEBUG_ENC(err, "DEV");
-	err |= cbor_encode_uint(&mapEncoder, Get_Device_Address());
+	// encode dev - elem9
+	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
+	C_UINT16 device_address;
+	Get_Device_Address(&device_address);
+	err |= cbor_encode_uint(&mapEncoder, device_address);
 	DEBUG_ADD(err, "dev");
 
-	// encode GID - elem10
-	err |= cbor_encode_text_stringz(&mapEncoder, "GID");
-	DEBUG_ENC(err, "GID");
+	// encode gid - elem10
+	err |= cbor_encode_text_stringz(&mapEncoder, "gid");
 	C_BYTE Guid[16];
 	Get_Guid(Guid);
 	err |= cbor_encode_byte_string(&mapEncoder, Guid, 16);
-	DEBUG_ADD(err, "modelGuids,guid");
+	DEBUG_ADD(err, "guid");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
-	else { printf("invalid stream\n"); len = -1; }
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
 }
