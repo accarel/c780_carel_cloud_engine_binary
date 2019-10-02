@@ -14,16 +14,16 @@
 /* Includes ------------------------------------------------------------------*/
 #include "data_types_CAREL.h"
 
-
+#define C_START		1
+#define C_STOP		2
 
 /* Varaibles -----------------------------------------------------------------*/
-static C_BYTE polling_running;
    
 
 /* Functions Implementation --------------------------------------------------*/
 
-void Set_polling_Status(C_BYTE value);
-C_BYTE Set_polling_Status(void);
+void Set_Polling_Status(C_BYTE value);
+C_BYTE Get_Polling_Status(void);
 
 #endif   /* #ifndef __CCL_MANAGER_CAREL_H */
 

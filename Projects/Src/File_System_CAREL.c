@@ -277,7 +277,7 @@ C_RES File_System_Model_Store(void)
 }
 
 /**
- * @brief Get_RS485_baudrate
+ * @brief Get_RS485_BaudRate
  *        Gets RS485 baud rate 
  * 
  * @param C_UINT32 contaning baud rate
@@ -292,10 +292,10 @@ C_RES Get_RS485_BaudRate(C_UINT32* rs485_baud_rate)
  * @brief Get_Device_Address
  *        Gets RS485 slave device address
  * 
- * @param void
- * @return C_UINT16 contaning device address 
+ * @param C_UINT16 contaning device address 
+ * @return C_SUCCESS or C_FAIL
  */
-C_UINT16 Get_Device_Address(void)
+C_RES Get_Device_Address(C_UINT16* device)
 {  /* TO BE implemented */
 	return 1;
 }
@@ -442,3 +442,41 @@ C_RES Get_GSM_APN(C_CHAR* apn)
 	return 1;
 }
 
+/**
+ * @brief Get_LowSpeedSamplingRate
+ *        Gets low speed sampling time
+ * 
+ * @param C_CHAR* contaning the low speed sampling time
+ * @return C_SUCCESS or C_FAIL
+ */
+
+C_RES Get_LowSpeedSamplingTime(C_UINT16* time)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Get_HighSpeedSamplingTime
+ *        Gets high speed sampling time
+ * 
+ * @param C_CHAR* contaning the low speed sampling time
+ * @return C_SUCCESS or C_FAIL
+ */
+
+C_RES Get_HighSpeedSamplingTime(C_UINT16* time)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Is_GME_Configured
+ *        Returns configuration status of the GME
+ * 
+ * @param none
+ * @return 0 (not configured) or 1 (configured)
+ */
+
+C_BYTE Is_GME_Configured(void)
+{  /* TO BE implemented */
+	return 1;
+}

@@ -83,7 +83,7 @@ typedef struct C_CBORRESWRITEVALUES{
 /*----------------------------------------------------------------------------------------*/
 void CBOR_Alarms(C_UINT16 alias, C_TIME tstart, C_TIME tstop, C_BYTE alarm_issue, C_CHAR* cbor_stream);
 size_t CBOR_Hello(C_CHAR* cbor_stream);
-void CBOR_Status(C_CHAR* cbor_stream);
+size_t CBOR_Status(C_CHAR* cbor_stream);
 void CBOR_Values(C_CHAR* cbor_stream);
 void CBOR_Mobile(C_CHAR* cbor_stream);
 

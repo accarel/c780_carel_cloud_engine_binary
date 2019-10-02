@@ -157,7 +157,7 @@ void main_carel(void)
 	/* Polling engine initialization */
 	/* This function will be fully implemented by Carel */
 	/* Polling engine is temporarily stopped */
-	Stop_Polling = TRUE;
+	Set_Polling_Status(C_STOP);
 	Polling_Engine_Init();
 #endif
 }

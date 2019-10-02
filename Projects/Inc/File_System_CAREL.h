@@ -90,8 +90,7 @@ C_RES File_System_Model_Load(C_CHAR* name);
 C_RES File_System_DefaultModel_Load(void);
 C_RES File_System_Model_Store(void);
 
-C_UINT32 Get_RS485_baudrate(void);
-C_UINT16 Get_Device_Address(void);
+C_RES Get_Device_Address(C_UINT16* device);
 C_RES Get_Guid(C_BYTE* Guid);
 
 C_RES Get_RS485_TTL(C_BYTE* rs485_port);
@@ -106,6 +105,11 @@ C_RES Get_DNS(C_IPV4* dns_address);
 C_RES Get_NTP_server(C_URI* ntp_server);
 C_RES Get_NTP_port(C_UINT16* ntp_port);
 C_RES Get_GSM_APN(C_CHAR* apn);
+
+C_RES Get_LowSpeedSamplingTime(C_UINT16* time);
+C_RES Get_HighSpeedSamplingTime(C_UINT16* time);
+C_BYTE Is_GME_Configured(void);
+
 #ifdef __cplusplus
 }
 #endif

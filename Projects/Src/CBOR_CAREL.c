@@ -12,6 +12,8 @@
 #include "File_System_CAREL.h"
 #include "cbor.h"
 #include "Miscellaneous_IS.h"
+#include "RTC_IS.h"
+#include "ccl_manager_CAREL.h"
 
 const char cannot_encode[]="cannot encode";
 const char cannot_add[]="cannot add";
@@ -117,6 +119,12 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	Get_Guid(Guid);
 	err |= cbor_encode_byte_string(&mapEncoder, Guid, 16);
 	DEBUG_ADD(err, "guid");
+	
+	//encode crc - elem 11
+	err |= cbor_encode_text_stringz(&mapEncoder, "crc");
+	C_UINT16 crc = 0;	// to be implemented
+	err |= cbor_encode_uint(&mapEncoder, crc);
+	DEBUG_ADD(err, "crc");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
@@ -132,10 +140,57 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
  * Prepares CBOR encoded message containing status information 
  *
  * @param Pointer to the CBOR-encoded payload
- * @return void
+ * @return size of the encoded stream, returns -1 in case something's gone worng while encoding
  */
-void CBOR_Status(C_CHAR* cbor_stream)
+size_t CBOR_Status(C_CHAR* cbor_stream)
 {
+	CborEncoder encoder, mapEncoder;
+	size_t len;
+	int err;
+
+	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	// map1
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
+	DEBUG_ENC(err, "hello create main map");
+	// encode ver - elem1
+	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
+	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
+	DEBUG_ADD(err, "version");
+
+	// encode t - elem2
+	err |= cbor_encode_text_stringz(&mapEncoder, "t");
+	C_TIME t = RTC_Get_UTC_Current_Time();
+	err |= cbor_encode_uint(&mapEncoder, t);
+	DEBUG_ADD(err, "t");
+	
+	// encode upt - elem3
+	err |= cbor_encode_text_stringz(&mapEncoder, "upt");
+	err |= cbor_encode_uint(&mapEncoder, t - RTC_Get_UTC_Boot_Time());
+	DEBUG_ADD(err, "upt");
+	
+	// encode fme -elem4
+	err |= cbor_encode_text_stringz(&mapEncoder, "fme");
+	C_UINT32 freemem = 0; // to be implemented
+	err |= cbor_encode_uint(&mapEncoder, freemem);
+	DEBUG_ADD(err,"upt");
+	
+	// encode est -elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "est");
+	err |= cbor_encode_uint(&mapEncoder, Get_Polling_Status());
+	DEBUG_ADD(err,"est");
+	
+	// encode sgn -elem6
+	err |= cbor_encode_text_stringz(&mapEncoder, "sgn");
+	C_UINT16 rssi = 0;	// to be implemented
+	err |= cbor_encode_uint(&mapEncoder, rssi);
+	DEBUG_ADD(err,"sgn");
+
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;	
 }
 
 /**
@@ -160,6 +215,7 @@ void CBOR_Values(C_CHAR* cbor_stream)
  */
 void CBOR_Mobile(C_CHAR* cbor_stream)
 {
+	
 }
 
 /**

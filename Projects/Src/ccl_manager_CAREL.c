@@ -24,7 +24,7 @@ static C_BYTE polling_running;
  * @return none
  * @warning set to C_START only after modbus initialization
  */
-void Set_polling_Status(C_BYTE value)
+void Set_Polling_Status(C_BYTE value)
 {
 	polling_running = value;	
 }
@@ -37,7 +37,7 @@ void Set_polling_Status(C_BYTE value)
  * @param none C_BYTE value C_START/C_STOP
  * @return C_BYTE C_START or C_STOP
  */
-C_BYTE Get_polling_Status(void)
+C_BYTE Get_Polling_Status(void)
 {
 	return polling_running;	
 }

@@ -7,7 +7,7 @@
  */
 #include "RTC_IS.h"
 
-
+C_TIME Boot_Time = 0;
 
 /* Functions implementation -------------------------------------------------------*/
 
@@ -47,7 +47,32 @@ C_TIME RTC_Get_UTC_Current_Time(void)
 { /* TO BE Implemented  */
   C_TIME value = 0;
   
- 
+/**
+ * @brief RTC_Get_UTC_Boot_Time
+ *        return boot time in UTC format
+ * 
+ * @param none
+ * @return C_TIME UTC Time
+ */
+C_TIME RTC_Get_UTC_Boot_Time(void)
+{
+	return Boot_Time;
+}
+
+/**
+ * @brief RTC_Set_UTC_Boot_Time
+ *        set boot time in UTC format 
+ * 
+ * @param none
+ * @return none
+ */
+void RTC_Set_UTC_Boot_Time(void)
+{
+	if(Boot_Time == 0)
+		Boot_Time = RTC_Get_UTC_Current_Time();
+	
+	return;
+}
   
   
   return value;  
