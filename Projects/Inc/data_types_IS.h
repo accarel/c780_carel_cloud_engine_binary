@@ -36,6 +36,7 @@ typedef	unsigned int	C_UINT16;	// 16-bit value
 typedef	long	        C_INT32;	// 32-bit value
 typedef	unsigned long   C_UINT32;	// 32-bit value
 typedef	unsigned long	C_WORD;	    // 32-bit value
+typedef	unsigned long long	C_UINT64;   // 64-bit value
 
 /* floating point IEEE 754 little endian 4 bytes */
 typedef float           C_FLOAT;    //32-bit value

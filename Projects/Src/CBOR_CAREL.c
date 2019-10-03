@@ -15,9 +15,6 @@
 #include "RTC_IS.h"
 #include "ccl_manager_CAREL.h"
 
-const char cannot_encode[]="cannot encode";
-const char cannot_add[]="cannot add";
-   
 /* Exported types ------------------------------------------------------------*/ 
 
 
@@ -122,9 +119,15 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	
 	//encode crc - elem 11
 	err |= cbor_encode_text_stringz(&mapEncoder, "crc");
-	C_UINT16 crc = 0;	// to be implemented
+	C_UINT16 crc = 0;													// to be implemented
 	err |= cbor_encode_uint(&mapEncoder, crc);
 	DEBUG_ADD(err, "crc");
+	
+	//encode crc - elem 12
+	err |= cbor_encode_text_stringz(&mapEncoder, "cid");
+	C_UINT16 cid=0;														// to be implemented
+	err |= cbor_encode_uint(&mapEncoder, crc);
+	DEBUG_ADD(err, "cid");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
@@ -140,7 +143,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
  * Prepares CBOR encoded message containing status information 
  *
  * @param Pointer to the CBOR-encoded payload
- * @return size of the encoded stream, returns -1 in case something's gone worng while encoding
+ * @return size of the encoded stream, returns -1 in case something's gone wrong while encoding
  */
 size_t CBOR_Status(C_CHAR* cbor_stream)
 {
@@ -170,7 +173,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	
 	// encode fme -elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "fme");
-	C_UINT32 freemem = 0; // to be implemented
+	C_UINT32 freemem = 0; 												// to be implemented
 	err |= cbor_encode_uint(&mapEncoder, freemem);
 	DEBUG_ADD(err,"upt");
 	
@@ -181,7 +184,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	
 	// encode sgn -elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "sgn");
-	C_UINT16 rssi = 0;	// to be implemented
+	C_INT16 rssi = 0;													// to be implemented
 	err |= cbor_encode_uint(&mapEncoder, rssi);
 	DEBUG_ADD(err,"sgn");
 
@@ -208,14 +211,53 @@ void CBOR_Values(C_CHAR* cbor_stream)
 /**
  * @brief CBOR_Mobile
  * 
- * Prepares CBOR encoded message containing TODO
+ * Prepares CBOR encoded message containing information on mobile connection
  *
  * @param Pointer to the CBOR-encoded payload
  * @return void
  */
-void CBOR_Mobile(C_CHAR* cbor_stream)
+size_t CBOR_Mobile(C_CHAR* cbor_stream)
 {
+	CborEncoder encoder, mapEncoder;
+	size_t len;
+	int err;
+
+	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	// map1
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
+	DEBUG_ENC(err, "hello create main map");
+	// encode ver - elem1
+	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
+	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
+	DEBUG_ADD(err, "version");
 	
+	// encode gup - elem2
+	err |= cbor_encode_text_stringz(&mapEncoder, "gup");
+	C_INT32 gup = 0;											// to be implemented
+	err |= cbor_encode_uint(&mapEncoder, gup);
+	DEBUG_ADD(err, "gup");
+	
+	// encode sig - elem3
+	err |= cbor_encode_text_stringz(&mapEncoder, "sig");
+	C_INT16 sig = 0;											// to be implemented
+	err |= cbor_encode_uint(&mapEncoder, sig);
+	DEBUG_ADD(err, "sig");
+	
+	// encode ime - elem4
+	err |= cbor_encode_text_stringz(&mapEncoder, "ime");
+	C_BYTE imei[15];												// to be implemented
+	err |= cbor_encode_byte_string(&mapEncoder, imei, 15);
+	DEBUG_ADD(err, "ime");
+	
+	// other elements to come (if needed)
+	
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;	
+
 }
 
 /**
@@ -285,22 +327,87 @@ void CBOR_ResSetLinesConfig(C_CHAR* cbor_stream)
  * 
  * Interprets CBOR request header
  *
- * @param Pointer to the CBOR-encoded header
- * @param Received request header
-  * @return Size of the appended header
+ * @param Pointer to the CBOR-encoded stream
+ * @param Pointer to the request struct
+ * @param Pointer to CBOR container
+ * @param Pointer to first element of the CBOR container
+ * @return CborError
  */
-C_UINT16 CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req)
+CborError CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed)
 {
 	// parse request header and get replyTo and cmd fields
-	// writes them to cbor_req
-	return 1;
+	// write them to cbor_req
+	CborParser parser;
+	size_t stlen;
+    char tag[TAG_SIZE];
+	char rto[REPLYTO_SIZE];
+	CborError err;
+	C_INT16 val;
+	
+	err = cbor_parser_init(cbor_stream, HEADERREQ_LEN, 0, &parser, it);
+	err |= cbor_value_enter_container(it, recursed);
+	DEBUG_DEC(err, "header request map");
+	err |= cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, &val);
+	cbor_req->ver = val;
+	err |= cbor_value_advance_fixed(recursed);
+	DEBUG_DEC(err, "header: ver");
+
+	err |= cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_copy_text_string(recursed, rto, &stlen, recursed);
+	strcpy((char*)cbor_req->rto, rto);
+	DEBUG_DEC(err, "header: rto");
+
+	err |= cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	cbor_value_get_int(recursed, &val);
+	cbor_req->cmd = val;
+	err |= cbor_value_advance_fixed(recursed);
+	DEBUG_DEC(err, "header: cmd");
+	
+	return err;
 }
 
+/**
+ * @brief CBOR_ReqSetLinesConfig
+ * 
+ * Interprets CBOR set lines config request
+ *
+ * @param Pointer to the CBOR current element 
+ * @param Pointer to new baud rate
+ * @return CborError
+ */
+CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate)
+{
+	CborError err;
+	C_UINT64 val;
+	size_t st1;
+	char text[TAG_SIZE];
 
-int CBOR_ReqTopicParser(C_CHAR* cbor_stream){
-	#if 0
+	err = cbor_value_copy_text_string(recursed, text, &st1, recursed);
+	err |= cbor_value_get_uint64(recursed, &val);
+	*new_baud_rate = val;
+	DEBUG_DEC(err, "req_set_lines_config: bau");
 	
-    CBOR_ReqHeader(&cbor_stream, &cbor_req);
+	return err;
+}
+
+/**
+ * @brief CBOR_ReqTopicParser
+ * 
+ * Interprets CBOR received request
+ *
+ * @param Pointer to the CBOR stream
+ * @param Length of the CBOR stream
+ * @return CborError
+ */
+
+int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
+	
+	c_cborhreq cbor_req = {0};
+	CborValue recursed, it;
+	CborError err;
+	
+	err = CBOR_ReqHeader(cbor_stream, &cbor_req, &it, &recursed);
 	
 	switch(cbor_req.cmd){
 		case SET_GW_CONFIG:
@@ -310,35 +417,32 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream){
 		break;
 
 		case DOWNLOAD_DEVS_CONFIG:
-		{
+		{/*
 			req_download_devs_config_t download_devs_config = {0};
 			parse_download_devs_config(root, &download_devs_config);
 			//execute_download_devs_config(&download_devs_config);
 			memmgr_free(download_devs_config.username);
 			memmgr_free(download_devs_config.password);
 			memmgr_free(download_devs_config.uri);
-		}
+		*/}
 		break;
 
 
 		case SET_LINES_CONFIG:
 		{
-			req_set_lines_config_t set_lines_config = {0};
-			parse_set_line_config(root, &set_lines_config);
-			printf("set_lines_config.baud : %d\n",set_lines_config.baud);
-
-			if(ESP_OK == execute_set_line_config(set_lines_config)){
-				send_set_lines_config_res(ReqHeader.replyTo, CHANGE_CREDENTIALS, OPERATION_SUCCEEDED, MQTT__GetClient());
-			}else{
-				send_set_lines_config_res(ReqHeader.replyTo, CHANGE_CREDENTIALS, OPERATION_FAILED, MQTT__GetClient());
-			}
-			//TODO Restart
+			
+			C_UINT32 new_baud_rate;
+			err = CBOR_ReqSetLinesConfig(&recursed, &new_baud_rate);
+			
+			// below lines could be moved at the bottom of this function
+			err = cbor_value_advance_fixed(&recursed);
+			err = cbor_value_leave_container(&it, &recursed);
 		}
 		break;
 
 
 		case SEND_MB_ADU:
-		{
+		{/*
 			req_send_mb_adu_t send_mb_adu = {0};
 			parse_send_mb_adu(root, &send_mb_adu);
 			printf("sequence : %d, adu = %s\n",send_mb_adu.sequence, send_mb_adu.adu);
@@ -348,60 +452,60 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream){
 
 			}
 			memmgr_free(send_mb_adu.adu);
-		}
+		*/}
 		break;
 
 
 		case READ_VALUES:
 		{
-			parse_read_values(root);
+		//	parse_read_values(root);
 		}
 		break;
 
 
 		case WRITE_VALUES:
 		{
-			parse_write_values(root);
+		//	parse_write_values(root);
 		}
 		break;
 
 
 		case UPDATE_GME_FIRMWARE:
 		{
-			req_update_gw_fw_t update_gw_fw = {0};
+		/*	req_update_gw_fw_t update_gw_fw = {0};
 			parse_update_gw_fw(root, &update_gw_fw);
 			memmgr_free(update_gw_fw.username);
 			memmgr_free(update_gw_fw.password);
 			memmgr_free(update_gw_fw.uri);
-		}
+		*/}
 		break;
 
 
 		case UPDATE_DEV_FIRMWARE:
 		{
-			req_update_dev_fw_t update_dev_fw = {0};
+		/*	req_update_dev_fw_t update_dev_fw = {0};
 			parse_update_dev_fw(root, &update_dev_fw);
 			memmgr_free(update_dev_fw.username);
 			memmgr_free(update_dev_fw.password);
 			memmgr_free(update_dev_fw.uri);
-		}
+		*/}
 		break;
 
 
 		case UPDATE_CA_CERTIFICATES:
 		{
-			req_update_ca_cert_t update_ca_cert = {0};
+		/*	req_update_ca_cert_t update_ca_cert = {0};
 			parse_update_ca_cert(root, &update_ca_cert);
 			memmgr_free(update_ca_cert.username);
 			memmgr_free(update_ca_cert.password);
 			memmgr_free(update_ca_cert.uri);
-		}
+		*/}
 		break;
 
 
 		case CHANGE_CREDENTIALS:
 		{
-			req_change_cred_t change_cred_req = {0};
+		/*	req_change_cred_t change_cred_req = {0};
 			parse_change_cred(root, &change_cred_req);
 			printf("change_cred_req->username : %s\n",change_cred_req.username);
 			printf("change_cred_req->password : %s\n",change_cred_req.password);
@@ -416,33 +520,35 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream){
 			memmgr_free(change_cred_req.password);
 
 			//TODO Restart
-		}
+		*/}
 		break;
 
 
 		case START_ENGINE:
 		{
-			PollEngine__StartEngine();
+			Set_Polling_Status(C_START);
+		/*
 			send_simple_res(ReqHeader.replyTo, START_ENGINE, SUCCESS_CMD, MQTT__GetClient());
-		}
+		*/}
 		break;
 
 
 		case STOP_ENGINE:
 		{
-			PollEngine__StopEngine();
+			Set_Polling_Status(C_STOP);
+		/*
 			send_simple_res(ReqHeader.replyTo, STOP_ENGINE, SUCCESS_CMD, MQTT__GetClient());
 			PollEngine__ActivatePassMode();
-		}
+		*/}
 		break;
 
 
 		default:
-			send_simple_res(ReqHeader.replyTo, ReqHeader.cmd, INVALID_CMD, MQTT__GetClient());
+		//	send_simple_res(ReqHeader.replyTo, ReqHeader.cmd, INVALID_CMD, MQTT__GetClient());
 			break;
 
 	}
-	#endif
+	
 	return 0;
 }
 

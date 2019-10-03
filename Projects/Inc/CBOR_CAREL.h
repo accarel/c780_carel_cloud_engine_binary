@@ -23,7 +23,9 @@
 /* Exported constants --------------------------------------------------------*/
 
 #define CBORSTREAM_SIZE			1024
-#define REPLYTO_SIZE			32
+
+#define TAG_SIZE				3
+#define REPLYTO_SIZE			48
 
 #define CMD_SCAN_LINE_RES		TODO
 #define CMD_SEND_MB_ADU			TODO
@@ -32,14 +34,42 @@
 #define CMD_WRITE_VALUES		TODO
 #define CMD_READ_VALUES			TODO
 
+#define HEADERREQ_LEN			55			// header of request has fixed size
+
+
+typedef enum CloudtoGME_Commands_l{
+	SET_GW_CONFIG = 1,
+	REBOOT,
+	SCAN_DEVICES,
+	SET_LINES_CONFIG,
+	DOWNLOAD_DEVS_CONFIG,
+	READ_VALUES,
+	WRITE_VALUES = 9,
+	UPDATE_GME_FIRMWARE,
+	UPDATE_DEV_FIRMWARE,
+	FLUSH_VALUES,
+	UPDATE_CA_CERTIFICATES,
+	SEND_MB_ADU,
+	CHANGE_CREDENTIALS,
+	START_ENGINE,
+	STOP_ENGINE,
+}cloud_req_commands_t;
+
+
 #define CAREL_DEBUG
+
+const char cannot_encode[]="cannot encode";
+const char cannot_add[]="cannot add";
+const char cannot_decode[]="cannot decode";
 
 #ifdef CAREL_DEBUG
 #define DEBUG_ENC(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_encode, a, err);
 #define DEBUG_ADD(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_add, a, err);
+#define DEBUG_DEC(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_decode, a, err);
 #else
 #define DEBUG_ENC(err, a)
 #define DEBUG_ADD(err, a)
+#define DEBUG_DEC(err, a)
 #endif
 
 /* Exported types ------------------------------------------------------------*/ 
@@ -52,7 +82,7 @@
 #pragma pack(1)
 typedef struct C_CBORHREQ{
 	C_UINT16 ver;
-	C_BYTE replyTo[REPLYTO_SIZE];
+	C_BYTE rto[REPLYTO_SIZE];
 	C_UINT16 cmd;	
 } c_cborhreq;
 #pragma pack()
@@ -64,7 +94,7 @@ typedef struct C_CBORHREQ{
 #pragma pack(1)
 typedef struct C_CBORHRES{
 	C_UINT16 ver;
-	C_BYTE replyTo[REPLYTO_SIZE];
+	C_BYTE rto[REPLYTO_SIZE];
 	C_UINT16 cmd;
 	C_INT16 res;
 }c_cborhres;
@@ -85,7 +115,12 @@ void CBOR_Alarms(C_UINT16 alias, C_TIME tstart, C_TIME tstop, C_BYTE alarm_issue
 size_t CBOR_Hello(C_CHAR* cbor_stream);
 size_t CBOR_Status(C_CHAR* cbor_stream);
 void CBOR_Values(C_CHAR* cbor_stream);
-void CBOR_Mobile(C_CHAR* cbor_stream);
+size_t CBOR_Mobile(C_CHAR* cbor_stream);
+
+CborError CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
+CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate);
+
+int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
 
 void CBOR_Response(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 result);
 void CBOR_Header(C_CHAR* cbor_stream);
