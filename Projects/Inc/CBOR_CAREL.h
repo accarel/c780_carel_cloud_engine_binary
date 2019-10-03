@@ -26,6 +26,7 @@
 
 #define TAG_SIZE				3
 #define REPLYTO_SIZE			48
+#define RESPONSE_SIZE			80
 
 #define CMD_SCAN_LINE_RES		TODO
 #define CMD_SEND_MB_ADU			TODO
@@ -129,6 +130,11 @@ void CBOR_ScanLine(C_CHAR* cbor_stream);
 void CBOR_MbAdu(C_CHAR* cbor_stream);
 void CBOR_SetDevsConfig(C_CHAR* cbor_stream);
 void CBOR_SetLinesConfig(C_CHAR* cbor_stream);
+
+void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
+size_t CBOR_ResSetLinesConfig(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_UINT16 res);
+
+
 #ifdef __cplusplus
 }
 #endif
