@@ -313,26 +313,26 @@ void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* enco
 }
 
 /**
- * @brief CBOR_ResSetLinesConfig
+ * @brief CBOR_ResSimple
  * 
- * Prepares CBOR response to set lines config
+ * Prepares CBOR response to generic simple request (only waiting for a success/fail report
  *
  * @param Pointer to the CBOR-encoded header
  * @param Received request header
  * @param Result of the operation
  * @return Size of the appended header
  */
-size_t CBOR_ResSetLinesConfig(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_UINT16 res)
+size_t CBOR_ResSimple(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 res)
 {
 	size_t len;
 	CborEncoder encoder, mapEncoder;
-	int err;
+	CborError err;
 	
 	CBOR_ResHeader(cbor_stream, cbor_req, &encoder, &mapEncoder);
 	
 	// encode res - elem4
 	err = cbor_encode_text_stringz(&mapEncoder, "res");
-	err |= cbor_encode_uint(&mapEncoder, res);
+	err |= cbor_encode_int(&mapEncoder, res);
 	DEBUG_ADD(err, "res");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -424,7 +424,7 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborValue* i
  * @param Pointer to new baud rate
  * @return CborError
  */
-CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate)
+CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector)
 {
 	CborError err;
 	C_UINT64 val;
@@ -435,6 +435,11 @@ CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate)
 	err |= cbor_value_get_uint64(recursed, &val);
 	*new_baud_rate = val;
 	DEBUG_DEC(err, "req_set_lines_config: bau");
+	
+	err = cbor_value_copy_text_string(recursed, text, &st1, recursed);
+	err |= cbor_value_get_int(recursed, &val);
+	*new_connector = val;
+	DEBUG_DEC(err, "req_set_lines_config: con");
 	
 	return err;
 }
@@ -455,7 +460,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	CborValue recursed, it;
 	CborError err;
 	C_CHAR cbor_response[RESPONSE_SIZE];		// buffer to store response, maybe better global...
-	
+	size_t len;
 	err = CBOR_ReqHeader(cbor_stream, &cbor_req, &it, &recursed);
 	
 	switch(cbor_req.cmd){
@@ -476,22 +481,27 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		*/}
 		break;
 
+		case SCAN_DEVICES:
+		{
+		}
+		break;
 
 		case SET_LINES_CONFIG:
 		{
 			
 			C_UINT32 new_baud_rate;
-			err = CBOR_ReqSetLinesConfig(&recursed, &new_baud_rate);
+			C_BYTE new_connector;
+			err = CBOR_ReqSetLinesConfig(&recursed, &new_baud_rate, &new_connector);
 			err = cbor_value_advance_fixed(&recursed);
 			err = cbor_value_leave_container(&it, &recursed);
 			
-			// write new baud rate to configuration file and put in res the result of operation
+			// write new baud rate and connector to configuration file and put in res the result of operation
 			// to be implemented
 			C_INT16 res = 0;
 
-			// mqtt response with success or fail 
+			// mqtt response 
 			// to be implemented
-			CBOR_ResSetLinesConfig(cbor_response, &cbor_req, res);
+			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -603,6 +613,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 
 		default:
+			len = CBOR_ResSimple(cbor_response, &cbor_req, INVALID_CMD);
 		//	send_simple_res(ReqHeader.replyTo, ReqHeader.cmd, INVALID_CMD, MQTT__GetClient());
 			break;
 

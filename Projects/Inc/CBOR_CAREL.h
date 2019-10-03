@@ -37,6 +37,7 @@
 
 #define HEADERREQ_LEN			55			// header of request has fixed size
 
+#define	INVALID_CMD				-1
 
 typedef enum CloudtoGME_Commands_l{
 	SET_GW_CONFIG = 1,
@@ -119,7 +120,7 @@ void CBOR_Values(C_CHAR* cbor_stream);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
-CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate);
+CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector);
 
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
 
@@ -132,7 +133,7 @@ void CBOR_SetDevsConfig(C_CHAR* cbor_stream);
 void CBOR_SetLinesConfig(C_CHAR* cbor_stream);
 
 void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
-size_t CBOR_ResSetLinesConfig(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_UINT16 res);
+size_t CBOR_ResSimple(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 res);
 
 
 #ifdef __cplusplus
