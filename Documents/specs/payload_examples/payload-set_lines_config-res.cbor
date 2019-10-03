@@ -1,5 +1,5 @@
 {                                         //TAG TYPE
-                                          //    this is in addition to response header.
-    "RES": 1                          //RES C_INT16  integer, configuration result, 0 ok, >= 1 failure.
+  //    this is in addition to response header.
+  // empty
 
 }
