@@ -17,13 +17,12 @@
 #include "File_System_CAREL.h"
 #include "Button_IS.h"
 #include "Leds_IS.h"
-#include "RTC_IS.h"
 #include "DNS_IS.h"
 #include "DHCP_IS.h"
 #include "SecureTransport_IS.h"
 #include "MQTT_Interface_CAREL.h"
 #include "RS485_IS.h"
-
+#include "RTC_IS.h"
 #ifdef IS_A_GSM_GATEWAY
 #include "GSM_Miscellaneous_IS.h"
 #endif
@@ -112,6 +111,8 @@ void main_carel(void)
 			if(File_System_Cert_Load((C_CHAR*)"cert2.crt") != C_SUCCESS)
 				reboot();
 	}
+	/* Save boot time */
+	RTC_Set_UTC_Boot_Time();
 	
 	/* TLS and HTTPS initialization */
 	/* These functions will be fully implemented by USR */
