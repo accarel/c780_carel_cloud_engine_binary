@@ -44,7 +44,7 @@ typedef enum CloudtoGME_Commands_l{
 	REBOOT,
 	SCAN_DEVICES,
 	SET_LINES_CONFIG,
-	DOWNLOAD_DEVS_CONFIG,
+	SET_DEVS_CONFIG,
 	READ_VALUES,
 	WRITE_VALUES = 9,
 	UPDATE_GME_FIRMWARE,
@@ -119,7 +119,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream);
 void CBOR_Values(C_CHAR* cbor_stream);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
 
-CborError CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
+CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
 CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector);
 
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);

@@ -381,7 +381,7 @@ void CBOR_ResSetDevsConfig(C_CHAR* cbor_stream)
  * @param Pointer to first element of the CBOR container
  * @return CborError
  */
-CborError CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed)
+CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed)
 {
 	// parse request header and get replyTo and cmd fields
 	// write them to cbor_req
@@ -392,20 +392,25 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborValue* i
 	CborError err;
 	C_INT16 val;
 	
-	err = cbor_parser_init(cbor_stream, HEADERREQ_LEN, 0, &parser, it);
+	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, it);
 	err |= cbor_value_enter_container(it, recursed);
 	DEBUG_DEC(err, "header request map");
+	
+	stlen = TAG_SIZE;
 	err |= cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
 	err |= cbor_value_get_int(recursed, &val);
 	cbor_req->ver = val;
 	err |= cbor_value_advance_fixed(recursed);
 	DEBUG_DEC(err, "header: ver");
 
+	stlen = TAG_SIZE;
 	err |= cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = RTO_SIZE;
 	err |= cbor_value_copy_text_string(recursed, rto, &stlen, recursed);
 	strcpy((char*)cbor_req->rto, rto);
 	DEBUG_DEC(err, "header: rto");
 
+	stlen = TAG_SIZE;
 	err |= cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
 	cbor_value_get_int(recursed, &val);
 	cbor_req->cmd = val;
@@ -428,20 +433,57 @@ CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C
 {
 	CborError err;
 	C_UINT64 val;
-	size_t st1;
-	char text[TAG_SIZE];
+	C_INT16 con;
+	size_t stlen;
+	char tag[TAG_SIZE];
 
-	err = cbor_value_copy_text_string(recursed, text, &st1, recursed);
+	stlen = TAG_SIZE;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
 	err |= cbor_value_get_uint64(recursed, &val);
 	*new_baud_rate = val;
 	DEBUG_DEC(err, "req_set_lines_config: bau");
 	
-	err = cbor_value_copy_text_string(recursed, text, &st1, recursed);
-	err |= cbor_value_get_int(recursed, &val);
-	*new_connector = val;
+	stlen = TAG_SIZE;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, &con);
+	*new_connector = con;
 	DEBUG_DEC(err, "req_set_lines_config: con");
 	
 	return err;
+}
+
+CborError CBOR_ReqSetDevsConfig(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd, C_CHAR* uri, C_UINT16* cid)
+{
+	CborError err;
+	C_UINT16 val;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = USERNAME_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)usr, &stlen, recursed);
+	DEBUG_DEC(err, "req_set_devs_config: usr");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = PASSWORD_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)pwd, &stlen, recursed);
+	DEBUG_DEC(err, "req_set_devs_config: pwd");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = URI_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)uri, &stlen, recursed);
+	DEBUG_DEC(err, "req_set_devs_config: uri");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)&val);
+	*cid = val;
+	DEBUG_DEC(err, "req_set_devs_config: cid");
+	
+	return err;	
 }
 
 /**
@@ -461,7 +503,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	CborError err;
 	C_CHAR cbor_response[RESPONSE_SIZE];		// buffer to store response, maybe better global...
 	size_t len;
-	err = CBOR_ReqHeader(cbor_stream, &cbor_req, &it, &recursed);
+	err = CBOR_ReqHeader(cbor_stream, cbor_len, &cbor_req, &it, &recursed);
 	
 	switch(cbor_req.cmd){
 		case SET_GW_CONFIG:
@@ -470,15 +512,27 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		}
 		break;
 
-		case DOWNLOAD_DEVS_CONFIG:
-		{/*
-			req_download_devs_config_t download_devs_config = {0};
-			parse_download_devs_config(root, &download_devs_config);
-			//execute_download_devs_config(&download_devs_config);
-			memmgr_free(download_devs_config.username);
-			memmgr_free(download_devs_config.password);
-			memmgr_free(download_devs_config.uri);
-		*/}
+		case SET_DEVS_CONFIG:
+		{
+			C_USERNAME usr;
+			C_PASSWORD pwd;
+			C_URI uri;
+			C_UINT16 cid;
+			err = CBOR_ReqSetDevsConfig(&recursed, usr, pwd, uri, &cid);
+			err = cbor_value_advance_fixed(&recursed);
+			err = cbor_value_leave_container(&it, &recursed);
+			
+			// write new data to configuration file and put in res the result of operation
+			// to be implemented
+			C_INT16 res = 0;
+			
+			// mqtt response 
+			// to be implemented
+			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			
+			// reboot (is it needed to stop polling and flush data before rebooting????)
+			// to be implemented
+		}
 		break;
 
 		case SCAN_DEVICES:

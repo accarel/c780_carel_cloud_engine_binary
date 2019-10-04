@@ -15,26 +15,31 @@
 
 #define  CAREL_TYPES_VERSION   100
 
-
 /* ======================================================= */
 /*                     ! WARNING !                         */
 /*              DO NOT modified the below part             */
 /* ======================================================= */
 
 /* =============== derived data type ====================== */
+
+#define USERNAME_SIZE	34
+#define PASSWORD_SIZE	34
+#define URI_SIZE 		64
+#define RTO_SIZE 		48
+
 #define C_TIME     C_INT32
 
 //ie 192.168.100.1    [0]=192 [1]=168 [2]=100 [3]=1
 typedef C_BYTE       C_IPV4[4];     
                      
-typedef C_BYTE       C_USERNAME[34];
-typedef C_BYTE       C_PASSWORD[34]; 
+typedef C_BYTE       C_USERNAME[USERNAME_SIZE];
+typedef C_BYTE       C_PASSWORD[PASSWORD_SIZE]; 
                      
-typedef C_BYTE       C_URI[64];      
+typedef C_BYTE       C_URI[URI_SIZE];      
                      
 typedef C_INT16      C_RES;     
 
-typedef C_CHAR       C_MQTT_TOPIC[64];
+typedef C_CHAR       C_MQTT_TOPIC[URI_SIZE];
 
 typedef C_BYTE	     C_GUID[16];
 
