@@ -1,18 +1,18 @@
 {                                           //TAG TYPE
-	"VER": 100,                             //VER C_UINT16   
-	"GUP": 72000,		                    //GUP C_INT32    seconds since connected or -1 if disconnected.
-	"SIG": -75,				                //SIG C_INT16    integer, dBm, it is the average of samples 
+	"ver": 101,                             //VER C_UINT16   
+	"gup": 72000,		                    //GUP C_INT32    seconds since connected or -1 if disconnected.
+	"sig": -75,				                //SIG C_INT16    integer, dBm, it is the average of samples 
 
-	"IME": "990000862471854",            	//IME C_BYTE[]   imei of device
-	"IMS": "310150123456789",           	//IMS C_BYTE[]   [optional] string, international mobile subscriber  
+	"ime": "990000862471854",            	//IME C_BYTE[]   imei of device
+	"ims": "310150123456789",           	//IMS C_BYTE[]   [optional] string, international mobile subscriber  
                                             //               identity (http://bit.ly/2VIehax).
-	"MCC": "222",                         	//MCC C_BYTE[3]  [optional] string, 
+	"mcc": "222",                         	//MCC C_BYTE[3]  [optional] string, 
                                             //               mobile country code (http://bit.ly/2VCOfVP).
-	"MNC": "88",                          	//MNC C_BYTE[3]  [optional] string, mobile 
+	"mnc": "88",                          	//MNC C_BYTE[3]  [optional] string, mobile 
                                             //               network codes (http://bit.ly/2VCOfVP).
-	"LAC": "12345",                       	//LAC C_BYTE[16] [optional] string, location area 
+	"lac": "12345",                       	//LAC C_BYTE[16] [optional] string, location area 
                                             //               code (http://bit.ly/2VFXnZR).
-	"CID": "54321",                       	//CID C_BYTE[16] [optional]  string, cell id (http://bit.ly/2Vz9Xu1).
-	"UCI": "134217727"		               	//UCI C_BYTE[16] [optional] string, a sort of cell id for 
+	"cid": "54321",                       	//CID C_BYTE[16] [optional]  string, cell id (http://bit.ly/2Vz9Xu1).
+	"uci": "134217727"		               	//UCI C_BYTE[16] [optional] string, a sort of cell id for 
                                             //               UMTS (http://bit.ly/2Vz9Xu1).
 }
