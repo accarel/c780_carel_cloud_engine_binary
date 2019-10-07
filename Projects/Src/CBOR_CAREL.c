@@ -452,6 +452,18 @@ CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C
 	return err;
 }
 
+/**
+ * @brief CBOR_ReqSetDevsConfig
+ * 
+ * Interprets CBOR set devs config
+ *
+ * @param Pointer to the CBOR current element 
+ * @param Pointer to new username
+ * @param Pointer to new password
+ * @param Pointer to new uri
+ * @param Pointer to new cid (for update)
+ * @return CborError
+ */
 CborError CBOR_ReqSetDevsConfig(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd, C_CHAR* uri, C_UINT16* cid)
 {
 	CborError err;
@@ -484,6 +496,104 @@ CborError CBOR_ReqSetDevsConfig(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd, C
 	DEBUG_DEC(err, "req_set_devs_config: cid");
 	
 	return err;	
+}
+
+/**
+ * @brief CBOR_ReqChangeCredentials
+ * 
+ * Interprets CBOR change credentials
+ *
+ * @param Pointer to the CBOR current element 
+ * @param Pointer to new username
+ * @param Pointer to new password
+ * @return CborError
+ */
+CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd)
+{
+	CborError err;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = USERNAME_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)usr, &stlen, recursed);
+	DEBUG_DEC(err, "req_change_cred: usr");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = PASSWORD_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)pwd, &stlen, recursed);
+	DEBUG_DEC(err, "req_change_cred: pwd");
+
+	return err;
+}
+
+/**
+ * @brief CBOR_ReqWriteValues
+ * 
+ * Interprets CBOR write values request
+ *
+ * @param Pointer to the CBOR current element 
+ * @param Pointer to structure for write values command
+ * @return CborError
+ */
+CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreswritevalues* cbor_wv)
+{
+	CborError err;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = ALIAS_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)cbor_wv->alias, &stlen, recursed);
+	DEBUG_DEC(err, "req_write_values: ali");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = VAL_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)cbor_wv->val, &stlen, recursed);
+	DEBUG_DEC(err, "req_write_values: val");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->func);
+	DEBUG_DEC(err, "req_write_values: fun");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->dim);
+	DEBUG_DEC(err, "req_write_values: dim");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->pos);
+	DEBUG_DEC(err, "req_write_values: pos");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->len);
+	DEBUG_DEC(err, "req_write_values: len");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = A_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)cbor_wv->a, &stlen, recursed);
+	DEBUG_DEC(err, "req_write_values: a");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = B_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)cbor_wv->b, &stlen, recursed);
+	DEBUG_DEC(err, "req_write_values: b");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->flags);
+	DEBUG_DEC(err, "req_write_values: flg");
+	
+	return err;
 }
 
 /**
@@ -588,7 +698,20 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case WRITE_VALUES:
 		{
-		//	parse_write_values(root);
+			// which status should be polling engine?
+			// should I check it is in a specific status?
+			// what to do if it is not in that status?
+			
+			c_cborreswritevalues cbor_wv = {0};
+			len = CBOR_ReqWriteValues(&recursed, &cbor_wv);
+			
+			// send modbus command to write values
+			// wait modbus response to get result
+			
+			// send response with result
+			
+			// put polling machine in some specific status?
+			
 		}
 		break;
 
@@ -628,39 +751,40 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case CHANGE_CREDENTIALS:
 		{
-		/*	req_change_cred_t change_cred_req = {0};
-			parse_change_cred(root, &change_cred_req);
-			printf("change_cred_req->username : %s\n",change_cred_req.username);
-			printf("change_cred_req->password : %s\n",change_cred_req.password);
+			C_USERNAME usr;
+			C_PASSWORD pwd;
+			err = CBOR_ReqChangeCredentials(&recursed, usr, pwd);
+			err = cbor_value_advance_fixed(&recursed);
+			err = cbor_value_leave_container(&it, &recursed);
+			
+			// write new baud rate and connector to configuration file and put in res the result of operation
+			// to be implemented
+			C_INT16 res = 0;
 
-			if(ESP_OK == execute_change_cred(change_cred_req)){
-				send_simple_res(ReqHeader.replyTo, CHANGE_CREDENTIALS, SUCCESS_CMD, MQTT__GetClient());
-			}else{
-				send_simple_res(ReqHeader.replyTo, CHANGE_CREDENTIALS, ERROR_CMD, MQTT__GetClient());
-			}
-
-			memmgr_free(change_cred_req.username);
-			memmgr_free(change_cred_req.password);
-
-			//TODO Restart
-		*/}
+			// mqtt response 
+			// to be implemented
+			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			
+			// reboot (is it needed to stop polling and flush data before rebooting????)
+			// to be implemented
+			
+		}
 		break;
 
 
 		case START_ENGINE:
 		{
 			Set_Polling_Status(C_START);
-		/*
-			send_simple_res(ReqHeader.replyTo, START_ENGINE, SUCCESS_CMD, MQTT__GetClient());
-		*/}
+			CBOR_ResSimple(cbor_response, &cbor_req, SUCCESS_CMD);
+		}
 		break;
 
 
 		case STOP_ENGINE:
 		{
 			Set_Polling_Status(C_STOP);
+			CBOR_ResSimple(cbor_response, &cbor_req, SUCCESS_CMD);
 		/*
-			send_simple_res(ReqHeader.replyTo, STOP_ENGINE, SUCCESS_CMD, MQTT__GetClient());
 			PollEngine__ActivatePassMode();
 		*/}
 		break;
@@ -668,8 +792,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		default:
 			len = CBOR_ResSimple(cbor_response, &cbor_req, INVALID_CMD);
-		//	send_simple_res(ReqHeader.replyTo, ReqHeader.cmd, INVALID_CMD, MQTT__GetClient());
-			break;
+		break;
 
 	}
 	

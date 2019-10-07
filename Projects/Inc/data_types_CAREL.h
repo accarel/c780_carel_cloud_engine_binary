@@ -15,18 +15,17 @@
 
 #define  CAREL_TYPES_VERSION   100
 
+#define USERNAME_SIZE	34
+#define PASSWORD_SIZE	34
+#define URI_SIZE 		64
+#define RTO_SIZE 		48
+
 /* ======================================================= */
 /*                     ! WARNING !                         */
 /*              DO NOT modified the below part             */
 /* ======================================================= */
 
 /* =============== derived data type ====================== */
-
-#define USERNAME_SIZE	34
-#define PASSWORD_SIZE	34
-#define URI_SIZE 		64
-#define RTO_SIZE 		48
-
 #define C_TIME     C_INT32
 
 //ie 192.168.100.1    [0]=192 [1]=168 [2]=100 [3]=1

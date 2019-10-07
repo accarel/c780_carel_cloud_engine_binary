@@ -27,6 +27,10 @@
 #define TAG_SIZE				3
 #define REPLYTO_SIZE			48
 #define RESPONSE_SIZE			80
+#define ALIAS_SIZE				10	//TODO
+#define VAL_SIZE				10
+#define A_SIZE					10
+#define B_SIZE					10
 
 #define CMD_SCAN_LINE_RES		TODO
 #define CMD_SEND_MB_ADU			TODO
@@ -37,7 +41,11 @@
 
 #define HEADERREQ_LEN			55			// header of request has fixed size
 
-#define	INVALID_CMD				-1
+enum CBOR_CmdResponse{
+	INVALID_CMD = -1,
+	SUCCESS_CMD,
+	ERROR_CMD,
+};
 
 typedef enum CloudtoGME_Commands_l{
 	SET_GW_CONFIG = 1,
@@ -58,13 +66,14 @@ typedef enum CloudtoGME_Commands_l{
 }cloud_req_commands_t;
 
 
-#define CAREL_DEBUG
+//#define CAREL_DEBUG
 
+
+#ifdef CAREL_DEBUG
 const char cannot_encode[]="cannot encode";
 const char cannot_add[]="cannot add";
 const char cannot_decode[]="cannot decode";
 
-#ifdef CAREL_DEBUG
 #define DEBUG_ENC(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_encode, a, err);
 #define DEBUG_ADD(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_add, a, err);
 #define DEBUG_DEC(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_decode, a, err);
@@ -88,27 +97,25 @@ typedef struct C_CBORHREQ{
 	C_UINT16 cmd;	
 } c_cborhreq;
 #pragma pack()
-/**
- * @brief C_CBORHRES
- *
- * Header of a response
- */
-#pragma pack(1)
-typedef struct C_CBORHRES{
-	C_UINT16 ver;
-	C_BYTE rto[REPLYTO_SIZE];
-	C_UINT16 cmd;
-	C_INT16 res;
-}c_cborhres;
-#pragma pack()
+
 /**
  * @brief C_CBORHRES
  *
  * Response to a write values (without header)
  */
 #pragma pack(1)
-typedef struct C_CBORRESWRITEVALUES{
-	int todo;
+typedef struct C_CBORREQWRITEVALUES{
+	C_CHAR alias[ALIAS_SIZE];
+	C_CHAR val[VAL_SIZE];
+	C_UINT16 func;
+	C_UINT16 addr;
+	C_UINT16 dim;
+	C_UINT16 pos;
+	C_UINT16 len;
+	C_CHAR a[A_SIZE];
+	C_CHAR b[B_SIZE];
+	C_BYTE flags;
+	
 }c_cborreswritevalues;
 #pragma pack()
 
@@ -121,7 +128,8 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream);
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
 CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector);
-
+CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd);
+CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreswritevalues* cbor_wv);
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
 
 void CBOR_Response(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 result);
