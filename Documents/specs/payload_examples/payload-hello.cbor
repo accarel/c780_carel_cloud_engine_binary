@@ -1,6 +1,6 @@
 											//TAG		TYPE    
 {
-	"ver": 100,								//VER		C_UINT16,	payload version, hexadecimal
+	"ver": 101,								//VER		C_UINT16,	payload version, hexadecimal
 	"pn": "123-456-abc-xyz",				//PN_		C_CHAR[16]	string, model part number
 	"hwv": 201,								//HWV		C_UINT16	hardware version
 	"fwv": 312,								//FWV		C_UINT16	firmware version

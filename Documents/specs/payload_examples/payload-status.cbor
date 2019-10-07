@@ -1,5 +1,5 @@
 {                                                 //TAG TYPE
-	"ver": 100,									  //VER C_UINT16 		
+	"ver": 101,									  //VER C_UINT16 		
 	"t": 1557845997,          	                  //UTC C_TIME     integer, gw unix epoch													    
 	"upt": 86400,                                 //UPT C_INT32    corresponds to T-BTM, seconds since power on													    
 	"fme": 4194304,                        		  //FME C_UINT32   integer, free memory in bytes													    
