@@ -108,7 +108,8 @@ C_RES Get_GSM_APN(C_CHAR* apn);
 
 C_RES Get_LowSpeedSamplingTime(C_UINT16* time);
 C_RES Get_HighSpeedSamplingTime(C_UINT16* time);
-C_BYTE Is_GME_Configured(void);
+C_RES Set_LowSpeedSamplingTime(C_UINT16 time);
+C_RES Set_HighSpeedSamplingTime(C_UINT16 time);
 
 #ifdef __cplusplus
 }

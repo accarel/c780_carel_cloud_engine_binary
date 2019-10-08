@@ -468,15 +468,29 @@ C_RES Get_HighSpeedSamplingTime(C_UINT16* time)
 	return 1;
 }
 
+
 /**
- * @brief Is_GME_Configured
- *        Returns configuration status of the GME
+ * @brief Set_LowSpeedSamplingRate
+ *        Sets low speed sampling time
  * 
- * @param none
- * @return 0 (not configured) or 1 (configured)
+ * @param C_CHAR* contaning the low speed sampling time
+ * @return C_SUCCESS or C_FAIL
  */
 
-C_BYTE Is_GME_Configured(void)
+C_RES Set_LowSpeedSamplingTime(C_UINT16 time)
+{  /* TO BE implemented */
+	return 1;
+}
+
+/**
+ * @brief Set_HighSpeedSamplingTime
+ *        Sets high speed sampling time
+ * 
+ * @param C_CHAR* contaning the low speed sampling time
+ * @return C_SUCCESS or C_FAIL
+ */
+
+C_RES Set_HighSpeedSamplingTime(C_UINT16 time)
 {  /* TO BE implemented */
 	return 1;
 }

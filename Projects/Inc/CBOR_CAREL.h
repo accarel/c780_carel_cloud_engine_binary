@@ -31,6 +31,10 @@
 #define VAL_SIZE				10
 #define A_SIZE					10
 #define B_SIZE					10
+#define ENTRY_PER_PKT			5	//TODO
+
+#define REPORT_SLAVE_ID_SIZE	512
+
 
 #define CMD_SCAN_LINE_RES		TODO
 #define CMD_SEND_MB_ADU			TODO
@@ -99,12 +103,12 @@ typedef struct C_CBORHREQ{
 #pragma pack()
 
 /**
- * @brief C_CBORHRES
+ * @brief C_CBORRESWRITEVALUES
  *
  * Response to a write values (without header)
  */
 #pragma pack(1)
-typedef struct C_CBORREQWRITEVALUES{
+typedef struct C_CBORRESWRITEVALUES{
 	C_CHAR alias[ALIAS_SIZE];
 	C_CHAR val[VAL_SIZE];
 	C_UINT16 func;
@@ -119,11 +123,41 @@ typedef struct C_CBORREQWRITEVALUES{
 }c_cborreswritevalues;
 #pragma pack()
 
+/**
+ * @brief C_CBORREQSETGWCONFIG
+ *
+ * Request set gw config
+ */
+#pragma pack(1)
+typedef struct C_CBORREQSETGWCONFIG{
+	C_UINT16 pva;
+	C_UINT16 pst;
+	C_UINT16 mka;
+	C_UINT16 lss;
+	C_UINT16 hss;
+}c_cborreqsetgwconfig;
+#pragma pack()
+
+/**
+ * @brief C_CBORALARMS
+ *
+ * Alarms
+ */
+#pragma pack(1)
+typedef struct C_CBORALARMS{
+	C_BYTE aty;
+	C_CHAR ali[ALIAS_SIZE];
+	C_BYTE aco;
+	C_TIME st;
+	C_TIME et;
+}c_cboralarms;
+#pragma pack()
+
 /*----------------------------------------------------------------------------------------*/
-void CBOR_Alarms(C_UINT16 alias, C_TIME tstart, C_TIME tstop, C_BYTE alarm_issue, C_CHAR* cbor_stream);
+size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms);
 size_t CBOR_Hello(C_CHAR* cbor_stream);
 size_t CBOR_Status(C_CHAR* cbor_stream);
-void CBOR_Values(C_CHAR* cbor_stream);
+size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16 frame);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);

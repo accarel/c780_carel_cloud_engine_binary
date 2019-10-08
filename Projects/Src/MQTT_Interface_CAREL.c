@@ -14,6 +14,7 @@
 #include <string.h>
 #include "MQTT_Interface_CAREL.h"   
 #include "File_System_CAREL.h"
+#include "CBOR_CAREL.h"
 
 
 /**
@@ -84,7 +85,7 @@ C_RES mqtt_subscribe_to_default_topics(void)
  */
 void mqtt_message_received_callback(C_CHAR *msg, C_UINT16 len)
 {
-	
+	CBOR_ReqTopicParser(msg, len);
 	
 }
 

@@ -13,7 +13,7 @@
 #include "data_types_IS.h"
 #include <stddef.h>
 
-#define  CAREL_TYPES_VERSION   100
+#define  CAREL_TYPES_VERSION   101
 
 #define USERNAME_SIZE	34
 #define PASSWORD_SIZE	34

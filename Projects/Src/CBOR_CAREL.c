@@ -23,17 +23,58 @@
 /**
  * @brief CBOR_Alarms
  *
- * Prepares CBOR encoded message containing information on alarms occurred in the interval from @tstart till @tstop
+ * Prepares CBOR encoded message containing information on alarms occurred in the interval from st till et
  *
- * @param alias Modbus alias of the connected device.
- * @param tstart Starting time of the monitored interval.
- * @param tstop Stop time of the monitored interval.
- * @param alarm_issue ???
  * @param Pointer to the CBOR-encoded payload
+ * @param Structure containing alarms info
  * @return void
  */
-void CBOR_Alarms(C_UINT16 alias, C_TIME tstart, C_TIME tstop, C_BYTE alarm_issue, C_CHAR* cbor_stream)
+size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 {
+	CborEncoder encoder, mapEncoder;
+	size_t len;
+	int err;
+
+	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	// map1
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
+	DEBUG_ENC(err, "alarms create main map");
+	// encode ver - elem1
+	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
+	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
+	DEBUG_ADD(err, "version");
+
+	// encode aty - elem2
+	err |= cbor_encode_text_stringz(&mapEncoder, "aty");
+	err |= cbor_encode_uint(&mapEncoder, cbor_alarms.aty);
+	DEBUG_ADD(err, "aty");
+	
+	// encode ali - elem3
+	err |= cbor_encode_text_stringz(&mapEncoder, "ali");
+	err |= cbor_encode_text_stringz(&mapEncoder, (char*)cbor_alarms.ali);
+	DEBUG_ADD(err, "ali");
+	
+	// encode aco - elem4
+	err |= cbor_encode_text_stringz(&mapEncoder, "aco");
+	err |= cbor_encode_uint(&mapEncoder, cbor_alarms.aco);
+	DEBUG_ADD(err, "aco");
+	
+	// encode st - elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "st");
+	err |= cbor_encode_uint(&mapEncoder, cbor_alarms.st);
+	DEBUG_ADD(err, "st");
+	
+	// encode et - elem6
+	err |= cbor_encode_text_stringz(&mapEncoder, "et");
+	err |= cbor_encode_uint(&mapEncoder, cbor_alarms.et);
+	DEBUG_ADD(err, "et");
+
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;
 }
 
 /**
@@ -75,55 +116,39 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	err |= cbor_encode_uint(&mapEncoder, atoi(GW_FW_REV));
 	DEBUG_ADD(err, "fw version");
 
-	// encode cfg - elem5
-	err |= cbor_encode_text_stringz(&mapEncoder, "cfg");
-	err |= cbor_encode_uint(&mapEncoder, Is_GME_Configured());			//CONFIGURED?
-	DEBUG_ADD(err, "configured");
-
-	// encode bau - elem6
+	// encode bau - elem5
 	err |= cbor_encode_text_stringz(&mapEncoder, "bau");
 	C_UINT32 baud_rate;
 	Get_RS485_BaudRate(&baud_rate);
 	err |= cbor_encode_uint(&mapEncoder, baud_rate);
 	DEBUG_ADD(err, "baud rate");
 
-	// encode mqv - elem7
+	// encode mqv - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "mqv");
 	err |= cbor_encode_uint(&mapEncoder, 1);
 	DEBUG_ADD(err, "capabilities, mqttversion");
 
-	// encode lgf - elem8
-	err |= cbor_encode_text_stringz(&mapEncoder, "lgf");
-	err |= cbor_encoder_create_array(&mapEncoder, &mapEncoder1, 2);
-	DEBUG_ENC(err, "create capabilities logfrequency array/map");
-	C_UINT16 stime;
-	Get_HighSpeedSamplingTime(&stime);
-	cbor_encode_uint(&mapEncoder1, stime);
-	Get_LowSpeedSamplingTime(&stime);
-	cbor_encode_uint(&mapEncoder1, stime);
-	cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
-
-	// encode dev - elem9
+	// encode dev - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
 	C_UINT16 device_address;
 	Get_Device_Address(&device_address);
 	err |= cbor_encode_uint(&mapEncoder, device_address);
 	DEBUG_ADD(err, "dev");
 
-	// encode gid - elem10
+	// encode gid - elem8
 	err |= cbor_encode_text_stringz(&mapEncoder, "gid");
 	C_BYTE Guid[16];
 	Get_Guid(Guid);
 	err |= cbor_encode_byte_string(&mapEncoder, Guid, 16);
 	DEBUG_ADD(err, "guid");
 	
-	//encode crc - elem 11
+	//encode crc - elem 9
 	err |= cbor_encode_text_stringz(&mapEncoder, "crc");
 	C_UINT16 crc = 0;													// to be implemented
 	err |= cbor_encode_uint(&mapEncoder, crc);
 	DEBUG_ADD(err, "crc");
 	
-	//encode crc - elem 12
+	//encode crc - elem 10
 	err |= cbor_encode_text_stringz(&mapEncoder, "cid");
 	C_UINT16 cid=0;														// to be implemented
 	err |= cbor_encode_uint(&mapEncoder, crc);
@@ -196,16 +221,108 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	return len;	
 }
 
+C_UINT32 Get_Counter(C_UINT16 index){return 0;}
+C_TIME Get_SamplingTime(C_UINT16 index){return 0;}
+C_CHAR a[1]; 
+C_CHAR* Get_Alias(C_UINT16 index){return a;}
+C_CHAR* Get_Value(C_UINT16 index){return a;}
+
 /**
  * @brief CBOR_Values
  * 
  * Prepares CBOR encoded message containing variable values
  *
  * @param Pointer to the CBOR-encoded payload
- * @return void
+ * @param Index of the first entry in table containing changed values to be sent 
+ * @param Number of entries of the table containing changed values that must be sent
+ * @param Number of frame to be written in packet
+ * @return size of the encoded stream, returns -1 in case something's gone wrong while encoding
  */
-void CBOR_Values(C_CHAR* cbor_stream)
+size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16 frame)
 {
+	CborEncoder encoder, mapEncoder, mapEncoder1;
+	size_t len;
+	CborError err;
+	
+	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	// map1
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, 6);
+	DEBUG_ENC(err, "values create main map");
+	// encode ver - elem1
+	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
+	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
+	DEBUG_ADD(err, "version");
+
+	// encode cnt - elem2
+	err |= cbor_encode_text_stringz(&mapEncoder, "cnt");
+	C_UINT32 cnt = Get_Counter(index);
+	err |= cbor_encode_uint(&mapEncoder, cnt);
+	DEBUG_ADD(err, "cnt");
+	
+	// encode btm - elem3
+	err |= cbor_encode_text_stringz(&mapEncoder, "btm");
+	C_TIME t = RTC_Get_UTC_Boot_Time();
+	err |= cbor_encode_uint(&mapEncoder, t);
+	DEBUG_ADD(err, "btm");
+	
+	// encode t - elem4
+	err |= cbor_encode_text_stringz(&mapEncoder, "t");
+	t = Get_SamplingTime(index);
+	err |= cbor_encode_uint(&mapEncoder, t);
+	DEBUG_ADD(err, "t");
+	
+	// encode vls - elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "vls");
+	// map vals
+	err = cbor_encoder_create_map(&mapEncoder, &mapEncoder1, CborIndefiniteLength);
+	DEBUG_ENC(err, "vals create map");
+	for (C_UINT16 i = 0; i < number; i++){
+		err |= cbor_encode_text_stringz(&mapEncoder1, (char*)Get_Alias(index));
+		err |= cbor_encode_text_stringz(&mapEncoder1, (char*)Get_Value(index));	
+	}
+	err |= cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
+		
+	// encode frm - elem6
+	err |= cbor_encode_text_stringz(&mapEncoder, "frm");
+	err |= cbor_encode_uint(&mapEncoder, frame);
+	DEBUG_ADD(err, "frm");
+	
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;	
+}
+
+/**
+ * @brief CBOR_FragmentedValues
+ * 
+ * Prepares CBOR encoded message fragmented into multiple pieces
+ *
+ * @param Pointer to the CBOR-encoded payload
+ * @param Index of the first entry in table containing changed values to be sent 
+ * @param Number of entries of the table containing changed values that must be sent
+ * @return none
+ *
+ * This function assumes that all data that must be sent is stored in a table where each item of index index has the structure:
+ * C_CHAR alias[], for the alias of the variable
+ * C_CHAR value[], for the value of the variable
+ * C_TIME t, for the timestamp when value was sampled
+ * C_UNT16 cnt, for the monotonic counter of sent packets
+ */
+void CBOR_FragmentedValues(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number)
+{
+	C_INT16 framecnt = 1;
+	while(number > ENTRY_PER_PKT)
+	{
+		CBOR_Values(cbor_stream, index, ENTRY_PER_PKT, framecnt);
+		index += ENTRY_PER_PKT;
+		number -= ENTRY_PER_PKT;
+		framecnt++;
+	}
+	CBOR_Values(cbor_stream, index, number, -framecnt);
+	
 }
 
 /**
@@ -261,20 +378,6 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 }
 
 /**
- * @brief Prepares CBOR encoded message containing response to a request
- * @param Pointer to the CBOR-encoded payload
- * @param Received request header
- * @param Result
- * @return Size of the appended header
- */
-void CBOR_Response(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 result)
-{
-	/* prepare header with CBOR_ResHeader */
-	/* append payload starting from returned position */
-	/* data depends on received request */
-}
-
-/**
  * @brief CBOR_ResHeader
  * 
  * Prepares CBOR response header
@@ -322,13 +425,13 @@ void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* enco
  * @param Result of the operation
  * @return Size of the appended header
  */
-size_t CBOR_ResSimple(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 res)
+size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res)
 {
 	size_t len;
 	CborEncoder encoder, mapEncoder;
 	CborError err;
 	
-	CBOR_ResHeader(cbor_stream, cbor_req, &encoder, &mapEncoder);
+	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
 	
 	// encode res - elem4
 	err = cbor_encode_text_stringz(&mapEncoder, "res");
@@ -338,7 +441,7 @@ size_t CBOR_ResSimple(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 res)
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -357,18 +460,49 @@ void CBOR_ResReadValues(C_CHAR* cbor_stream)
 {
 }
 
-void CBOR_ResScanLine(C_CHAR* cbor_stream)
+/**
+ * @brief Prepares CBOR encoded message containing result of serial line scan
+ * @param Pointer to the CBOR-encoded payload
+ * @param Pointer to the structure containing received request
+ * @param Address of first responding device
+ * @param Answer of the first responding device to Modbus command ReportSlaveId (command 17)
+ * @return void
+ */
+size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 device, C_CHAR* answer)
 {
+	size_t len;
+	CborEncoder encoder, mapEncoder;
+	CborError err;
+	
+	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
+	
+	// encode lid - elem4
+//	err = cbor_encode_text_stringz(&mapEncoder, "lid");
+//	err |= cbor_encode_int(&mapEncoder, 1); //TODO ---> do we really need it?
+//	DEBUG_ADD(err, "lid");
+
+	// encode dev - elem5
+	err = cbor_encode_text_stringz(&mapEncoder, "dev");
+	err |= cbor_encode_int(&mapEncoder, device); 
+	DEBUG_ADD(err, "dev");
+
+	// encode answer - elem6
+	err = cbor_encode_text_stringz(&mapEncoder, "ret");
+	err = cbor_encode_text_stringz(&mapEncoder, (char*)answer);
+	DEBUG_ADD(err, "ret");
+
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;
 }
 
 void CBOR_ResMbAdu(C_CHAR* cbor_stream)
 {
 }
-
-void CBOR_ResSetDevsConfig(C_CHAR* cbor_stream)
-{
-}
-
 
 /**
  * @brief CBOR_ReqHeader
@@ -543,6 +677,7 @@ CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreswritevalues* cbor_wv
 	CborError err;
 	size_t stlen;
 	char tag[TAG_SIZE];
+	C_INT16 flg;
 	
 	stlen = 3;
 	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
@@ -590,8 +725,54 @@ CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreswritevalues* cbor_wv
 	
 	stlen = 3;
 	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
-	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->flags);
+	err |= cbor_value_get_int(recursed, &flg);
+	cbor_wv->flags = flg;
 	DEBUG_DEC(err, "req_write_values: flg");
+	
+	return err;
+}
+
+/**
+ * @brief CBOR_ReqSetGwConfig
+ * 
+ * Interprets CBOR set gw config
+ *
+ * @param Pointer to the CBOR current element 
+ * @param Pointer to structure for set gw config command
+ * @return CborError
+ */
+CborError CBOR_ReqSetGwConfig(CborValue* recursed, c_cborreqsetgwconfig* cbor_setgwconfig)
+{
+	CborError err;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = ALIAS_SIZE;
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->pva);
+	DEBUG_DEC(err, "req_set_gw_config: pva");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = VAL_SIZE;
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->pst);
+	DEBUG_DEC(err, "req_set_gw_config: pst");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->mka);
+	DEBUG_DEC(err, "req_set_gw_config: mka");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->lss);
+	DEBUG_DEC(err, "req_set_gw_config: lss");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->hss);
+	DEBUG_DEC(err, "req_set_gw_config: hss");
 	
 	return err;
 }
@@ -618,7 +799,21 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	switch(cbor_req.cmd){
 		case SET_GW_CONFIG:
 		{
-
+			c_cborreqsetgwconfig cbor_setgwconfig = {0};
+			err = CBOR_ReqSetGwConfig(&recursed, &cbor_setgwconfig);
+			err = cbor_value_advance_fixed(&recursed);
+			err = cbor_value_leave_container(&it, &recursed);
+			
+			// write new data to configuration file and put in res the result of operation
+			// to be implemented
+			C_INT16 res = 0;
+			
+			// mqtt response 
+			// to be implemented
+			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			
+			// reboot (is it needed to stop polling and flush data before rebooting????)
+			// to be implemented
 		}
 		break;
 
@@ -647,6 +842,13 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case SCAN_DEVICES:
 		{
+			// scan Modbus line
+			
+			
+			// save address of first responding device in device and corresponding answer in answer
+			C_UINT16 device = 1; 								// to be implemented
+			C_CHAR answer[REPORT_SLAVE_ID_SIZE]={0};
+			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer);
 		}
 		break;
 
@@ -740,12 +942,22 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case UPDATE_CA_CERTIFICATES:
 		{
-		/*	req_update_ca_cert_t update_ca_cert = {0};
-			parse_update_ca_cert(root, &update_ca_cert);
-			memmgr_free(update_ca_cert.username);
-			memmgr_free(update_ca_cert.password);
-			memmgr_free(update_ca_cert.uri);
-		*/}
+			C_USERNAME usr;
+			C_PASSWORD pwd;
+			C_URI uri;
+			C_UINT16 cid;	// unica differenza con il payload set_devs_config... come gestire il fatto che qui non c'è il cid?
+			err = CBOR_ReqSetDevsConfig(&recursed, usr, pwd, uri, &cid);
+			err = cbor_value_advance_fixed(&recursed);
+			err = cbor_value_leave_container(&it, &recursed);
+			
+			// perform a https read file from uri, using usr and pwd authentication data
+			C_UINT16 res = 0;
+			
+			// send a report of operation
+			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			
+			// reboot?
+		}
 		break;
 
 
