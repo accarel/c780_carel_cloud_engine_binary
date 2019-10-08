@@ -1,6 +1,6 @@
 {								// TAG 	TYPE
 	"ver": 101,					// ver 	C_UINT16  
-	"cnt": 0,					// cnt 	C_UINT16 counter from 0 to 4294967295 incremented at each generated payload 
+	"cnt": 0,					// cnt 	C_UINT32 counter from 0 to 4294967295 incremented at each generated payload 
 	"btm": 1555286300,			// btm	C_TIME   unit time of machine boot time (first NTP returned data)
 	"t": 1555286400,			// t 	C_TIME   unix time of the following values
 	"vls": {					// vls	map of values sampled at T
