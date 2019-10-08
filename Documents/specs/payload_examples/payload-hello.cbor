@@ -6,7 +6,6 @@
 	"fwv": 312,								//FWV		C_UINT16	firmware version
 	"bau": 9600,							//BAU       C_UINT32    ie. 4800/9600/19200/38400/115200 for serial baudrate
 	"mqv": [3,1,1],							//MQV       C_BYTE[3]   0/0/0:NA  3/1/1="3.1.1"
-	"lgf": [60, 300],						//LGF       C_UINT16[2] array[uinteger], expressed in seconds ascending list of supported logging frequencies.
 	"dev": 1,								//DEV       C_UINT16 	Modbus address of connected device
 	"gid": xxxxxxxxxx						//GID       C_BYTE[16]  byte array zeroed if model not present, retrieved from model file
 	"crc": 43215							//CRC		C_UINT16 	CRC of model file
