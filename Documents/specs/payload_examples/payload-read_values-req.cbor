@@ -3,20 +3,20 @@
                                                     //    GME in addition to the alias that will be used 
                                                     //    in the response need to receive the full parameters
                                                     //    for addressing the variable.
-            "ALI": "34",                            //ALI C_UINT16     string.
+            "ali": "34",                            //ALI C_UINT16     string.
                                                     //    using func, starting from addr address,read dim bits
                                                     //    and then take len bit starting from pos bit; 
                                                     //    multiply the so read val by a and then add b.
-            "FUN": 1,                               //FUN C_BYTE integer, ModBus (read) function
-            "ADR": 2,                               //ADR C_BYTE integer, ModBus address (in)
-            "DIM": 16,                              //DIM C_BYTE integer, bits (valid numbers 16 o 32)
-            "POS": 1,                               //POS C_BYTE integer, 0 based
-            "LEN": 4,                               //LEN C_BYTE integer
-            "A": "1.0",                             //A   C_FLOAT  real, val * A + b
-            "B": "0",                               //B   C_FLOAT  real, val * a + B
+            "fun": 1,                               //FUN C_BYTE integer, ModBus (read) function
+            "adr": 2,                               //ADR C_BYTE integer, ModBus address (in)
+            "dim": 16,                              //DIM C_BYTE integer, bits (valid numbers 16 o 32)
+            "pos": 1,                               //POS C_BYTE integer, 0 based
+            "len": 4,                               //LEN C_BYTE integer
+            "a": "1.0",                             //A   C_FLOAT  real, val * A + b
+            "b": "0",                               //B   C_FLOAT  real, val * a + B
 													      
 													      
-            "FLG", 0,	                            //FLG C_BYTE   
+            "flg", 0,	                            //FLG C_BYTE   
 			                                        //    0=is FIXEDPOINT bit 1 = NA bit 2 = is IEEE
                                                     //    bit 3 = NA bit 4 = NA bit 5 = NA bit 6 = is signed 
                                                     //    bit 7 = is Big Endian          

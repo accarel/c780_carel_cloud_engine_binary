@@ -1,17 +1,17 @@
 {                                    //TAG TYPE  
                                      //    all these fiels are optional, the gw will configure 
                                      //    only what specified.
-    "PVA": 600,         			 //PVA C_UINT16    integer, seconds, the values message will published every
+    "pva": 600,         			 //PVA C_UINT16    integer, seconds, the values message will published every
                                      //                PVA seconds, UI: N/A.
 									       
-    "PST": 300,			             //PST C_UINT16    integer, seconds, the status message will published every
+    "pst": 300,			             //PST C_UINT16    integer, seconds, the status message will published every
                                      //                PST seconds, UI: N/A.
 									       
-    "MKA": 60,				    	 //MKA C_UINT16    integer, seconds, the mqtt keep alive interval.
+    "mka": 60,				    	 //MKA C_UINT16    integer, seconds, the mqtt keep alive interval.
 	
-	"LSS":600,                       //LSS C_UINT16    low speed sampling value in seconds
+	"lss":600,                       //LSS C_UINT16    low speed sampling value in seconds
     
-    "HSS":300,                       //HSS C_UINT16    high speed sampling value in seconds
+    "hss":300,                       //HSS C_UINT16    high speed sampling value in seconds
 ​                                           
 }                                          
 ​

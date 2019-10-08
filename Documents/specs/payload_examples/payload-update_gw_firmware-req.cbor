@@ -1,14 +1,14 @@
 {                                                          //TAG TYPE
                                                            //    this is in addition to request header.
 															     
-    "USR": "username",                                     //USR C_USERNAME  string, the user to be used for authenticating.
-    "PWD": "secret",                               		   //PWD C_PASSWORD  string, the password to be used for
+    "usr": "username",                                     //USR C_USERNAME  string, the user to be used for authenticating.
+    "pwd": "secret",                               		   //PWD C_PASSWORD  string, the password to be used for
                                                            //                authenticating.
 															     
-    "URI": "https://carel.TDB.COM/files?id=1",             //URI C_URI       the uri from which retrieve the FW
+    "uri": "https://carel.TDB.COM/files?id=1",             //URI C_URI       the uri from which retrieve the FW
 	                                                       //                This is a string of max. 64 char 
 	
-    "FID" : 10000,                             		       //FID C_UINT16    the starting Modbus file index 	  
-	"CID" : xxxxx                                          //CID C_UINT16 
+    "fid" : 10000,                             		       //FID C_UINT16    the starting Modbus file index 	  
+	"cid" : xxxxx                                          //CID C_UINT16 
       
 }
