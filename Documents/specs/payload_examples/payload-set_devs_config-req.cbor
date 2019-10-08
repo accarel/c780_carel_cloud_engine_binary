@@ -7,6 +7,6 @@
         "uri": "https://carel.TDB.COM/files?id=1",  //URI C_URI
                                                     //    the uri from which retrieve the model for the specified device.
 													
-		"cid": xxxx                                 //CID C_UINT16 
+		"tid": xxxx                                 //CID C_UINT16 transaction id
 
 }
