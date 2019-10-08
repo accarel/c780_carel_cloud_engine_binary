@@ -3,7 +3,7 @@
 										      										      
   "aty": 1,                             //ATY C_BYTE            0: not valid, 1: variabile, 2: device.
 										      
-  "ali": 33,                            //ALI C_UINT16          0 if type is not variable, alias
+  "ali": "33",                          //ALI STRING            "" if type is not variable, alias
   "aco": 0,                             //ACO C_BYTE            0: not valid, >= 1: see Device Alarms Table, 
                                         //                      0 if type is not device, alarm code
 										      
