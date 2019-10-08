@@ -1,9 +1,7 @@
 {                                               //TAG TYPE 
     // this is in addition to response header.    
         
-		"VLS": {             
-              "33" : "1.23"                     //"alias" : "value"              
-        }
-		
-		"RES": 0                                //RES C_INT16   read result, 0 ok, >= 1 error.
+		"ali": "33" 					// STRING
+		"val": "1.23"                   // STRING
+
 }
