@@ -88,7 +88,7 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 
 size_t CBOR_Hello(C_CHAR* cbor_stream)
 {
-	CborEncoder encoder, mapEncoder, mapEncoder1;
+	CborEncoder encoder, mapEncoder;
 	size_t len;
 	int err;
 
@@ -487,8 +487,8 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 	DEBUG_ADD(err, "dev");
 
 	// encode answer - elem6
-	err = cbor_encode_text_stringz(&mapEncoder, "ret");
-	err = cbor_encode_text_stringz(&mapEncoder, (char*)answer);
+	err |= cbor_encode_text_stringz(&mapEncoder, "ret");
+	err |= cbor_encode_text_stringz(&mapEncoder, (char*)answer);
 	DEBUG_ADD(err, "ret");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -500,8 +500,31 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 	return len;
 }
 
-void CBOR_ResMbAdu(C_CHAR* cbor_stream)
+size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res, C_UINT16 seq, C_CHAR* val)
 {
+	size_t len;
+	CborEncoder encoder, mapEncoder;
+	CborError err;
+	
+	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
+	
+	// encode seq - elem4
+	err = cbor_encode_text_stringz(&mapEncoder, "seq");
+	err |= cbor_encode_int(&mapEncoder, seq);
+	DEBUG_ADD(err, "seq");
+	
+	// encode val - elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "val");
+	err |= cbor_encode_text_stringz(&mapEncoder, (char*)val);
+	DEBUG_ADD(err, "val");
+	
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;
 }
 
 /**
@@ -749,13 +772,11 @@ CborError CBOR_ReqSetGwConfig(CborValue* recursed, c_cborreqsetgwconfig* cbor_se
 	
 	stlen = 3;
 	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
-	stlen = ALIAS_SIZE;
 	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->pva);
 	DEBUG_DEC(err, "req_set_gw_config: pva");
 	
 	stlen = 3;
 	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
-	stlen = VAL_SIZE;
 	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->pst);
 	DEBUG_DEC(err, "req_set_gw_config: pst");
 	
@@ -773,6 +794,25 @@ CborError CBOR_ReqSetGwConfig(CborValue* recursed, c_cborreqsetgwconfig* cbor_se
 	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
 	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_setgwconfig->hss);
 	DEBUG_DEC(err, "req_set_gw_config: hss");
+	
+	return err;
+}
+
+CborError CBOR_ReqSendMbAdu(CborValue* recursed, C_UINT16* seq, C_CHAR* adu)
+{
+	CborError err;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)seq);
+	DEBUG_DEC(err, "req_send_mb_adu: seq");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = ADU_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)adu, &stlen, recursed);
 	
 	return err;
 }
@@ -877,17 +917,21 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 
 		case SEND_MB_ADU:
-		{/*
-			req_send_mb_adu_t send_mb_adu = {0};
-			parse_send_mb_adu(root, &send_mb_adu);
-			printf("sequence : %d, adu = %s\n",send_mb_adu.sequence, send_mb_adu.adu);
+		{
+			C_UINT16 seq = 0;
+			C_CHAR adu[ADU_SIZE];
+			CBOR_ReqSendMbAdu(&recursed, &seq, adu);
 
-			if(ACTIVETED == PollEngine__GetPassModeStatus()){
-				execute_send_mb_adu(send_mb_adu);
-
-			}
-			memmgr_free(send_mb_adu.adu);
-		*/}
+			// execute command (when polling machine available) and gather result
+			C_INT16 res = 0;
+			// put modbus answer in adu buffer to reuse resources and save memory
+			
+			// mqtt response
+			// to be implemented
+			len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, res, seq, adu);
+			
+			// restart polling machine?
+		}
 		break;
 
 

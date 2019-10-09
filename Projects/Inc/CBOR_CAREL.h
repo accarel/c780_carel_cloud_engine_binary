@@ -34,7 +34,7 @@
 #define ENTRY_PER_PKT			5	//TODO
 
 #define REPORT_SLAVE_ID_SIZE	512
-
+#define ADU_SIZE				512
 
 #define CMD_SCAN_LINE_RES		TODO
 #define CMD_SEND_MB_ADU			TODO
