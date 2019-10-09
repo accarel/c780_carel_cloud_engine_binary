@@ -92,7 +92,8 @@ const char cannot_decode[]="cannot decode";
 /**
  * @brief C_CBORHREQ
  *
- * Header of a request
+ * Header of a request/response
+ * In case of a request, the last element is not populated
  */
 #pragma pack(1)
 typedef struct C_CBORHREQ{
@@ -185,7 +186,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream);
 void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
 size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req);
 size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 device, C_CHAR* answer);
-size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res, C_UINT16 seq, C_CHAR* val);
+size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 seq, C_CHAR* val);
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
 CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector);

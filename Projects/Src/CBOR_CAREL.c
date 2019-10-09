@@ -312,6 +312,12 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
  * C_CHAR value[], for the value of the variable
  * C_TIME t, for the timestamp when value was sampled
  * C_UNT16 cnt, for the monotonic counter of sent packets
+ * ___________________________________
+ * | index | alias | value | t | cnt |
+ * |___0___|__"2"__|_"1.5"_|_5_|__6__|
+ * |___1___|__"7"__|_"2.3"_|_5_|__7__|
+ * |___2___|__"5"__|_"7.1"_|11_|__8__|
+ * |___3___|_"11"__|_"1.2"_|13_|__9__|
  */
 void CBOR_FragmentedValues(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number)
 {
@@ -503,7 +509,7 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
  * @param Answer of the first responding device to Modbus command ReportSlaveId (command 17)
  * @return void
  */
-size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res, C_UINT16 seq, C_CHAR* val)
+size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 seq, C_CHAR* val)
 {
 	size_t len;
 	CborEncoder encoder, mapEncoder;
@@ -1012,7 +1018,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// write new data to configuration file and put in res the result of operation
 			// to be implemented
-				
+			cbor_req.res = 1; // todo
+			
 			// mqtt response 
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
@@ -1035,7 +1042,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// write new data to configuration file and put in res the result of operation
 			// to be implemented
-			C_INT16 res = 0;
+			cbor_req.res = 1; // todo
 			
 			// mqtt response 
 			// to be implemented
@@ -1055,6 +1062,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// save address of first responding device in device and corresponding answer in answer
 			C_UINT16 device = 1; 								// to be implemented
 			C_CHAR answer[REPORT_SLAVE_ID_SIZE]={0};
+			// answer with result
+			cbor_req.res = 1; // todo
 			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer);
 			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
@@ -1072,7 +1081,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// write new baud rate and connector to configuration file and put in res the result of operation
 			// to be implemented
-			C_INT16 res = 0;
+			cbor_req.res = 1; // todo
 
 			// mqtt response 
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
@@ -1092,12 +1101,12 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			CBOR_ReqSendMbAdu(&recursed, &seq, adu);
 
 			// execute command (when polling machine available) and gather result
-			C_INT16 res = 0;
 			// put modbus answer in adu buffer to reuse resources and save memory
+			cbor_req.res = 1; // todo
 			
 			// mqtt response
 			// to be implemented
-			len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, res, seq, adu);
+			len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, adu);
 			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// restart polling machine?
@@ -1117,6 +1126,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// send modbus command to write values
 			// wait modbus response to get result
 			C_CHAR val[VAL_SIZE];
+			cbor_req.res = 1; // todo
 			// send response with result
 			CBOR_ResReadValues(cbor_response, &cbor_req, cbor_rv.alias, val);
 			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
@@ -1138,6 +1148,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// send modbus command to write values
 			// wait modbus response to get result
+			cbor_req.res = 1; // todo
 			
 			// send response with result
 			len = CBOR_ResWriteValues(cbor_response, &cbor_req, cbor_wv.alias);
@@ -1182,6 +1193,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			err = cbor_value_leave_container(&it, &recursed);
 			
 			// perform a https read file from uri, using usr and pwd authentication data
+			cbor_req.res = 1; // todo
 			
 			// send a report of operation
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
@@ -1202,6 +1214,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// write new baud rate and connector to configuration file and put in res the result of operation
 			// to be implemented
+			cbor_req.res = 1; // todo
 			
 			// mqtt response 
 			// to be implemented
