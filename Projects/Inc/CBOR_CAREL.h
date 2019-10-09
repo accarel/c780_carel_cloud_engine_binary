@@ -98,7 +98,8 @@ const char cannot_decode[]="cannot decode";
 typedef struct C_CBORHREQ{
 	C_UINT16 ver;
 	C_BYTE rto[REPLYTO_SIZE];
-	C_UINT16 cmd;	
+	C_UINT16 cmd;
+	C_INT16 res;
 } c_cborhreq;
 #pragma pack()
 
@@ -108,7 +109,7 @@ typedef struct C_CBORHREQ{
  * Response to a write values (without header)
  */
 #pragma pack(1)
-typedef struct C_CBORRESWRITEVALUES{
+typedef struct C_CBORREQWRITEVALUES{
 	C_CHAR alias[ALIAS_SIZE];
 	C_CHAR val[VAL_SIZE];
 	C_UINT16 func;
@@ -120,7 +121,27 @@ typedef struct C_CBORRESWRITEVALUES{
 	C_CHAR b[B_SIZE];
 	C_BYTE flags;
 	
-}c_cborreswritevalues;
+}c_cborreqwritevalues;
+#pragma pack()
+
+/**
+ * @brief C_CBORRESREADVALUES
+ *
+ * Response to a write values (without header)
+ */
+#pragma pack(1)
+typedef struct C_CBORREQREADVALUES{
+	C_CHAR alias[ALIAS_SIZE];
+	C_UINT16 func;
+	C_UINT16 addr;
+	C_UINT16 dim;
+	C_UINT16 pos;
+	C_UINT16 len;
+	C_CHAR a[A_SIZE];
+	C_CHAR b[B_SIZE];
+	C_BYTE flags;
+	
+}c_cborreqreadvalues;
 #pragma pack()
 
 /**
@@ -130,11 +151,11 @@ typedef struct C_CBORRESWRITEVALUES{
  */
 #pragma pack(1)
 typedef struct C_CBORREQSETGWCONFIG{
-	C_UINT16 pva;
-	C_UINT16 pst;
-	C_UINT16 mka;
-	C_UINT16 lss;
-	C_UINT16 hss;
+	C_UINT16 pva;		// values message will be sent every pva seconds
+	C_UINT16 pst;		// status message will be sent every pst seconds
+	C_UINT16 mka;		// mqtt keep alive interval
+	C_UINT16 lss;		// low speed sampling period
+	C_UINT16 hss;		// high speed sampling period
 }c_cborreqsetgwconfig;
 #pragma pack()
 
@@ -158,25 +179,22 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms);
 size_t CBOR_Hello(C_CHAR* cbor_stream);
 size_t CBOR_Status(C_CHAR* cbor_stream);
 size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16 frame);
+void CBOR_FragmentedValues(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
+
+void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
+size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req);
+size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 device, C_CHAR* answer);
+size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res, C_UINT16 seq, C_CHAR* val);
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
 CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector);
+CborError CBOR_ReqSetDevsConfig(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd, C_CHAR* uri, C_UINT16* cid);
 CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd);
-CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreswritevalues* cbor_wv);
+CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreqwritevalues* cbor_wv);
+CborError CBOR_ReqSetGwConfig(CborValue* recursed, c_cborreqsetgwconfig* cbor_setgwconfig);
+CborError CBOR_ReqSendMbAdu(CborValue* recursed, C_UINT16* seq, C_CHAR* adu);
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
-
-void CBOR_Response(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 result);
-void CBOR_Header(C_CHAR* cbor_stream);
-void CBOR_WriteValues(C_CHAR* cbor_stream);
-void CBOR_ScanLine(C_CHAR* cbor_stream);
-void CBOR_MbAdu(C_CHAR* cbor_stream);
-void CBOR_SetDevsConfig(C_CHAR* cbor_stream);
-void CBOR_SetLinesConfig(C_CHAR* cbor_stream);
-
-void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
-size_t CBOR_ResSimple(C_CHAR* cbor_stream, c_cborhreq* cbor_req, C_INT16 res);
-
 
 #ifdef __cplusplus
 }

@@ -31,7 +31,11 @@
 
 /* Exported constants --------------------------------------------------------*/
 
+#define QOS_0 	0
+#define QOS_1 	1
 
+#define NO_RETAIN  	0
+#define RETAIN  	1
 /* Exported global variables -------------------------------------------------*/
 
 extern C_BYTE mqtt_engine_status;

@@ -14,6 +14,8 @@
 #include "Miscellaneous_IS.h"
 #include "RTC_IS.h"
 #include "ccl_manager_CAREL.h"
+#include "MQTT_Interface_IS.h"
+#include "MQTT_Interface_CAREL.h"
 
 /* Exported types ------------------------------------------------------------*/ 
 
@@ -148,10 +150,10 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	err |= cbor_encode_uint(&mapEncoder, crc);
 	DEBUG_ADD(err, "crc");
 	
-	//encode crc - elem 10
+	//encode cid - elem 10
 	err |= cbor_encode_text_stringz(&mapEncoder, "cid");
 	C_UINT16 cid=0;														// to be implemented
-	err |= cbor_encode_uint(&mapEncoder, crc);
+	err |= cbor_encode_uint(&mapEncoder, cid);
 	DEBUG_ADD(err, "cid");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -413,6 +415,11 @@ void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* enco
 	err |= cbor_encode_uint(mapEncoder, cbor_req->cmd);
 	DEBUG_ADD(err, "cmd");
    
+   	// encode res - elem4
+	err = cbor_encode_text_stringz(mapEncoder, "res");
+	err |= cbor_encode_int(mapEncoder, cbor_req->res);
+	DEBUG_ADD(err, "res");
+
 }
 
 /**
@@ -425,7 +432,7 @@ void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* enco
  * @param Result of the operation
  * @return Size of the appended header
  */
-size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res)
+size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req)
 {
 	size_t len;
 	CborEncoder encoder, mapEncoder;
@@ -433,12 +440,7 @@ size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res)
 	
 	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
 	
-	// encode res - elem4
-	err = cbor_encode_text_stringz(&mapEncoder, "res");
-	err |= cbor_encode_int(&mapEncoder, res);
-	DEBUG_ADD(err, "res");
-
-	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+	err = cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
@@ -448,20 +450,10 @@ size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res)
 }
 
 /**
- * @brief Prepares CBOR encoded message containing TODO
- * @param Pointer to the CBOR-encoded payload
- * @return void
- */
-void CBOR_ResWriteValues(C_CHAR* cbor_stream, c_cborreswritevalues* cbor_reswv)
-{
-}
-
-void CBOR_ResReadValues(C_CHAR* cbor_stream)
-{
-}
-
-/**
- * @brief Prepares CBOR encoded message containing result of serial line scan
+ * @brief CBOR_ResScanLine
+ *
+ * Prepares CBOR encoded message containing result of serial line scan
+ *
  * @param Pointer to the CBOR-encoded payload
  * @param Pointer to the structure containing received request
  * @param Address of first responding device
@@ -476,17 +468,17 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 	
 	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
 	
-	// encode lid - elem4
+	// encode lid - elem5
 //	err = cbor_encode_text_stringz(&mapEncoder, "lid");
 //	err |= cbor_encode_int(&mapEncoder, 1); //TODO ---> do we really need it?
 //	DEBUG_ADD(err, "lid");
 
-	// encode dev - elem5
+	// encode dev - elem6
 	err = cbor_encode_text_stringz(&mapEncoder, "dev");
 	err |= cbor_encode_int(&mapEncoder, device); 
 	DEBUG_ADD(err, "dev");
 
-	// encode answer - elem6
+	// encode answer - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "ret");
 	err |= cbor_encode_text_stringz(&mapEncoder, (char*)answer);
 	DEBUG_ADD(err, "ret");
@@ -500,6 +492,17 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 	return len;
 }
 
+/**
+ * @brief CBOR_ResSendMbAdu
+ * 
+ * Prepares CBOR encoded message containing result of send mb adu
+ *
+ * @param Pointer to the CBOR-encoded payload
+ * @param Pointer to the structure containing received request
+ * @param Result of Address of first responding device
+ * @param Answer of the first responding device to Modbus command ReportSlaveId (command 17)
+ * @return void
+ */
 size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 res, C_UINT16 seq, C_CHAR* val)
 {
 	size_t len;
@@ -508,13 +511,87 @@ size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_INT16 re
 	
 	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
 	
-	// encode seq - elem4
+	// encode seq - elem5
 	err = cbor_encode_text_stringz(&mapEncoder, "seq");
 	err |= cbor_encode_int(&mapEncoder, seq);
 	DEBUG_ADD(err, "seq");
 	
-	// encode val - elem5
+	// encode val - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "val");
+	err |= cbor_encode_text_stringz(&mapEncoder, (char*)val);
+	DEBUG_ADD(err, "val");
+	
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;
+}
+
+/**
+ * @brief CBOR_ResWriteValues
+ * 
+ * Prepares CBOR encoded message containing result of write values
+ *
+ * @param Pointer to the CBOR-encoded payload
+ * @param Pointer to the structure containing received request
+ * @param Pointer to alias of written value
+ * @return void
+ */
+size_t CBOR_ResWriteValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* ali)
+{
+	size_t len;
+	CborEncoder encoder, mapEncoder;
+	CborError err;
+	
+	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
+	
+	// encode ali - elem4
+	err = cbor_encode_text_stringz(&mapEncoder, "ali");
+	err |= cbor_encode_text_stringz(&mapEncoder, (char*)ali);
+	DEBUG_ADD(err, "ali");
+	
+	// encode val - elem5
+	err = cbor_encode_text_stringz(&mapEncoder, "val");
+	err |= cbor_encode_null(&mapEncoder);
+	DEBUG_ADD(err, "val");
+	
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;
+}
+
+/**
+ * @brief CBOR_ResReadValues
+ * 
+ * Prepares CBOR encoded message containing result of read values
+ *
+ * @param Pointer to the CBOR-encoded payload
+ * @param Pointer to the structure containing received request
+ * @param Pointer to alias of written value
+ * @return void
+ */
+size_t CBOR_ResReadValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* ali, C_CHAR* val)
+{
+	size_t len;
+	CborEncoder encoder, mapEncoder;
+	CborError err;
+	
+	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
+	
+	// encode ali - elem4
+	err = cbor_encode_text_stringz(&mapEncoder, "ali");
+	err |= cbor_encode_text_stringz(&mapEncoder, (char*)ali);
+	DEBUG_ADD(err, "ali");
+	
+	// encode val - elem5
+	err = cbor_encode_text_stringz(&mapEncoder, "val");
 	err |= cbor_encode_text_stringz(&mapEncoder, (char*)val);
 	DEBUG_ADD(err, "val");
 	
@@ -687,6 +764,74 @@ CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_CHAR* usr, C_CHAR* pw
 }
 
 /**
+ * @brief CBOR_ReqReadValues
+ * 
+ * Interprets CBOR write values request
+ *
+ * @param Pointer to the CBOR current element 
+ * @param Pointer to structure for read values command
+ * @return CborError
+ */
+CborError CBOR_ReqReadValues(CborValue* recursed, c_cborreqreadvalues* cbor_rv)
+{
+	CborError err;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	C_INT16 flg;
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = ALIAS_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)cbor_rv->alias, &stlen, recursed);
+	DEBUG_DEC(err, "req_read_values: ali");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_rv->func);
+	DEBUG_DEC(err, "req_read_values: fun");
+		
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_rv->addr);
+	DEBUG_DEC(err, "req_read_values: adr");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_rv->dim);
+	DEBUG_DEC(err, "req_read_values: dim");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_rv->pos);
+	DEBUG_DEC(err, "req_read_values: pos");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_rv->len);
+	DEBUG_DEC(err, "req_read_values: len");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = A_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)cbor_rv->a, &stlen, recursed);
+	DEBUG_DEC(err, "req_read_values: a");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	stlen = B_SIZE;
+	err |= cbor_value_copy_text_string(recursed, (char*)cbor_rv->b, &stlen, recursed);
+	DEBUG_DEC(err, "req_read_values: b");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, &flg);
+	cbor_rv->flags = flg;
+	DEBUG_DEC(err, "req_read_values: flg");
+	
+	return err;
+}
+
+/**
  * @brief CBOR_ReqWriteValues
  * 
  * Interprets CBOR write values request
@@ -695,7 +840,7 @@ CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_CHAR* usr, C_CHAR* pw
  * @param Pointer to structure for write values command
  * @return CborError
  */
-CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreswritevalues* cbor_wv)
+CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreqwritevalues* cbor_wv)
 {
 	CborError err;
 	size_t stlen;
@@ -718,6 +863,11 @@ CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreswritevalues* cbor_wv
 	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
 	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->func);
 	DEBUG_DEC(err, "req_write_values: fun");
+	
+	stlen = 3;
+	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
+	err |= cbor_value_get_int(recursed, (C_INT16*)cbor_wv->addr);
+	DEBUG_DEC(err, "req_write_values: adr");
 	
 	stlen = 3;
 	err = cbor_value_copy_text_string(recursed, tag, &stlen, recursed);
@@ -798,6 +948,16 @@ CborError CBOR_ReqSetGwConfig(CborValue* recursed, c_cborreqsetgwconfig* cbor_se
 	return err;
 }
 
+/**
+ * @brief CBOR_ReqSendMbAdu
+ * 
+ * Interprets CBOR send mb adu
+ *
+ * @param Pointer to the CBOR current element
+ * @param Pointer to the field seq used to detect wrong order in message de-queueing
+ * @param Pointer to the buffer containing modbus request
+ * @return CborError
+ */
 CborError CBOR_ReqSendMbAdu(CborValue* recursed, C_UINT16* seq, C_CHAR* adu)
 {
 	CborError err;
@@ -834,6 +994,12 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	CborError err;
 	C_CHAR cbor_response[RESPONSE_SIZE];		// buffer to store response, maybe better global...
 	size_t len;
+	
+	C_MQTT_TOPIC topic;
+	C_GATEWAY_ID dev_id;
+	Get_Gateway_ID(&dev_id);
+	strcpy((char*)topic,(char*)dev_id); 
+			
 	err = CBOR_ReqHeader(cbor_stream, cbor_len, &cbor_req, &it, &recursed);
 	
 	switch(cbor_req.cmd){
@@ -846,11 +1012,11 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// write new data to configuration file and put in res the result of operation
 			// to be implemented
-			C_INT16 res = 0;
-			
+				
 			// mqtt response 
 			// to be implemented
-			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -873,7 +1039,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// mqtt response 
 			// to be implemented
-			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -889,6 +1056,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			C_UINT16 device = 1; 								// to be implemented
 			C_CHAR answer[REPORT_SLAVE_ID_SIZE]={0};
 			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
+			
 		}
 		break;
 
@@ -906,8 +1075,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			C_INT16 res = 0;
 
 			// mqtt response 
-			// to be implemented
-			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -929,15 +1098,31 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// mqtt response
 			// to be implemented
 			len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, res, seq, adu);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// restart polling machine?
 		}
 		break;
 
-
+		// TODO: evaluate to collapse read values and write values code portions into a single block to optimize memory occupation
 		case READ_VALUES:
 		{
-		//	parse_read_values(root);
+			// which status should be polling engine?
+			// should I check it is in a specific status?
+			// what to do if it is not in that status?
+		
+			c_cborreqreadvalues cbor_rv = {0};
+			len = CBOR_ReqReadValues(&recursed, &cbor_rv);
+			
+			// send modbus command to write values
+			// wait modbus response to get result
+			C_CHAR val[VAL_SIZE];
+			// send response with result
+			CBOR_ResReadValues(cbor_response, &cbor_req, cbor_rv.alias, val);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
+			
+			// put polling machine in some specific status?
+			
 		}
 		break;
 
@@ -948,13 +1133,15 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// should I check it is in a specific status?
 			// what to do if it is not in that status?
 			
-			c_cborreswritevalues cbor_wv = {0};
+			c_cborreqwritevalues cbor_wv = {0};
 			len = CBOR_ReqWriteValues(&recursed, &cbor_wv);
 			
 			// send modbus command to write values
 			// wait modbus response to get result
 			
 			// send response with result
+			len = CBOR_ResWriteValues(cbor_response, &cbor_req, cbor_wv.alias);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// put polling machine in some specific status?
 			
@@ -995,10 +1182,10 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			err = cbor_value_leave_container(&it, &recursed);
 			
 			// perform a https read file from uri, using usr and pwd authentication data
-			C_UINT16 res = 0;
 			
 			// send a report of operation
-			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot?
 		}
@@ -1015,11 +1202,11 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			
 			// write new baud rate and connector to configuration file and put in res the result of operation
 			// to be implemented
-			C_INT16 res = 0;
-
+			
 			// mqtt response 
 			// to be implemented
-			len = CBOR_ResSimple(cbor_response, &cbor_req, res);
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -1031,7 +1218,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		case START_ENGINE:
 		{
 			Set_Polling_Status(C_START);
-			CBOR_ResSimple(cbor_response, &cbor_req, SUCCESS_CMD);
+			cbor_req.res = SUCCESS_CMD;
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -1039,7 +1228,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		case STOP_ENGINE:
 		{
 			Set_Polling_Status(C_STOP);
-			CBOR_ResSimple(cbor_response, &cbor_req, SUCCESS_CMD);
+			cbor_req.res = SUCCESS_CMD;
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 		/*
 			PollEngine__ActivatePassMode();
 		*/}
@@ -1047,7 +1238,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 
 		default:
-			len = CBOR_ResSimple(cbor_response, &cbor_req, INVALID_CMD);
+			cbor_req.res = INVALID_CMD;
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			mqtt_client_publish(topic, cbor_response, len, QOS_1, RETAIN);
 		break;
 
 	}
