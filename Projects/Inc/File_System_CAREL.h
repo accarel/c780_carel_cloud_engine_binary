@@ -15,10 +15,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "data_types_CAREL.h"   
-
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-#include "esp32/file_system.h"
-#endif
+#include "File_System_IS.h"
 
 typedef struct configuration_file
 {

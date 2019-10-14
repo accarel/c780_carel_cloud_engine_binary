@@ -17,6 +17,9 @@
 
 #define MAX_NUM_OF_FILES    6
 
+#define MODEL_FILE  	"/spiffs/model.bin"
+#define CERT_1 			"/spiffs/cert1.crt"
+#define CERT_2 			"/spiffs/cert2.crt"
 
 /* file names
  * this is the named stored by the script that build the ffs
@@ -32,6 +35,5 @@ void FS_DisplayFiles(void);
 void* FS_ReadFile(const char* filename);
 void* FS_ReadFile2(const char* filename);
 esp_err_t FS_SaveFile(const char* file_to_save, size_t file_size, const char* filename);
-esp_err_t FS_CheckFiles(void);
 
 #endif /* MAIN_FILE_SYSTEM_H_ */

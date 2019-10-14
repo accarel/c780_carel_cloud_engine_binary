@@ -71,47 +71,6 @@ esp_err_t init_spiffs(void)
     return ESP_OK;
 }
 
-
-esp_err_t FS_CheckFiles(void){
-    int fsize;
-    struct stat file_stat;
-    esp_err_t err1, err2;
-
-    if (stat(CERT_1, &file_stat) == -1){
-    		printf("Cert1 in %s is not found\n",CERT_1);
-    		err1 = ESP_FAIL;
-		}else{
-			fsize = (int)filesize(CERT_1);
-			printf("Cert1 found in %s, size: %d \r\n ", CERT_1, fsize);
-			err1 = ESP_OK;
-		}
-
-    if (stat(CERT_1, &file_stat) == -1){
-        	printf("Cert2 in %s is not found\n",CERT_1);
-        }else{
-        	err2 = ESP_FAIL;
-        	fsize = (int)filesize(CERT_2);
-        	printf("Cert2 found in %s, size: %d \r\n", CERT_2, fsize);
-        	err2 = ESP_OK;
-        }
-
-    if (stat(MODEL_FILE, &file_stat) == -1){
-        	printf("Model File in %s is not found\n",MODEL_FILE);
-        }else{
-        	fsize = (int)filesize(MODEL_FILE);
-        	printf("Model File found in %s, size: %d \r\n", MODEL_FILE, fsize);
-        }
-
-    if(ESP_OK == err1 && ESP_OK == err2){
-    	return ESP_OK;
-    }else{
-    	return ESP_FAIL;
-    }
-}
-
-
-
-
 void FS_DisplayFiles(void){
     int fsize;
 

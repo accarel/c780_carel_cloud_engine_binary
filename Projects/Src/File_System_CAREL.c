@@ -156,11 +156,39 @@ C_RES FSC_file_checksum_check(C_CHAR *fname)
  */
 C_RES File_System_Check_File(void)
 {  /* TO BE implemented */
-	#ifdef INCLUDE_PLATFORM_DEPENDENT
-	return FS_CheckFiles();
-	#endif
-	
-	return C_FAIL;
+	C_INT16 fsize;
+    C_RES err1, err2;
+
+    if (fopen(CERT_1, "rb") == NULL){
+    		printf("Cert1 in %s is not found\n",CERT_1);
+    		err1 = C_FAIL;
+		}else{
+			fsize = (int)filesize(CERT_1);
+			printf("Cert1 found in %s, size: %d \r\n ", CERT_1, fsize);
+			err1 = C_SUCCESS;
+		}
+
+    if (fopen(CERT_2, "rb") == NULL){
+        	printf("Cert2 in %s is not found\n",CERT_2);
+        }else{
+        	err2 = C_FAIL;
+        	fsize = (int)filesize(CERT_2);
+        	printf("Cert2 found in %s, size: %d \r\n", CERT_2, fsize);
+        	err2 = C_SUCCESS;
+        }
+
+    if (fopen(MODEL_FILE, "rb") == NULL){
+        	printf("Model File in %s is not found\n",MODEL_FILE);
+        }else{
+        	fsize = (int)filesize(MODEL_FILE);
+        	printf("Model File found in %s, size: %d \r\n", MODEL_FILE, fsize);
+        }
+
+    if(C_SUCCESS == err1 && C_SUCCESS == err2){
+    	return C_SUCCESS;
+    }else{
+    	return C_FAIL;
+    }
 }
 
 /**
