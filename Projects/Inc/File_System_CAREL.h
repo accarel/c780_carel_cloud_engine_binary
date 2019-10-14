@@ -16,6 +16,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "data_types_CAREL.h"   
 #include "File_System_IS.h"
+#include <string.h>
 
 typedef struct configuration_file
 {

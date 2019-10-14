@@ -30,20 +30,18 @@
  */
 C_INT32 FSC_filesize(const C_CHAR *fname)
 {
-  C_INT32 sz = -1;
+	C_INT32 sz = -1;
 
-  FILE* fp = fopen((char *)fname, "r");
-  if (fp != NULL)
-  {
+	FILE* fp = fopen((char *)fname, "r");
+	if (fp != NULL)
+	{
+		fseek(fp, 0L, SEEK_END);
+		sz = ftell(fp);
+		fclose(fp);
+	}
 
-    fseek(fp, 0L, SEEK_END);
-    sz = ftell(fp);
-    fclose(fp);
-  }
-
-  return sz;
+	return sz;
 }
-
 
 /**
  * @brief FSC_CRC16_on_the_fly
@@ -61,7 +59,6 @@ C_UINT16 FSC_CRC16_on_the_fly(C_BYTE action, C_BYTE nData)
 {
 	C_BYTE nTemp;
 	static C_UINT16 wCRCWord;
-
 
 	switch (action) {
    	    case CRC_RESET_ENGINE :
@@ -82,9 +79,6 @@ C_UINT16 FSC_CRC16_on_the_fly(C_BYTE action, C_BYTE nData)
     return 0xFFFF;	    
 }
 
-
-
-
 /**
  * @brief FSC_file_checksum_check
  *        check if the checksum stored at the end of a file is right  
@@ -95,100 +89,183 @@ C_UINT16 FSC_CRC16_on_the_fly(C_BYTE action, C_BYTE nData)
 
 C_RES FSC_file_checksum_check(C_CHAR *fname)
 {
-  C_INT32 sz = -1;
-  C_INT32 fsize;
-  C_INT32 count;
-  C_BYTE value;
-  C_UINT16 crc_value;
-  C_RES retval;
+	C_INT32 sz = -1;
+	C_INT32 fsize;
+	C_INT32 count;
+	C_BYTE value;
+	C_UINT16 crc_value;
+	C_RES retval;
 
-  retval = C_FAIL;
-  
-  fsize = FSC_filesize(fname);
+	retval = C_FAIL;
 
-  /* file not exist */
-  if (fsize == -1)
-  {
-	  return retval;
-  }
+	fsize = FSC_filesize(fname);
 
-
-  FILE* fp = fopen((char *)fname, "rb");
-  
-  value = 0;
-  
-  if (fp != NULL)
-  {
-    crc_value = FSC_CRC16_on_the_fly(CRC_RESET_ENGINE, value);
-
-    for (count=0; count < fsize; count++)
-	{		
-		fread(&value,sizeof(C_BYTE),1,fp);		
-		crc_value = FSC_CRC16_on_the_fly(CRC_ACCUMULATE, value);
-	}
+	/* file not exist */
+	if (fsize == -1)
+		return retval;
 	
-	
-	crc_value = FSC_CRC16_on_the_fly(CRC_RETURN_CRC, value);
-		
-	if (0x0000 == crc_value)
-	{
-		retval = C_SUCCESS;
-	}
-	else
-	{
-		retval = C_FAIL;
-	}
-			
-    fclose(fp);
-  }
+	FILE* fp = fopen((char *)fname, "rb");
+	value = 0;
 
-  return retval;	
+	if (fp != NULL)
+	{
+		crc_value = FSC_CRC16_on_the_fly(CRC_RESET_ENGINE, value);
+
+		for (count=0; count < fsize; count++)
+		{		
+			fread(&value,sizeof(C_BYTE),1,fp);		
+			crc_value = FSC_CRC16_on_the_fly(CRC_ACCUMULATE, value);
+		}
+
+		crc_value = FSC_CRC16_on_the_fly(CRC_RETURN_CRC, value);
+
+		if (0x0000 == crc_value)
+			retval = C_SUCCESS;
+		else
+			retval = C_FAIL;
+	
+		fclose(fp);
+	}
+
+	return retval;	
 }
 
-
-
 /**
- * @brief File_System_Check_File
- *        Performs the action needed to validate certificates and model file
+ * @brief FSC_Check_File
+ *        Check certificate files and model existence
  * 
  * @param none
  * @return C_SUCCESS or C_FAIL
  */
-C_RES File_System_Check_File(void)
+C_RES FSC_Check_File(void)
 {  /* TO BE implemented */
 	C_INT16 fsize;
-    C_RES err1, err2;
+	C_RES err1, err2;
 
-    if (fopen(CERT_1, "rb") == NULL){
-    		printf("Cert1 in %s is not found\n",CERT_1);
-    		err1 = C_FAIL;
-		}else{
-			fsize = (int)filesize(CERT_1);
-			printf("Cert1 found in %s, size: %d \r\n ", CERT_1, fsize);
-			err1 = C_SUCCESS;
-		}
+	if (fopen(CERT_1, "rb") == NULL)
+	{
+		printf("Cert1 in %s is not found\n",CERT_1);
+		err1 = C_FAIL;
+	}
+	else
+	{
+		fsize = (int)FSC_filesize((C_CHAR*)CERT_1);
+		printf("Cert1 found in %s, size: %d \r\n ", CERT_1, fsize);
+		err1 = C_SUCCESS;
+	}
 
-    if (fopen(CERT_2, "rb") == NULL){
-        	printf("Cert2 in %s is not found\n",CERT_2);
-        }else{
-        	err2 = C_FAIL;
-        	fsize = (int)filesize(CERT_2);
-        	printf("Cert2 found in %s, size: %d \r\n", CERT_2, fsize);
-        	err2 = C_SUCCESS;
-        }
+	if (fopen(CERT_2, "rb") == NULL)
+	{
+		printf("Cert2 in %s is not found\n",CERT_2);
+		err2 = C_FAIL;
+	}
+	else
+	{
+		fsize = (int)FSC_filesize((C_CHAR*)CERT_2);
+		printf("Cert2 found in %s, size: %d \r\n", CERT_2, fsize);
+		err2 = C_SUCCESS;
+	}
 
-    if (fopen(MODEL_FILE, "rb") == NULL){
-        	printf("Model File in %s is not found\n",MODEL_FILE);
-        }else{
-        	fsize = (int)filesize(MODEL_FILE);
-        	printf("Model File found in %s, size: %d \r\n", MODEL_FILE, fsize);
-        }
+	if (fopen(MODEL_FILE, "rb") == NULL)
+		printf("Model File in %s is not found\n",MODEL_FILE);
+	else
+	{
+		fsize = (int)FSC_filesize((C_CHAR*)MODEL_FILE);
+		printf("Model File found in %s, size: %d \r\n", MODEL_FILE, fsize);
+	}
 
-    if(C_SUCCESS == err1 && C_SUCCESS == err2){
-    	return C_SUCCESS;
-    }else{
-    	return C_FAIL;
-    }
+	if(C_SUCCESS == err1 && C_SUCCESS == err2)
+		return C_SUCCESS;
+	else
+		return C_FAIL;
+
+}
+
+/**
+ * @brief FSC_ReadFile
+ *        Read a file from file system
+ * 
+ * @param name of the file to be read
+ * @return pointer to a location where file content is copied
+ */
+void* FSC_ReadFile(const char* filename)
+{
+	FILE *input_file_ptr;
+	size_t sz_read;
+	C_UINT32 size;
+	void* data = NULL;
+
+	printf("Reading from SPIFFS : %s\n",filename);
+
+	input_file_ptr = fopen(filename, "rb");
+
+	if (input_file_ptr == NULL)
+	{
+		printf("Unable to open file! \n");
+		return NULL;
+	}
+
+	printf("Read File ok \n");
+
+	//calculation model dimension
+
+	//Set file position pointer at the end of the file
+	fseek(input_file_ptr, 0L, SEEK_END);
+	//tell me actual file position number (the number is in bytes)
+	size = ftell(input_file_ptr);
+	//point the file position at the beginning of the file
+	rewind(input_file_ptr);
+
+	printf("Size model Ok, %ld \n",size);
+
+	data = memmgr_alloc(size);
+
+	if(NULL != data)
+		printf("File allocation OK\n");
+	else
+		printf("Problem in file allocation\n");
+
+	memset(data,0,size);
+
+	sz_read = fread(data, sizeof(C_BYTE), size, input_file_ptr);  // double
+
+	if(sz_read != size)
+	printf("Read ERROR!!!! \n");
+
+	// close streaming
+	fclose(input_file_ptr);
+
+	return data;
+}
+
+
+/**
+ * @brief FSC_SaveFile
+ *        Store a file to file system
+ * 
+ * @param location where file must be saved
+ * @param size of the file
+ * @param name of the file to store
+ * @return C_FAIL or C_SUCCESS
+ */
+C_RES FSC_SaveFile(const char* file_to_save, size_t file_size, const char* filename)
+{
+
+	FILE *file;
+
+	file = fopen(filename, "w");
+	if(NULL == file)
+	{
+		printf("%s - File not found\n",filename);
+		return C_FAIL;
+	}
+	else
+	{
+		printf("%s - File found\n",filename);
+		fwrite(file_to_save , 1 , file_size , file);
+		fclose(file);
+		return C_SUCCESS;
+	}
 }
 
 /**
