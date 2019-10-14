@@ -110,47 +110,53 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	// encode hwv - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "hwv");
-	err |= cbor_encode_uint(&mapEncoder, atoi(GW_HW_REV));
+	err |= cbor_encode_uint(&mapEncoder, GW_HW_REV);
 	DEBUG_ADD(err, "hw version");
 
 	// encode fwv - elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "fwv");
-	err |= cbor_encode_uint(&mapEncoder, atoi(GW_FW_REV));
+	err |= cbor_encode_uint(&mapEncoder, GW_FW_REV);
 	DEBUG_ADD(err, "fw version");
 
-	// encode bau - elem5
+	// encode btm - elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "btm");
+	err |= cbor_encode_uint(&mapEncoder, RTC_Get_UTC_Boot_Time());
+	DEBUG_ADD(err, "boot time");
+
+	// encode bau - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "bau");
 	C_UINT32 baud_rate;
 	Get_RS485_BaudRate(&baud_rate);
 	err |= cbor_encode_uint(&mapEncoder, baud_rate);
 	DEBUG_ADD(err, "baud rate");
 
-	// encode mqv - elem6
+	// encode mqv - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "mqv");
-	err |= cbor_encode_uint(&mapEncoder, 1);
-	DEBUG_ADD(err, "capabilities, mqttversion");
+	C_BYTE MQTTver[3] = {3, 1, 1};
+	err |= cbor_encode_byte_string(&mapEncoder, MQTTver, 3);
+	DEBUG_ADD(err, "mqttversion");
 
-	// encode dev - elem7
+	// encode dev - elem8
 	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
 	C_UINT16 device_address;
 	Get_Device_Address(&device_address);
 	err |= cbor_encode_uint(&mapEncoder, device_address);
 	DEBUG_ADD(err, "dev");
 
-	// encode gid - elem8
+	// encode gid - elem9
 	err |= cbor_encode_text_stringz(&mapEncoder, "gid");
 	C_BYTE Guid[16];
 	Get_Guid(Guid);
 	err |= cbor_encode_byte_string(&mapEncoder, Guid, 16);
 	DEBUG_ADD(err, "guid");
 	
-	//encode crc - elem 9
+	//encode crc - elem10
 	err |= cbor_encode_text_stringz(&mapEncoder, "crc");
 	C_UINT16 crc = 0;													// to be implemented
 	err |= cbor_encode_uint(&mapEncoder, crc);
 	DEBUG_ADD(err, "crc");
 	
-	//encode cid - elem 10
+	//encode cid - elem11
 	err |= cbor_encode_text_stringz(&mapEncoder, "cid");
 	C_UINT16 cid=0;														// to be implemented
 	err |= cbor_encode_uint(&mapEncoder, cid);
@@ -181,7 +187,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
-	DEBUG_ENC(err, "hello create main map");
+	DEBUG_ENC(err, "status create main map");
 	// encode ver - elem1
 	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
 	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
@@ -212,7 +218,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	// encode sgn -elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "sgn");
 	C_INT16 rssi = 0;													// to be implemented
-	err |= cbor_encode_uint(&mapEncoder, rssi);
+	err |= cbor_encode_int(&mapEncoder, rssi);
 	DEBUG_ADD(err,"sgn");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -350,7 +356,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
-	DEBUG_ENC(err, "hello create main map");
+	DEBUG_ENC(err, "mobile create main map");
 	// encode ver - elem1
 	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
 	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
@@ -359,13 +365,13 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	// encode gup - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "gup");
 	C_INT32 gup = 0;											// to be implemented
-	err |= cbor_encode_uint(&mapEncoder, gup);
+	err |= cbor_encode_int(&mapEncoder, gup);
 	DEBUG_ADD(err, "gup");
 	
 	// encode sig - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "sig");
 	C_INT16 sig = 0;											// to be implemented
-	err |= cbor_encode_uint(&mapEncoder, sig);
+	err |= cbor_encode_int(&mapEncoder, sig);
 	DEBUG_ADD(err, "sig");
 	
 	// encode ime - elem4
@@ -375,7 +381,36 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	DEBUG_ADD(err, "ime");
 	
 	// other elements to come (if needed)
+	// encode ims - elem5
+	err |= cbor_encode_text_stringz(&mapEncoder, "ims");
+	C_BYTE ims[15] = {3,1,0,1,5,0,1,2,3,4,5,6,7,8,9};					// to be implemented
+	err |= cbor_encode_byte_string(&mapEncoder, ims, 15);
+	DEBUG_ADD(err, "ims");
 	
+	// encode mcc - elem6
+	err |= cbor_encode_text_stringz(&mapEncoder, "mcc");
+	C_BYTE mcc[3] = {2,2,2};											// to be implemented
+	err |= cbor_encode_byte_string(&mapEncoder, mcc, 3);
+	DEBUG_ADD(err, "mcc");
+
+	// encode lac - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "lac");
+	C_BYTE lac[16] = {1,2,3,4,5};										// to be implemented
+	err |= cbor_encode_byte_string(&mapEncoder, lac, 16);
+	DEBUG_ADD(err, "lac");
+
+	// encode cid - elem8
+	err |= cbor_encode_text_stringz(&mapEncoder, "cid");
+	C_BYTE cid[16] = {5,4,3,2,1};										// to be implemented
+	err |= cbor_encode_byte_string(&mapEncoder, cid, 16);
+	DEBUG_ADD(err, "cid");
+
+	// encode uci - elem9
+	err |= cbor_encode_text_stringz(&mapEncoder, "uci");
+	C_BYTE uci[16] = {1,3,4,2,1,7,7,2,7};								// to be implemented
+	err |= cbor_encode_byte_string(&mapEncoder, uci, 16);
+	DEBUG_ADD(err, "uci");
+
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
@@ -405,6 +440,7 @@ void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* enco
 	// map1
 	err = cbor_encoder_create_map(encoder, mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "header response");
+
 	// encode ver - elem1
 	err |= cbor_encode_text_stringz(mapEncoder, "ver");
 	err |= cbor_encode_uint(mapEncoder, CAREL_TYPES_VERSION);
@@ -420,7 +456,7 @@ void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* enco
 	C_INT16 sig = 0;											// to be implemented
 	err |= cbor_encode_uint(mapEncoder, cbor_req->cmd);
 	DEBUG_ADD(err, "cmd");
-   
+	
    	// encode res - elem4
 	err = cbor_encode_text_stringz(mapEncoder, "res");
 	err |= cbor_encode_int(mapEncoder, cbor_req->res);
