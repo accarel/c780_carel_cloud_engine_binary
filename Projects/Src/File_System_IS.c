@@ -16,8 +16,10 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "File_System_IS.h"   
-   
-   
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+#include "esp32/file_system.h"
+#endif
 
 /* Functions Implementation --------------------------------------------------*/
 
@@ -31,19 +33,12 @@
 C_RES File_System_Init(void)
 {  /* TO BE implemented */
    
-   /* call the routine to initialize the file system */
-  
+	/* call the routine to initialize the file system */
+	#ifdef INCLUDE_PLATFORM_DEPENDENT
+	return init_spiffs();
+	#endif
 	
-  if (1)
-  {
-      return C_SUCCESS;
-  }
-  else
-  {
-	  return C_FAIL;
-  }
-	    	
-	
+	return C_FAIL;
 }
 
 

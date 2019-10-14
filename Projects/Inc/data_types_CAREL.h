@@ -13,6 +13,8 @@
 #include "data_types_IS.h"
 #include <stddef.h>
 
+#define INCLUDE_PLATFORM_DEPENDENT 1
+
 #define  CAREL_TYPES_VERSION   101
 
 #define USERNAME_SIZE	34
@@ -84,8 +86,8 @@ enum list_protocols{
 // temporarily put here to compile
 #define GW_TYPE "GME"
 #define GW_PARTNUMBER "GTW000M2G0"
-#define GW_HW_REV  "100"
-#define GW_FW_REV  "100"
+#define GW_HW_REV  0x100
+#define GW_FW_REV  0x100
 
 /* ======================================================= */
 /*                 GENERAL PURPOSE DEFINE                  */

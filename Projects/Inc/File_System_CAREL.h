@@ -16,6 +16,10 @@
 /* Includes ------------------------------------------------------------------*/
 #include "data_types_CAREL.h"   
 
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+#include "esp32/file_system.h"
+#endif
+
 typedef struct configuration_file
 {
 	C_UINT32 RS485_baudrate;
@@ -78,7 +82,7 @@ typedef struct model_file{
 /* Function prototypes -------------------------------------------------------*/
 C_INT32 FSC_filesize(const C_CHAR *fname);
 C_RES FSC_file_checksum_check(C_CHAR *fname);
-C_RES File_System_Check_File(C_CHAR* name);
+C_RES File_System_Check_File(void);
 C_RES File_System_Config_Load(C_CHAR* name);
 C_RES File_System_DefaultConfig_Load(void);
 

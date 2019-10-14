@@ -9,6 +9,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include "data_types_CAREL.h"
+#include "File_System_CAREL.h"
       
 
 /* Defines  ------------------------------------------------------------------*/
@@ -27,7 +28,7 @@
  * @param none
  * @return the size in bytes of the file or -1 if file not found or I/O error 
  */
-C_INT32 FSC_filesize(C_CHAR *fname)
+C_INT32 FSC_filesize(const C_CHAR *fname)
 {
   C_INT32 sz = -1;
 
@@ -148,15 +149,18 @@ C_RES FSC_file_checksum_check(C_CHAR *fname)
 
 /**
  * @brief File_System_Check_File
- *        Performs the action needed to validate a file
+ *        Performs the action needed to validate certificates and model file
  * 
- * @param file name
+ * @param none
  * @return C_SUCCESS or C_FAIL
  */
-C_RES File_System_Check_File(C_CHAR* name)
+C_RES File_System_Check_File(void)
 {  /* TO BE implemented */
-	return 1;
+	#ifdef INCLUDE_PLATFORM_DEPENDENT
+	return FS_CheckFiles();
+	#endif
 	
+	return C_FAIL;
 }
 
 /**

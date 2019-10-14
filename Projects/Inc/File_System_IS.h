@@ -25,7 +25,14 @@
 
 /* Exported constants --------------------------------------------------------*/
 
-
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+/*-------------------------------
+ * FILES DIRECTORY
+ *-----------------------------*/
+#define MODEL_FILE  	"/spiffs/model.bin"
+#define CERT_1 			"/spiffs/cert1.crt"
+#define CERT_2 			"/spiffs/cert2.crt"
+#endif
 
 /* Function prototypes -------------------------------------------------------*/
 C_RES File_System_Init(void);
