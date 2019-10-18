@@ -2,5 +2,5 @@
     // this is in addition to request header.
 	                                       //TAG TYPE 
         "bau": 9600                        //bau C_UINT32   4800/9600/19200/38400/56800/115200
-		"con": 0						   //con C_BYTE		0: RS485 / 1:TTL								     
+		"con": 0						   //con C_BYTE		0: not valid / 1: RS485 / 2:TTL								     
 }
