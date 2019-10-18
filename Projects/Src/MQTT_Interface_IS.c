@@ -11,9 +11,9 @@
  */
 
 /* Includes ------------------------------------------------------------------------ */
-#include "MQTT_Interface_IS.h"   
+#include "MQTT_Interface_IS.h"
 
-  
+static esp_mqtt_client_handle_t mqtt_client;  
 /* Functions implementations ------------------------------------------------------- */
 
 /**
@@ -23,14 +23,14 @@
  * @param param2 Quality of service level
  * @return C_FAIL ie. not connected etc.  C_SUCCESS
  */
-C_RES mqtt_client_subscribe(C_CHAR *topic, C_INT16 qos)
-{ /* TO BE implemented */
-	
-	
-  return C_SUCCESS;
+C_RES mqtt_client_subscribe(C_SCHAR *topic, C_INT16 qos)
+{
+	C_RES err;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	err = esp_mqtt_client_subscribe(MQTT__GetClient(), (C_SCHAR*)MQTT_GetUuidTopic("/req"), qos);
+#endif
+	return C_SUCCESS;
 }
-
-
 
 /**
  * @brief mqtt_client_unsubscribe
@@ -39,18 +39,17 @@ C_RES mqtt_client_subscribe(C_CHAR *topic, C_INT16 qos)
  * @return C_FAIL ie. not connected etc.  C_SUCCESS
  */
 
-C_RES mqtt_client_unsubscribe(C_CHAR *topic)
-{ /* TO BE implemented */
+C_RES mqtt_client_unsubscribe(C_SCHAR *topic)
+{ 
+	/* TO BE implemented */
 
-  /* if (...)
-     {
-	   return C_FAIL;	 
-	 }	
-  */		
-  return C_SUCCESS;
+	/* if (...)
+	{
+		return C_FAIL;	 
+	}	
+	*/		
+	return C_SUCCESS;
 }
-
-
 
 /**
  * @brief mqtt_client_publish
@@ -62,20 +61,14 @@ C_RES mqtt_client_unsubscribe(C_CHAR *topic)
  * @param param5 retain- indicate if the publish topic is of retain type 
  * @return C_FAIL ie. not connected etc.  C_SUCCESS
  */
-C_RES mqtt_client_publish(C_CHAR *topic, C_BYTE *data, C_INT16 len, C_INT16 qos, C_INT16 retain)
-{/* TO BE implemented */
-
-  /* if (...)
-     {
-		 
-	   return C_FAIL;	 
-	 }	
-  */
-
-  return C_SUCCESS;	
+C_RES mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qos, C_INT16 retain)
+{
+	C_RES err;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	err = esp_mqtt_client_publish(MQTT__GetClient(), (C_SCHAR*)MQTT_GetUuidTopic("/connected"), (C_SCHAR*)data, len, qos, retain);
+#endif
+	return err;	
 }
-
-
 
 /**
  * @brief mqtt_client_start
@@ -85,17 +78,12 @@ C_RES mqtt_client_publish(C_CHAR *topic, C_BYTE *data, C_INT16 len, C_INT16 qos,
  */
 C_RES mqtt_client_start(void)
 {
-	
-  /* if (...)
-     {
-	   return C_FAIL;	 
-	 }	
-  */
-  
-  return C_SUCCESS;	
+	C_RES err;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	err = esp_mqtt_client_start(MQTT__GetClient());
+#endif
+	return err;	
 }
-
-
 
 /**
  * @brief mqtt_client_stop
@@ -104,27 +92,19 @@ C_RES mqtt_client_start(void)
  * @return C_FAIL ie. timeout on wait to action completation / C_SUCCESS
  */
 C_RES mqtt_client_stop(void)
-{/* TO BE implemented */
-  
- /* 
-   if you using an operating system be sure to wait that all the action
-   related to MQTT are in a safe state before to stop
-   ie. message are sent and the acknowledge receive etc. 
-   For this reason a timeout mechanism must be implemented in this routine
-   
- */ 
-	
-  /* if (...)
-     {
-	   return C_FAIL;	 
-	 }	
-  */	
-	
-	
-  return C_SUCCESS;	
+{
+	C_RES err;
+#ifdef INCLUDE_PLATFORM_DEPENDENT	
+	err = esp_mqtt_client_destroy(MQTT__GetClient());
+#endif
+	/* 
+		if you using an operating system be sure to wait that all the action
+		related to MQTT are in a safe state before to stop
+		ie. message are sent and the acknowledge receive etc. 
+		For this reason a timeout mechanism must be implemented in this routine
+	*/ 
+	return err;	
 }
-
-
 
 /**
  * @brief mqtt_client_init
@@ -132,32 +112,53 @@ C_RES mqtt_client_stop(void)
  * @param None
  * @return C_FAIL ie. no memory available (very strange but everything is possible) / C_SUCCESS
  */
-C_RES mqtt_client_init(void)
+void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 { /* TO BE implemented */
 
-  /* The below routine must be called every time a subscribed topic message 
-     arrive.  
-     You must decomment the below rountine and assign to the proper handler
-	 or alternatively call it inside your receiving routine.
-     
-     mqtt_message_received_callback(C_CHAR *msg, C_UINT len) 
-  */
+	/* The below routine must be called every time a subscribed topic message 
+		arrive.  
+		You must decomment the below rountine and assign to the proper handler
+		or alternatively call it inside your receiving routine.
+
+		mqtt_message_received_callback(C_CHAR *msg, C_UINT len) 
+	*/
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+		esp_mqtt_client_config_t mqtt_cfg = {
+		.event_handle = esp_EventHandler,
+		.uri = (C_SCHAR*)mqtt_cfg_nvm->uri,
+		.username = (C_SCHAR*)mqtt_cfg_nvm->username,
+		.password = (C_SCHAR*)mqtt_cfg_nvm->password,
+		.keepalive =  mqtt_cfg_nvm->keepalive,
+		.lwt_topic = (C_SCHAR*)MQTT_GetUuidTopic("/connected"),
+		.lwt_msg = "0",
+		.lwt_qos = 0,
+		.lwt_retain = 0,
+		.cert_pem = mqtt_cfg_nvm->cert_pem,
+	};
 	
-  return C_SUCCESS;	
+    mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+#endif
+	return mqtt_client;	
 }
 
-
-
-/**
- * @brief mqtt_client_set_uri
- *        set the MQTT server name and port     
- * @param param1 broker_uri  - the uri of the broker ie. "mqtt-dev.tera.systems"
- * @param param2 broke_port  - the listen port of the broker ie. 8883
- * @return none 
- */
-void mqtt_client_set_uri(C_CHAR *broker_uri, C_UINT16 broker_port)
-{ /* TO BE implemented */
-
-	
-		
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+C_RES esp_EventHandler(esp_mqtt_event_handle_t event)
+{
+	mqtt_client_config_t gen_mqtt = {
+		.event_id = event->event_id,
+		.msg_id = event->msg_id,
+		.topic = event->topic,
+		.topic_len = event->topic_len,
+		.data = event->data,
+		.data_len = event->data_len,
+		.client = event->client,
+	};
+	return EventHandler(gen_mqtt);
 }
+#endif
+
+esp_mqtt_client_handle_t MQTT__GetClient (void)
+{
+	return mqtt_client;
+}
+

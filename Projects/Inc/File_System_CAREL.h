@@ -81,6 +81,9 @@ typedef struct model_file{
 C_INT32 FSC_filesize(const C_CHAR *fname);
 C_RES FSC_file_checksum_check(C_CHAR *fname);
 C_RES File_System_Check_File(void);
+void* FSC_ReadFile(const char* filename);
+C_RES FSC_SaveFile(const char* file_to_save, size_t file_size, const char* filename);
+
 C_RES File_System_Config_Load(C_CHAR* name);
 C_RES File_System_DefaultConfig_Load(void);
 
@@ -113,6 +116,17 @@ C_RES Get_HighSpeedSamplingTime(C_UINT16* time);
 C_RES Set_LowSpeedSamplingTime(C_UINT16 time);
 C_RES Set_HighSpeedSamplingTime(C_UINT16 time);
 
+C_RES Get_MQTT_username(C_USERNAME usr);
+C_RES Get_MQTT_password(C_PASSWORD psw);
+C_RES Get_MQTT_keepalive(C_INT16*kat);
+C_RES Get_Gateway_Config(C_BYTE* config);
+C_RES Get_freememory(C_UINT32* freemem);
+
+C_RES Get_ValuesPeriod(C_UINT16* pva);
+C_RES Get_StatusPeriod(C_UINT16* pst);
+
+C_UINT16 Get_DB_index(void);
+C_UINT16 Get_DB_number(void);
 #ifdef __cplusplus
 }
 #endif

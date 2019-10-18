@@ -15,12 +15,22 @@
 
 #define INCLUDE_PLATFORM_DEPENDENT 1
 
-#define  CAREL_TYPES_VERSION   101
+#define  CAREL_TYPES_VERSION   257	// 0x101
 
 #define USERNAME_SIZE	34
 #define PASSWORD_SIZE	34
 #define URI_SIZE 		64
 #define RTO_SIZE 		48
+#define TOPIC_SIZE		100
+
+/* ========================================================================== */
+/* Cloud related                                                              */
+/* ========================================================================== */
+#define MQTT_DEFAULT_BROKER "mqtts://mqtt-dev.tera.systems"
+#define MQTT_DEFAULT_PORT   (8883)
+#define MQTT_DEFAULT_USER   "admin"
+#define MQTT_DEFAULT_PWD    "5Qz*(3_>K&vU!PS^"
+#define MQTT_KEEP_ALIVE_DEFAULT_SEC   (600)
 
 /* ======================================================= */
 /*                     ! WARNING !                         */
@@ -33,14 +43,14 @@
 //ie 192.168.100.1    [0]=192 [1]=168 [2]=100 [3]=1
 typedef C_BYTE       C_IPV4[4];     
                      
-typedef C_BYTE       C_USERNAME[USERNAME_SIZE];
-typedef C_BYTE       C_PASSWORD[PASSWORD_SIZE]; 
+typedef C_SBYTE       C_USERNAME[USERNAME_SIZE];
+typedef C_SBYTE       C_PASSWORD[PASSWORD_SIZE]; 
                      
-typedef C_BYTE       C_URI[URI_SIZE];      
+typedef C_SBYTE       C_URI[URI_SIZE];      
                      
 typedef C_INT16      C_RES;     
 
-typedef C_CHAR       C_MQTT_TOPIC[URI_SIZE];
+typedef C_SCHAR       C_MQTT_TOPIC[URI_SIZE];
 
 typedef C_BYTE	     C_GUID[16];
 
@@ -52,7 +62,7 @@ extern CRC_TABLE_TYPE CRCTABLE[256];
 /** 
 @brief this data type is able to store both a WiFi or GSM ID
 */
-typedef C_BYTE C_GATEWAY_ID[18];
+typedef C_SBYTE C_GATEWAY_ID[18];
 
 // type of cloud interface
 enum cloud_type {
@@ -86,8 +96,8 @@ enum list_protocols{
 // temporarily put here to compile
 #define GW_TYPE "GME"
 #define GW_PARTNUMBER "GTW000M2G0"
-#define GW_HW_REV  0x100
-#define GW_FW_REV  0x100
+#define GW_HW_REV  256	// 0x100
+#define GW_FW_REV  256	// 0x100
 
 /* ======================================================= */
 /*                 GENERAL PURPOSE DEFINE                  */
@@ -118,6 +128,11 @@ enum list_protocols{
 
 
 
+typedef enum _conf{
+	DEFAULT = 0,
+	TO_RECONFIGURE = 1,
+	CONFIGURED = 2,
+}configuration_t;
 
 
 

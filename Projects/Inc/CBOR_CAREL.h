@@ -28,10 +28,10 @@
 #define REPLYTO_SIZE			48
 #define RESPONSE_SIZE			80
 #define ALIAS_SIZE				10	//TODO
-#define VAL_SIZE				10
-#define A_SIZE					10
-#define B_SIZE					10
-#define ENTRY_PER_PKT			5	//TODO
+#define VAL_SIZE				30
+#define A_SIZE					30
+#define B_SIZE					30
+#define ENTRY_PER_PKT			VLS_NUMBER //TODO
 
 #define REPORT_SLAVE_ID_SIZE	512
 #define ADU_SIZE				512
@@ -58,8 +58,8 @@ typedef enum CloudtoGME_Commands_l{
 	SET_LINES_CONFIG,
 	SET_DEVS_CONFIG,
 	READ_VALUES,
-	WRITE_VALUES = 9,
-	UPDATE_GME_FIRMWARE,
+	WRITE_VALUES = 7,
+	UPDATE_GME_FIRMWARE=10,
 	UPDATE_DEV_FIRMWARE,
 	FLUSH_VALUES,
 	UPDATE_CA_CERTIFICATES,
@@ -70,17 +70,15 @@ typedef enum CloudtoGME_Commands_l{
 }cloud_req_commands_t;
 
 
-//#define CAREL_DEBUG
+#define CAREL_DEBUG
 
 
 #ifdef CAREL_DEBUG
-const char cannot_encode[]="cannot encode";
-const char cannot_add[]="cannot add";
-const char cannot_decode[]="cannot decode";
 
-#define DEBUG_ENC(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_encode, a, err);
-#define DEBUG_ADD(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_add, a, err);
-#define DEBUG_DEC(err, a) if (err != CborNoError) printf("%s: %s %s, error %d\n", __func__, cannot_decode, a, err);
+
+#define DEBUG_ENC(err, a) printf("%s: %s %s, error %d\n", __func__, "cannot encode", a, err);
+#define DEBUG_ADD(err, a) printf("%s: %s %s, error %d\n", __func__, "cannot add", a, err);
+#define DEBUG_DEC(err, a) printf("%s: %s %s, error %d\n", __func__, "cannot decode", a, err);
 #else
 #define DEBUG_ENC(err, a)
 #define DEBUG_ADD(err, a)
@@ -175,12 +173,27 @@ typedef struct C_CBORALARMS{
 }c_cboralarms;
 #pragma pack()
 
+#define VLS_NUMBER 		3
+typedef struct C_CBORVALS{
+	C_CHAR alias[ALIAS_SIZE];
+	C_CHAR values[ALIAS_SIZE];
+}c_cborvals;
+
+typedef struct db_values{
+	C_TIME t;
+	C_UINT32 cnt;
+	c_cborvals vls[VLS_NUMBER];
+}db_values;
+
 /*----------------------------------------------------------------------------------------*/
 size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms);
+void CBOR_SendAlarms(c_cboralarms cbor_alarms);
 size_t CBOR_Hello(C_CHAR* cbor_stream);
+void CBOR_SendHello(void);
 size_t CBOR_Status(C_CHAR* cbor_stream);
+void CBOR_SendStatus(void);
 size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16 frame);
-void CBOR_FragmentedValues(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number);
+void CBOR_SendFragmentedValues(C_UINT16 index, C_UINT16 number);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
 
 void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
@@ -190,13 +203,14 @@ size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 s
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
 CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector);
-CborError CBOR_ReqSetDevsConfig(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd, C_CHAR* uri, C_UINT16* cid);
-CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_CHAR* usr, C_CHAR* pwd);
+CborError CBOR_ReqSetDevsConfig(CborValue* recursed, C_SCHAR* usr, C_SCHAR* pwd, C_SCHAR* uri, C_UINT16* cid);
+CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_SCHAR* usr, C_SCHAR* pwd);
 CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreqwritevalues* cbor_wv);
 CborError CBOR_ReqSetGwConfig(CborValue* recursed, c_cborreqsetgwconfig* cbor_setgwconfig);
 CborError CBOR_ReqSendMbAdu(CborValue* recursed, C_UINT16* seq, C_CHAR* adu);
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
 
+C_INT16 CBOR_ExtractInt(CborValue* recursed, int64_t* read);
 #ifdef __cplusplus
 }
 #endif

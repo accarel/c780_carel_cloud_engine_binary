@@ -15,10 +15,13 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
+#include <string.h>
+#include "data_types_CAREL.h"
 #include "MQTT_Interface_IS.h"
-#include "data_types_CAREL.h"      
-   
-   
+#include "File_System_CAREL.h"
+#include "CBOR_CAREL.h"      
+#include "RTC_IS.h"
+
 /* Define --------------------------------------------------------------------*/
 #define MQTT_IS_NOT_CONNECTED 0
 #define MQTT_IS_CONNECTED     1
@@ -26,8 +29,26 @@
    
 /* Exported types ------------------------------------------------------------*/ 
 
+#pragma pack(1)
+typedef struct {
+	char *data;                         /*!< Data asociated with this event */
+    int data_len;                       /*!< Lenght of the data for this event */
+    char *topic;                        /*!< Topic asociated with this event */
+    int topic_len;                      /*!< Length of the topic for this event asociated with this event */
+    int msg_id;                         /*!< MQTT messaged id of message */
+    
+	void* client;    /*!< MQTT client handle for this event */
+	int event_id;
+	
+}mqtt_client_config_t;
+#pragma pack()
 
-
+#pragma pack(1)
+typedef struct mqtt_timing_s{
+	uint32_t cbor_status;
+	uint32_t cbor_values;
+}mqtt_times_t;
+#pragma pack()
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -36,18 +57,30 @@
 
 #define NO_RETAIN  	0
 #define RETAIN  	1
+
+#define MQTT_DEBUG
+#ifdef MQTT_DEBUG
+#define DEBUG_MQTT(format, ...) printf("MQTT: " #format "\n", ##__VA_ARGS__);
+#else
+#define DEBUG_MQTT(format, ...)
+#endif
+
+
 /* Exported global variables -------------------------------------------------*/
-
-extern C_BYTE mqtt_engine_status;
-extern C_URI broker_uri;
-extern C_UINT16 broker_port;
-
 
 
 /* Function prototypes -------------------------------------------------------*/
 
-C_RES mqtt_subscribe_to_default_topics(void);
-
+C_RES MQTT_Subscribe_Default_Topics(void);
+C_RES MQTT_Start(void);
+void MQTT_Stop(void);
+void MQTT_Status(void);
+void MQTT_Values(void);
+void MQTT_Alarms(c_cboralarms alarms);
+void MQTT_PeriodicTasks(void);
+C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic);
+C_RES EventHandler(mqtt_client_config_t event);
+void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len);
 #ifdef __cplusplus
 }
 #endif

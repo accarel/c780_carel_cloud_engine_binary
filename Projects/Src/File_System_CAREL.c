@@ -603,3 +603,48 @@ C_RES Set_HighSpeedSamplingTime(C_UINT16 time)
 {  /* TO BE implemented */
 	return 1;
 }
+
+C_RES Get_MQTT_username(C_USERNAME usr)
+{
+	return C_SUCCESS;
+}
+
+C_RES Get_MQTT_password(C_PASSWORD psw)
+{
+	return C_SUCCESS;
+}
+
+C_RES Get_MQTT_keepalive(C_INT16* kat)
+{
+	return C_SUCCESS;
+}
+
+C_RES Get_Gateway_Config(C_BYTE* config)
+{
+	return C_SUCCESS;
+}
+
+C_RES Get_freememory(C_UINT32* freemem)
+{
+	return C_SUCCESS;
+}
+
+C_RES Get_ValuesPeriod(C_UINT16* pva)
+{
+	return C_SUCCESS;
+}
+
+C_RES Get_StatusPeriod(C_UINT16* pst)
+{
+	return C_SUCCESS;
+}
+
+C_UINT16 Get_DB_index(void)
+{
+	return 1;
+}
+
+C_UINT16 Get_DB_number(void)
+{
+	return 1;
+}
