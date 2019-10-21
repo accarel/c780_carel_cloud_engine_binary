@@ -8,8 +8,6 @@
 	                                                 //               This is a string of max. 64 char 
 													       
     "fid": 5000,                               		 //FID C_UINT16   integer, 0..9999 file index, valid only for modbus file transf.
-	
-	"tid": xxx                                       //TID C_UINT16
 													       
     "wet":  300,              						 //WET C_UINT16   integer, seconds, number of second needed by the
                                                      //               target to perform a reboot after an upgrade 
