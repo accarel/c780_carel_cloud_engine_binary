@@ -1,6 +1,5 @@
 {
     // this is in addition to request header.
                                          //TAG TYPE
-    "LID": 1,                            //LID C_UNT16   integer, the line id.
- 
+    empty
 }
