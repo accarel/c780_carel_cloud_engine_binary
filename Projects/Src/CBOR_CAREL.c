@@ -14,8 +14,8 @@
 #include "Miscellaneous_IS.h"
 #include "RTC_IS.h"
 #include "ccl_manager_CAREL.h"
-//#include "MQTT_Interface_IS.h"
-//#include "MQTT_Interface_CAREL.h"
+#include "MQTT_Interface_IS.h"
+#include "MQTT_Interface_CAREL.h"
 
 /* Exported types ------------------------------------------------------------*/ 
 
@@ -37,7 +37,7 @@ C_CHAR txbuff[1000];
 void CBOR_SendAlarms(c_cboralarms cbor_alarms)
 {
 	CBOR_Alarms(txbuff, cbor_alarms);
-//	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, 0, 0, 0);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, 0, 0, 0);
 }
 
 /**
@@ -108,7 +108,7 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 void CBOR_SendHello(void)
 {
 	CBOR_Hello(txbuff);
-//	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, 0, 1, 1);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, 0, 1, 1);
 }
 
 /**
@@ -213,7 +213,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 void CBOR_SendStatus(void)
 {
 	CBOR_Status(txbuff);
-//	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/status"), (C_SBYTE*)txbuff, 0, 0, 0);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/status"), (C_SBYTE*)txbuff, 0, 0, 0);
 }
 
 /**
@@ -301,6 +301,7 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 	C_CHAR mybuf[500];
 int i;
 	size_t len = CBOR_Values(mybuf, index, number, frame);
+	#if 0
 	printf("valuespkt len %d: \n", len);
 	for (i=0;i<len;i++){
 		printf("%02X ", mybuf[i]);
@@ -311,7 +312,8 @@ int i;
 			printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(mybuf[i]));
 	}
 	printf("\n");
-//	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, 0, 0, 0);
+	#endif
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, 0, 0, 0);
 }
 
 /**
@@ -1309,7 +1311,7 @@ printf("cid %d\n", cbor_cid);
 			// mqtt response 
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -1331,7 +1333,7 @@ printf("cid %d\n", cbor_cid);
 			// mqtt response 
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -1368,7 +1370,7 @@ printf("cid %d\n", cbor_cid);
 
 			// mqtt response 
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -1398,7 +1400,7 @@ printf("cid %d\n", cbor_cid);
 			// mqtt response
 			// to be implemented
 			len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, adu, adulen);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// restart polling machine?
 		}
@@ -1422,7 +1424,7 @@ printf("cid %d\n", cbor_cid);
 			cbor_req.res = 1; // todo
 			// send response with result
 			len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, val);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// put polling machine in some specific status?
 			
@@ -1445,7 +1447,7 @@ printf("cid %d\n", cbor_cid);
 			
 			// send response with result
 			len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, NULL);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// put polling machine in some specific status?
 			
@@ -1488,7 +1490,7 @@ printf("cid %d\n", cbor_cid);
 			
 			// send a report of operation
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot?
 		}
@@ -1508,7 +1510,7 @@ printf("cid %d\n", cbor_cid);
 			// mqtt response 
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			
 			// reboot (is it needed to stop polling and flush data before rebooting????)
 			// to be implemented
@@ -1522,7 +1524,7 @@ printf("cid %d\n", cbor_cid);
 			Set_Polling_Status(C_START);
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -1532,7 +1534,7 @@ printf("cid %d\n", cbor_cid);
 			Set_Polling_Status(C_STOP);
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -1545,27 +1547,17 @@ printf("cid %d\n", cbor_cid);
 			PollEngine__ActivatePassMode();
 			*/
 			len = CBOR_ResSendMbPassThrough(cbor_response, &cbor_req, cbor_pass);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
 		default:
 			cbor_req.res = INVALID_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-//			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		break;
 
 	}
-	printf("send response, len %d: \n", len);
-	for (int i=0;i<len;i++){
-		printf("%02X ", cbor_response[i]);
-		}
-		printf("\n");
-		printf("send response binary: \n");
-		for (int i=0;i<len;i++){
-			printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(cbor_response[i]));
-		}
-		printf("\n");
 	
 	return 0;
 }
