@@ -1,0 +1,1 @@
+make size-components > gme_components_size.txt
