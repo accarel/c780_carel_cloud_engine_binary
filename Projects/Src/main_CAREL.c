@@ -120,26 +120,8 @@ void main_carel(void)
 	HTTPS_Client_Init();
 
 	/* MQTT initialization */
-	/* Retrieve information from configuration file */
-	Get_MQTT_broker(&broker_uri);
-	Get_MQTT_Port(&broker_port);
-	/* All below MQTT functions must be implemented by USR */
-	mqtt_client_set_uri(broker_uri, broker_port);
-
-	retval = mqtt_client_init();
-	if (C_FAIL == retval) 
-	{
-
-	}
-	else
-	{
-		retval = mqtt_client_start();
-			if (C_SUCCESS == retval) 
-			{
-				mqtt_engine_status = MQTT_IS_CONNECTED;	 	  	 
-			}
-	}
-	mqtt_subscribe_to_default_topics();
+	MQTT_Start();
+	MQTT_subscribe_to_default_topics();
 
 	/* Recover model file */
 	/* This function will be fully implemented by Carel */
@@ -154,13 +136,13 @@ void main_carel(void)
 	 
 	/* This function will be fully implemented by USR */
 	RS485_Init(rs485_port, rs485_baud_rate, rs485_stop_bits, rs485_parity);
-#if 0
+
 	/* Polling engine initialization */
 	/* This function will be fully implemented by Carel */
 	/* Polling engine is temporarily stopped */
 	Set_Polling_Status(C_STOP);
 	Polling_Engine_Init();
-#endif
+
 }
 
 
