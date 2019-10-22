@@ -36,13 +36,6 @@
 #define REPORT_SLAVE_ID_SIZE	512
 #define ADU_SIZE				512
 
-#define CMD_SCAN_LINE_RES		TODO
-#define CMD_SEND_MB_ADU			TODO
-#define CMD_SET_DEVS_CONFIG		TODO
-#define CMD_SET_LINES_CONFIG		TODO
-#define CMD_WRITE_VALUES		TODO
-#define CMD_READ_VALUES			TODO
-
 #define HEADERREQ_LEN			55			// header of request has fixed size
 
 enum CBOR_CmdResponse{
@@ -64,6 +57,7 @@ typedef enum CloudtoGME_Commands_l{
 	FLUSH_VALUES,
 	UPDATE_CA_CERTIFICATES,
 	SEND_MB_ADU,
+	SEND_MB_PASS_THROUGH,
 	CHANGE_CREDENTIALS,
 	START_ENGINE,
 	STOP_ENGINE,
@@ -103,12 +97,12 @@ typedef struct C_CBORHREQ{
 #pragma pack()
 
 /**
- * @brief C_CBORRESWRITEVALUES
+ * @brief C_CBORREQRDWRVALUES
  *
- * Response to a write values (without header)
+ * Read/write values request (without header)
  */
 #pragma pack(1)
-typedef struct C_CBORREQWRITEVALUES{
+typedef struct C_CBORREQRDWRVALUES{
 	C_CHAR alias[ALIAS_SIZE];
 	C_CHAR val[VAL_SIZE];
 	C_UINT16 func;
@@ -119,29 +113,10 @@ typedef struct C_CBORREQWRITEVALUES{
 	C_CHAR a[A_SIZE];
 	C_CHAR b[B_SIZE];
 	C_BYTE flags;
-	
-}c_cborreqwritevalues;
+
+}c_cborreqrdwrvalues;
 #pragma pack()
 
-/**
- * @brief C_CBORRESREADVALUES
- *
- * Response to a write values (without header)
- */
-#pragma pack(1)
-typedef struct C_CBORREQREADVALUES{
-	C_CHAR alias[ALIAS_SIZE];
-	C_UINT16 func;
-	C_UINT16 addr;
-	C_UINT16 dim;
-	C_UINT16 pos;
-	C_UINT16 len;
-	C_CHAR a[A_SIZE];
-	C_CHAR b[B_SIZE];
-	C_BYTE flags;
-	
-}c_cborreqreadvalues;
-#pragma pack()
 
 /**
  * @brief C_CBORREQSETGWCONFIG
@@ -198,19 +173,27 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream);
 
 void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
 size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req);
-size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 device, C_CHAR* answer);
-size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 seq, C_CHAR* val);
+size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 device, C_BYTE* answer, C_UINT16 answer_len);
+size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 seq, C_BYTE* val, C_UINT16 val_len);
+size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* ali, C_CHAR* val);
+size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 cbor_pass);
 
-CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req, CborValue* it, CborValue* recursed);
-CborError CBOR_ReqSetLinesConfig(CborValue* recursed, C_UINT32* new_baud_rate, C_BYTE* new_connector);
-CborError CBOR_ReqSetDevsConfig(CborValue* recursed, C_SCHAR* usr, C_SCHAR* pwd, C_SCHAR* uri, C_UINT16* cid);
-CborError CBOR_ReqChangeCredentials(CborValue* recursed, C_SCHAR* usr, C_SCHAR* pwd);
-CborError CBOR_ReqWriteValues(CborValue* recursed, c_cborreqwritevalues* cbor_wv);
-CborError CBOR_ReqSetGwConfig(CborValue* recursed, c_cborreqsetgwconfig* cbor_setgwconfig);
-CborError CBOR_ReqSendMbAdu(CborValue* recursed, C_UINT16* seq, C_CHAR* adu);
+CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req);
+CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT32* new_baud_rate, C_BYTE* new_connector);
+CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_SCHAR* usr, C_SCHAR* pwd, C_SCHAR* uri, C_UINT16* cid);
+CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrdwrvalues* cbor_wv);
+CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqsetgwconfig* cbor_setgwconfig);
+CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* seq, C_CHAR* adu);
+CborError CBOR_ReqReboot(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cid);
+CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cbor_pass);
+
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
-
+CborError CBOR_DiscardElement(CborValue* recursed);
 C_INT16 CBOR_ExtractInt(CborValue* recursed, int64_t* read);
+
+#define 	CBOR_UpdateCaCertificate 	CBOR_ReqSetDevsConfig
+#define 	CBOR_ReqChangeCredentials	CBOR_ReqSetDevsConfig
+
 #ifdef __cplusplus
 }
 #endif
