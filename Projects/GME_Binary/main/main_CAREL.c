@@ -111,8 +111,8 @@ void Carel_Main_Task(void)
           {
           	WiFi__WaitConnection();                         // RELATED TO ESP32 BOARD
 
-
-          	retval = RTC_Init();							// Carel
+          	// following call should have parameterized args
+          	retval = RTC_Init("pool.ntp.org", 123);							// Carel
           	CAREL_CHECK(retval, "TIME");
 
           	Utilities__Init();								// da capire se CAREL o ESP32
