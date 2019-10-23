@@ -93,12 +93,6 @@ enum list_protocols{
 #define MACORIMEISIZE 	15
 #endif
 
-// temporarily put here to compile
-#define GW_TYPE "GME"
-#define GW_PARTNUMBER "GTW000M2G0"
-#define GW_HW_REV  256	// 0x100
-#define GW_FW_REV  256	// 0x100
-
 /* ======================================================= */
 /*                 GENERAL PURPOSE DEFINE                  */
 /* ======================================================= */
