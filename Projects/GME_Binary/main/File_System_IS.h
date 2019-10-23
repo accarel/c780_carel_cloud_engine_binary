@@ -15,18 +15,17 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "data_types_IS.h"
-#include "data_types_IS.h"
-#include "data_types_CAREL.h"
+#include "data_types_CAREL.h"   
    
-   
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+#include "file_system.h"
+#endif
 /* Exported types ------------------------------------------------------------*/ 
 
 
 
 
 /* Exported constants --------------------------------------------------------*/
-
 
 
 /* Function prototypes -------------------------------------------------------*/
