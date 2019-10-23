@@ -120,14 +120,4 @@ enum list_protocols{
 /* ==== Define types for CBOR ==== */
 #define C_CBOR_FLOAT_NaN 0xf97e00
 
-
-
-typedef enum _conf{
-	DEFAULT = 0,
-	TO_RECONFIGURE = 1,
-	CONFIGURED = 2,
-}configuration_t;
-
-
-
 #endif   /* #ifndef __CAREL_TYPES_H */
