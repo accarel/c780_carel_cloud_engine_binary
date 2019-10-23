@@ -9,6 +9,10 @@
 
 #include "nvm.h"
 #include "sys.h"
+#include "data_types_IS.h"
+#include "data_types_CAREL.h"
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_spiffs.h"
 
 static nvs_handle my_handle;
@@ -29,10 +33,12 @@ void NVM__Open(void){
 void NVM__Close(void){
 	nvs_close(my_handle);
 }
+#endif
 
-esp_err_t NVM__ReadU8Value(const char* var, uint8_t* val)
+C_INT16 NVM__ReadU8Value(const C_SCHAR* var, C_BYTE* val)
 {
-    esp_err_t err ;
+    C_INT16 err = C_FAIL;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 
     	NVM__Open();
         // Read
@@ -53,14 +59,15 @@ esp_err_t NVM__ReadU8Value(const char* var, uint8_t* val)
         }
 
         NVM__Close();
+#endif
     return err;
 }
 
-esp_err_t NVM__WriteU8Value(const char* var, uint8_t val)
+C_INT16 NVM__WriteU8Value(const C_SCHAR* var, C_BYTE val)
 {
-    esp_err_t err ;
-
-    	NVM__Open();
+    C_INT16 err = C_FAIL;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+		NVM__Open();
         // Write
         //PRINTF_DEBUG_NVM("Updating %s in NVS ... ", var);
         err = nvs_set_u8(my_handle, var, val);
@@ -75,14 +82,16 @@ esp_err_t NVM__WriteU8Value(const char* var, uint8_t val)
         NVM__Close();
     PRINTF_DEBUG_NVM("\n");
 
+#endif
 return err;
 }
 
 
 
-esp_err_t NVM__ReadU32Value(const char* var, uint32_t* val)
+C_INT16 NVM__ReadU32Value(const C_SCHAR* var, C_UINT32* val)
 {
-    esp_err_t err ;
+    C_INT16 err =C_FAIL;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 
     	NVM__Open();
         // Read
@@ -103,13 +112,14 @@ esp_err_t NVM__ReadU32Value(const char* var, uint32_t* val)
         }
 
         NVM__Close();
+#endif
     return err;
 }
 
-esp_err_t NVM__WriteU32Value(const char* var, uint32_t val)
+C_INT16 NVM__WriteU32Value(const C_SCHAR* var, C_UINT32 val)
 {
-    esp_err_t err ;
-
+	C_INT16 err = C_FAIL;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     	NVM__Open();
         // Write
         //PRINTF_DEBUG_NVM("Updating %s in NVS ... ", var);
@@ -121,19 +131,16 @@ esp_err_t NVM__WriteU32Value(const char* var, uint32_t val)
 
         NVM__Close();
     PRINTF_DEBUG_NVM("\n");
-
-return err;
+#endif
+	return err;
 }
 
 
-
-
-
-esp_err_t NVM__WriteString (const char* var, char* str)
+C_INT16 NVM__WriteString (const C_SCHAR* var, C_SCHAR* str)
 {
-    esp_err_t err ;
+    C_INT16 err = C_FAIL;
 
-
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     	NVM__Open();
         //PRINTF_DEBUG_NVM("Updating %s in NVS ... ",var);
         err = nvs_set_str(my_handle, var, str);
@@ -146,9 +153,11 @@ esp_err_t NVM__WriteString (const char* var, char* str)
         //PRINTF_DEBUG_NVM((err2 != ESP_OK) ? "Failed!\n" : "Done\n");
 
         NVM__Close();
+#endif
     return err;
 }
 
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "http_server.h"
 void test_write_config_to_nvm(void){
 	html_config_param_t config = HTTPServer__GetCustomConfig();
@@ -185,16 +194,14 @@ void test_write_config_to_nvm(void){
 
 	        NVM__Close();
 	    }
-
-
 }
+#endif
 
-
-
-esp_err_t NVM__ReadString(const char* var, char* str, size_t* len)
+C_INT16 NVM__ReadString(const C_SCHAR* var, C_SCHAR* str, size_t* len)
 {
-    esp_err_t err ;
+    C_INT16 err = C_FAIL;
 
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     	NVM__Open();
     	nvs_get_str(my_handle, var, NULL, len);
 
@@ -216,13 +223,16 @@ esp_err_t NVM__ReadString(const char* var, char* str, size_t* len)
         strcpy(str,temp);
         memmgr_free(temp);
 
+#endif
     return err;
 }
 
 
-esp_err_t NVM__EraseKey(const char* var)
+C_INT16 NVM__EraseKey(const C_SCHAR* var)
 {
-	esp_err_t err ;
+	C_INT16 err = C_FAIL;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 	NVM__Open();
 
 		err = nvs_erase_key(my_handle, var);
@@ -234,14 +244,16 @@ esp_err_t NVM__EraseKey(const char* var)
 		PRINTF_DEBUG_NVM((err2 != ESP_OK) ? "Failed!\n" : "Done\n");
 
 		NVM__Close();
+#endif
 	return err;
 }
 
 
-
-esp_err_t NVM__EraseAll(void)
+C_INT16 NVM__EraseAll(void)
 {
-	esp_err_t err ;
+	C_INT16 err = C_FAIL;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 	NVM__Open();
 
 		err = nvs_erase_all(my_handle);
@@ -253,61 +265,18 @@ esp_err_t NVM__EraseAll(void)
 		PRINTF_DEBUG_NVM((err2 != ESP_OK) ? "Failed!\n" : "Done\n");
 
 		NVM__Close();
+
+#endif
 	return err;
 }
 
 
-
-
-
-/*
-esp_err_t NVM__ReadBlob(const char* var, void* vec, size_t* len)
+C_INT16 NVM__ReadBlob(const C_SCHAR* var, void* vec, size_t* len)
 {
-    esp_err_t err ;
-    int i;
-    //void* vec1;
-    uint8_t conf[400];
-    memset(conf,5,400*sizeof(uint8_t));
-    // Open
-    PRINTF_DEBUG_NVM("\n");
-    PRINTF_DEBUG_NVM("Opening Non-Volatile Storage (NVS) handle... ");
-    //nvs_handle my_handle;
-    err = nvs_open("storage", NVS_READWRITE, &my_handle);
-    if (err != ESP_OK) {
-        PRINTF_DEBUG_NVM("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
-    } else {
-        PRINTF_DEBUG_NVM("Done\n");
+    C_INT16 err = C_FAIL;
 
-        err = nvs_get_blob(my_handle, var, vec, len);		//vec
-        PRINTF_DEBUG_NVM("Reading %s, is  ....  length = %d \n",var , (int)*len);
-
-        //Commit
-        //PRINTF_DEBUG_NVM("Committing updates in NVS ... ");
-        //esp_err_t err2 = nvs_commit(my_handle);
-        //PRINTF_DEBUG_NVM((err2 != ESP_OK) ? "Failed!\n" : "Done\n");
-
-        // Close
-        //nvs_close(my_handle);
-    }
-
-    memcpy(conf,vec,*len);
-    for(i=0;i<*len;i++){
-    	//conf[i]= *vec;
-    	//vec++;
-    	PRINTF_DEBUG_NVM("vec1[%d] = %d\n",i,conf[i]);
-    }
-    return err;
-}
-
-*/
-
-
-
-esp_err_t NVM__ReadBlob(const char* var, void* vec, size_t* len)
-{
-    esp_err_t err ;
-
-        // Open
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	        // Open
         PRINTF_DEBUG_NVM("\n");
         PRINTF_DEBUG_NVM("Opening Non-Volatile Storage (NVS) handle... ");
         //nvs_handle my_handle;
@@ -330,25 +299,16 @@ esp_err_t NVM__ReadBlob(const char* var, void* vec, size_t* len)
 		   memmgr_free(temp);
 
         }
-
+#endif
     return err;
 }
 
 
-
-
-
-
-
-
-
-
-
-
-esp_err_t NVM__WriteBlob (const char* var, void* vec, size_t len)
+C_INT16 NVM__WriteBlob (const C_SCHAR* var, void* vec, size_t len)
 {
-    esp_err_t err ;
+    C_INT16 err = C_FAIL;
 
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     // Open
     PRINTF_DEBUG_NVM("\n");
     PRINTF_DEBUG_NVM("Opening Non-Volatile Storage (NVS) handle... ");
@@ -372,19 +332,6 @@ esp_err_t NVM__WriteBlob (const char* var, void* vec, size_t len)
         // Close
         nvs_close(my_handle);
     }
-
+#endif
     return err;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
