@@ -20,16 +20,34 @@
 
 #define MQTT_USER "mqtt_user"
 #define MQTT_PASS "mqtt_pass"
+#define MQTT_URL "mqtt_url"
 
 #define MODEL_GUID "model_guid"
 #define LINE_ID "js_lindid"
 
 
 
+
+#if NVM_DEBUG == 1
+	#define	PRINTF_DEBUG_NVM	printf
+#else
+	#define	PRINTF_DEBUG_NVM(...)
+#endif
+
+
+
 esp_err_t NVM__ReadString(const char* var, char* str, size_t* len);
 esp_err_t NVM__WriteString (const char* var, char* str);
-esp_err_t NVM__WriteU8Value(const char* var, uint8_t val);
+
 esp_err_t NVM__ReadU8Value(const char* var, uint8_t* val);
+esp_err_t NVM__WriteU8Value(const char* var, uint8_t val);
+
+esp_err_t NVM__ReadU16Value(const char* var, uint16_t* val);
+esp_err_t NVM__WriteU16Value(const char* var, uint16_t val);
+
+esp_err_t NVM__ReadU32Value(const char* var, uint32_t* val);
+esp_err_t NVM__WriteU32Value(const char* var, uint32_t val);
+
 esp_err_t NVM__EraseKey(const char* var);
 
 esp_err_t NVM__WriteBlob (const char* var, void* vec, size_t len);
