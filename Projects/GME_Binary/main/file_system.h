@@ -25,11 +25,7 @@
 
 
 
-long filesize(const char *fname);
 esp_err_t init_spiffs(void);
-void FS_DisplayFiles(void);
-void* FS_ReadFile(const char* filename);
-
 
 
 #endif /* MAIN_FILE_SYSTEM_H_ */
