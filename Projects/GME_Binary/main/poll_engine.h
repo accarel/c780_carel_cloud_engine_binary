@@ -233,9 +233,13 @@ void create_modbus_tables(void);
 mb_parameter_descriptor_t* PollEngine__GetParamVectPtr(void);
 uint16_t PollEngine__GetParamNum(void);
 
+void PollEngine__StartEngine(void);
+void PollEngine__StopEngine(void);
+uint8_t PollEngine__GetEngineStatus(void);
+void PollEngine__ActivatePassMode(void);
+void PollEngine__DeactivatePassMode(void);
+uint8_t PollEngine__GetPassModeStatus(void);
 
 void CarelEngineMB_Init(void);
-
-
 
 #endif /* MAIN_POLL_ENGINE_H_ */

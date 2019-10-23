@@ -1696,5 +1696,31 @@ void CarelEngineMB_Init(void){
 
 
 
+void PollEngine__StartEngine(void){
+	PollEngine_Status.engine = RUNNING;
+}
+
+void PollEngine__StopEngine(void){
+	PollEngine_Status.engine = STOPPED;
+}
+
+
+uint8_t PollEngine__GetEngineStatus(void){
+	return PollEngine_Status.engine;
+}
+
+
+void PollEngine__ActivatePassMode(void){
+	PollEngine_Status.passing_mode = ACTIVETED;
+}
+
+void PollEngine__DeactivatePassMode(void){
+	PollEngine_Status.passing_mode = DEACTIVATED;
+}
+
+uint8_t PollEngine__GetPassModeStatus(void){
+	return PollEngine_Status.passing_mode;
+}
+
 
 
