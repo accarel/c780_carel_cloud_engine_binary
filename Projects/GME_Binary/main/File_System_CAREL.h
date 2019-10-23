@@ -81,6 +81,7 @@ typedef struct model_file{
 C_INT32 FSC_filesize(const C_CHAR *fname);
 C_RES FSC_file_checksum_check(C_CHAR *fname);
 C_RES File_System_Check_File(void);
+C_RES FS_DisplayFiles(void);
 void* FSC_ReadFile(const char* filename);
 C_RES FSC_SaveFile(const char* file_to_save, size_t file_size, const char* filename);
 

@@ -7,7 +7,7 @@
 #include "wifi.h"
 #include "utilities.h"
 #include "nvm.h"
-#include "file_system.h"
+#include "File_System_CAREL.h"
 
 
 
@@ -140,7 +140,7 @@ esp_err_t MQTT__Start(void)
 
 	/* FS_ReadFile allocate dynamically using memmgr_alloc and retuen the pointer of the allocated space,
 	 * so we have to free the allocated space at the end of the function */
-	ServerCertficate = (char*) FS_ReadFile(CERT_1);
+	ServerCertficate = (char*) FSC_ReadFile(CERT_1);
 
 
 //	if(ESP_OK == NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)
