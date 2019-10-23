@@ -28,9 +28,8 @@
 /* ========================================================================== */
 #define GW_TYPE "GME"
 #define GW_PARTNUMBER "GTW000M2G0"
-#define GW_HW_REV  "100"
-#define GW_FW_REV  "100"
-
+#define GW_HW_REV  256 //0x100
+#define GW_FW_REV  256 //0x100
 #define GW_CLOUDIFACE_TYPE  "wifi"
 #define GW_CLOUDIFACE_NAME  "WIFI-1"
 #define GW_CLOUDIFACE_SUBTYPE "2.4 GHz"       
@@ -73,21 +72,6 @@
 #define MQTT_DEFAULT_USER   "admin"
 #define MQTT_DEFAULT_PWD    "5Qz*(3_>K&vU!PS^"
 #define MQTT_KEEP_ALIVE_DEFAULT_SEC   (600)
-
-
-/* ========================================================================== */
-/* capabilities cloud related                                                 */
-/* ========================================================================== */
-#define MQTT_COMPRESSION_L 4
-#define MQTT_COMPRESSION_W 8
-
-// integer, whether and how values logging is supported,
-// -1 unlimited days back | 0 unsupported | >= 1 number of days back
-#define GW_CAPAB_LOGVALUES 0
-
-// integer, whether and how alarms logging is supported,
-// -1 unlimited days back | 0 unsupported | >= 1 number of days back.
-#define GW_CAPAB_LOGALARMS 0
 
 /* ========================================================================== */
 /* POLLING ENGINE RELATED                                                     */
