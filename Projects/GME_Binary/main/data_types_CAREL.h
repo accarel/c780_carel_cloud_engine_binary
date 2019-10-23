@@ -11,10 +11,26 @@
 
 /* ==== Include ==== */
 #include "data_types_IS.h"
+#include <stddef.h>
 
+#define INCLUDE_PLATFORM_DEPENDENT 1
 
-#define  CAREL_TYPES_VERSION   100
+#define  CAREL_TYPES_VERSION   257	// 0x101
 
+#define USERNAME_SIZE	34
+#define PASSWORD_SIZE	34
+#define URI_SIZE 		64
+#define RTO_SIZE 		48
+#define TOPIC_SIZE		100
+
+/* ========================================================================== */
+/* Cloud related                                                              */
+/* ========================================================================== */
+#define MQTT_DEFAULT_BROKER "mqtts://mqtt-dev.tera.systems"
+#define MQTT_DEFAULT_PORT   (8883)
+#define MQTT_DEFAULT_USER   "admin"
+#define MQTT_DEFAULT_PWD    "5Qz*(3_>K&vU!PS^"
+#define MQTT_KEEP_ALIVE_DEFAULT_SEC   (600)
 
 /* ======================================================= */
 /*                     ! WARNING !                         */
@@ -22,37 +38,66 @@
 /* ======================================================= */
 
 /* =============== derived data type ====================== */
-typedef C_INT32      C_TIME;
+#define C_TIME     C_INT32
 
 //ie 192.168.100.1    [0]=192 [1]=168 [2]=100 [3]=1
 typedef C_BYTE       C_IPV4[4];     
                      
-typedef C_BYTE       C_USERNAME[34];
-typedef C_BYTE       C_PASSWORD[32]; 
+typedef C_SBYTE       C_USERNAME[USERNAME_SIZE];
+typedef C_SBYTE       C_PASSWORD[PASSWORD_SIZE]; 
                      
-typedef C_BYTE       C_URI[64];      
+typedef C_SBYTE       C_URI[URI_SIZE];      
                      
 typedef C_INT16      C_RES;     
 
+typedef C_SCHAR       C_MQTT_TOPIC[URI_SIZE];
+
+typedef C_BYTE	     C_GUID[16];
+
+typedef C_BYTE	     C_RTO[48];
 
 extern CRC_TABLE_TYPE CRCTABLE[256];
 
 
+/** 
+@brief this data type is able to store both a WiFi or GSM ID
+*/
+typedef C_SBYTE C_GATEWAY_ID[18];
+
+// type of cloud interface
+enum cloud_type {
+	notacloudtype = 0,
+	TYPEC_WIFI,
+	TYPEC_ETH,
+	TYPEC_MOBILE
+};
+
+// type of field interface
+enum field_type {
+	notafieldtype=0,
+	TYPEF_ETH=2,
+	TYPEF_RS485=5
+};
+
+// list of protocols
+enum list_protocols{
+	notaprotocol = 0,
+	LPR_MODBUS,
+	LPR_CAREL,
+	LPR_BACNET};
+
 #ifdef IS_A_WIFI_GATEWAY
-
-/**
- * @brief in this case it contain the MAC address
- */
-#define C_GATEWAY_ID C_BYTE[6]
+#define MACORIMEISIZE 	12
+#endif
+#ifdef  IS_A_GSM_GATEWAY
+#define MACORIMEISIZE 	15
 #endif
 
-#ifdef IS_A_GSM_GATEWAY
-/**
- * @brief in this case it contain the IMEI 
- */
-#define C_GATEWAY_ID C_BYTE[16]
-#endif
-
+// temporarily put here to compile
+#define GW_TYPE "GME"
+#define GW_PARTNUMBER "GTW000M2G0"
+#define GW_HW_REV  256	// 0x100
+#define GW_FW_REV  256	// 0x100
 
 /* ======================================================= */
 /*                 GENERAL PURPOSE DEFINE                  */
@@ -83,6 +128,11 @@ extern CRC_TABLE_TYPE CRCTABLE[256];
 
 
 
+typedef enum _conf{
+	DEFAULT = 0,
+	TO_RECONFIGURE = 1,
+	CONFIGURED = 2,
+}configuration_t;
 
 
 
