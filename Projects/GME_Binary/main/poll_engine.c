@@ -6,7 +6,6 @@
  */
 #include "poll_engine.h"
 #include "binary_model.h"
-#include "mqtt.h"
 #include "utilities.h"
 
 #include "RTC_IS.h"
@@ -1027,14 +1026,6 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 		}
 	}
 }
-
-
-
-static void send_js_alarm(uint16_t alias, alarm_read_t *data, uint8_t alarm_issue){
-	MQTT__Alarms( alias, data->start_time,  data->stop_time, alarm_issue);
-};
-
-
 
 //static void send_alarm_json(void)
 static void send_alarm_cbor(void)
