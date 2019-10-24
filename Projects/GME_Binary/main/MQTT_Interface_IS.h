@@ -16,10 +16,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "data_types_CAREL.h"      
-#include "MQTT_Interface_IS.h"
 #include "MQTT_Interface_CAREL.h"
+#include "MQTT_Interface_IS.h"
+#if INCLUDE_PLATFORM_DEPENDENT
 #include "mqtt_client.h"
-
+#include "mqtt_config.h"
+#endif
 /* Exported types ------------------------------------------------------------*/ 
 
 #pragma pack(1)
@@ -31,6 +33,7 @@ typedef struct mqtt_config_s{
 	const char *cert_pem;
 }mqtt_config_t;
 #pragma pack()
+
 
 /* Exported constants --------------------------------------------------------*/
 

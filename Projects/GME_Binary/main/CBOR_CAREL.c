@@ -17,6 +17,8 @@
 #include "poll_engine.h"
 #include "MQTT_Interface_IS.h"
 #include "MQTT_Interface_CAREL.h"
+#include "nvm.h"
+#include "binary_model.h"
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -301,8 +303,9 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 {
 	C_CHAR mybuf[500];
 
-	size_t len = CBOR_Values(mybuf, index, number, frame);
+	CBOR_Values(mybuf, index, number, frame);
 	#if 0
+	size_t len = CBOR_Values(mybuf, index, number, frame);
 	printf("valuespkt len %d: \n", len);
 	for (int i=0;i<len;i++){
 		printf("%02X ", mybuf[i]);
@@ -849,7 +852,7 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT3
  * @param Pointer to new cid (for update)
  * @return CborError
  */
-CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, req_download_devs_config_t* download_devs_config)
+CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqdwldevsconfig* download_devs_config)
 {
 	CborError err = CborNoError;
 	size_t stlen;
@@ -1289,10 +1292,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if(PollEngine__GetEngineStatus() == RUNNING){
 				PollEngine__StopEngine();
-				MQTT__FlushValues();
+//				MQTT__FlushValues();
 			}
-
-//			GME__Reboot();
+//			GME__Reboot();		//todo
 		}
 		break;
 
@@ -1312,98 +1314,72 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			// write new data to configuration file and put in res the result of operation
 			// to be implemented
-			//esp_err_t err = execute_set_gw_config(&set_gw_config);
-			//if(OK == err)
-				cbor_req.res = SUCCESS_CMD;
-			//else
-			//	cbor_req.res = ERROR_CMD;
+			cbor_req.res = (execute_set_gw_config(cbor_setgwconfig) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-	/*		if(OK == err)
+			if(SUCCESS_CMD == cbor_req.res)
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-					MQTT__FlushValues();
-			//		GME__Reboot();
+//					MQTT__FlushValues();
+			//		GME__Reboot();		//todo
 			}
-	*/
 		}
 		break;
 
 		case SET_DEVS_CONFIG:
 		{
-			req_download_devs_config_t download_devs_config = {0};
+			c_cborreqdwldevsconfig download_devs_config = {0};
 			err = CBOR_ReqSetDevsConfig(cbor_stream, cbor_len, &download_devs_config);
 
 			// write new data to configuration file and put in res the result of operation
 			// to be implemented
-			C_INT16 res = execute_download_devs_config(&download_devs_config);
-		//	if (res == C_FAIL)
-				cbor_req.res = 1;
-		//	else if (res == C_SUCCESS)
-		//		cbor_req.res = 0;
+			cbor_req.res = (execute_download_devs_config(download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
 			// mqtt response
-			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
-			// reboot (is it needed to stop polling and flush data before rebooting????)
-			// to be implemented
-
-/*EGISIAN
-			if(C_SUCCESS == res){
-				send_download_devs_res(ReqHeader.replyTo, DOWNLOAD_DEVS_CONFIG, OPERATION_SUCCEEDED, MQTT__GetClient());
-
+			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-					MQTT__FlushValues();
-					GME__Reboot();
+//					MQTT__FlushValues();
+//					GME__Reboot();		//todo
 				}
-			}else{
-				send_download_devs_res(ReqHeader.replyTo, DOWNLOAD_DEVS_CONFIG, OPERATION_FAILED, MQTT__GetClient());
-
 			}
-//EGISIAN*/
 		}
 		break;
 
 		case SCAN_DEVICES:
 		{
+			C_UINT16 device = 0;
 			// scan Modbus line
 
-
 			// save address of first responding device in device and corresponding answer in answer
-			C_UINT16 device = 1; 								// to be implemented
-			C_CHAR answer[REPORT_SLAVE_ID_SIZE]={0};
 			// answer with result
-			cbor_req.res = 1; // todo
-			C_UINT16 answer_len = 8; //todo
-			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, answer_len);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			if(ACTIVETED == PollEngine__GetPassModeStatus()){		//ACTIVATED!!!
 
-/*EGISIAN
-if(ACTIVETED == PollEngine__GetPassModeStatus()){
+				C_BYTE answer[REPORT_SLAVE_ID_SIZE];
+				C_INT16 length;
+				cbor_req.res = SUCCESS_CMD;
 
-				uint8_t line_id = 0;
-				uint8_t data_rx[200];
-				int length;
+//				PollEngine__MBSuspend();
+//				PollEngine__SetPassModeCMD(RECEIVED);
 
-				PollEngine__MBSuspend();
-				parse_scan_devices(root, &line_id);
-				PollEngine__SetPassModeCMD(RECEIVED);
-
-				set_line_id(line_id);
-				length = execute_scan_devices(line_id, data_rx);
+				length = execute_scan_devices(answer);
 				if(length <= 0){
-					send_scan_devs_res(ReqHeader.replyTo, SCAN_DEVICES, data_rx, length, MQTT__GetClient());
-				}else{
-					send_scan_devs_res(ReqHeader.replyTo, SCAN_DEVICES, data_rx, length, MQTT__GetClient());
+					memcpy(answer, "", 1);
+					length=1;
 				}
-				PollEngine__SetPassModeCMD(EXECUTED);
-				PollEngine__MBResume();
+				device = answer[0];
+				len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
+				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+
+//				PollEngine__SetPassModeCMD(EXECUTED);
+//				PollEngine__MBResume();
 			}
-//EGISIAN*/
+
 		}
 		break;
 
@@ -1415,28 +1391,17 @@ if(ACTIVETED == PollEngine__GetPassModeStatus()){
 			err = CBOR_ReqSetLinesConfig(cbor_stream, cbor_len, &new_baud_rate, &new_connector);
 
 			// write new baud rate and connector to configuration file and put in res the result of operation
-			// to be implemented
-			cbor_req.res = 1; // todo
-
-			// mqtt response
+			cbor_req.res = (execute_set_line_config(new_baud_rate, new_connector) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
-			// reboot (is it needed to stop polling and flush data before rebooting????)
-			// to be implemented
-/*EGISIAN
-			if(ESP_OK == execute_set_line_config(set_lines_config)){
-				send_set_lines_config_res(ReqHeader.replyTo, SET_LINES_CONFIG, OPERATION_SUCCEEDED, MQTT__GetClient());
+			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-					MQTT__FlushValues();
-					GME__Reboot();
+//					MQTT__FlushValues();
+//					GME__Reboot();		//todo
 				}
-			}else{
-				send_set_lines_config_res(ReqHeader.replyTo, SET_LINES_CONFIG, OPERATION_FAILED, MQTT__GetClient());
 			}
-//EGISIAN*/
-
 		}
 		break;
 
@@ -1533,21 +1498,15 @@ if(ACTIVETED == PollEngine__GetPassModeStatus()){
 			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_wv);
 
 			// send modbus command to write values
-			// wait modbus response to get result
-			cbor_req.res = 1; // todo
-
-			// send response with result
-			len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, NULL);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-
-			// put polling machine in some specific status?
-/*EGISIAN
-			if(ACTIVETED == PollEngine__GetPassModeStatus()){
-				PollEngine__SetPassModeCMD(RECEIVED);
-				parse_write_values(root, ReqHeader.replyTo);
-				PollEngine__SetPassModeCMD(EXECUTED);
-			}
-//EGISIAN*/
+//			if(ACTIVETED == PollEngine__GetPassModeStatus())
+//			{
+//				PollEngine__SetPassModeCMD(RECEIVED);
+				cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+				// send response with result
+				len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, NULL);
+				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+//				PollEngine__SetPassModeCMD(EXECUTED);
+//			}
 		}
 		break;
 
@@ -1622,8 +1581,8 @@ if(ACTIVETED == PollEngine__GetPassModeStatus()){
 
 		case UPDATE_CA_CERTIFICATES:
 		{
-			req_download_devs_config_t download_devs_config = {0};
-			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &download_devs_config);
+			c_cborreqdwldevsconfig update_ca_config = {0};
+			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &update_ca_config);
 
 			// perform a https read file from uri, using usr and pwd authentication data
 			cbor_req.res = 1; // todo
@@ -1654,33 +1613,23 @@ if(ACTIVETED == PollEngine__GetPassModeStatus()){
 
 		case CHANGE_CREDENTIALS:
 		{
-			req_download_devs_config_t download_devs_config = {0};
-			err = CBOR_ReqChangeCredentials(cbor_stream, cbor_len, &download_devs_config);
+			c_cborreqdwldevsconfig change_cred_config = {0};
+			err = CBOR_ReqChangeCredentials(cbor_stream, cbor_len, &change_cred_config);
 
-			// write new baud rate and connector to configuration file and put in res the result of operation
-			// to be implemented
-			cbor_req.res = 1; // todo
-
+			// write new credentials to configuration file and put in res the result of operation
+			cbor_req.res = (execute_change_cred(change_cred_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			// mqtt response
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
-			// reboot (is it needed to stop polling and flush data before rebooting????)
-			// to be implemented
-/*EGISIAN
-			if(ESP_OK == execute_change_cred(&change_cred_req)){
-				send_simple_res(ReqHeader.replyTo, CHANGE_CREDENTIALS, SUCCESS_CMD, MQTT__GetClient());
+			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-					MQTT__FlushValues();
-					GME__Reboot();
+//					MQTT__FlushValues();
+//					GME__Reboot();		//todo
 				}
-			}else{
-				send_simple_res(ReqHeader.replyTo, CHANGE_CREDENTIALS, ERROR_CMD, MQTT__GetClient());
 			}
-//EGISIAN*/
-
 		}
 		break;
 
@@ -1728,17 +1677,17 @@ if(ACTIVETED == PollEngine__GetPassModeStatus()){
 }
 
 
-/*
-C_INT16 execute_set_line_config(req_set_lines_config_t set_lines_config){
 
-	C_INT16 err = NVM__WriteU32Value(MB_BAUDRATE_NVM, set_lines_config.baud);
-	err = NVM__WriteU8Value(SET_LINE_CONFIG_NVM, CONFIGURED);
+C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector){
+
+	C_RES err = NVM__WriteU32Value(MB_BAUDRATE_NVM, new_baud_rate);
+	err |= NVM__WriteU8Value(MB_CONNECTOR_NVM, new_connector);
+	err |= NVM__WriteU8Value(SET_LINE_CONFIG_NVM, CONFIGURED);
 
 	return err;
 }
-*/
 
-esp_err_t execute_download_devs_config(req_download_devs_config_t *download_devs_config){
+C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config){
 #if 0
 	https_conn_err_t err;
 
@@ -1757,7 +1706,7 @@ esp_err_t execute_download_devs_config(req_download_devs_config_t *download_devs
 	printf("execute_download_devs_config err= %d \n",err);
 	if(CONN_OK == err){
 
-		if(ESP_OK == NVM__WriteU8Value(SET_DEVS_CONFIG, CONFIGURED)){
+		if(ESP_OK == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)){
 			printf("MODEL FILE SAVED\n");
 			err = ESP_OK;
 		}else{
@@ -1773,3 +1722,133 @@ esp_err_t execute_download_devs_config(req_download_devs_config_t *download_devs
 	return 1;
 }
 
+
+C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
+{
+	printf("Execute Set GW Config\n");
+	//c_cborreqsetgwconfig gw_config_nvm = {0};	// todo: is a copy actually needed?
+	size_t len = 0;
+	C_BYTE gw_config_status;
+
+	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
+		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&set_gw_config,&len);
+	}
+/*
+	gw_config_nvm.hss = set_gw_config.hss;
+	gw_config_nvm.lss = set_gw_config.lss;
+	gw_config_nvm.mka = set_gw_config.mka;
+	gw_config_nvm.pst = set_gw_config.pst;
+	gw_config_nvm.pva = set_gw_config.pva;
+*/
+	C_RES err = NVM__WriteBlob(SET_GW_PARAM_NVM,(void*)&set_gw_config,sizeof(set_gw_config));
+	if(C_SUCCESS == err){
+		err = NVM__WriteU8Value(SET_GW_CONFIG_NVM, CONFIGURED);
+	}
+
+	return err;
+}
+
+C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred){
+
+	printf("Execute Change Credentials\n");
+	if(C_SUCCESS == NVM__WriteString(MQTT_USER, change_cred.usr)
+			&& C_SUCCESS == NVM__WriteString(MQTT_PASS, change_cred.pwd)){
+		return C_SUCCESS;
+	}else{
+		return C_FAIL;
+	}
+}
+
+C_INT16 execute_scan_devices(C_BYTE* data_rx){
+
+	C_INT16 len = -2;
+#if 0
+	mbc_master_suspend();
+
+	C_BYTE data_tx[4] = {0};
+	int i = 0;
+	data_tx[0]=	line_id;
+	data_tx[1]=	0x11;	//cmd 17
+
+	C_UINT16 crc = CRC16(data_tx, 2 );
+
+	data_tx[2] = (C_BYTE)(crc & 0x00ff);
+	data_tx[3] = (C_BYTE)((crc>>8) & 0x00ff);
+
+	if(PollEngine__GetPollEnginePrintMsgs() == 1){
+		printf("Scan Line Request Packet:  ");
+		for(i=0; i<sizeof(data_tx); i++){
+				printf("[%d]=%02X  ",i,data_tx[i]);
+			}
+		printf("\n\n");
+	}
+
+	ClearQueueMB();
+
+	for(int i=0; i<4; i++)
+	{
+		uart_write_bytes(MB_PORTNUM, (const char *) &data_tx[i], 1);
+	}
+
+	len = uart_read_bytes(MB_PORTNUM, data_rx, 255,  MB_RESPONSE_TIMEOUT(4));
+
+	if(PollEngine__GetPollEnginePrintMsgs() == 1){
+		printf("\nuart_read_bytes len = %d\n\n",len);
+
+		for(i=0; i<len; i++){
+			printf("[%d]=%02X  ",i,data_rx[i]);
+		}
+		printf("\n\n");
+	}
+
+	uart_flush_input(MB_PORTNUM);
+	uart_flush(MB_PORTNUM);
+
+	ClearQueueMB();
+	mbc_master_resume();
+
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
+#endif
+	return len;
+}
+
+C_RES PollEngine__Write_COIL_Req(C_CHAR* alias, C_UINT16 write_value, C_UINT16 addr){
+	printf("write_coil: alias %s, addr %d, val %d\n", alias, addr, (C_UINT16)write_value);
+	return 0;
+}
+
+C_RES PollEngine__Write_HR_Req(C_CHAR* alias, void* write_value){
+	printf("write_hr: alias %s, val %d\n", alias, (C_UINT16)write_value);
+	return 0;
+}
+
+C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
+{
+	C_RES result = C_FAIL;
+	// todo da gestire tutte le conversioni di tipo nei vari casi
+	//C_INT32 val_to_write = atof((C_SCHAR*)cbor_wv.val);
+	C_FLOAT val_to_write = atof((C_SCHAR*)cbor_wv.val);
+	switch(cbor_wv.func){
+		case mbW_COIL:{
+			printf("Alias: %s, Addr = %d, val to write: %d \n",cbor_wv.alias, cbor_wv.addr, (C_UINT16)val_to_write);
+			result = PollEngine__Write_COIL_Req(cbor_wv.alias, val_to_write, cbor_wv.addr);
+			printf("OPERATION_RESULT %d\n",result);
+		}
+		break;
+
+		case mbW_HR:{
+			if(cbor_wv.flags.bit.fixedpoint == 1  ||  cbor_wv.flags.bit.ieee == 1)
+				val_to_write = (val_to_write - (long double)(atoi((C_SCHAR*)cbor_wv.a)))  /  (long double)(atoi((C_SCHAR*)cbor_wv.b));
+
+			printf("Alias = %s, Addr = %d val_to_write = %.6f\n", cbor_wv.alias, cbor_wv.addr, val_to_write);
+			result = PollEngine__Write_HR_Req(cbor_wv.alias, (void*)&val_to_write);
+			printf("OPERATION_RESULT %d\n",result);
+		}
+		break;
+
+		default:
+		break;
+
+	}
+	return result;
+}

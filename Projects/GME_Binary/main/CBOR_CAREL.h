@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "data_types_CAREL.h"
 #include "tinycbor/cbor.h"
+#include "binary_model.h"
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -43,6 +44,15 @@ enum CBOR_CmdResponse{
 	SUCCESS_CMD,
 	ERROR_CMD,
 };
+
+typedef enum{
+	mbR_COIL = 1,
+	mbR_DI,
+	mbR_HR,
+	mbR_IR,
+	mbW_COIL = 15,
+	mbW_HR,
+}mb_Functions_t;
 
 typedef enum CloudtoGME_Commands_l{
 	SET_GW_CONFIG = 1,
@@ -70,9 +80,9 @@ typedef enum CloudtoGME_Commands_l{
 #ifdef CAREL_DEBUG
 
 
-#define DEBUG_ENC(err, a) printf("%s: %s %s, error %d\n", __func__, "cannot encode", a, err);
-#define DEBUG_ADD(err, a) printf("%s: %s %s, error %d\n", __func__, "cannot add", a, err);
-#define DEBUG_DEC(err, a) printf("%s: %s %s, error %d\n", __func__, "cannot decode", a, err);
+#define DEBUG_ENC(err, a) if(err != CborNoError) printf("%s: %s %s, error %d\n", __func__, "cannot encode", a, err);
+#define DEBUG_ADD(err, a) if(err != CborNoError) printf("%s: %s %s, error %d\n", __func__, "cannot add", a, err);
+#define DEBUG_DEC(err, a) if(err != CborNoError) printf("%s: %s %s, error %d\n", __func__, "cannot decode", a, err);
 #else
 #define DEBUG_ENC(err, a)
 #define DEBUG_ADD(err, a)
@@ -112,7 +122,7 @@ typedef struct C_CBORREQRDWRVALUES{
 	C_UINT16 len;
 	C_CHAR a[A_SIZE];
 	C_CHAR b[B_SIZE];
-	C_BYTE flags;
+	flag_t flags;
 
 }c_cborreqrdwrvalues;
 #pragma pack()
@@ -139,12 +149,12 @@ typedef struct C_CBORREQSETGWCONFIG{
  * Request set gw config
  */
 #pragma pack(1)
-typedef struct req_download_devs_config_s{
+typedef struct C_CBORDWLDEVSCFG{
 	C_USERNAME usr;
 	C_PASSWORD pwd;
 	C_URI uri;
 	C_UINT16 cid;
-}req_download_devs_config_t;
+}c_cborreqdwldevsconfig;
 #pragma pack()
 
 /**
@@ -194,7 +204,7 @@ size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req);
 CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT32* new_baud_rate, C_BYTE* new_connector);
-CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, req_download_devs_config_t* download_devs_config);
+CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqdwldevsconfig* download_devs_config);
 CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrdwrvalues* cbor_wv);
 CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqsetgwconfig* cbor_setgwconfig);
 CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* seq, C_CHAR* adu);
@@ -208,7 +218,12 @@ C_INT16 CBOR_ExtractInt(CborValue* recursed, int64_t* read);
 #define 	CBOR_ReqUpdateCaCertificate 	CBOR_ReqSetDevsConfig
 #define 	CBOR_ReqChangeCredentials	CBOR_ReqSetDevsConfig
 
-C_RES execute_download_devs_config(req_download_devs_config_t *download_devs_config);
+C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector);
+C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config);
+C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
+C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
+C_INT16 execute_scan_devices(C_BYTE* data_rx);
+C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
 
 #ifdef __cplusplus
 }
