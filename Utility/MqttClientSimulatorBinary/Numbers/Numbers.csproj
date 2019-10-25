@@ -1,0 +1,82 @@
+<Project Sdk='Microsoft.NET.Sdk'>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>1.4.3</Version>
+    <Owners>Peter Occil</Owners>
+    <Description>A C# library that supports arbitrary-precision binary and decimal floating-point numbers and rational numbers with arbitrary-precision components, and supports arithmetic with these numbers.</Description>
+    <Copyright>Written by Peter O. in 2017-2019.  Any copyright is released to the Public Domain.</Copyright>
+    <Authors>Peter Occil</Authors>
+    <PackageId>PeterO.Numbers</PackageId>
+    <Title>Arbitrary-Precision Number Library</Title>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>CC0-1.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/peteroupc/Numbers</PackageProjectUrl>
+    <PackageReleaseNotes>
+Version 1.4.3
+
+- Fix accuracy issue with Log, especially where 1 &lt; x &lt; 1.07
+- Remove StyleCop.Analyzers, which is used only in development, as dependency in .NET version
+
+Version 1.4.2
+
+- Bug fix in the EInteger.CanFitInInt64 method
+
+Version 1.4.1
+
+- Added EDecimals and EFloats classes to .NET 2.0 and .NET 4.0 versions; those classes were inadvertently omitted there
+
+Version 1.4.0
+
+- Added EDecimals and EFloats class that implements more methods for arbitrary-precision decimal and binary numbers
+- Increment and decrement operators added to EInteger, EDecimal, EFloat, and ERational classes
+- Allowed EDecimal values in (-1, 0) to EDecimal's *Checked methods, to conform to documentation.
+- Added WithNoFlagsOrTraps method and HasFlagsOrTraps property to EContext
+- Add Mod(int), Pow(int), and FromBoolean methods to EInteger
+- Add And, Not, Xor, and Or methods to EInteger.cs
+- Add Copy method to EDecimal, EFloat, and ERational
+- Add CompareToTotalMagnitude overload to EDecimal, EFloat, and ERational
+- Deprecated Odd and ZeroFiveUp rounding modes
+- Bug fixes and performance improvements
+</PackageReleaseNotes>
+    <PackageTags>numbers arithmetic decimal math</PackageTags>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>PeterO.snk</AssemblyOriginatorKeyFile>
+    <Title>Arbitrary-Precision Arithmetic Library</Title>
+  <CodeAnalysisRuleSet>rules.ruleset</CodeAnalysisRuleSet></PropertyGroup>
+
+  <PropertyGroup Condition=' &apos;$(Configuration)|$(Platform)&apos; == &apos;Debug|AnyCPU&apos; '>
+    <DocumentationFile>bin\Debug\netstandard1.0\Numbers.xml</DocumentationFile>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>Custom</type>
+          <name>Signing Workaround</name>
+          <command>sn -R bin/Debug/netstandard1.0/Numbers.dll PeterO.snk</command>
+          <workingdir>${ProjectDir}</workingdir>
+          <externalConsole>True</externalConsole>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+    <DebugType>full</DebugType>
+  <CodeAnalysisRuleSet>rules.ruleset</CodeAnalysisRuleSet></PropertyGroup>
+  <PropertyGroup Condition=' &apos;$(Configuration)|$(Platform)&apos; == &apos;Release|AnyCPU&apos; '>
+    <DebugType/>
+    <DocumentationFile>bin\Release\netstandard1.0\Numbers.xml</DocumentationFile>
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>Custom</type>
+          <name>Signing Workaround</name>
+          <command>sn -R bin/Release/netstandard1.0/Numbers.dll PeterO.snk</command>
+          <workingdir>${ProjectDir}</workingdir>
+          <externalConsole>True</externalConsole>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  <CodeAnalysisRuleSet>rules.ruleset</CodeAnalysisRuleSet></PropertyGroup>
+  <ItemGroup>
+
+  <AdditionalFiles Include='stylecop.json'/><AdditionalFiles Include='rules.ruleset'/><PackageReference Include='StyleCop.Analyzers' PrivateAssets='All' Version='1.1.118'/><PackageReference Include='Microsoft.CodeAnalysis.FxCopAnalyzers' PrivateAssets='All' Version='2.9.6'/></ItemGroup>
+<PropertyGroup/><PropertyGroup/>   </Project>
