@@ -66,6 +66,11 @@ namespace MqttClientSimulatorBinary
         public string VAL_TOPIC_STATUS = @"";
 
 
+
+        public const int CBOR_PAYLOAD_VER = 257;   //in HEX 0x101 > Ver.1.01
+
+
+
         //static int value = 0;
 
         public string server_url;
@@ -248,22 +253,28 @@ namespace MqttClientSimulatorBinary
             //}
             CBORObject cbor_rx;
             cbor_rx = CBORObject.DecodeFromBytes(e.Message);
-
-
-
-
-
+                                          
             //BILATO receive the CBOR payload
-
-
+            
             if ((targer_topic_for_me == true))
             {
                 //payload = Encoding.UTF8.GetString(e.Message);
                 //txtConsole.Invoke(new Action(() => txtConsole.AppendText(payload + Environment.NewLine)));
-                txtConsole.Invoke(new Action(() => txtConsole.AppendText(cbor_rx.ToString())));
 
-
-
+                if (checkBox_Split_Resp.Checked == true)
+                {                   
+                    string data = cbor_rx.ToString();                    
+                    string[] words = data.Split(',');
+                    foreach (string word in words)
+                    {                      
+                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(word + Environment.NewLine)));
+                    }
+                }
+                else
+                {
+                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(cbor_rx.ToString() + Environment.NewLine)));
+                }
+                               
             }
             else
             {
@@ -534,122 +545,180 @@ namespace MqttClientSimulatorBinary
 
 
         private void Button_MB_Read_HR_Click(object sender, EventArgs e)
-        {                                
-            const string template_name = @"test-read_values_hr_03.json";
-            string textFile = null;
+        {
+            int value;
 
-            if (File.Exists(template_name))
+            var cbor = CBORObject.NewMap();
+
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", textBox_Target.Text + @"\hr_r_val");
+            value = 6;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", textBox_Alias.Text);
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_HR_R_Func.Text, out value))
             {
-                // Read entire text file content in one string  
-                //textFile = File.ReadAllText(testfilepath);
-                string[] lines = File.ReadAllLines(template_name);
-                textFile = String.Join(Environment.NewLine, lines);
+                cbor.Add(@"fun", value);
             }
             else
             {
-                textBoxPublish.Text = "ERROR " + template_name;
-                return;
+                textBox_Message.AppendText("Error during conversion of > fun ");
+            }
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Addr.Text, out value))
+            {
+                cbor.Add(@"adr", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > adr ");
+            }
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Dim.Text, out value))
+            {
+                cbor.Add(@"dim", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim ");
+            }
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Pos.Text, out value))
+            {
+                cbor.Add(@"pos", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > pos ");
+            }
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Len.Text, out value))
+            {
+                cbor.Add(@"len", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > len ");
             }
             
-            string vAlias = textBox_Alias.Text;
-            textFile = textFile.Replace("$$ALIAS", vAlias);
+            cbor.Add(@"a", textBox_A.Text);
+            cbor.Add(@"b", textBox_B.Text);
 
-            //string vVal = textBox_HR_Val.Text;
-            //textFile = textFile.Replace("$$VAL", vVal);
 
-            string vFunc = textBox_MB_HR_R_Func.Text;
-            textFile = textFile.Replace("$$FUNC", vFunc);
+            value = 0;
 
-            string vAddr = textBox_MB_Addr.Text;
-            textFile = textFile.Replace("$$ADDR", vAddr);
+            if (Int32.TryParse(textBox_Flags.Text, out value))
+            {
+                cbor.Add("flg", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > flg ");
+            }
 
-            string vDim = textBox_MB_Dim.Text;
-            textFile = textFile.Replace("$$DIM", vDim);
 
-            string vPos = textBox_MB_Pos.Text;
-            textFile = textFile.Replace("$$POS", vPos);
-
-            string vLen = textBox_MB_Len.Text;
-            textFile = textFile.Replace("$$LEN", vLen);
-
-            string vA = textBox_A.Text;
-            textFile = textFile.Replace("$$A", vA);
-
-            string vB = textBox_B.Text;
-            textFile = textFile.Replace("$$B", vB);
-
-            string vFlags = textBox_Flags.Text;
-            textFile = textFile.Replace("$$FLAGS", vFlags);
-
-            textBoxPublish.Text = textFile;
-
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
+                              
             try
             {
-                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
-                textBoxPublish.Text = textFile;
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                //textBoxPublish.Text = textFile;
             }
             catch (System.NullReferenceException)
             {
                 MessageBoxUpdated("MQTT not initialized !");
                 
             }
-
         }
 
         private void Button_MB_Write_HR_Click(object sender, EventArgs e)
         {
-            const string template_name = @"test-write_values_hr_16.json";
-            string textFile = null;
+            int value;
+            var cbor = CBORObject.NewMap();
 
-            if (File.Exists(template_name))
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", textBox_Target.Text + @"\hr_w_val");
+            value = 7;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", textBox_Alias.Text);
+                       
+            value = 0;
+            if (Int32.TryParse(textBox_MB_HR_W_Func.Text, out value))
             {
-                // Read entire text file content in one string  
-                //textFile = File.ReadAllText(testfilepath);
-                string[] lines = File.ReadAllLines(template_name);
-                textFile = String.Join(Environment.NewLine, lines);
+                cbor.Add(@"fun", value);
             }
             else
             {
-                textBoxPublish.Text = "ERROR " + template_name;
-                return;
+                textBox_Message.AppendText("Error during conversion of > fun ");
             }
 
-            string vAlias = textBox_Alias.Text;
-            textFile = textFile.Replace("$$ALIAS", vAlias);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Addr.Text, out value))
+            {
+                cbor.Add(@"adr", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > adr ");
+            }
 
-            string vVal = textBox_HR_Val.Text;
-            textFile = textFile.Replace("$$VAL", vVal);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Dim.Text, out value))
+            {
+                cbor.Add(@"dim", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim ");
+            }
 
-            string vFunc = textBox_MB_HR_W_Func.Text;
-            textFile = textFile.Replace("$$FUNC", vFunc);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Pos.Text, out value))
+            {
+                cbor.Add(@"pos", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > pos ");
+            }
 
-            string vAddr = textBox_MB_Addr.Text;
-            textFile = textFile.Replace("$$ADDR", vAddr);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Len.Text, out value))
+            {
+                cbor.Add(@"len", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > len ");
+            }
 
-            string vDim = textBox_MB_Dim.Text;
-            textFile = textFile.Replace("$$DIM", vDim);
+            cbor.Add(@"a", textBox_A.Text);
+            cbor.Add(@"b", textBox_B.Text);
 
-            string vPos = textBox_MB_Pos.Text;
-            textFile = textFile.Replace("$$POS", vPos);
+            value = 0;
+            if (Int32.TryParse(textBox_Flags.Text, out value))
+            {
+                cbor.Add("flg", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > flg ");
+            }
 
-            string vLen = textBox_MB_Len.Text;
-            textFile = textFile.Replace("$$LEN", vLen);
-
-            string vA = textBox_A.Text;
-            textFile = textFile.Replace("$$A", vA);
-
-            string vB = textBox_B.Text;
-            textFile = textFile.Replace("$$B", vB);
-
-            string vFlags = textBox_Flags.Text;
-            textFile = textFile.Replace("$$FLAGS", vFlags);
-
-            textBoxPublish.Text = textFile;
+            cbor.Add(@"val", textBox_HR_Val.Text);
+                       
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
-                textBoxPublish.Text = textFile;
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);                
             }
             catch (System.NullReferenceException)
             {
@@ -660,40 +729,85 @@ namespace MqttClientSimulatorBinary
 
         private void Button_MB_Read_COIL_Click(object sender, EventArgs e)
         {
-            const string template_name = @"test-read_values_coil_1.json";
-            string textFile = null;
+            int value;
+            var cbor = CBORObject.NewMap();
 
-            if (File.Exists(template_name))
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", textBox_Target.Text + @"\coil_r_val");
+            value = 7;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", textBox_Alias_Coil.Text);
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_COIL_R_Func.Text, out value))
             {
-                // Read entire text file content in one string  
-                //textFile = File.ReadAllText(testfilepath);
-                string[] lines = File.ReadAllLines(template_name);
-                textFile = String.Join(Environment.NewLine, lines);
+                cbor.Add(@"fun", value);
             }
             else
             {
-                textBoxPublish.Text = "ERROR " + template_name;
-                return;
+                textBox_Message.AppendText("Error during conversion of > fun ");
             }
 
-            string vAlias = textBox_Alias_Coil.Text;
-            textFile = textFile.Replace("$$ALIAS", vAlias);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Addr_Coil.Text, out value))
+            {
+                cbor.Add(@"adr", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > adr ");
+            }
 
-            //string vVal = textBox_HR_Val.Text;
-            //textFile = textFile.Replace("$$VAL", vVal);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"dim", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim ");
+            }
 
-            string vFunc = textBox_MB_COIL_R_Func.Text;
-            textFile = textFile.Replace("$$FUNC", vFunc);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"pos", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > pos ");
+            }
 
-            string vAddr = textBox_MB_Addr_Coil.Text;
-            textFile = textFile.Replace("$$ADDR", vAddr);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"len", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > len ");
+            }
 
-            textBoxPublish.Text = textFile;
+            cbor.Add(@"a", @"1.0");
+            cbor.Add(@"b", @"1.0");
+
+            value = 0;
+            if (Int32.TryParse(@"0", out value))
+            {
+                cbor.Add("flg", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > flg ");
+            }
+
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
-                textBoxPublish.Text = textFile;
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+             
             }
             catch (System.NullReferenceException)
             {
@@ -703,147 +817,273 @@ namespace MqttClientSimulatorBinary
 
         private void Button_MB_Write_COIL_Click(object sender, EventArgs e)
         {
-            const string template_name = @"test-write_values_coil_15.json";
-            string textFile = null;
+            int value;
+            var cbor = CBORObject.NewMap();
 
-            if (File.Exists(template_name))
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", textBox_Target.Text + @"\coil_w_val");
+            value = 7;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", textBox_Alias_Coil.Text);
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_COIL_W_Func.Text, out value))
             {
-                // Read entire text file content in one string  
-                //textFile = File.ReadAllText(testfilepath);
-                string[] lines = File.ReadAllLines(template_name);
-                textFile = String.Join(Environment.NewLine, lines);
+                cbor.Add(@"fun", value);
             }
             else
             {
-                textBoxPublish.Text = "ERROR " + template_name;
-                return;
+                textBox_Message.AppendText("Error during conversion of > fun ");
             }
 
-            string vAlias = textBox_Alias_Coil.Text;
-            textFile = textFile.Replace("$$ALIAS", vAlias);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Addr_Coil.Text, out value))
+            {
+                cbor.Add(@"adr", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > adr ");
+            }
 
-            string vVal = textBox_MB_COIL_Val.Text;
-            textFile = textFile.Replace("$$VAL", vVal);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"dim", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim ");
+            }
 
-            string vFunc = textBox_MB_COIL_W_Func.Text;
-            textFile = textFile.Replace("$$FUNC", vFunc);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"pos", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > pos ");
+            }
 
-            string vAddr = textBox_MB_Addr_Coil.Text;
-            textFile = textFile.Replace("$$ADDR", vAddr);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"len", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > len ");
+            }
 
-            textBoxPublish.Text = textFile;
+            cbor.Add(@"a", @"1.0");
+            cbor.Add(@"b", @"1.0");
+
+            value = 0;
+            if (Int32.TryParse(@"0", out value))
+            {
+                cbor.Add("flg", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > flg ");
+            }
+
+            cbor.Add(@"val", textBox_MB_COIL_Val.Text);
+
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
-                textBoxPublish.Text = textFile;
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+
             }
             catch (System.NullReferenceException)
             {
-                MessageBoxUpdated("Not Initialized");
+                MessageBoxUpdated("MQTT Not Initialized");
             }
+
         }
 
         private void Button_MB_Read_DI_Click(object sender, EventArgs e)
         {
-            const string template_name = @"test-read_values_di_02.json";
-            string textFile = null;
+            int value;
+            var cbor = CBORObject.NewMap();
 
-            if (File.Exists(template_name))
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", textBox_Target.Text + @"\di_r_val");
+            value = 7;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", textBox_Alias_DI.Text);
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_DI_R_Func.Text, out value))
             {
-                // Read entire text file content in one string  
-                //textFile = File.ReadAllText(testfilepath);
-                string[] lines = File.ReadAllLines(template_name);
-                textFile = String.Join(Environment.NewLine, lines);
+                cbor.Add(@"fun", value);
             }
             else
             {
-                textBoxPublish.Text = "ERROR " + template_name;
-                return;
+                textBox_Message.AppendText("Error during conversion of > fun ");
             }
 
-            string vAlias = textBox_Alias_DI.Text;
-            textFile = textFile.Replace("$$ALIAS", vAlias);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Addr_DI.Text, out value))
+            {
+                cbor.Add(@"adr", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > adr ");
+            }
 
-            string vFunc = textBox_MB_DI_R_Func.Text;
-            textFile = textFile.Replace("$$FUNC", vFunc);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"dim", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim ");
+            }
 
-            string vAddr = textBox_MB_Addr_DI.Text;
-            textFile = textFile.Replace("$$ADDR", vAddr);
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"pos", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > pos ");
+            }
 
-            textBoxPublish.Text = textFile;
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"len", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > len ");
+            }
+
+            cbor.Add(@"a", @"1.0");
+            cbor.Add(@"b", @"1.0");
+
+            value = 0;
+            if (Int32.TryParse(@"0", out value))
+            {
+                cbor.Add("flg", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > flg ");
+            }
+
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
-                textBoxPublish.Text = textFile;
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+
             }
             catch (System.NullReferenceException)
             {
-                MessageBoxUpdated("Not Initialized");
+                MessageBoxUpdated("MQTT Not Initialized");
             }
         }
 
         private void Button_MB_Read_IR_Click(object sender, EventArgs e)
         {
-            
-            const string template_name = @"test-read_values_ir_04.json";
-            string textFile = null;
+            int value;
+            var cbor = CBORObject.NewMap();
 
-            if (File.Exists(template_name))
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", textBox_Target.Text + @"\ir_r_val");
+            value = 6;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", textBox_Alias_IR.Text);
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_IR_R_Func.Text, out value))
             {
-                // Read entire text file content in one string  
-                //textFile = File.ReadAllText(testfilepath);
-                string[] lines = File.ReadAllLines(template_name);
-                textFile = String.Join(Environment.NewLine, lines);
+                cbor.Add(@"fun", value);
             }
             else
             {
-                textBoxPublish.Text = "ERROR " + template_name;
-                return;
+                textBox_Message.AppendText("Error during conversion of > fun ");
             }
 
-            string vAlias = textBox_Alias_IR.Text;
-            textFile = textFile.Replace("$$ALIAS", vAlias);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Addr_IR.Text, out value))
+            {
+                cbor.Add(@"adr", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > adr ");
+            }
 
-            string vFunc = textBox_MB_IR_R_Func.Text;
-            textFile = textFile.Replace("$$FUNC", vFunc);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Dim_IR.Text, out value))
+            {
+                cbor.Add(@"dim", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim ");
+            }
 
-            string vAddr = textBox_MB_Addr_IR.Text;
-            textFile = textFile.Replace("$$ADDR", vAddr);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Pos_IR.Text, out value))
+            {
+                cbor.Add(@"pos", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > pos ");
+            }
 
-            string vDim = textBox_MB_Dim_IR.Text;
-            textFile = textFile.Replace("$$DIM", vDim);
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Len_IR.Text, out value))
+            {
+                cbor.Add(@"len", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > len ");
+            }
 
-            string vPos = textBox_MB_Pos_IR.Text;
-            textFile = textFile.Replace("$$POS", vPos);
+            cbor.Add(@"a", textBox_A_IR.Text);
+            cbor.Add(@"b", textBox_B_IR.Text);
 
-            string vLen = textBox_MB_Len_IR.Text;
-            textFile = textFile.Replace("$$LEN", vLen);
 
-            string vA = textBox_A_IR.Text;
-            textFile = textFile.Replace("$$A", vA);
+            value = 0;
 
-            string vB = textBox_B_IR.Text;
-            textFile = textFile.Replace("$$B", vB);
+            if (Int32.TryParse(textBox_Flags_IR.Text, out value))
+            {
+                cbor.Add("flg", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > flg ");
+            }
 
-            string vFlags = textBox_Flags_IR.Text;
-            textFile = textFile.Replace("$$FLAGS", vFlags);
 
-            textBoxPublish.Text = textFile;
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
-                textBoxPublish.Text = textFile;
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                //textBoxPublish.Text = textFile;
             }
             catch (System.NullReferenceException)
             {
-                MessageBoxUpdated("Not Initialized");
+                MessageBoxUpdated("MQTT not initialized !");
+
             }
-
-
-
         }
 
         private void Button_JSON_Validate_Resp_Click(object sender, EventArgs e)
@@ -1023,6 +1263,11 @@ namespace MqttClientSimulatorBinary
 
             par_val = MyIni.Read("Target");
             textBox_Target.Text = par_val;
+        }
+
+        private void TextBox_MB_COIL_R_Func_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)

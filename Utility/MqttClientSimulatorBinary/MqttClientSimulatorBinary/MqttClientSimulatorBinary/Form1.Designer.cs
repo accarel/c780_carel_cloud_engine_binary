@@ -187,6 +187,7 @@
             this.button_Save_settings = new System.Windows.Forms.Button();
             this.button_Load_settings = new System.Windows.Forms.Button();
             this.checkBox_Cfg_Dbg_Rel = new System.Windows.Forms.CheckBox();
+            this.checkBox_Split_Resp = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -204,7 +205,7 @@
             this.txtConsole.AcceptsReturn = true;
             this.txtConsole.AcceptsTab = true;
             this.txtConsole.Location = new System.Drawing.Point(20, 378);
-            this.txtConsole.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtConsole.Margin = new System.Windows.Forms.Padding(2);
             this.txtConsole.Multiline = true;
             this.txtConsole.Name = "txtConsole";
             this.txtConsole.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -400,7 +401,7 @@
             // button_stop_engine
             // 
             this.button_stop_engine.Location = new System.Drawing.Point(109, 62);
-            this.button_stop_engine.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button_stop_engine.Margin = new System.Windows.Forms.Padding(2);
             this.button_stop_engine.Name = "button_stop_engine";
             this.button_stop_engine.Size = new System.Drawing.Size(98, 36);
             this.button_stop_engine.TabIndex = 20;
@@ -411,7 +412,7 @@
             // button_start_engine
             // 
             this.button_start_engine.Location = new System.Drawing.Point(110, 19);
-            this.button_start_engine.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button_start_engine.Margin = new System.Windows.Forms.Padding(2);
             this.button_start_engine.Name = "button_start_engine";
             this.button_start_engine.Size = new System.Drawing.Size(98, 36);
             this.button_start_engine.TabIndex = 19;
@@ -1125,6 +1126,7 @@
             this.textBox_MB_COIL_R_Func.Size = new System.Drawing.Size(42, 20);
             this.textBox_MB_COIL_R_Func.TabIndex = 24;
             this.textBox_MB_COIL_R_Func.Text = "1";
+            this.textBox_MB_COIL_R_Func.TextChanged += new System.EventHandler(this.TextBox_MB_COIL_R_Func_TextChanged);
             // 
             // label21
             // 
@@ -1670,7 +1672,7 @@
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
             this.textBox_Resp_Hash.Location = new System.Drawing.Point(938, 113);
-            this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -1763,12 +1765,25 @@
             this.checkBox_Cfg_Dbg_Rel.UseVisualStyleBackColor = true;
             this.checkBox_Cfg_Dbg_Rel.CheckedChanged += new System.EventHandler(this.CheckBox_Cfg_Dbg_Rel_CheckedChanged);
             // 
+            // checkBox_Split_Resp
+            // 
+            this.checkBox_Split_Resp.AutoSize = true;
+            this.checkBox_Split_Resp.Checked = true;
+            this.checkBox_Split_Resp.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox_Split_Resp.Location = new System.Drawing.Point(78, 357);
+            this.checkBox_Split_Resp.Name = "checkBox_Split_Resp";
+            this.checkBox_Split_Resp.Size = new System.Drawing.Size(74, 17);
+            this.checkBox_Split_Resp.TabIndex = 65;
+            this.checkBox_Split_Resp.Text = "Split Resp";
+            this.checkBox_Split_Resp.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1369, 596);
+            this.Controls.Add(this.checkBox_Split_Resp);
             this.Controls.Add(this.checkBox_Cfg_Dbg_Rel);
             this.Controls.Add(this.button_Load_settings);
             this.Controls.Add(this.button_Save_settings);
@@ -1802,9 +1817,9 @@
             this.Controls.Add(this.txtConsole);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.1.0";
+            this.Text = "IoT Server Simulator Binary Edition V.1.2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -1989,6 +2004,7 @@
         private System.Windows.Forms.Button button_Save_settings;
         private System.Windows.Forms.Button button_Load_settings;
         private System.Windows.Forms.CheckBox checkBox_Cfg_Dbg_Rel;
+        private System.Windows.Forms.CheckBox checkBox_Split_Resp;
     }
 }
 
