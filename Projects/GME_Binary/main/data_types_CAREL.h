@@ -23,14 +23,6 @@
 #define RTO_SIZE 		48
 #define TOPIC_SIZE		100
 
-/* ========================================================================== */
-/* Cloud related                                                              */
-/* ========================================================================== */
-#define MQTT_DEFAULT_BROKER "mqtts://mqtt-dev.tera.systems"
-#define MQTT_DEFAULT_PORT   (8883)
-#define MQTT_DEFAULT_USER   "admin"
-#define MQTT_DEFAULT_PWD    "5Qz*(3_>K&vU!PS^"
-#define MQTT_KEEP_ALIVE_DEFAULT_SEC   (600)
 
 /* ======================================================= */
 /*                     ! WARNING !                         */

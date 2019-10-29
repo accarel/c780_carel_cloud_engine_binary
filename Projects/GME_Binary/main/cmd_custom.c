@@ -3,19 +3,32 @@
 //	FW Ver 90.00.00
 
 
+#include "file_system.h"
 #include "cmd_custom.h"
 #include "wifi.h"
 #include <tcpip_adapter.h>
-#include "File_System_CAREL.h"
+
+#include "utilities.h"
 
 //extern EventGroupHandle_t s_wifi_event_group;
 
 struct {
     struct arg_int *index;
-    //struct arg_str *mashrob;
-    //struct arg_str *password;
     struct arg_end *end;
 } hello_args;
+
+
+struct {
+    struct arg_int *index;
+    struct arg_end *end;
+} printf_mqtt_json_args;
+
+
+struct {
+    struct arg_int *index;
+    struct arg_end *end;
+} printf_poll_engine_args;
+
 
 struct {
     struct arg_end *end;
@@ -57,25 +70,64 @@ static int say_hello(int argc, char **argv)
         arg_print_errors(stderr, hello_args.end, argv[0]);
         return 1;
     }
-    printf("	Hi there\r\n");
 
+    printf("	This is Carel Gateway Project\r\n");
+    printf("The following files are available in /spiffs directory");
     FS_DisplayFiles();
+    return 0;
+}
 
-    if (hello_args.index->ival[0] == 5){
-        printf("	How are u?\r\n");
+
+
+static int printf_poll_engine_func(int argc, char **argv)
+{
+    int nerrors = arg_parse(argc, argv, (void**) &printf_poll_engine_args);
+    if (nerrors != 0) {
+        arg_print_errors(stderr, printf_poll_engine_args.end, argv[0]);
+        return 1;
     }
 
-    else if (hello_args.index->ival[0] == 0){
-    	printf("	How do u do?\r\n");
-    }
+    if (printf_poll_engine_args.index->ival[0] == 1){
+ //   	PollEngine__SetPollEnginePrintMsgs(1);
+		printf("	Printing Polling Engine data is ENABLED\r\n");
+	}
 
-    else{
-        printf("	This is Carel Gateway Project\r\n	Enter 0 or 5 next to hello cmd\r\n");
-    }
+	else if (printf_poll_engine_args.index->ival[0] == 0){
+//		PollEngine__SetPollEnginePrintMsgs(0);
+		printf("	Printing Polling Engine data is DISABLED\r\n");
+	}
+
+	else{
+		printf("	Enter 1 to print Polling Engine data or 0 to hide them\r\n");
+	}
 
     return 0;
 }
 
+static int printf_mqtt_json_func(int argc, char **argv)
+{
+    int nerrors = arg_parse(argc, argv, (void**) &printf_mqtt_json_args);
+    if (nerrors != 0) {
+        arg_print_errors(stderr, printf_mqtt_json_args.end, argv[0]);
+        return 1;
+    }
+
+    if (printf_mqtt_json_args.index->ival[0] == 1){
+//    	JSON__SetJsonMqttPrintMsgs(1);
+        printf("	Printing MQTT and JSON msgs is ENABLED\r\n");
+    }
+
+    else if (printf_mqtt_json_args.index->ival[0] == 0){
+//    	JSON__SetJsonMqttPrintMsgs(0);
+    	printf("	Printing MQTT and JSON msgs is DISABLED\r\n");
+    }
+
+    else{
+        printf("	Enter 1 to print MQTT and JSON msgs or 0 to hide them\r\n");
+    }
+
+    return 0;
+}
 
 
 static int ifconfig_wifi(int argc, char **argv)
@@ -87,8 +139,9 @@ static int ifconfig_wifi(int argc, char **argv)
     }
 
     html_config_param_t wifi_config = WiFi__GetCustomConfig();
-    //html_config_param_t wifi_config = WiFi__ReadCustomConfigFromNVM();
 
+    printf("\n");
+    printf("MAC ADDRESS:      %s\n",Utilities__GetMACAddr());
     printf("\n");
     if(AP_MODE == wifi_config.gateway_mode){
     	printf("GME MODE: AP Mode\n");
@@ -98,17 +151,17 @@ static int ifconfig_wifi(int argc, char **argv)
     printf("\n-----------------------\n");
     printf("AP Mode Parameters\n");
     printf("-----------------------\n");
-    printf("SSID:                   %s",wifi_config.ap_ssid);
+    printf("SSID:                  %s",wifi_config.ap_ssid);
     if(1 == wifi_config.ap_ssid_hidden){
     	printf(" ... Hidden\n");
     }else{
     	printf(" ... Visible\n");
     }
-    printf("Password:               %s\n",wifi_config.ap_pswd);
-    printf("IPv4:                   %s\n",wifi_config.ap_ip);
+    printf("Password:              %s\n",wifi_config.ap_pswd);
+    printf("IPv4:                  %s\n",wifi_config.ap_ip);
     if(1 == wifi_config.ap_dhcp_mode){
     	printf("DHCP: Enabled\n");
-    	printf("DHCP IPv4:          %s\n",wifi_config.ap_dhcp_ip);
+    	printf("DHCP IPv4:         %s\n",wifi_config.ap_dhcp_ip);
     }else{
     	printf("DHCP: Disabled\n");
     }
@@ -117,20 +170,19 @@ static int ifconfig_wifi(int argc, char **argv)
     	printf("\n-----------------------\n");
     	printf("STA Mode Parameters\n");
     	printf("-----------------------\n\n");
-		printf("SSID:                  %s\n",wifi_config.sta_ssid);
-		printf("Encryption:            %s\n",wifi_config.sta_encryption);
-		printf("Password:              %s\n",wifi_config.sta_pswd);
+		printf("SSID:              %s\n",wifi_config.sta_ssid);
+		printf("Encryption:        %s\n",wifi_config.sta_encryption);
+		printf("Password:          %s\n",wifi_config.sta_pswd);
 
     tcpip_adapter_ip_info_t sta_ip;
     tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &sta_ip);
 
 		if(1 == wifi_config.sta_dhcp_mode){
 			printf("DHCP: Enabled\n");
-			printf("IPv4:          %s\n", ip4addr_ntoa(&sta_ip.ip.addr));
-			printf("Gateway IPv4:  %s\n", ip4addr_ntoa(&sta_ip.gw.addr));
-			printf("Netmask:       %s\n", ip4addr_ntoa(&sta_ip.netmask.addr));
-			//printf("Primary DNS:  %s\n", ip4addr_ntoa(sta_ip.netmask.addr));
-			//printf("Secondry DNS:  %s\n", ip4addr_ntoa(sta_ip.netmask.addr));
+			printf("IPv4:          %s\n", ip4addr_ntoa(&sta_ip.ip));
+			printf("Gateway IPv4:  %s\n", ip4addr_ntoa(&sta_ip.gw));
+			printf("Netmask:       %s\n", ip4addr_ntoa(&sta_ip.netmask));
+
 		}else{
 			printf("DHCP: Disabled\n");
 			printf("Static IP:     %s\n",wifi_config.sta_static_ip);
@@ -149,7 +201,6 @@ static int httpclient_test(int argc, char **argv)
 {
     int nerrors = arg_parse(argc, argv, (void**) &ifconfig_args);
     if (nerrors != 0) {
-    	//printf("\nhttpclient_test cli errors = %d\n",nerrors);
         arg_print_errors(stderr, ifconfig_args.end, argv[0]);
         return 1;
     }
@@ -169,16 +220,11 @@ static void register_hello(void)
     //arg_int1 can't work without parameters, that is why it doesn't need intialize the value
     
     hello_args.index = arg_int1(NULL, NULL, "<i>", "Phrase Index");
-    //hello_args.index->ival[0] = 0; // set default value
-    //hello_args.mashrob = arg_str1(NULL, NULL, "<x>", "Teshrab eh");
-    //hello_args.password = arg_str0(NULL, NULL, "<pass>", "PSK of AP");
     hello_args.end = arg_end(1);
-
-
 
     const esp_console_cmd_t hello_cmd = {
         .command = "hello",
-        .help = "Welcome to Carel",
+        .help = "Check on spiffs files",
 		.hint = NULL,
         .func = &say_hello,
         .argtable = &hello_args
@@ -186,6 +232,44 @@ static void register_hello(void)
     ESP_ERROR_CHECK( esp_console_cmd_register(&hello_cmd) );
 }
 
+static void register_printf_mqtt_json(void)
+{
+
+    //arg_int0 can work without parameters because it use the default value
+    //arg_int1 can't work without parameters, that is why it doesn't need intialize the value
+
+	printf_mqtt_json_args.index = arg_int1(NULL, NULL, "<i>", "Phrase Index");
+	printf_mqtt_json_args.end = arg_end(1);
+
+    const esp_console_cmd_t mqtt_json_cmd = {
+        .command = "debug_mqtt_json",
+        .help = "This will printf the json msgs and mqtt communications",
+		.hint = NULL,
+        .func = &printf_mqtt_json_func,
+        .argtable = &printf_mqtt_json_args
+    };
+    ESP_ERROR_CHECK( esp_console_cmd_register(&mqtt_json_cmd) );
+}
+
+
+static void register_printf_poll_engine(void)
+{
+
+    //arg_int0 can work without parameters because it use the default value
+    //arg_int1 can't work without parameters, that is why it doesn't need intialize the value
+
+	printf_poll_engine_args.index = arg_int1(NULL, NULL, "<i>", "Phrase Index");
+	printf_poll_engine_args.end = arg_end(1);
+
+    const esp_console_cmd_t poll_engine_cmd = {
+        .command = "debug_poll_engine",
+        .help = "This will printf the polling engine data, polling, values, buffers, etc..",
+		.hint = NULL,
+        .func = &printf_poll_engine_func,
+        .argtable = &printf_poll_engine_args
+    };
+    ESP_ERROR_CHECK( esp_console_cmd_register(&poll_engine_cmd) );
+}
 
 static void register_ifconfig(void)
 {
@@ -218,6 +302,8 @@ void register_custom(void)
 {
 	register_ifconfig();
     register_hello();
+    register_printf_mqtt_json();
+    register_printf_poll_engine();
     register_httpclient_test();
 }
 
