@@ -10,14 +10,30 @@
 #ifndef MAIN_GME_TYPES_H_
 #define MAIN_GME_TYPES_H_
 
+#include"gme_config.h"
+
+
+#if DEEP_DEBUG_PRINTF_DEFAULT == 1
+	#define	PRINTF_DEBUG	printf
+#else
+	#define	PRINTF_DEBUG(...)
+#endif
+
 
 typedef enum _gme_sm{
 	GME_INIT = 0,
-	GME_CONFIG,
-	GME_STRAT_SYS,
+	GME_CHECK_FILES,
+	GME_WIFI_CONFIG,
+	GME_WAITING_FOR_INTERNET,
+	GME_STRAT_NTC,
+	GME_CHECK_GW_CONFIG,
+	GME_WAITING_FOR_CONFIG_FROM_MQTT,
+	GME_SYSTEM_PREPARATION,
+	GME_INIT_POLLING_ENGINE,
 	GME_START_POLLING_ENGINE,
-	GME_IDLE,
-	//GME_RESET,
+	GME_IDLE_INTERNET_CONNECTED,
+	GME_IDLE_INTERNET_DISCONNECTED,
+	GME_PASSING_MODE,
 	GME_REBOOT,
 }gme_sm_t;
 
@@ -26,17 +42,16 @@ typedef enum _config_sm{
 	CHECK_FOR_CONFIG = 0,
 	SET_DEFAULT_CONFIG,
 	START_WIFI,
-	//WAITING_FOR_DEVICES,
 	WAITING_FOR_HTML_CONF_PARAMETERS,
 	CONFIGURE_GME,
 	GME_MAX,
 }config_sm_t;
 
-typedef enum _wifi_conf{
+typedef enum _conf{
 	DEFAULT = 0,
 	TO_RECONFIGURE = 1,
 	CONFIGURED = 2,
-}wifi_conf_t;
+}configuration_t;
 
 enum _wifi_interface{
 	AP_MODE = 0,

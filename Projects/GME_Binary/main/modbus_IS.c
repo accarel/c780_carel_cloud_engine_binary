@@ -76,19 +76,19 @@ C_RES Modbus_Init(C_INT16 baud)  // stop /start /parity
 
     		 // Set driver mode to Half Duplex
     		err = uart_set_mode(MB_PORTNUM, UART_MODE_RS485_HALF_DUPLEX);
-    		return C_TRUE;
+    		return C_SUCCESS;
     	}
     	else{
     		printf("MODBUS initialize fail\n");
-    		return C_FALSE;
+    		return C_FAIL;
     	}
      }
      else{
 		 printf("MODBUS initialize fail\n");
-		 return C_FALSE;
+		 return C_FAIL;
      }
 
-     return C_FALSE;
+     return C_FAIL;
 }
 
 

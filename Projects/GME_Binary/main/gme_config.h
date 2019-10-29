@@ -16,11 +16,26 @@
 //#include "mb_sense_modbus.h"
 #include "common.h"
 
-/*-------------------------------
- * Default HTML Login
+#define ENABLED		(1)
+#define DISABLED	(0)
+
+/*------------------------------
+ * DEBUGGING DATA
  *-----------------------------*/
-#define HTMLLOGIN_DEF_USR			"admin"
-#define HTMLLOGIN_DEF_PSWD			"admin"
+#define POLL_ENGINE_PRINTF_DEFAULT 	ENABLED
+#define MQTT_JSON_PRINTF_DEFAULT 	ENABLED
+#define HTTP_SERVER_DEBUG 			ENABLED
+#define NVM_DEBUG 					DISABLED
+#define DEEP_DEBUG_PRINTF_DEFAULT 	ENABLED
+
+
+
+/*-------------------------------
+ * WiFi Interface
+ *-----------------------------*/
+#define NETWORK_INTERFACE 	WIFI_INTERFACE
+#define WIFI_INTERFACE 		1
+#define GSM_INTERFACE 		0
 
 
 /*-------------------------------
@@ -38,7 +53,7 @@
 #define AP_DEF_NETMASK		"255.255.255.0"
 #define AP_DEF_DHCP_BASE	"192.168.100.10"
 #define AP_DEF_SSID			"GME"
-#define AP_DEF_PSSWD		"NoPass"
+#define AP_DEF_PSSWD		"12345678"
 #define AP_DEF_SSID_HIDDEN	0
 #define AP_DEF_MAX_CONN		10
 #define AP_DEF_DHCP			1
@@ -46,41 +61,38 @@
 
 
 /*-------------------------------
- * MQTT Interface
+ * Timer Constants
  *-----------------------------*/
-//#define MQTT_BROKER_URL		"m21.cloudmqtt.com"
-//#define MQTT_BROKER_IP		"192.168.43.237"
-//#define MQTT_BROKER_PORT	10672
-//#define MQTT_SSL_NEED		1
+#define ALARM_POLLING_TIME	(2)
 
 
-/*-------------------------------
- * POLLING Time
- *-----------------------------*/
-#define ALARM_POLLING_TIME  1
-//25
-#define HIGH_POLLING_TIME   11
-//65
-#define LOW_POLLING_TIME	33
-//120
+#define PASS_MODE_TIMER		(60)
 
-/*-------------------------------
- * BINARY MODEL DIRECTORY
- *-----------------------------*/
-#define MODEL_NAME  "/spiffs/cpco_model.bin"
+#define WAITING_CONF_COUNTER (10)
 
 /*-------------------------------
  * FILES DIRECTORY
  *-----------------------------*/
-#define MODEL_FILE  	"/spiffs/model.bin"
-#define CERT_1 			"/spiffs/cert1.crt"
-#define CERT_2 			"/spiffs/cert2.crt"
+#define CERT_1	0
+#define CERT_2	1
+#define CERT1_SPIFFS		"/spiffs/cert1.crt"
+#define CERT2_SPIFFS		"/spiffs/cert2.crt"
+
+#define MODEL_FILE  		"/spiffs/model.bin"
 
 #define LOGIN_HTML 			"/spiffs/login.html"
 #define CHANGE_CRED_HTML	"/spiffs/chcred.html"
 #define CONFIG_HTML 		"/spiffs/config.html"
 #define STYLE_CSS 			"/spiffs/style.css"
 #define FAV_ICON 			"/spiffs/fav.ico"
+
+
+/*-------------------------------
+ * Certificates Allocation
+ *-----------------------------*/
+#define CERT_MAX_NUMBRER	2
+#define CERT_MAX_SIZE		1536
+
 
 /*-------------------------------
  * MODBUS Config
@@ -101,7 +113,8 @@
 #define ECHO_TEST_RTS   (18)
 
 
-
+//Time to wait after a null alarm
+#define NULL_ALARM_TIMER 	(90) //Sec
 
 /*------------------------------
  * Firmware Version
@@ -112,7 +125,14 @@
 
 
 
-//Time to keep Reset button pressed to execute a factory reset
-#define FACTORY_RESET_SEC	1	//Write the value in seconds
+/*------------------------------
+ * RESET DATA
+ *-----------------------------*/
+//Reset Buttons
+#define CONFIG_RESET_BUTTON		GPIO_NUM_0
+#define FACTORY_RESET_BUTTON	GPIO_NUM_0
+//Time to keep Reset buttonS pressed to execute a factory reset
+#define CONFIG_RESET_SEC		(10)	//Write the value in seconds
+#define FACTORY_RESET_SEC		(30)	//Write the value in seconds
 
 #endif /* MAIN_GME_CONFIG_H_ */

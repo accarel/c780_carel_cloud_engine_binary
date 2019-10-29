@@ -23,39 +23,6 @@
 #define TSEND		(10*60)
 #define T_HIGH_POLL	(10)   //(65)
 
-
-enum{
-	CURRENT = 0,
-	PREVIOUS,
-};
-
-
-enum{
-	ERROR = 0,
-	CHANGED,
-};
-
-enum{
-	DEACTIVATED = 0,
-	ACTIVETED,
-};
-
-
-
-
-enum{
-	STOPPED = 0,
-	INITIALIZED,
-	RUNNING,
-};
-
-enum{
-	NOT_RECEIVED = 0,
-	RECEIVED,
-	IN_PROGRESS,
-	EXECUTED,
-};
-
 //Register: Coil and DI low polling and high polling
 #pragma pack(1)
 typedef struct coil_di_low_high_s{
@@ -217,6 +184,62 @@ typedef struct values_buffer_timing_s{
 
 
 
+enum{
+	CURRENT = 0,
+	PREVIOUS,
+};
+
+
+enum{
+	ERROR = 0,
+	CHANGED,
+};
+
+enum{
+	DEACTIVATED = 0,
+	ACTIVETED,
+};
+
+
+
+
+enum{
+	STOPPED = 0,
+	INITIALIZED,
+	RUNNING,
+	NOT_INITIALIZED,
+};
+
+enum{
+	NOT_RECEIVED = 0,
+	RECEIVED,
+	IN_PROGRESS,
+	EXECUTED,
+};
+
+
+typedef enum{
+	NOT_CREATED = 0,
+	CREATED,
+} table_st;
+
+#pragma pack(1)
+typedef struct table_status_s{
+	table_st buffer_values;
+	table_st cid_table;
+}table_status_t;
+#pragma pack()
+
+#pragma pack(1)
+typedef enum{
+	START_TIMER = 0,
+	WAIT_MQTT_CMD,
+	RESET_TIMER,
+	EXECUTE_CMD,
+	DEACTIVATE_PASS_MODE,
+}passing_mode_fsm_t;
+#pragma pack()
+
 #pragma pack(1)
 typedef struct poll_engine_flags_s{
 	 uint8_t engine;
@@ -225,21 +248,79 @@ typedef struct poll_engine_flags_s{
 }poll_engine_flags_t;
 #pragma pack()
 
+#pragma pack(1)
+typedef struct passing_mode_Param_s{
+	uint8_t cmd_received;
+	uint8_t cmd;
+
+}passing_mode_Param_t;
+#pragma pack()
 
 
-
-void create_tables(void);
+void PollEngine__CreateTables(void);
 void create_modbus_tables(void);
 mb_parameter_descriptor_t* PollEngine__GetParamVectPtr(void);
 uint16_t PollEngine__GetParamNum(void);
 
+void PollEngine__MBInit(void);
+void PollEngine__MBResume(void);
+void PollEngine__MBSuspend(void);
+void PollEngine__MBDestroy(void);
 void PollEngine__StartEngine(void);
 void PollEngine__StopEngine(void);
 uint8_t PollEngine__GetEngineStatus(void);
+uint8_t PollEngine__GetPollingStatus(void);
+
+void PollEngine__PassModeFSM(void);
 void PollEngine__ActivatePassMode(void);
 void PollEngine__DeactivatePassMode(void);
 uint8_t PollEngine__GetPassModeStatus(void);
+void PollEngine__SetPassModeCMD(uint8_t status);
+uint8_t PollEngine__GetPassModeCMD(void);
+
+#if 0
+uint8_t PollEngine__SendMBAdu(req_send_mb_adu_t *send_mb_adu, uint8_t* data_rx);
+operation_res_t PollEngine__Read_HR_IR_Req(char* alias, void* read_value);
+operation_res_t PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value);
+operation_res_t PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr);
+operation_res_t PollEngine__Write_HR_Req(char* alias, void* write_value);
+#endif
+
+values_buffer_t* PollEngine__GetValuesBuffer(void);
+values_buffer_timing_t* PollEngine__GetTimeBuffer(void);
+uint16_t PollEngine__GetValuesBufferIndex(void);
+uint16_t PollEngine__GetTimerBufferIndex(void);
+void PollEngine__ResetValuesBuffer(void);
+uint32_t PollEngine__GetMBBaudrate(void);
+
+float get_type_a(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+int32_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+
+
+hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info);
+
 
 void CarelEngineMB_Init(void);
+
+void adu_test(void);
+void scanline_test(void);
+uint8_t PollEngine__GetPollEnginePrintMsgs(void);
+void PollEngine__SetPollEnginePrintMsgs(uint8_t status);
+
+
+#define	PRINTF_POLL_ENG(x)	\
+		if(PollEngine__GetPollEnginePrintMsgs() == 1)\
+		printf x;\
+
+
+
+#define MB_RESPONSE_TIMEOUT(size) pdMS_TO_TICKS(30 + (2 * ((size << 1) + 8) * 11 * 1000 / PollEngine__GetMBBaudrate()))
+
 
 #endif /* MAIN_POLL_ENGINE_H_ */

@@ -26,6 +26,7 @@
 #include "esp_console.h"
 
 #include "sntp.h"
+#include "wifi.h"
 
 static const char *TAG = "sntp";
 
@@ -152,10 +153,10 @@ void Init_RTC(void)
     ESP_LOGI(TAG, "Initializing SNTP");
     sntp_stop();
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, "pool.ntp.org");
+    sntp_setservername(0, WiFi__GetCustomConfig().ntp_server_addr);
     sntp_init();
     sntp_esp_cli_commands_init();
-    last_boot_time = Get_UTC_Current_Time();
+
 
 }
 
@@ -185,10 +186,13 @@ uint32_t Get_last_boot_time(void){
 	return last_boot_time;
 }
 
+void Set_last_boot_time(void){
+	last_boot_time = Get_UTC_Current_Time();
+}
 
 void Update_RTC (void)
 {
-
+//TODO
 }
 
 

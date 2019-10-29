@@ -10,9 +10,13 @@
 
 //#include "types.h"
 #include "binary_model.h"
-#include "memmgr.h"
+#include "file_system.h"
+
 #include "poll_engine.h"
-#include "File_System_CAREL.h"
+#include "nvm.h"
+
+
+#include "data_types_CAREL.h"
 
 // locale define
 #define WANT_DUMP_MODEL	0
@@ -369,7 +373,6 @@ static uint16_t CRC16(const uint8_t *nData, uint16_t wLength)
 		wLength--;
 	}
 
-	//printf("CHECK %d \r\n", sizeof(uint8_t));
 
 	return wCRCWord;
 
@@ -380,7 +383,6 @@ static uint16_t CRC16(const uint8_t *nData, uint16_t wLength)
 static void get_model_pointers(uint8_t *val)
 {
 
-	uint8_t* buffer_pointer;
 	uint8_t* model_data_begin;
 
 
@@ -447,6 +449,7 @@ static void GetDeviceInfo(uint8_t *val)
 	ptmyHeaderModel = val;
 	myHeaderModel = *ptmyHeaderModel;
 	uint16_t ModelCrc;
+	size_t len = 0;
 
 #ifdef __DEBUG_BYNARY_MODEL
 	// show INFO
@@ -455,6 +458,12 @@ static void GetDeviceInfo(uint8_t *val)
 	printf("Model GUID      :");
 
 
+
+	if(ESP_OK != NVM__ReadBlob(MODEL_GUID, myHeaderModel.guid, &len)){
+		NVM__WriteBlob (MODEL_GUID, myHeaderModel.guid, 16);
+	}
+
+	printf("Model GUID      :");
 	for (int i=0; i < sizeof(myHeaderModel.guid); i++)
 		printf(" %02x", myHeaderModel.guid[i]);
 
@@ -519,7 +528,7 @@ int BinaryModel_Init (void)
 	// check the existance of the files in the FileSystem
 	FS_DisplayFiles();
 
-	char FileName[100] = MODEL_NAME;
+	char FileName[100] = MODEL_FILE;
 
 #ifdef __DEBUG_BYNARY_MODEL
 	printf("Start check GME MODEL: %s\n",FileName);
@@ -559,13 +568,13 @@ int BinaryModel_Init (void)
 #endif
 
 	uint8_t * chunk = (uint8_t *)malloc(sz);
-	uint8_t * HEAD = chunk;
+	 
 
 	sz_read = fread(chunk, sizeof(uint8_t), sz, pInputFile);  // double
 
 	if(sz_read != sz)
 	{
-		return 0;
+		return C_FAIL;
 
 #ifdef 	__DEBUG_BYNARY_MODEL
 		printf("Read ERROR!!!! \n");
@@ -588,18 +597,17 @@ int BinaryModel_Init (void)
 	printf("\n\nCREATE TABLES binary %d\n\n",test++);
 #endif
 
-	create_tables();
+	PollEngine__CreateTables();
 
 	free(chunk);
 
-	return 1;
+	return C_SUCCESS;
 
 }
 
 
 void BinaryModel__GetNum(uint8_t arr[MAX_POLLING][MAX_REG]){
 
-	uint8_t temp = 0 ;
 	for (int d = 0; d < MAX_POLLING; d++)
 	{
 		struct NumOfPoll *pt;
@@ -695,4 +703,14 @@ uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type){
 	}
 	return temp;
 }
+
+
+
+
+uint8_t* BinaryModel__GetHeaderptr(void){
+	size_t len = 0;
+	NVM__ReadBlob(MODEL_GUID, myHeaderModel.guid, &len);
+	return &myHeaderModel.guid[0];
+}
+
 

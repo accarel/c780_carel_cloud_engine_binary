@@ -3,17 +3,26 @@
  *
  *  Created on: Jul 25, 2019
  *      Author: ataayoub
+ *
+ *  Description: This file contains the high level functions of polling engine :
+ *  	1) Polling routine
+ *  	2) Conversion functions
+ *  	3) Buffering routine
+ *  	4) The passing mode state machine
+ *  	5) Polling tables creation
+ *
  */
 #include "poll_engine.h"
 #include "binary_model.h"
+#include "mqtt.h"
 #include "utilities.h"
 
 #include "RTC_IS.h"
 #include "modbus_IS.h"
-
+#include "nvm.h"
 #include "string.h"
 #include "esp_log.h"
-//#include "mb_sense_modbus.h"
+
 #include "driver/gpio.h"
 #include "mb_m.h"
 
@@ -24,16 +33,6 @@ static const char *TAG = "sense_main";
 
 #define OPTS(min_val, max_val, step_val) { .opt1 = min_val, .opt2 = max_val, .opt3 = step_val }
 
-
-// The number of parameters that intended to be used in the particular control process
-#define SENSE_MAX_CIDS 19
-
-// Timeout to update cid over Modbus if it is not updated by set/get request from mdf
-#define MODBUS_VALUE_UPDATE_TIMEOUT_US  (10000000)
-
-#define MODBUS_VALUE_UPDATE_TIMEOUT_US_2  (25000000)
-
-#define MODBUS_GET_REQUEST_TIMEOUT      (1000)
 
 #define INIT_DELAY_TICS                 (100 / portTICK_RATE_MS)
 #define TIMEOUT_UPDATE_CIDS_MS          (1000) // 1000
@@ -53,7 +52,7 @@ static const char *TAG = "sense_main";
 
 
 static poll_engine_flags_t PollEngine_Status = {
-	.engine = STOPPED,
+	.engine = NOT_INITIALIZED,
 	.polling = STOPPED,
 	.passing_mode = DEACTIVATED,
 };
@@ -88,9 +87,9 @@ static hr_ir_alarm_tables_t		*IRAlarmPollTab;
 
 static sampling_tstamp_t timestamp = {0};
 
-
+//Values and time buffers
 static uint16_t values_buffer_index = 0;
-static uint16_t values_buffer_read_section = 0;
+static uint16_t values_buffer_read_section = 1;
 static uint16_t values_buffer_len = 0;
 static values_buffer_t *values_buffer = NULL;
 static values_buffer_timing_t *time_values_buff = NULL;
@@ -99,27 +98,27 @@ static uint16_t time_values_buff_len = 0;
 
 static uint8_t test = 0;
 
+//Engine flags
+static passing_mode_fsm_t PassMode_FSM = START_TIMER;
+static uint32_t PassModeTimer = 0;
+static uint8_t PassMode_CmdStatus = NOT_RECEIVED;
+static uint32_t MB_BaudRate = 0;
+static uint16_t NullTimerAlarm = 0;
 static xTaskHandle xPollingEngine;
+
 
 
 USHORT param_buffer[2];				// max 32 bits
 eMBErrorCode retError = MB_ENOREG;
 
+static uint8_t PollEnginePrint = POLL_ENGINE_PRINTF_DEFAULT;
+
 /*Static Function*/
 static void create_values_buffers(void);
-static float get_type_a(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-static float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-static int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-static uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-static uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-static int32_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-static int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-static uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
 static void check_increment_values_buff_len(uint16_t *values_buffer_idx);
 static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len);
 static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len);
 static void compare_prev_curr_reads(PollType_t poll_type);
-static hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info);
 static void save_coil_di_value(coil_di_low_high_t *arr, void* instance_ptr);
 static void save_hr_ir_value(hr_ir_low_high_poll_t *arr, void* instance_ptr);
 static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* instance_ptr);
@@ -134,7 +133,7 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
  * @param  none
  * @return none
  */
-void create_tables(void){
+void PollEngine__CreateTables(void){
 
 	BinaryModel__GetNum(DeviceParamCount);
 
@@ -443,20 +442,14 @@ void create_modbus_tables(void)
 }
 
 
-
-
-
-
-
 static void create_values_buffers(void){
 	//Allocate Time buffer for values buffer
 	time_values_buff_len = (uint16_t)(ceil(TSEND / T_LOW_POLL) + ceil(TSEND / T_HIGH_POLL));
-
 #ifdef __DEBUG_POLL_ENGINE_CAREL
 	printf("\nTIME BUFF VALUES LEN = %d\n",time_values_buff_len);
 #endif
 
-	time_values_buff = malloc(time_values_buff_len * sizeof(values_buffer_timing_t));           // memmgr_alloc
+	time_values_buff = malloc(time_values_buff_len * sizeof(values_buffer_timing_t));           // malloc
 	memset((void*)time_values_buff, 0, time_values_buff_len * sizeof(values_buffer_timing_t));
 	//Allocate values buffer
 	uint32_t  freespace = uxTaskGetStackHighWaterMark(NULL);
@@ -472,7 +465,7 @@ static void create_values_buffers(void){
 	printf("\nBUFF VALUES LEN = %d\n",values_buffer_len);
 #endif
 
-	values_buffer = malloc(values_buffer_len * sizeof(values_buffer_t));						// memmgr_alloc
+	values_buffer = malloc(values_buffer_len * sizeof(values_buffer_t));						// malloc
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
 
 #ifdef __DEBUG_POLL_ENGINE_CAREL
@@ -483,17 +476,7 @@ static void create_values_buffers(void){
 
 
 
-
-static float get_type_a(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
-
-	float temp, read= 0.0;
-	read_kind == CURRENT ? (temp = *((float*)(&arr->c_value.value))) : (temp = *((float*)(&arr->p_value.value)));
-	read = (temp * arr->info.linA) + arr->info.linB;
-	return read;
-}
-
-
-static float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+float get_type_a(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 
 	float temp, read= 0.0;
 	read_kind == CURRENT ? (temp = *((float*)(&arr->c_value.value))) : (temp = *((float*)(&arr->p_value.value)));
@@ -502,7 +485,16 @@ static float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 }
 
 
-static int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+
+	float temp, read= 0.0;
+	read_kind == CURRENT ? (temp = *((float*)(&arr->c_value.value))) : (temp = *((float*)(&arr->p_value.value)));
+	read = (temp * arr->info.linA) + arr->info.linB;
+	return read;
+}
+
+
+int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	int32_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((int32_t*)(&arr->c_value.value))) : (temp = *((int32_t*)(&arr->p_value.value)));
 	read = (temp * arr->info.linA) + arr->info.linB;
@@ -510,7 +502,7 @@ static int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 }
 
 
-static uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint32_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint32_t*)(&arr->c_value.value))) : (temp = *((uint32_t*)(&arr->p_value.value)));
 	read = (temp * arr->info.linA) + arr->info.linB;
@@ -518,7 +510,7 @@ static uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kin
 }
 
 
-static uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
 	read = temp & ((uint16_t) (1 << arr->info.bitposition)) ;
@@ -526,14 +518,14 @@ static uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 }
 
 
-static int32_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+int32_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	int32_t read= 0;
 	read_kind == CURRENT ? (read = *((uint16_t*)(&arr->c_value.value))) : (read = *((uint16_t*)(&arr->p_value.value)));
 	return (int32_t)read;
 }
 
 
-static int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	int16_t temp, read= 0;
 
 	read_kind == CURRENT ? (temp = *((int16_t*)(&arr->c_value.value))) : (temp = *((int16_t*)(&arr->p_value.value)));
@@ -543,7 +535,7 @@ static int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 }
 
 
-static uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
+uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
 	//printf("get_type_f_unsigned\n");
@@ -552,201 +544,216 @@ static uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kin
 }
 
 
+/*	Descriptions: Routine to check if the values buffer has a free space or not
+ *					If yes, increments the index, otherwise flush the buffer via mqtt
+ */
 static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
 	if(*values_buffer_idx < (values_buffer_len - 1)){
 		(*values_buffer_idx)++;
 	}else{
 		*values_buffer_idx = 0;
+	//	MQTT__FlushValues();
 	}
 
 }
 
-
+/*	Descriptions: Comparing the current read with previous IR and HR registers reads
+ * 					accoring to its type (Look carel registers type).
+ *					If there is a diff >= hysteresis, writes the read value + reg info
+ *					in values buffer, then increment the values buffer index
+ *
+ *					arr: is the HR or IR table
+ *					arr_len: the table length
+ */
 static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
 {
 bool to_values_buff = false;
-float value = 0;
+long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
-		//printf("check_hr_ir_read_val 1 \n");
 		if(0 != arr->tab[i].error){
-			//printf("check_hr_ir_read_val 2 \n");
-			check_increment_values_buff_len(&values_buffer_index);
 			values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 			values_buffer[values_buffer_index].value = 0;
 			values_buffer[values_buffer_index].info_err = arr->tab[i].error;
-			//printf("check_hr_ir_read_val 3 \n");
+			check_increment_values_buff_len(&values_buffer_index);
 		}
 		else{
-			//printf("check_hr_ir_read_val 4 \n");
 			switch(arr->tab[i].read_type){
 			case TYPE_A:
 			{
-				printf("check_hr_ir_read_val A \n");
+				PRINTF_DEBUG("check_hr_ir_read_val A \n");
 				float temp, c_read, p_read= 0.0;
 				c_read = get_type_a(&arr->tab[i], CURRENT);
 				p_read = get_type_a(&arr->tab[i], PREVIOUS);
 				temp = fabs(c_read - p_read);
-				printf("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
+				PRINTF_DEBUG("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
 				if(to_values_buff > arr->tab[i].info.Hyster){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
+					PRINTF_DEBUG("TYPE_A c_read = %f\n",c_read);
+					PRINTF_DEBUG("TYPE_A Value = %Lf\n",value);
 				}
 			}
 				break;
 
 			case TYPE_B:
 			{
-				//printf("check_hr_ir_read_val B \n");
 				float temp, c_read, p_read= 0.0;
 				c_read = get_type_b(&arr->tab[i], CURRENT);
 				p_read = get_type_b(&arr->tab[i], PREVIOUS);
 				temp = fabs(c_read - p_read);
-				printf("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
+				PRINTF_DEBUG("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
+					PRINTF_DEBUG("TYPE_B REG low = %d\n",arr->tab[i].c_value.reg.low);
+					PRINTF_DEBUG("TYPE_B REG high = %d\n",arr->tab[i].c_value.reg.high);
+					PRINTF_DEBUG("TYPE_B REG val = %d\n",arr->tab[i].c_value.value);
+					PRINTF_DEBUG("TYPE_B c_read = %f\n",c_read);
+					PRINTF_DEBUG("TYPE_B Value = %Lf\n",value);
 				}
 			}
 				break;
 
 			case TYPE_C_SIGNED:
 			{
-				//printf("check_hr_ir_read_val C_S \n");
 				int32_t temp, c_read, p_read= 0;
 				c_read = get_type_c_signed(&arr->tab[i], CURRENT);
 				p_read = get_type_c_signed(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
-				printf("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
 				}
 			}
 				break;
 
 			case TYPE_C_UNSIGNED:
 			{
-				//printf("check_hr_ir_read_val C_U \n");
 				uint32_t temp, c_read, p_read= 0;
 				c_read = get_type_c_unsigned(&arr->tab[i], CURRENT);
 				p_read = get_type_c_unsigned(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
-				printf("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
 				}
 			}
 				break;
 
 			case TYPE_D:
 			{
-				//printf("check_hr_ir_read_val D \n");
 				uint8_t c_read, p_read= 0;
 				c_read = get_type_d(&arr->tab[i], CURRENT);
 				p_read = get_type_d(&arr->tab[i], PREVIOUS);
 				if(c_read != p_read){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
 				}
-				printf("c_read: %d, p_read: %d\n",c_read, p_read);
+				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
 			}
 				break;
 
 			case TYPE_E:
 			{
-				//printf("check_hr_ir_read_val E \n");
 				int32_t temp, c_read, p_read= 0;
 				c_read = get_type_e(&arr->tab[i], CURRENT);
 				p_read = get_type_e(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
 				}
-				printf("c_read: %d, p_read: %d\n",c_read, p_read);
+				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
 
 			}
 				break;
 
 			case TYPE_F_SIGNED:
 			{
-				//printf("check_hr_ir_read_val F_S \n");
 				int16_t temp, c_read, p_read= 0;
 				c_read = get_type_f_signed(&arr->tab[i], CURRENT);
 				p_read = get_type_f_signed(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
-				printf("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
 				}
 			}
 					break;
 
 			case TYPE_F_UNSIGNED:
 			{
-				//printf("check_hr_ir_read_val F_U \n");
 				uint16_t temp, c_read, p_read= 0;
 				c_read = get_type_f_unsigned(&arr->tab[i], CURRENT);
 				p_read = get_type_f_unsigned(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
-				printf("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
-					value = (float)c_read;
+					value = (long double)c_read;
 				}
 			}
 				break;
 
 			default:
-				//printf("check_hr_ir_read_val ZZZZZ \n");
 				break;
 			}
-			//printf("check_hr_ir_read_val 5 \n");
 			if(value != 0){
-				//printf("check_hr_ir_read_val 6 \n");
-				check_increment_values_buff_len(&values_buffer_index);
 				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 				values_buffer[values_buffer_index].value = value;
 				values_buffer[values_buffer_index].info_err = 0;
+				check_increment_values_buff_len(&values_buffer_index);
 			}
 		}
 	}
-	//printf("check_hr_ir_read_val 7 \n");
 }
 
-
+/*	Descriptions: Comparing the current read with previous COIL and IR reads
+ * 					accoring to its type (Look carel registers type).
+ *					If there is a diff >= hysteresis, writes the read value + reg info
+ *					in values buffer, then increment the values buffer index
+ *
+ *					arr: is the COIL or DI table
+ *					arr_len: the table length
+ */
 static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 {
 	for(uint8_t i=0; i<arr_len; i++){
 		//error?
 		if(0 != arr->reg[i].error){
 			//send values to values buffer as error
-			check_increment_values_buff_len(&values_buffer_index);
 			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
 			values_buffer[values_buffer_index].value = 0;
 			values_buffer[values_buffer_index].info_err = arr->reg[i].error;
+			check_increment_values_buff_len(&values_buffer_index);
 
 		}
 		//value changed
 		else if(arr->reg[i].c_value != arr->reg[i].p_value){
 			//send values to values buffer
-			check_increment_values_buff_len(&values_buffer_index);
 			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
-			values_buffer[values_buffer_index].value = (float)arr->reg[i].c_value;
+			values_buffer[values_buffer_index].value = (long double)arr->reg[i].c_value;
 			values_buffer[values_buffer_index].info_err = 0;
+			check_increment_values_buff_len(&values_buffer_index);
 		}
 	}
 }
 
 
-//ARS WAS HERE
+/*	Descriptions: Routine that manages the hole comparison phase of CURRENT / PREVIOUS reads
+ * 					according to polling type if HIGH or LOW
+ * 					Then updates the values and time buffers
+ * 					Should be called directly after finishing the polling routine
+ */
 
 static void compare_prev_curr_reads(PollType_t poll_type)
 {
 	//get current index of values buffer
 	uint16_t index_temp =  values_buffer_index;
+	PRINTF_DEBUG("START index_temp = %d, values_buffer_index = %d\n",index_temp,values_buffer_index);
 
 	switch(poll_type){
 	case LOW_POLLING:
@@ -768,32 +775,18 @@ static void compare_prev_curr_reads(PollType_t poll_type)
 		break;
 	}
 
+	PRINTF_DEBUG("END index_temp = %d, values_buffer_index = %d\n",index_temp,values_buffer_index);
 
 	//Update values buffer idx
 	if (index_temp != values_buffer_index){
-		 //Add new section of values in buffer values and time buffer
-		 values_buffer_read_section++;
+
 
 		 //Update Values Buffer
 		 if(index_temp < values_buffer_index){
-			//assign idx to buffer values
-			 for(uint8_t i = index_temp; i <= values_buffer_index; i++){
-				 values_buffer[i+1].index = values_buffer_read_section;
+			//assign idx to the new added values in the buffer
+			 for(uint8_t i = index_temp; i < values_buffer_index; i++){
+				 values_buffer[i].index = values_buffer_read_section;
 			 }
-		 }
-		 //In case of buffer saturation during registering them in buffer values, we have to overwrite the top of values
-		 else if (index_temp > values_buffer_index){
-			 for(uint8_t i = index_temp; i <= values_buffer_len; i++){
-				 values_buffer[i+1].index = values_buffer_read_section;
-			 }
-			 for(uint8_t i = 0; i < values_buffer_index; i++){
-				 values_buffer[i+1].index = values_buffer_read_section;
-			 }
-			 //TODO
-			 //Values Buffer has to be send
-
-			 //Reset Values Buffer
-			 //Reset Time Buffer
 		 }
 
 
@@ -801,28 +794,35 @@ static void compare_prev_curr_reads(PollType_t poll_type)
 		 switch(poll_type){
 			case LOW_POLLING:
 				//assign idx to time buffer
-				time_values_buff[values_buffer_read_section].index = values_buffer_read_section;
+			time_values_buff[values_buffer_read_section-1].index = values_buffer_read_section;
 				//assign time in time buffer
-				time_values_buff[values_buffer_read_section].t_start = timestamp.previous_low;
-				time_values_buff[values_buffer_read_section].t_stop = timestamp.current_low;
+				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_low;
+				time_values_buff[values_buffer_read_section-1].t_stop = timestamp.current_low;
 				break;
 
 			case HIGH_POLLING:
 				//assign idx to time buffer
-				time_values_buff[values_buffer_read_section].index = values_buffer_read_section;
+	time_values_buff[values_buffer_read_section-1].index = values_buffer_read_section;
 				//assign time in time buffer
-				time_values_buff[values_buffer_read_section].t_start = timestamp.previous_high;
-				time_values_buff[values_buffer_read_section].t_stop = timestamp.current_high;
+				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_high;
+				time_values_buff[values_buffer_read_section-1].t_stop = timestamp.current_high;
 				break;
 
 			default:
 				break;
 		}
+
+		 //Add new section of values in buffer values and time buffer
+		 values_buffer_read_section++;
 	}
+
+
+
+
 }
 
 
-static hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
+hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
 {
 	hr_ir_read_type_t type;
 	if(info.dim > 16){
@@ -856,8 +856,10 @@ static hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
 
 
 
-
-void update_current_previous_tables(RegType_t poll_type){
+/*
+ *	Description: Updating the previous read with the current one.
+ */
+static void update_current_previous_tables(RegType_t poll_type){
 	int i=0;
 	switch(poll_type){
 	case LOW_POLLING:
@@ -1027,14 +1029,37 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 	}
 }
 
-//static void send_alarm_json(void)
-static void send_alarm_cbor(void)
+/* Description: send JSON msg via MQTT if any alarm's value is changed */
+
+static void send_js_alarm(uint16_t alias, alarm_read_t *data, uint8_t alarm_issue){
+	MQTT__Alarms( alias, data->start_time,  data->stop_time, alarm_issue);
+};
+
+
+static void set_null_alarm_timer(){
+	NullTimerAlarm = NULL_ALARM_TIMER;
+	PRINTF_DEBUG("set NullTimerAlarm = %d\n",NullTimerAlarm);
+}
+
+static void clear_null_alarm_timer(){
+	NullTimerAlarm = 0;
+}
+
+static uint16_t get_null_alarm_timer(){
+	return NullTimerAlarm;
+}
+
+
+/* Description: Check if any alarm's value is changed, activated or deactivated */
+
+static void check_alarms_change(void)
 {
 	uint16_t i;
 	for(i=0; i<alarm_n.coil; i++){
 		if(0 != COILAlarmPollTab[i].data.error){
 			//send_js_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data, ERROR);
-			printf("Coil Alarm error num %d \n ",i);
+			PRINTF_POLL_ENG(("Coil Alarm error num %d \n ",i))
+			set_null_alarm_timer();
 			COILAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == COILAlarmPollTab[i].data.send_flag){
@@ -1053,11 +1078,12 @@ static void send_alarm_cbor(void)
 		if(0 != DIAlarmPollTab[i].data.error){
 			//send_js_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, ERROR);
 			printf("DI Alarm error num %d \n ",i);
+			set_null_alarm_timer();
 			DIAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == DIAlarmPollTab[i].data.send_flag){
 			//send_js_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, CHANGED);
-			printf("DI Alarm changed num %d \n ",i);
+			PRINTF_POLL_ENG(("DI Alarm changed num %d \n ",i))
 			DIAlarmPollTab[i].data.send_flag = 0;
 		};
 	}
@@ -1065,12 +1091,13 @@ static void send_alarm_cbor(void)
 	for(i=0; i<alarm_n.hr; i++){
 		if(0 != HRAlarmPollTab[i].data.error){
 			//send_js_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, ERROR);
-			printf("HR Alarm error num %d \n ",i);
+			PRINTF_POLL_ENG(("HR Alarm error num %d \n ",i))
+			set_null_alarm_timer();
 			HRAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == HRAlarmPollTab[i].data.send_flag){
-			//send_js_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, CHANGED);
-			printf("HR Alarm changed num %d \n ",i);
+			send_js_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, CHANGED);
+			PRINTF_POLL_ENG(("HR Alarm changed num %d \n ",i))
 			HRAlarmPollTab[i].data.send_flag = 0;
 		};
 	}
@@ -1078,12 +1105,13 @@ static void send_alarm_cbor(void)
 	for(i=0; i<alarm_n.ir; i++){
 		if(0 != IRAlarmPollTab[i].data.error){
 			//send_js_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, ERROR);
-			printf("IR Alarm error num %d \n ",i);
+	PRINTF_POLL_ENG(("IR Alarm error num %d \n ",i))
+			set_null_alarm_timer();
 			IRAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == IRAlarmPollTab[i].data.send_flag){
 			//send_js_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, CHANGED);
-			printf("IR Alarm changed num %d \n ",i);
+			PRINTF_POLL_ENG(("IR Alarm changed num %d \n ",i))
 			IRAlarmPollTab[i].data.send_flag = 0;
 		};
 	}
@@ -1092,6 +1120,7 @@ static void send_alarm_cbor(void)
 
 void print_ValuesTable(void){
 	int i;
+	if(PollEngine__GetPollEnginePrintMsgs() == 1){
 	printf("Values Buffer\n");
 	for(i = 0; i<values_buffer_index;	i++){
 		printf("id: %4d,  alias: %4d,  value: %4Lf,  error: %d\n" ,
@@ -1101,68 +1130,35 @@ void print_ValuesTable(void){
 																values_buffer[i].info_err);
 	}
 	printf("TIME Values Buffer\n");
-	for(i = 0; i<values_buffer_read_section;	i++){
+		for(i = 0; i<values_buffer_read_section-1;	i++){
 			printf("id: %4d,  t_start: %d,  t_stop: %d\n" ,
-																time_values_buff[i].index,
-																time_values_buff[i].t_start,
-																time_values_buff[i].t_stop);
-	}
-}
-
-void print_Hightables(void){
-	int i;
-	printf("High Coil Table\n");
-	for(i = 0; i<high_n.coil;i++){
-		printf("Addr: %4d  c_Value: %d",COILHighPollTab.reg[i].info.Addr, COILHighPollTab.reg[i].c_value);
-		printf("    ,p_Value: %d\n",COILHighPollTab.reg[i].p_value);
-	}
-
-	printf("High HR Table\n");
-	for(i = 0; i<high_n.hr;i++){
-		printf("Addr: %4d  c_Value: %d",HRHighPollTab.tab[i].info.Addr, HRHighPollTab.tab[i].c_value.value);
-		printf("    ,p_Value: %d\n", HRHighPollTab.tab[i].p_value.value);
-	}
-}
-
-void print_Lowtables(void){
-	int i;
-	printf("Low Coil Table\n");
-	for(i = 0; i<low_n.coil; i++){
-		printf("Addr: %4d  c_Value: %d",COILLowPollTab.reg[i].info.Addr, COILLowPollTab.reg[i].c_value);
-		printf("    ,p_Value: %d\n",COILLowPollTab.reg[i].p_value);
-	}
-
-	printf("Low HR Table\n");
-	for(i = 0; i<low_n.hr; i++){
-		printf("Addr: %4d  c_Value: %d", HRLowPollTab.tab[i].info.Addr, HRLowPollTab.tab[i].c_value.value);
-		printf("    ,p_Value: %d\n", HRLowPollTab.tab[i].p_value.value);
-	}
-}
-
-void print_Alarmtables(void){
-	int i;
-	printf("Alarm Coil Table\n");
-	for(i = 0; i<alarm_n.coil; i++){
-		printf("Addr: %4d  Value: %d\n",COILAlarmPollTab[i].info.Addr, COILAlarmPollTab[i].data.value);
-	}
-
-	printf("Alarm HR Table\n");
-	for(i = 0; i<alarm_n.hr; i++){
-		printf("Addr: %4d  Value: %d\n",HRAlarmPollTab[i].info.Addr, HRAlarmPollTab[i].data.value);
+																	time_values_buff[i].index,
+																	time_values_buff[i].t_start,
+																	time_values_buff[i].t_stop);
+		}
 	}
 }
 
 
-mb_parameter_descriptor_t* PollEngine__GetParamVectPtr(void)
-{
-	return  &MBParameters[0];
-}
 
 
-uint16_t PollEngine__GetParamNum(void)
-{
-	return  cid_counter;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1593,7 +1589,7 @@ void DoPolling(req_set_gw_config_t* polling_times)
 
 				//print_Alarmtables();
 				//if(rete =! 0)
-				 send_alarm_cbor();
+//				 send_alarm_cbor();    // CHIEBAO
 				// else
 				// metto in fifo
 			}
@@ -1648,19 +1644,19 @@ void Polling_Engine_Init(void)
 	create_values_buffers();
 
 
-	req_set_gw_config_t* polling_times = Utilities__GetGWConfigData();
+	req_set_gw_config_t polling_times;
 
 	PollEngine_Status.engine = RUNNING;   //  at the beginning are INITIALIZED....when a mqtt message arrive start running
 
 
 	// temporarily
-	polling_times->lowspeedsamplevalue = T_LOW_POLL;
-	polling_times->hispeedsamplevalue = T_HIGH_POLL;
+	polling_times.lowspeedsamplevalue = T_LOW_POLL;
+	polling_times.hispeedsamplevalue = T_HIGH_POLL;
 
 
 	while(1)
 	{
-		DoPolling(polling_times);
+		DoPolling(&polling_times);
 		vTaskDelay(10/portTICK_PERIOD_MS);
 	}
 }
@@ -1679,12 +1675,251 @@ void CarelEngineMB_Init(void){
 
 
 	xTaskCreate(&Polling_Engine_Init, "Poll_engine_init",SENSE_TRIGGER_TASK_STACK_SIZE, NULL, SENSE_TRIGGER_TASK_PRIO, &xPollingEngine);
+}
 
-
+void PollEngine__MBResume(void){
+	// Starts operation task to check values and trigger an event
+	PRINTF_DEBUG("PE RESUMED\n");
+	vTaskResume(xPollingEngine);
 
 }
 
 
+void PollEngine__MBSuspend(void){
+	//mbc_master_destroy();
+
+	PRINTF_DEBUG("PE SUSPENDED, free heap : %d\n",esp_get_free_heap_size());
+	vTaskSuspend(xPollingEngine);
+}
+
+
+#if 0
+
+operation_res_t PollEngine__Read_HR_IR_Req(char* alias, void* read_value){
+	uint16_t cid;
+	//char temp[6] = {0};
+	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
+	//characteristic_descriptor_t cid_data = { 0 };
+
+	for(cid=0; cid < max_reg; cid++){
+
+		PRINTF_POLL_ENG(("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key))
+		if(strcmp(MBParameters[cid].param_key, alias) == 0){
+
+			//ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));
+//			sense_modbus_read_value(cid, read_value);    // CHIEBAO
+			PRINTF_POLL_ENG(("value is = %0X\n\n",*((uint32_t*)read_value)))
+			break;
+
+		}else if(cid == (max_reg - 1)){
+			return OPERATION_FAILED;
+		}
+	}
+	return OPERATION_SUCCEEDED;
+}
+
+operation_res_t PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value){
+	uint16_t cid;
+	//char temp[6] = {0};
+	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
+	//characteristic_descriptor_t cid_data = { 0 };
+
+	for(cid=0; cid < max_reg; cid++){
+
+		PRINTF_POLL_ENG(("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key))
+		if(strcmp(MBParameters[cid].param_key, alias) == 0){
+
+			//ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));
+//			sense_modbus_read_value(cid, (void*)read_value);       // CHIEBAO
+			PRINTF_POLL_ENG(("value is = %d\n\n",*((uint16_t*)read_value)))
+			break;
+
+		}else if(cid == (max_reg - 1)){
+			return OPERATION_FAILED;
+		}
+	}
+	return OPERATION_SUCCEEDED;
+}
+
+operation_res_t PollEngine__Write_HR_Req(char* alias, void* write_value){
+	uint16_t cid;
+	//char temp[6] = {0};
+	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
+	//characteristic_descriptor_t cid_data = { 0 };
+	uint32_t read_value = 0;
+	for(cid=0; cid < max_reg; cid++){
+
+		//PRINTF_DEBUG("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key);
+		if(strcmp(MBParameters[cid].param_key, alias) == 0){
+
+//			ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));          // CHIEBAO
+//			sense_modbus_send_value(cid, write_value);											// CHIEBAO
+			//PRINTF_DEBUG("Write value is = %0X\n\n",*((uint32_t*)write_value));
+//			sense_modbus_read_value(cid, (void*)&read_value);									// CHIEBAO
+			//PRINTF_DEBUG("Read value is = %0X\n\n",*((uint32_t*)&read_value));
+			break;
+
+		}else if(cid == (max_reg - 1)){
+			return OPERATION_FAILED;
+		}
+	}
+	return OPERATION_SUCCEEDED;
+}
+
+
+operation_res_t PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr){
+	uint16_t cid;
+	uint16_t reg_to_write = 0;
+	uint16_t bit = 0;
+	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
+//	characteristic_descriptor_t cid_data = { 0 };
+	uint16_t read_value = 0;
+	for(cid=0; cid < max_reg; cid++){
+
+		PRINTF_POLL_ENG(("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key))
+		if(strcmp(MBParameters[cid].param_key, alias) == 0){
+
+			//ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));
+
+//			sense_modbus_read_value(cid, (void*)&read_value);      // CHIEBAO
+			PRINTF_POLL_ENG(("Read value is = %04X\n\n",*((uint16_t*)&read_value)))
+
+			bit = addr % 16;
+			printf("read_coil bit = %d\n",bit);
+
+			if(write_value  ==  1){
+				reg_to_write = read_value | (uint16_t)(1 << bit);
+				printf("val reg to write 1 : %X\n",reg_to_write);
+			}else if (write_value  ==  0){
+				reg_to_write = read_value & ~((uint16_t)(1 << bit));
+				printf("val reg to write 0 : %X\n",reg_to_write);
+			}
+
+			printf("val reg to write : %X\n",reg_to_write);
+//			sense_modbus_send_value(cid, (void*)&reg_to_write);     // CHIEBAO
+
+			break;
+
+		}else if(cid == (max_reg - 1)){
+			return OPERATION_FAILED;
+		}
+	}
+	return OPERATION_SUCCEEDED;
+}
+
+
+uint8_t PollEngine__SendMBAdu(req_send_mb_adu_t *send_mb_adu, uint8_t* data_rx){
+
+//	mbc_master_suspend();   // CHIEBAO
+
+	uint8_t data_rx_len;
+
+	PRINTF_POLL_ENG(("ADU Request Packet:  "))
+
+	for(int i=0; i<send_mb_adu->adu_len; i++)
+	{
+		uart_write_bytes(MB_PORTNUM, (const char *) &send_mb_adu->adu[i], 1);
+	}
+
+	data_rx_len = uart_read_bytes(MB_PORTNUM, data_rx, 255,  MB_RESPONSE_TIMEOUT(send_mb_adu->adu_len));
+
+
+	if(PollEngine__GetPollEnginePrintMsgs() == 1){
+		printf("\nuart_read_bytes len = %d\n\n",data_rx_len);
+
+		for(int i=0; i<data_rx_len; i++){
+			printf("[%d]=%02X  ",i,data_rx[i]);
+		}
+		printf("\n");
+	}
+
+	uart_flush_input(MB_PORTNUM);
+	uart_flush(MB_PORTNUM);
+
+//	ClearQueueMB();			// CHIEBAO
+//	mbc_master_resume();	// CHIEBAO
+
+	vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+	return data_rx_len;
+
+
+}
+
+#endif
+
+
+static uint8_t test1=0;
+static uint8_t test2=0;
+static uint8_t test3=0;
+static uint8_t test4=0;
+
+void PollEngine__PassModeFSM(void){
+
+	//PRINTF_DEBUG("PollEngine_Status.engine = %d, PassMode_FSM = %d\n", PollEngine_Status.engine,PassMode_FSM );
+	if(STOPPED == PollEngine_Status.engine){// && STOPPED == PollEngine_Status.polling
+
+		switch(PassMode_FSM){
+		case START_TIMER:
+			{
+
+				PassModeTimer =	Get_UTC_Current_Time();
+				PassMode_FSM = WAIT_MQTT_CMD;
+
+				PRINTF_DEBUG("\nPassModeFSM 	START_TIMER\n");
+			}
+			break;
+
+		case WAIT_MQTT_CMD:
+			{
+				if(RECEIVED == PollEngine__GetPassModeCMD()){
+					PassMode_FSM = RESET_TIMER;
+				}else if(Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
+						PassMode_FSM = DEACTIVATE_PASS_MODE;
+				}
+
+				if(test1==0){PRINTF_DEBUG("\nPassModeFSM 	WAIT_MQTT_CMD\n"); test1=1;}
+			}
+			break;
+
+		case RESET_TIMER:
+			{
+				PassModeTimer =	Get_UTC_Current_Time();
+				PassMode_FSM = EXECUTE_CMD;
+
+				if(test2==0){PRINTF_DEBUG("\nPassModeFSM	RESET_TIMER\n"); test2=1;}
+			}
+			break;
+
+		case EXECUTE_CMD:
+			{
+				if(EXECUTED == PollEngine__GetPassModeCMD() ||
+					Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
+
+					PassMode_FSM = DEACTIVATE_PASS_MODE;
+				}
+
+				if(test3==0){PRINTF_DEBUG("\nPassModeFSM 	EXECUTE_CMD\n"); test3=3;}
+			}
+			break;
+
+		case DEACTIVATE_PASS_MODE:
+			{
+				PassMode_FSM = START_TIMER;
+				PollEngine_Status.passing_mode = DEACTIVATED;
+				PollEngine_Status.engine = RUNNING;
+				PollEngine__SetPassModeCMD(NOT_RECEIVED);
+
+
+				if(test4==0){PRINTF_DEBUG("PassModeFSM 	DEACTIVATE_PASS_MODE\n"); test4=3;}
+			}
+			break;
+		default:
+			break;
+		}
+
+	}
+}
 
 
 void PollEngine__StartEngine(void){
@@ -1695,11 +1930,13 @@ void PollEngine__StopEngine(void){
 	PollEngine_Status.engine = STOPPED;
 }
 
-
 uint8_t PollEngine__GetEngineStatus(void){
 	return PollEngine_Status.engine;
 }
 
+uint8_t PollEngine__GetPollingStatus(void){
+	return PollEngine_Status.polling;
+}
 
 void PollEngine__ActivatePassMode(void){
 	PollEngine_Status.passing_mode = ACTIVETED;
@@ -1714,4 +1951,51 @@ uint8_t PollEngine__GetPassModeStatus(void){
 }
 
 
+void PollEngine__SetPassModeCMD(uint8_t status){
+	PassMode_CmdStatus = status;
+}
 
+uint8_t PollEngine__GetPassModeCMD(void){
+	return PassMode_CmdStatus;
+}
+
+
+values_buffer_t* PollEngine__GetValuesBuffer(void){
+	return values_buffer;
+}
+
+values_buffer_timing_t* PollEngine__GetTimeBuffer(void){
+	return time_values_buff;
+}
+
+uint16_t PollEngine__GetValuesBufferIndex(void){
+	return values_buffer_index;
+}
+
+uint16_t PollEngine__GetTimerBufferIndex(void){
+	return values_buffer_read_section;
+}
+
+void PollEngine__ResetValuesBuffer(void){
+	//Reset Values Buffer
+	memset((void*)values_buffer, 0, sizeof(values_buffer));
+	values_buffer_index = 0;
+	//Reset Time Buffer
+	memset((void*)time_values_buff, 0, sizeof(time_values_buff));
+	values_buffer_read_section = 1;
+}
+
+uint32_t PollEngine__GetMBBaudrate(void){
+	assert(MB_BaudRate > 0);
+	return MB_BaudRate;
+}
+
+
+uint8_t PollEngine__GetPollEnginePrintMsgs(void){
+	return PollEnginePrint;
+}
+
+
+void PollEngine__SetPollEnginePrintMsgs(uint8_t status){
+	PollEnginePrint = status;
+}

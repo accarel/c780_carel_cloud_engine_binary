@@ -44,7 +44,13 @@
 #include"gme_config.h"
 
 #include "CAREL_GLOBAL_DEF.h"
-#include"memmgr.h"
 #include "sntp.h"
 
+#define STRCAT(A, B) A B
+
+
+
+TaskHandle_t SM__GetTask();
+void GME__Reboot(void);
+void GME__CheckHTMLConfig(void);
 #endif /* COMMON_H_ */

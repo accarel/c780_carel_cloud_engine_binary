@@ -19,7 +19,11 @@
 #include "driver/gpio.h"
 #include "http_server.h"
 #include "binary_model.h"
+#include "utilities.h"
+#include "esp_ota_ops.h"
+#include "esp_partition.h"
 
+#include "data_types_CAREL.h"
 
 //Debugging
 static int test2=0;
@@ -31,9 +35,9 @@ static TaskHandle_t CLI__CmdLine = NULL;
 static config_sm_t config_sm = CHECK_FOR_CONFIG;
 static httpd_handle_t AP_http_server = NULL;
 static uint8_t wifi_conf;
-static uint8_t debounce_counter = 0;
-
-
+static uint32_t factory_reset_debounce_counter = 0;
+static uint32_t config_reset_debounce_counter = 0;
+static char certificates[CERT_MAX_NUMBRER][CERT_MAX_SIZE] = {0};
 
 
 //********************************************************
@@ -42,23 +46,15 @@ static uint8_t debounce_counter = 0;
 
 esp_err_t Sys__Init (void)
 {
-	/*esp_err_t err;
-	err = nvs_flash_init();
-	if (ESP_OK != err){
-		printf("NVS PROPBLEM = 0x%X\n",err);
-		return ESP_FAIL;
-		}*/
-
-
     if (ESP_OK != nvs_flash_init()){
     	printf("NVS PROPBLEM\n");
-        return ESP_FAIL;
+        return C_FAIL;
         }
 
 
-    if (ESP_OK != init_spiffs()){
+    if (ESP_OK != init_spiffs()){      // File_system_init();
     	printf("SPIFFS PROPBLEM\n");
-        return ESP_FAIL;
+        return C_FAIL;
     }
 
 
@@ -66,11 +62,9 @@ esp_err_t Sys__Init (void)
 //    printf("\n\n ERASED	\n");
 
     //Initializing Factory Reset button
-    gpio_pad_select_gpio(GPIO_NUM_0);
-    gpio_set_direction(GPIO_NUM_0, GPIO_MODE_DEF_INPUT);
+    //gpio_pad_select_gpio(GPIO_NUM_0);
+    //gpio_set_direction(GPIO_NUM_0, GPIO_MODE_DEF_INPUT);
 
-    //Initializing Memory Heap Manager
-    memmgr_init();
 
     //Initializing CLI
     //initialize_console();
@@ -84,7 +78,7 @@ esp_err_t Sys__Init (void)
 
 
     //return ESP_OK;
-    return 1;
+    return C_SUCCESS;
 }
 
 
@@ -103,19 +97,42 @@ void Sys_SetConfigSM(config_sm_t config_state){
 
 bool Sys__ResetCheck(void){
 	// Debounce check using up/down counter every 10ms
-	if (gpio_get_level(GPIO_NUM_0) == 0) {
-		debounce_counter++;
-		printf("RESET CHECK -- = %d\n",debounce_counter);
+	if (gpio_get_level(CONFIG_RESET_BUTTON) == 0) {
+		config_reset_debounce_counter++;
+		PRINTF_DEBUG("CONFIG RESET CHECK -- = %d\n",config_reset_debounce_counter);
 		vTaskDelay(100 / portTICK_PERIOD_MS);
-	}else if(gpio_get_level(GPIO_NUM_0) == 1 && debounce_counter > 0){
-		debounce_counter--;
-		printf("RESET CHECK ++ = %d\n",debounce_counter);
+	}else if(gpio_get_level(CONFIG_RESET_BUTTON) == 1 && config_reset_debounce_counter > 0){
+		config_reset_debounce_counter--;
+		PRINTF_DEBUG("CONFIG RESET CHECK ++ = %d\n",config_reset_debounce_counter);
 		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
-	if((FACTORY_RESET_SEC*10) == debounce_counter){
+	if((CONFIG_RESET_SEC * 10) == config_reset_debounce_counter){
 		//Erase configuration flag form NVM
-		NVM__EraseKey("wifi_conf");
-		printf("RESET CHECK DONE = %d\n",debounce_counter);
+		WiFi__ErasingConfig();
+		unlink(MODEL_FILE);
+		PRINTF_DEBUG("CONFIG RESET CHECK DONE = %d\n",config_reset_debounce_counter);
+		return true;
+	}
+	return false;
+}
+
+
+bool Sys__FirmwareFactoryReset(void){
+	// Debounce check using up/down counter every 10ms
+	if (gpio_get_level(FACTORY_RESET_BUTTON) == 0) {
+		factory_reset_debounce_counter++;
+		PRINTF_DEBUG("FIRMWARE RESET CHECK -- = %d\n",factory_reset_debounce_counter);
+		vTaskDelay(100 / portTICK_PERIOD_MS);
+	}else if(gpio_get_level(FACTORY_RESET_BUTTON) == 1 && factory_reset_debounce_counter > 0){
+		factory_reset_debounce_counter--;
+		PRINTF_DEBUG("FIRMWARE RESET CHECK ++ = %d\n",factory_reset_debounce_counter);
+		vTaskDelay(100 / portTICK_PERIOD_MS);
+	}
+	if((FACTORY_RESET_SEC * 10) == factory_reset_debounce_counter){
+		//Point boot partition on /factory part.
+		Sys__SetFactoryBootPartition();
+		printf("GME Configuration has bees reseted\n");
+		PRINTF_DEBUG("FIRMWARE RESET CHECK DONE = %d\n",factory_reset_debounce_counter);
 		return true;
 	}
 	return false;
@@ -143,8 +160,6 @@ bool Sys__ResetCheck(void){
  * 			2) In case of the gateway is configured as AP Mode, the varies functionalities don't start and the system will attend the
  * 				new configuration.
  *
- *
- *	TODO: Sys__Config states diagram
  * */
 
 
@@ -158,6 +173,7 @@ gme_sm_t Sys__Config (config_sm_t sm)
         case CHECK_FOR_CONFIG:
             printf("Sys__Config .... CHECK_FOR_CONFIG\n");
             /*Check in NVM*/
+
             if(ESP_OK == NVM__ReadU8Value("wifi_conf", &wifi_conf) && CONFIGURED == wifi_conf){
             	WiFi__ReadCustomConfigFromNVM();
                 config_sm = CONFIGURE_GME;
@@ -178,8 +194,9 @@ gme_sm_t Sys__Config (config_sm_t sm)
             printf("Sys__Config .... START_WIFI\n");
             if (WiFi__StartWiFi()){
                 ESP_ERROR_CHECK(HTTPServer__StartFileServer(&AP_http_server, "/spiffs"));
+
                 if(CONFIGURED == wifi_conf && APSTA_MODE == WiFi__GetCustomConfig().gateway_mode){
-        			return GME_STRAT_SYS;
+        			return GME_WAITING_FOR_INTERNET;
                 }else{
                     config_sm = WAITING_FOR_HTML_CONF_PARAMETERS;
                 }
@@ -188,13 +205,13 @@ gme_sm_t Sys__Config (config_sm_t sm)
         
         case WAITING_FOR_HTML_CONF_PARAMETERS:
             if(test2 == 0){
+            	printf("\nGateway Mode = %d, Wifi Conf has %d config\n\n",WiFi__GetCustomConfig().gateway_mode,wifi_conf);
             	printf("Sys__Config .... WAITING_FOR_HTML_CONF_PARAMETERS\n");
             	test2=10;
             }
             if(IsConfigReceived()){
             	printf("Configuration Received");
             	WiFi__WriteCustomConfigInNVM(HTTPServer__GetCustomConfig());
-            	//test_config=WiFi__ReadCustomConfigFromNVM();
 
                 if(ESP_OK == NVM__WriteU8Value("wifi_conf", (uint8_t)CONFIGURED)){
                 	config_sm = CONFIGURE_GME;
@@ -232,3 +249,41 @@ gme_sm_t Sys__Config (config_sm_t sm)
 
 
 
+//Certificatoins static allocation
+void Sys__CertAlloc(void){
+	if(NULL == FS_ReadFile2(CERT1_SPIFFS, (uint8_t*)certificates[0])){
+		GME__Reboot();
+	}
+	if(NULL == FS_ReadFile2(CERT2_SPIFFS, (uint8_t*)certificates[1])){
+		GME__Reboot();
+	}
+}
+
+//Get certificatoins pointer
+char* Sys__GetCert(uint8_t cert_num){
+	if(cert_num == CERT_1|| cert_num == CERT_2){
+		return certificates[cert_num];
+	}else{
+		return certificates[CERT_1];;
+	}
+}
+
+
+
+
+//Change boot partition to factory
+esp_err_t Sys__SetFactoryBootPartition(void){
+	esp_err_t err;
+
+	const esp_partition_t *factory = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
+
+	err = esp_ota_set_boot_partition(factory);
+
+	if (err != ESP_OK) {
+		printf("SetFactoryBootPartition failed!  err=0x%d", err);
+		return err;
+	}else{
+		 printf("SetFactoryBootPartition Succeeded!");
+		return ESP_OK;
+	}
+}

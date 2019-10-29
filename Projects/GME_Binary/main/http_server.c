@@ -12,6 +12,11 @@
 #include "esp_spiffs.h"
 #include "esp_http_server.h"
 #include "nvm.h"
+#include "cJSON.h"
+#include "wifi.h"
+#include "file_system.h"
+#include "utilities.h"
+#include <ctype.h>
 
 static html_config_param_t HTMLConfig = {
 		.gateway_mode = 0,
@@ -21,33 +26,33 @@ static html_config_param_t HTMLConfig = {
 		.ap_ip = AP_DEF_IP,
 		.ap_dhcp_mode = AP_DEF_DHCP,
 		.ap_dhcp_ip = AP_DEF_DHCP_BASE,
-		.sta_ssid = "z",
-		.sta_encryption = "z",
-		.sta_pswd= "z",
+		.sta_ssid = "",
+		.sta_encryption = "",
+		.sta_pswd= "",
 		.sta_dhcp_mode = 0,
-		.sta_static_ip = "z",
-		.sta_netmask = "z",
-		.sta_gateway_ip = "z",
-		.sta_primary_dns = "z",
-		.sta_secondary_dns = "z"
-
+		.sta_static_ip = "",
+		.sta_netmask = "",
+		.sta_gateway_ip = "",
+		.sta_primary_dns = "",
+		.sta_secondary_dns = "",
+		.ntp_server_addr = "",
+		.ntp_server_port = "",
+		.mqtt_server_addr = "",
+		.mqtt_server_port = ""
 };
 
 static html_login_cred_t HTMLLogin = {
-		.login_usr = HTMLLOGIN_DEF_PSWD,
-		.login_pswd = HTMLLOGIN_DEF_PSWD
+		.login_usr = "",
+		.login_pswd = ""
 };
 
+static char ap_ssid_def[30] = {0};
 static uint8_t ReceivedConfig = 0;
 
 static html_pages LastPageSent = 0;
 // Max length a file path can have on storage
 #define FILE_PATH_MAX (ESP_VFS_PATH_MAX + CONFIG_SPIFFS_OBJ_NAME_LEN)
 
-// Max size of an individual file. Make sure this
-// value is same as that set in xconfig_page_test01.html 
-#define MAX_FILE_SIZE   (200*1024) // 200 KB
-#define MAX_FILE_SIZE_STR "200KB"
 
 // Scratch buffer size 
 #define SCRATCH_BUFSIZE  8192
@@ -66,128 +71,183 @@ struct file_server_data {
 
 static const char *TAG = "http_server";
 
-// Handler to redirect incoming GET request for /index.html to /
-// This can be overridden by uploading file with same name 
-static esp_err_t login_html_get_handler(httpd_req_t *req)
-{
-    httpd_resp_set_status(req, "307 Temporary Redirect");
-    httpd_resp_set_hdr(req, "Location", "/");
-    httpd_resp_send(req, NULL, 0);  // Response body can be empty
-    return ESP_OK;
-}
-
-// Handler to respond with an icon file embedded in flash.
-// Browsers expect to GET website icon at URI /favicon.ico.
-// This can be overridden by uploading file with same name 
-static esp_err_t favicon_get_handler(httpd_req_t *req)
-{
-    extern const unsigned char favicon_ico_start[] asm("_binary_favicon_ico_start");
-    extern const unsigned char favicon_ico_end[]   asm("_binary_favicon_ico_end");
-    const size_t favicon_ico_size = (favicon_ico_end - favicon_ico_start);
-    httpd_resp_set_type(req, "image/x-icon");
-    httpd_resp_send(req, (const char *)favicon_ico_start, favicon_ico_size);
-    return ESP_OK;
-}
-
-
-//Send style.css
-static esp_err_t http_resp_css(httpd_req_t *req)
-{
-    /* Get handle to embedded file upload script */
-    extern const unsigned char xstyle_css_start[] asm("_binary_xstyle_css_start");
-    extern const unsigned char xstyle_css_end[]   asm("_binary_xstyle_css_end");
-    const size_t xstyle_css_size = (xstyle_css_end - xstyle_css_start);
-
-    httpd_resp_set_type(req, "text/css");
-    /* Add file upload form and script which on execution sends a POST request to /upload */
-
-    httpd_resp_send_chunk(req, (const char *)xstyle_css_start, xstyle_css_size);
-
-    httpd_resp_sendstr_chunk(req, NULL);
-    return ESP_OK;
-}
+//Private Functions Definition
+static esp_err_t set_content_type_from_file(httpd_req_t *req, const char *filename);
+static void HTTPServer__ParseCredfromNVM(void);
 
 
 
+//Private Functions Declaration
+void url_decoder(char *buf) {
 
+    char eStr[3] = "00"; /* for a hex code */
 
-static esp_err_t http_config_html(httpd_req_t *req, const char *dirpath)
-{
-    char entrypath[FILE_PATH_MAX];
-    char entrysize[16];
-    const char *entrytype;
+    int i; /* the counter for the string */
 
-    struct dirent *entry;
-    struct stat entry_stat;
+    for(i=0;i<strlen(buf);++i) {
 
-    DIR *dir = opendir(dirpath);
-    const size_t dirpath_len = strlen(dirpath);
+        if(buf[i] == '%') {
+        if(buf[i+1] == 0)
+            return;
 
-    /* Retrieve the base path of file storage to construct the full path */
-    strlcpy(entrypath, dirpath, sizeof(entrypath));
+        if(isxdigit((int)buf[i+1]) && isxdigit((int)buf[i+2])) {
 
-    if (!dir) {
-        ESP_LOGE(TAG, "Failed to stat dir : %s", dirpath);
-        /* Respond with 404 Not Found */
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Directory does not exist");
-        return ESP_FAIL;
+            /* combine the next to numbers into one */
+            eStr[0] = buf[i+1];
+            eStr[1] = buf[i+2];
+
+            /* convert it to decimal */
+            long int x = strtol(eStr, NULL, 16);
+
+            /* remove the hex */
+            memmove(&buf[i+1], &buf[i+3], strlen(&buf[i+3])+1);
+
+            buf[i] = x;
+        }
+        }
+        else if(buf[i] == '+') { buf[i] = ' '; }
     }
-
-    /* Get handle to embedded file upload script */
-    extern const unsigned char xconfig_page_test01_start[] asm("_binary_xconfig_page_test01_html_start");
-    extern const unsigned char xconfig_page_test01_end[]   asm("_binary_xconfig_page_test01_html_end");
-    const size_t xconfig_page_test01_size = (xconfig_page_test01_end - xconfig_page_test01_start);
-
-    /* Add file upload form and script which on execution sends a POST request to /upload */
-    httpd_resp_send_chunk(req, (const char *)xconfig_page_test01_start, xconfig_page_test01_size);
-
-    closedir(dir);
-
-    /* Send empty chunk to signal HTTP response completion */
-    httpd_resp_sendstr_chunk(req, NULL);
-    LastPageSent = CONFIG;
-    return ESP_OK;
 }
 
 
-static esp_err_t http_login_html(httpd_req_t *req, const char *dirpath)
+// Handler to respond with file requested.
+static esp_err_t file_get_handler(httpd_req_t *req, const char* filename)
 {
-    char entrypath[FILE_PATH_MAX];
-    char entrysize[16];
-    const char *entrytype;
 
-    struct dirent *entry;
-    struct stat entry_stat;
+	struct stat file_stat;
+	FILE *fd = NULL;
 
-    DIR *dir = opendir(dirpath);
-    const size_t dirpath_len = strlen(dirpath);
 
-    /* Retrieve the base path of file storage to construct the full path */
-    strlcpy(entrypath, dirpath, sizeof(entrypath));
+	fd = fopen(filename, "r");
 
-    if (!dir) {
-        ESP_LOGE(TAG, "Failed to stat dir : %s", dirpath);
-        /* Respond with 404 Not Found */
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Directory does not exist");
-        return ESP_FAIL;
-    }
+	if(stat(filename, &file_stat) == -1){
+		ESP_LOGE(TAG, "Failed to stat dir : %s", filename);
+		httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Directory does not exist");
+		return ESP_FAIL;
+	}else{
 
-    /* Get handle to embedded file upload script */
-    extern const unsigned char xlogin_start[] asm("_binary_xlogin_html_start");
-    extern const unsigned char xlogin_end[]   asm("_binary_xlogin_html_end");
-    const size_t xlogin_size = (xlogin_end - xlogin_start);
 
-    /* Add file upload form and script which on execution sends a POST request to /upload */
-    httpd_resp_send_chunk(req, (const char *)xlogin_start, xlogin_size);
+		ESP_LOGI(TAG, "Sending file : %s (%ld bytes)...", filename, file_stat.st_size);
+		set_content_type_from_file(req, filename);
 
-    closedir(dir);
+		/* Retrieve the pointer to scratch buffer for temporary storage */
+		char *chunk = ((struct file_server_data *)req->user_ctx)->scratch;
+		size_t chunksize;
+		do {
+			PRINTF_DEBUG_SERVER("%s LOADING ...\n",filename);
+			/* Read file in chunks into the scratch buffer */
+			chunksize = fread(chunk, 1, SCRATCH_BUFSIZE, fd);
 
-    /* Send empty chunk to signal HTTP response completion */
-    httpd_resp_sendstr_chunk(req, NULL);
-    LastPageSent = LOGIN;
+			/* Send the buffer contents as HTTP response chunk */
+			if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
+				fclose(fd);
+				ESP_LOGE(TAG, "File sending failed!");
+				/* Abort sending file */
+				httpd_resp_sendstr_chunk(req, NULL);
+				/* Respond with 500 Internal Server Error */
+				httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to send file");
+				return ESP_FAIL;
+			}
+
+		} while (chunksize != 0);
+
+	}
+
+	fclose(fd);
+
+	httpd_resp_sendstr_chunk(req, NULL);
+
+
+	if(0 == strcmp(filename,LOGIN_HTML)){
+		LastPageSent = LOGIN;
+	}else if (0 == strcmp(filename,CONFIG_HTML)){
+		LastPageSent = CONFIG;
+	}else if (0 == strcmp(filename,CHANGE_CRED_HTML)){
+		LastPageSent = CHANGE_CRED;
+	}
+
     return ESP_OK;
 }
 
+//Send config.json
+static esp_err_t http_resp_config_json(httpd_req_t *req)
+{
+    //Get config values into a json struct
+
+	char *out;
+	char ap_ssid_temp[30] = {0};
+	size_t len=0;
+	cJSON *html_config;
+	html_config_param_t *wifi_config;
+	html_config = cJSON_CreateObject();
+	wifi_config = WiFi__GetCustomConfigPTR();
+
+
+
+
+	if(ESP_OK == NVM__ReadString(HTMLCONF_AP_SSID, ap_ssid_temp, &len)){
+		cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID, cJSON_CreateString(wifi_config->ap_ssid));
+	}else{
+		strcpy(ap_ssid_temp, HTTPServer__SetAPDefSSID(AP_DEF_SSID));
+		cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID, cJSON_CreateString(ap_ssid_temp));
+		PRINTF_DEBUG_SERVER("ap_ssid_temp : %s\n",ap_ssid_temp);
+	}
+
+	cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID_HIDDEN, cJSON_CreateBool((bool)wifi_config->ap_ssid_hidden));
+	cJSON_AddItemToObject(html_config, HTMLCONF_AP_PSWD, cJSON_CreateString(wifi_config->ap_pswd));
+	cJSON_AddItemToObject(html_config, HTMLCONF_AP_IP, cJSON_CreateString(wifi_config->ap_ip));
+
+	cJSON_AddItemToObject(html_config, HTMLCONF_AP_DHCP_MODE, cJSON_CreateBool((bool)wifi_config->ap_dhcp_mode));
+	if(0 == wifi_config->ap_dhcp_mode){
+		cJSON_AddItemToObject(html_config, HTMLCONF_AP_DHCP_IP, cJSON_CreateNull());
+	}else{
+		cJSON_AddItemToObject(html_config, HTMLCONF_AP_DHCP_IP, cJSON_CreateString(wifi_config->ap_dhcp_ip));
+		}
+
+	cJSON_AddItemToObject(html_config, HTMLCONF_STA_SSID, cJSON_CreateString(wifi_config->sta_ssid));
+	cJSON_AddItemToObject(html_config, HTMLCONF_STA_PSWD, cJSON_CreateString(wifi_config->sta_pswd));
+
+	cJSON_AddItemToObject(html_config, HTMLCONF_STA_DHCP_MODE, cJSON_CreateBool((bool)wifi_config->sta_dhcp_mode));
+	if(0 == wifi_config->sta_dhcp_mode){
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_STATIC_IP, cJSON_CreateString(wifi_config->sta_static_ip));
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_NETMASK, cJSON_CreateString(wifi_config->sta_netmask));
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_GATEWAY_IP, cJSON_CreateString(wifi_config->sta_gateway_ip));
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_PRI_DNS, cJSON_CreateString(wifi_config->sta_primary_dns));
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_SCND_DNS, cJSON_CreateString(wifi_config->sta_secondary_dns));
+	}else{
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_STATIC_IP, cJSON_CreateNull());
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_NETMASK, cJSON_CreateNull());
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_GATEWAY_IP, cJSON_CreateNull());
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_PRI_DNS, cJSON_CreateNull());
+		cJSON_AddItemToObject(html_config, HTMLCONF_STA_SCND_DNS, cJSON_CreateNull());
+	}
+
+	cJSON_AddItemToObject(html_config, HTMLCONF_NTP_SRVR_ADDR, cJSON_CreateString(wifi_config->ntp_server_addr));
+	cJSON_AddItemToObject(html_config, HTMLCONF_NTP_SRVR_PORT, cJSON_CreateString(wifi_config->ntp_server_port));
+
+	cJSON_AddItemToObject(html_config, HTMLCONF_MQTT_SRVR_ADDR, cJSON_CreateString(wifi_config->mqtt_server_addr));
+	cJSON_AddItemToObject(html_config, HTMLCONF_MQTT_SRVR_PORT, cJSON_CreateString(wifi_config->mqtt_server_port));
+
+
+
+	/* print everything */
+	out = cJSON_Print(html_config);
+	PRINTF_DEBUG_SERVER("html_config.json:%s\n", out);
+
+
+    httpd_resp_set_type(req, "application/json");
+    /* Add file upload form and script which on execution sends a POST request to /upload */
+
+    httpd_resp_send_chunk(req, (const char *)out, strlen(out));
+
+    httpd_resp_sendstr_chunk(req, NULL);
+
+
+	/* free all objects under root and root itself */
+	cJSON_Delete(html_config);
+
+    return ESP_OK;
+}
 
 /* Set HTTP response content type according to file extension */
 static esp_err_t set_content_type_from_file(httpd_req_t *req, const char *filename)
@@ -200,6 +260,8 @@ static esp_err_t set_content_type_from_file(httpd_req_t *req, const char *filena
         return httpd_resp_set_type(req, "image/x-icon");
     }else if (IS_FILE_EXT(filename, ".css")) {
         return httpd_resp_set_type(req, "text/css");
+    }else if (IS_FILE_EXT(filename, ".json")) {
+        return httpd_resp_set_type(req, "application/javascript");
     }
     /* This is a limited set only */
     /* For any other type always set as plain text */
@@ -210,7 +272,7 @@ static esp_err_t set_content_type_from_file(httpd_req_t *req, const char *filena
  * pointer to path (skipping the preceding base path) */
 static const char* get_path_from_uri(char *dest, const char *base_path, const char *uri, size_t destsize)
 {
-	printf("base_path: %s \n", base_path);
+	PRINTF_DEBUG_SERVER("base_path: %s \n", base_path);
     const size_t base_pathlen = strlen(base_path);
     size_t pathlen = strlen(uri);
 
@@ -257,26 +319,41 @@ static esp_err_t download_get_handler(httpd_req_t *req)
 
     /* If name has trailing '/', respond with directory contents */
     if (filename[strlen(filename) - 1] == '/') {
-        return http_login_html(req, filepath);
+    	uint8_t cred_conf = DEFAULT;
+    	if(ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
+    		return file_get_handler(req, LOGIN_HTML);
+    	}else{
+    		return file_get_handler(req, CHANGE_CRED_HTML);
+    	}
     }
 
-    if (stat(filepath, &file_stat) == -1) {
+
+    PRINTF_DEBUG_SERVER("Requested path = %s\n",filename);
+    if (stat(filepath, &file_stat) == 0) {
         /* If file not present on SPIFFS check if URI
          * corresponds to one of the hardcoded paths */
         if (strcmp(filename, "/login.html") == 0) {
-            return login_html_get_handler(req);		//redirecting to '/'
-        } else if (strcmp(filename, "/config.html") == 0) {
-        	return http_config_html(req, filepath);
-        } else if (strcmp(filename, "/favicon.ico") == 0) {
-            return favicon_get_handler(req);
-        } else if (strcmp(filename, "/xstyle.css") == 0){
-        	return http_resp_css(req);
+        	httpd_resp_set_status(req, "303 See Other");
+            return httpd_resp_set_hdr(req, "Location", "/");
         }
+        else if (strcmp(filename, "/config.html") == 0) {
+        	return file_get_handler(req, CONFIG_HTML);
+        }
+        else if (strcmp(filename, "/fav.ico") == 0) {
+            return file_get_handler(req, FAV_ICON);
+        }
+        else if (strcmp(filename, "/style.css") == 0){
+        	return file_get_handler(req, STYLE_CSS);
+        }
+    }else{
+    	if (strcmp(filename, "/config.json") == 0){
+			return http_resp_config_json(req);
+		}
 
-        ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
-        /* Respond with 404 Not Found */
-        httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "File does not exist");
-        return ESP_FAIL;
+		ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
+		/* Respond with 404 Not Found */
+		httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "File does not exist");
+		return ESP_FAIL;
     }
 
     fd = fopen(filepath, "r");
@@ -287,39 +364,13 @@ static esp_err_t download_get_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    ESP_LOGI(TAG, "Sending file : %s (%ld bytes)...", filename, file_stat.st_size);
-    set_content_type_from_file(req, filename);
 
-    /* Retrieve the pointer to scratch buffer for temporary storage */
-    char *chunk = ((struct file_server_data *)req->user_ctx)->scratch;
-    size_t chunksize;
-    do {
-        /* Read file in chunks into the scratch buffer */
-        chunksize = fread(chunk, 1, SCRATCH_BUFSIZE, fd);
-
-        /* Send the buffer contents as HTTP response chunk */
-        if (httpd_resp_send_chunk(req, chunk, chunksize) != ESP_OK) {
-            fclose(fd);
-            ESP_LOGE(TAG, "File sending failed!");
-            /* Abort sending file */
-            httpd_resp_sendstr_chunk(req, NULL);
-            /* Respond with 500 Internal Server Error */
-            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to send file");
-            return ESP_FAIL;
-        }
-
-        /* Keep looping till the whole file is sent */
-    } while (chunksize != 0);
-
-    /* Close file after sending complete */
-    fclose(fd);
     ESP_LOGI(TAG, "File sending complete");
 
     /* Respond with an empty chunk to signal HTTP response completion */
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
 }
-
 
 
 static void get_value_from_string(char* received_buf, const char* value_key, unsigned short value_key_len, char* req_value)
@@ -339,57 +390,70 @@ static void get_value_from_string(char* received_buf, const char* value_key, uns
 	}
 }
 
-/*
-static void get_value_from_string(char* received_buf, const char* value_key, unsigned short value_key_len, char* req_value)
-{
-	char *key_buff = strstr(received_buf, value_key);
 
-	if(key_buff != NULL)
-	{
-		char *and_key_buff = strstr(key_buff, "&");
-		printf("debug2\n");
-		key_buff += (unsigned int)value_key_len;
-		printf("debug3\n");
-		unsigned char len = (unsigned char)(and_key_buff - key_buff);
-		printf("debug10\n");
+static int get_html_change_credentials(char* sent_parameters){
 
-		//key_buff[len]='\0';
-		strcpy(req_value,key_buff);
-		//memcpy(req_value, key_buff, (len));
-		printf("debug11\n");
-		req_value[len]='\0';
-		printf("debug4\n");
-	}
-	else{
-		req_value[0]='\0';
-		printf("debug5\n");
-	}
-	printf("debug6\n");
+    char data_value[100];
+    memset(data_value,0,strlen(data_value)*sizeof(char));
+    PRINTF_DEBUG_SERVER("\nSTART PARSING\n");
+
+    html_login_cred_t html_login;
+
+    //username
+    get_value_from_string(sent_parameters, HTMLLOGIN_USR, (unsigned short)(strlen(HTMLLOGIN_USR)), &data_value[0]);
+    strcpy(html_login.login_usr,data_value);
+    PRINTF_DEBUG_SERVER("change cred login_usr: %s\n",html_login.login_usr);
+
+    //password
+    get_value_from_string(sent_parameters, HTMLLOGIN_PSWD, (unsigned short)(strlen(HTMLLOGIN_PSWD)), &data_value[0]);
+    strcpy(html_login.login_pswd,data_value);
+    PRINTF_DEBUG_SERVER("change cred login_pswd: %s\n",html_login.login_pswd);
+
+
+    if ((strlen(html_login.login_usr) > 0) && (strlen(html_login.login_pswd) > 0)){
+
+    	esp_err_t err1, err2;
+    	err1 = NVM__WriteString(HTMLLOGIN_USR, html_login.login_usr);
+    	err2 = NVM__WriteString(HTMLLOGIN_PSWD, html_login.login_pswd);
+
+    	if(ESP_OK == err1 && ESP_OK == err2){
+    		NVM__WriteU8Value(HTMLLOGIN_CONF_NVM, CONFIGURED);
+    		return 1;
+    	}else{
+    		return 0;
+    	}
+    }
+
+    return 0;
 }
-*/
+
+static void HTTPServer__ParseCredfromNVM(void){
+	size_t len = 0;
+	NVM__ReadString(HTMLLOGIN_USR,HTMLLogin.login_usr,&len);
+	NVM__ReadString(HTMLLOGIN_PSWD,HTMLLogin.login_pswd,&len);
+}
 
 static int check_html_credentials(char* sent_parameters){
 
     char data_value[100];
     memset(data_value,0,strlen(data_value)*sizeof(char));
-    printf("\nSTART PARSING\n");
+    PRINTF_DEBUG_SERVER("\nSTART PARSING\n");
 
-    html_login_cred_t temp;
+    html_login_cred_t html_login;
 
-    //Read credentials from NVM
 
     //username
     get_value_from_string(sent_parameters, HTMLLOGIN_USR, (unsigned short)(strlen(HTMLLOGIN_USR)), &data_value[0]);
-    strcpy(temp.login_usr,data_value);
-    printf("login_usr: %s\n",temp.login_usr);
+    strcpy(html_login.login_usr,data_value);
+    PRINTF_DEBUG_SERVER("login_usr: %s\n",html_login.login_usr);
 
     //password
     get_value_from_string(sent_parameters, HTMLLOGIN_PSWD, (unsigned short)(strlen(HTMLLOGIN_PSWD)), &data_value[0]);
-    strcpy(temp.login_pswd,data_value);
-    printf("login_pswd: %s\n",temp.login_pswd);
+    strcpy(html_login.login_pswd,data_value);
+    PRINTF_DEBUG_SERVER("login_pswd: %s\n",html_login.login_pswd);
 
 
-    if ((strcmp(temp.login_usr, HTMLLOGIN_DEF_USR) == 0) && (strcmp(temp.login_pswd, HTMLLOGIN_DEF_PSWD) == 0)){
+    if ((strcmp(html_login.login_usr, HTMLLogin.login_usr) == 0) && (strcmp(html_login.login_pswd, HTMLLogin.login_pswd) == 0)){
     	return 1;
     }
 
@@ -403,16 +467,12 @@ static void get_html_config_received_data(char* sent_parameters){
     char data_value[100];
     memset(data_value,0,strlen(data_value)*sizeof(char));
 
-    printf("\nSTART PARSING\n");
+    PRINTF_DEBUG_SERVER("\nSTART PARSING\n");
 
 
     get_value_from_string(sent_parameters, HTMLCONF_AP_IP, (unsigned short)(strlen(HTMLCONF_AP_IP)), &data_value[0]);
     strcpy(HTMLConfig.ap_ip,data_value);
-    printf("ap_ip: %s\n",HTMLConfig.ap_ip);
-    //NVM__WriteString(HTMLCONF_AP_IP,HTMLConfig.ap_ip);
-    //static size_t len;
-    //NVM__ReadString(HTMLCONF_AP_IP, HTMLConfig.ap_ip, &len);
-
+    PRINTF_DEBUG_SERVER("ap_ip: %s\n",HTMLConfig.ap_ip);
 
     get_value_from_string(sent_parameters, HTMLCONF_GATEWAY_MODE, (unsigned short)(strlen(HTMLCONF_GATEWAY_MODE)), &data_value[0]);
     if(strcmp(data_value,"ap_mode") == 0){
@@ -421,32 +481,26 @@ static void get_html_config_received_data(char* sent_parameters){
     else if(strcmp(data_value,"apsta_mode") == 0){
         HTMLConfig.gateway_mode = APSTA_MODE;
     }
-    printf("gateway_mode: %d\n",HTMLConfig.gateway_mode);
+    PRINTF_DEBUG_SERVER("gateway_mode: %d\n",HTMLConfig.gateway_mode);
 
-    //NVM__WriteU8Value(HTMLCONF_GATEWAY_MODE,HTMLConfig.gateway_mode);
 
     get_value_from_string(sent_parameters, HTMLCONF_AP_SSID, (unsigned short)(strlen(HTMLCONF_AP_SSID)), &HTMLConfig.ap_ssid[0]);
-    printf("ap_ssid: %s\n",HTMLConfig.ap_ssid);
-    //NVM__WriteString(HTMLCONF_AP_SSID,HTMLConfig.ap_ssid);
+    PRINTF_DEBUG_SERVER("ap_ssid: %s\n",HTMLConfig.ap_ssid);
 
     get_value_from_string(sent_parameters, HTMLCONF_AP_SSID_HIDDEN, (unsigned short)(strlen(HTMLCONF_AP_SSID_HIDDEN)), &data_value[0]);
     if ('\0' == data_value[0]){
         HTMLConfig.ap_ssid_hidden = 0;
-    	printf("ap_ssid_hidden: off\n");
+    	PRINTF_DEBUG_SERVER("ap_ssid_hidden: off\n");
     }
     else{
-    	printf("ap_ssid_hidden: %s\n",data_value);
+    	PRINTF_DEBUG_SERVER("ap_ssid_hidden: %s\n",data_value);
         HTMLConfig.ap_ssid_hidden = 1;
     }
-    printf("ap_ssid_hidden: %d\n",HTMLConfig.ap_ssid_hidden);
-    //NVM__WriteU8Value(HTMLCONF_AP_SSID_HIDDEN,HTMLConfig.ap_ssid_hidden);
+    PRINTF_DEBUG_SERVER("ap_ssid_hidden: %d\n",HTMLConfig.ap_ssid_hidden);
 
     get_value_from_string(sent_parameters, HTMLCONF_AP_PSWD, (unsigned short)(strlen(HTMLCONF_AP_PSWD)), &data_value[0]);
     strcpy(HTMLConfig.ap_pswd,data_value);
-    printf("ap_pswd: %s\n",HTMLConfig.ap_pswd);
-    //NVM__WriteString(HTMLCONF_AP_PSWD,HTMLConfig.ap_pswd);
-
-
+    PRINTF_DEBUG_SERVER("ap_pswd: %s\n",HTMLConfig.ap_pswd);
 
     get_value_from_string(sent_parameters, HTMLCONF_AP_DHCP_MODE, (unsigned short)(strlen(HTMLCONF_AP_DHCP_MODE)), &data_value[0]);
     if(strcmp(data_value,"off") == 0){
@@ -455,28 +509,23 @@ static void get_html_config_received_data(char* sent_parameters){
     else if(strcmp(data_value,"on") == 0){
         HTMLConfig.ap_dhcp_mode = 1;
     }
-    printf("ap_dhcp_mode: %d\n",HTMLConfig.ap_dhcp_mode);
-    //NVM__WriteU8Value(HTMLCONF_AP_DHCP_MODE,HTMLConfig.ap_dhcp_mode);
+    PRINTF_DEBUG_SERVER("ap_dhcp_mode: %d\n",HTMLConfig.ap_dhcp_mode);
 
     get_value_from_string(sent_parameters, HTMLCONF_AP_DHCP_IP, (unsigned short)(strlen(HTMLCONF_AP_DHCP_IP)), &data_value[0]);
     strcpy(HTMLConfig.ap_dhcp_ip,data_value);
-    printf("ap_dhcp_ip: %s\n",HTMLConfig.ap_dhcp_ip);
-    //NVM__WriteString(HTMLCONF_AP_DHCP_IP,HTMLConfig.ap_dhcp_ip);
+    PRINTF_DEBUG_SERVER("ap_dhcp_ip: %s\n",HTMLConfig.ap_dhcp_ip);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_SSID, (unsigned short)(strlen(HTMLCONF_STA_SSID)), &data_value[0]);
     strcpy(HTMLConfig.sta_ssid,data_value);
-    printf("sta_ssid: %s\n",HTMLConfig.sta_ssid);
-    //NVM__WriteString(HTMLCONF_STA_SSID,HTMLConfig.sta_ssid);
+    PRINTF_DEBUG_SERVER("sta_ssid: %s\n",HTMLConfig.sta_ssid);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_ENCRYP, (unsigned short)(strlen(HTMLCONF_STA_ENCRYP)), &data_value[0]);
     strcpy(HTMLConfig.sta_encryption,data_value);
-    printf("sta_encryption: %s\n",HTMLConfig.sta_encryption);
-    //NVM__WriteString(HTMLCONF_STA_ENCRYP,HTMLConfig.sta_encryption);
+    PRINTF_DEBUG_SERVER("sta_encryption: %s\n",HTMLConfig.sta_encryption);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_PSWD, (unsigned short)(strlen(HTMLCONF_STA_PSWD)), &data_value[0]);
     strcpy(HTMLConfig.sta_pswd,data_value);
-    printf("sta_pswd: %s\n",HTMLConfig.sta_pswd);
-    //NVM__WriteString(HTMLCONF_STA_PSWD,HTMLConfig.sta_pswd);
+    PRINTF_DEBUG_SERVER("sta_pswd: %s\n",HTMLConfig.sta_pswd);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_DHCP_MODE, (unsigned short)(strlen(HTMLCONF_STA_DHCP_MODE)), &data_value[0]);
     if(strcmp(data_value,"off") == 0){
@@ -485,33 +534,56 @@ static void get_html_config_received_data(char* sent_parameters){
     else if(strcmp(data_value,"on") == 0){
         HTMLConfig.sta_dhcp_mode = 1;
     }
-    printf("sta_dhcp_mode: %d\n",HTMLConfig.sta_dhcp_mode);
-    //NVM__WriteU8Value(HTMLCONF_STA_DHCP_MODE,HTMLConfig.sta_dhcp_mode);
+    PRINTF_DEBUG_SERVER("sta_dhcp_mode: %d\n",HTMLConfig.sta_dhcp_mode);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_STATIC_IP, (unsigned short)(strlen(HTMLCONF_STA_STATIC_IP)), &data_value[0]);
     strcpy(HTMLConfig.sta_static_ip,data_value);
-    printf("sta_static_ip: %s\n",HTMLConfig.sta_static_ip);
-    //NVM__WriteString(HTMLCONF_STA_STATIC_IP,HTMLConfig.sta_static_ip);
+    PRINTF_DEBUG_SERVER("sta_static_ip: %s\n",HTMLConfig.sta_static_ip);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_NETMASK, (unsigned short)(strlen(HTMLCONF_STA_NETMASK)), &data_value[0]);
     strcpy(HTMLConfig.sta_netmask,data_value);
-    printf("sta_netmask: %s\n",HTMLConfig.sta_netmask);
-    //NVM__WriteString(HTMLCONF_STA_NETMASK,HTMLConfig.sta_netmask);
+    PRINTF_DEBUG_SERVER("sta_netmask: %s\n",HTMLConfig.sta_netmask);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_GATEWAY_IP, (unsigned short)(strlen(HTMLCONF_STA_GATEWAY_IP)), &data_value[0]);
     strcpy(HTMLConfig.sta_gateway_ip,data_value);
-    printf("sta_gateway_ip: %s\n",HTMLConfig.sta_gateway_ip);
-    //NVM__WriteString(HTMLCONF_STA_GATEWAY_IP,HTMLConfig.sta_gateway_ip);
+    PRINTF_DEBUG_SERVER("sta_gateway_ip: %s\n",HTMLConfig.sta_gateway_ip);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_PRI_DNS, (unsigned short)(strlen(HTMLCONF_STA_PRI_DNS)), &data_value[0]);
     strcpy(HTMLConfig.sta_primary_dns,data_value);
-    printf("sta_primary_dns: %s\n",HTMLConfig.sta_primary_dns);
-    //NVM__WriteString(HTMLCONF_STA_PRI_DNS,HTMLConfig.sta_primary_dns);
+    PRINTF_DEBUG_SERVER("sta_primary_dns: %s\n",HTMLConfig.sta_primary_dns);
 
     get_value_from_string(sent_parameters, HTMLCONF_STA_SCND_DNS, (unsigned short)(strlen(HTMLCONF_STA_SCND_DNS)), &data_value[0]);
     strcpy(HTMLConfig.sta_secondary_dns,data_value);
-    printf("sta_secondary_dns: %s\n",HTMLConfig.sta_secondary_dns);
-    //NVM__WriteString(HTMLCONF_STA_SCND_DNS,HTMLConfig.sta_secondary_dns);
+    PRINTF_DEBUG_SERVER("sta_secondary_dns: %s\n",HTMLConfig.sta_secondary_dns);
+
+    get_value_from_string(sent_parameters, HTMLCONF_NTP_SRVR_ADDR, (unsigned short)(strlen(HTMLCONF_NTP_SRVR_ADDR)), &data_value[0]);
+	strcpy(HTMLConfig.ntp_server_addr,data_value);
+	PRINTF_DEBUG_SERVER("ntp_server_addr: %s\n",HTMLConfig.ntp_server_addr);
+
+	get_value_from_string(sent_parameters, HTMLCONF_NTP_SRVR_PORT, (unsigned short)(strlen(HTMLCONF_NTP_SRVR_PORT)), &data_value[0]);
+	strcpy(HTMLConfig.ntp_server_port,data_value);
+	PRINTF_DEBUG_SERVER("ntp_server_port: %s\n",HTMLConfig.ntp_server_port);
+
+	get_value_from_string(sent_parameters, HTMLCONF_MQTT_SRVR_ADDR, (unsigned short)(strlen(HTMLCONF_MQTT_SRVR_ADDR)), &data_value[0]);
+	/*int i=0, j=0;
+	for(i=0, j=0; i< strlen(data_value); j++, i++){
+		if(data_value[i] == '%' && data_value[i+1] == '3' && (data_value[i+2] == 'A' || data_value[i+2] == 'a')){
+			HTMLConfig.mqtt_server_addr[j] = ':';
+			i += 2;
+		} else if(data_value[i] == '%' && data_value[i+1] == '2' && (data_value[i+2] == 'F' || data_value[i+2] == 'f')){
+			HTMLConfig.mqtt_server_addr[j] = '/';
+			i += 2;
+		}else{
+			HTMLConfig.mqtt_server_addr[j] = data_value[i];
+		}
+	}*/
+	strcpy(HTMLConfig.mqtt_server_addr,data_value);
+	PRINTF_DEBUG_SERVER("mqtt_server_addr: %s\n",HTMLConfig.mqtt_server_addr);
+
+
+	get_value_from_string(sent_parameters, HTMLCONF_MQTT_SRVR_PORT, (unsigned short)(strlen(HTMLCONF_MQTT_SRVR_PORT)), &data_value[0]);
+	strcpy(HTMLConfig.mqtt_server_port,data_value);
+	PRINTF_DEBUG_SERVER("mqtt_server_port: %s\n",HTMLConfig.mqtt_server_port);
 
 }
 
@@ -519,29 +591,42 @@ static void get_html_config_received_data(char* sent_parameters){
 // Handler to upload a file onto the server
 static esp_err_t upload_post_handler(httpd_req_t *req)
 {
-    char filepath[100];
-    FILE *fd = NULL;
-    struct stat file_stat;
 
-    // Skip leading "/upload" from URI to get filename
-    // Note sizeof() counts NULL termination hence the -1
-    const char *filename = get_path_from_uri(filepath, ((struct file_server_data *)req->user_ctx)->base_path, req->uri + sizeof("/upload") - 1, sizeof(filepath));
+    bool send_config = false;
 
+    static char sent_parameters[HTTPD_MAX_URI_LEN + 1] = {0};
 
-
-
-    static char sent_parameters[500];
     httpd_req_recv(req, sent_parameters, req->content_len);
-    printf("sent_parameters: %s\n",sent_parameters);
+
+    url_decoder(sent_parameters);
+    PRINTF_DEBUG_SERVER("Sent parameters: %s\n\n",sent_parameters);
+    PRINTF_DEBUG_SERVER("LastPageSent = %d\n",LastPageSent);
 
     switch(LastPageSent){
+    case CHANGE_CRED:
+		if(1 == get_html_change_credentials(sent_parameters)){
+			PRINTF_DEBUG_SERVER("\nCred change is succeeded\n");
+			HTTPServer__ParseCredfromNVM();
+			httpd_resp_set_status(req, "303 See Other");
+			httpd_resp_set_hdr(req, "Location", "/");
+
+		}else{
+			PRINTF_DEBUG_SERVER("\nCred change is failed\n");
+			httpd_resp_set_status(req, "303 See Other");
+			httpd_resp_set_hdr(req, "Location", "/");
+		}
+		break;
+
+
     case LOGIN:
     	if(1 == check_html_credentials(sent_parameters)){
-    		printf("\n Right login \n");
+    		PRINTF_DEBUG_SERVER("\nRight login \n");
     		httpd_resp_set_status(req, "303 See Other");
     		httpd_resp_set_hdr(req, "Location", "/config.html");
+    		//send_config = true;
+
     	}else{
-    		printf("\n Worng login \n");
+    		PRINTF_DEBUG_SERVER("\nWorng login \n");
     		httpd_resp_set_status(req, "303 See Other");
     		httpd_resp_set_hdr(req, "Location", "/");
     	}
@@ -550,9 +635,7 @@ static esp_err_t upload_post_handler(httpd_req_t *req)
         //Parsing configuration data
         get_html_config_received_data(sent_parameters);
         ReceivedConfig = 1;
-
-        //TODO
-        //Update HTML values from JSON file
+        PRINTF_DEBUG_SERVER("config case received\n");
 
         httpd_resp_set_status(req, "303 See Other");
         httpd_resp_set_hdr(req, "Location", "/config.html");
@@ -565,6 +648,12 @@ static esp_err_t upload_post_handler(httpd_req_t *req)
     }
 
     httpd_resp_sendstr(req, "File uploaded successfully");
+
+    if(true == send_config){
+    	PRINTF_DEBUG_SERVER("SendingConfig\n");
+
+    }
+
 
     return ESP_OK;
 }
@@ -612,15 +701,10 @@ static esp_err_t delete_post_handler(httpd_req_t *req)
 }
 
 
-
-
-
-
-
 //Public Functions
-
 esp_err_t HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 {
+	uint8_t cred_conf = DEFAULT;
 	static struct file_server_data *server_data = NULL;
 
 	// Validate file storage base path 
@@ -657,14 +741,55 @@ esp_err_t HTTPServer__StartFileServer (httpd_handle_t server, const char *base_p
 		return ESP_FAIL;
 	}
 
-	// URI handler for getting uploaded files 
-	httpd_uri_t file_download = {
-		.uri       = "/*",  // Match all URIs of type /path/to/file
+	httpd_uri_t get_config_page = {
+		.uri       = "/config.html",  // Match all URIs of type /path/to/file
 		.method    = HTTP_GET,
 		.handler   = download_get_handler,
 		.user_ctx  = server_data    // Pass server data as context
 	};
-	httpd_register_uri_handler(server, &file_download);
+	httpd_register_uri_handler(server, &get_config_page);
+
+
+	// URI handler for getting uploaded files 
+	httpd_uri_t get_login_page = {
+		.uri       = "/",  // Match all URIs of type /path/to/file
+		.method    = HTTP_GET,
+		.handler   = download_get_handler,
+		.user_ctx  = server_data    // Pass server data as context
+	};
+	httpd_register_uri_handler(server, &get_login_page);
+
+
+	httpd_uri_t get_favicon = {
+		.uri       = "/fav.ico",  // Match all URIs of type /path/to/file
+		.method    = HTTP_GET,
+		.handler   = download_get_handler,
+		.user_ctx  = server_data    // Pass server data as context
+	};
+	httpd_register_uri_handler(server, &get_favicon);
+
+	httpd_uri_t get_css = {
+		.uri       = "/style.css",  // Match all URIs of type /path/to/file
+		.method    = HTTP_GET,
+		.handler   = download_get_handler,
+		.user_ctx  = server_data    // Pass server data as context
+	};
+	httpd_register_uri_handler(server, &get_css);
+
+
+	httpd_uri_t get_config_json = {
+		.uri       = "/config.json",  // Match all URIs of type /path/to/file
+		.method    = HTTP_GET,
+		.handler   = download_get_handler,
+		.user_ctx  = server_data    // Pass server data as context
+	};
+	httpd_register_uri_handler(server, &get_config_json);
+
+
+
+
+
+
 
 	// URI handler for uploading files to server 
 	httpd_uri_t file_upload = {
@@ -684,6 +809,10 @@ esp_err_t HTTPServer__StartFileServer (httpd_handle_t server, const char *base_p
 	};
 	httpd_register_uri_handler(server, &file_delete);
 
+
+	if(ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
+		HTTPServer__ParseCredfromNVM();
+	}
 	return ESP_OK;
 }
 
@@ -694,6 +823,7 @@ esp_err_t HTTPServer__StopServer(httpd_handle_t server){
     return err;
 }
 
+
 html_config_param_t HTTPServer__GetCustomConfig (void){
     return HTMLConfig;
 }
@@ -703,5 +833,10 @@ uint8_t IsConfigReceived(void){
 }
 
 
+char* HTTPServer__SetAPDefSSID(const char* default_name){
 
+	sprintf(ap_ssid_def, "%s_%.6s", default_name, Utilities__GetMACAddr());
+
+	return ap_ssid_def;
+}
 

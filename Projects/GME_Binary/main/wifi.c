@@ -11,8 +11,15 @@
 #include"wifi.h"
 #include"nvm.h"
 #include <tcpip_adapter.h>
+#include"http_server.h"
+#include"utilities.h"
+#include"mqtt.h"
 
 static const char *TAG = "wifi";
+
+static uint32_t STAConnectionTime = 0;
+static connection_status_t STAStatus = DISCONNECTED;
+
 EventGroupHandle_t s_wifi_event_group;
 const int CONNECTED_BIT = BIT0;
 int i=0;
@@ -26,16 +33,19 @@ static html_config_param_t WiFiConfig = {
 		.ap_ip = AP_DEF_IP,
 		.ap_dhcp_mode = AP_DEF_DHCP,
 		.ap_dhcp_ip = AP_DEF_DHCP_BASE,
-		.sta_ssid = "NOT_DEF",
-		.sta_encryption = "NOT_DEF",
-		.sta_pswd= "NOT_DEF",
+		.sta_ssid = "",
+		.sta_encryption = "",
+		.sta_pswd= "",
 		.sta_dhcp_mode = 1,
-		.sta_static_ip = "NOT_DEF",
-		.sta_netmask = "NOT_DEF",
-		.sta_gateway_ip = "NOT_DEF",
-		.sta_primary_dns = "NOT_DEF",
-		.sta_secondary_dns = "NOT_DEF"
-
+		.sta_static_ip = "",
+		.sta_netmask = "",
+		.sta_gateway_ip = "",
+		.sta_primary_dns = "",
+		.sta_secondary_dns = "",
+		.ntp_server_addr = "",
+		.ntp_server_port = "",
+		.mqtt_server_addr = MQTT_DEFAULT_BROKER,
+		.mqtt_server_port = ""
 };
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
@@ -78,14 +88,17 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
         xEventGroupSetBits(s_wifi_event_group, CONNECTED_BIT);
 
+       WIFI__SetSTAConnectionTime();
+        WIFI__SetSTAStatus(CONNECTED);
+
         break;
 
     case SYSTEM_EVENT_STA_DISCONNECTED:
-        //ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED");
         ESP_ERROR_CHECK(esp_wifi_connect());
+        GME__CheckHTMLConfig();
 
         xEventGroupClearBits(s_wifi_event_group, CONNECTED_BIT);
-
+        WIFI__SetSTAStatus(DISCONNECTED);
         break;
 
 
@@ -132,6 +145,7 @@ static void SetSTAStaticIP(const char* ip, const char* gw, const char* netmask, 
 
 int WiFi__SetDefaultConfig(void)
 {
+	char* ap_ssid_def;
     s_wifi_event_group = xEventGroupCreate();
     tcpip_adapter_init();
 
@@ -139,19 +153,18 @@ int WiFi__SetDefaultConfig(void)
 
     SetAPConfig(AP_DEF_IP, AP_DEF_GW, AP_DEF_NETMASK);
 
-
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
 
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
 
+    Utilities__Init();
+
+    ap_ssid_def = HTTPServer__SetAPDefSSID(AP_DEF_SSID);
 
     wifi_config_t wifi_config_AP = {
    		.ap = {
-   			.ssid = AP_DEF_SSID,
-   			.ssid_len = strlen(AP_DEF_SSID),
    			.password = "",
 			.ssid_hidden = 0,
    			.max_connection = AP_DEF_MAX_CONN,
@@ -159,10 +172,15 @@ int WiFi__SetDefaultConfig(void)
    		},
        };
 
+
+    strcpy((char*)wifi_config_AP.ap.ssid, ap_ssid_def);
+    wifi_config_AP.ap.ssid_len = strlen(ap_ssid_def);
+
+
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config_AP));
 
-    printf("wifi_init_AP\nSSID: %s\nNo Password\n" , AP_DEF_SSID);
+    printf("wifi_init_AP:\nSSID: %s\nPswd: Open Network\n" , ap_ssid_def);
 
 return 1;
 }
@@ -181,8 +199,6 @@ return 1;
 
 void WiFi__ReadCustomConfigFromNVM(void){
     
-    //memset(&config,0,sizeof(html_config_param_t));
-	//html_config_param_t config;
 
 	size_t len = 0;
     NVM__ReadU8Value(HTMLCONF_GATEWAY_MODE,&WiFiConfig.gateway_mode);
@@ -204,24 +220,35 @@ void WiFi__ReadCustomConfigFromNVM(void){
     NVM__ReadString(HTMLCONF_STA_PRI_DNS, WiFiConfig.sta_primary_dns, &len);
     NVM__ReadString(HTMLCONF_STA_SCND_DNS, WiFiConfig.sta_secondary_dns, &len);
 
+    NVM__ReadString(HTMLCONF_NTP_SRVR_ADDR, WiFiConfig.ntp_server_addr, &len);
+	NVM__ReadString(HTMLCONF_NTP_SRVR_PORT, WiFiConfig.ntp_server_port, &len);
+
+	NVM__ReadString(HTMLCONF_MQTT_SRVR_ADDR, WiFiConfig.mqtt_server_addr, &len);
+	NVM__ReadString(HTMLCONF_MQTT_SRVR_PORT, WiFiConfig.mqtt_server_port, &len);
 
 
-    printf("gateway_mode: %d\n",WiFiConfig.gateway_mode);
-    printf("ap_ssid: %s\n",WiFiConfig.ap_ssid);
-    printf("ap_ssid_hidden: %d\n",WiFiConfig.ap_ssid_hidden);
-    printf("ap_pswd: %s\n",WiFiConfig.ap_pswd);
-    printf("ap_ip: %s\n",WiFiConfig.ap_ip);
-    printf("ap_dhcp_mode: %d\n",WiFiConfig.ap_dhcp_mode);
-    printf("ap_dhcp_ip: %s\n",WiFiConfig.ap_dhcp_ip);
-    printf("sta_ssid: %s\n",WiFiConfig.sta_ssid);
-    printf("sta_encryption: %s\n",WiFiConfig.sta_encryption);
-    printf("sta_pswd: %s\n",WiFiConfig.sta_pswd);
-    printf("sta_dhcp_mode: %d\n",WiFiConfig.sta_dhcp_mode);
-    printf("sta_static_ip: %s\n",WiFiConfig.sta_static_ip);
-    printf("sta_netmask: %s\n",WiFiConfig.sta_netmask);
-    printf("sta_gateway_ip: %s\n",WiFiConfig.sta_gateway_ip);
-    printf("sta_primary_dns: %s\n",WiFiConfig.sta_primary_dns);
-    printf("sta_secondary_dns: %s\n",WiFiConfig.sta_secondary_dns);
+
+	PRINTF_DEBUG("gateway_mode: %d\n",WiFiConfig.gateway_mode);
+	PRINTF_DEBUG("ap_ssid: %s\n",WiFiConfig.ap_ssid);
+    PRINTF_DEBUG("ap_ssid_hidden: %d\n",WiFiConfig.ap_ssid_hidden);
+    PRINTF_DEBUG("ap_pswd: %s\n",WiFiConfig.ap_pswd);
+    PRINTF_DEBUG("ap_ip: %s\n",WiFiConfig.ap_ip);
+    PRINTF_DEBUG("ap_dhcp_mode: %d\n",WiFiConfig.ap_dhcp_mode);
+    PRINTF_DEBUG("ap_dhcp_ip: %s\n",WiFiConfig.ap_dhcp_ip);
+    PRINTF_DEBUG("sta_ssid: %s\n",WiFiConfig.sta_ssid);
+    PRINTF_DEBUG("sta_encryption: %s\n",WiFiConfig.sta_encryption);
+    PRINTF_DEBUG("sta_pswd: %s\n",WiFiConfig.sta_pswd);
+    PRINTF_DEBUG("sta_dhcp_mode: %d\n",WiFiConfig.sta_dhcp_mode);
+    PRINTF_DEBUG("sta_static_ip: %s\n",WiFiConfig.sta_static_ip);
+    PRINTF_DEBUG("sta_netmask: %s\n",WiFiConfig.sta_netmask);
+    PRINTF_DEBUG("sta_gateway_ip: %s\n",WiFiConfig.sta_gateway_ip);
+    PRINTF_DEBUG("sta_primary_dns: %s\n",WiFiConfig.sta_primary_dns);
+    PRINTF_DEBUG("sta_secondary_dns: %s\n",WiFiConfig.sta_secondary_dns);
+
+    PRINTF_DEBUG("\nntp_server_addr: %s\n",WiFiConfig.ntp_server_addr);
+    PRINTF_DEBUG("ntp_server_port: %s\n",WiFiConfig.ntp_server_port);
+    PRINTF_DEBUG("\nmqtt_server_addr: %s\n",WiFiConfig.mqtt_server_addr);
+    PRINTF_DEBUG("mqtt_server_port: %s\n",WiFiConfig.mqtt_server_port);
 
 }
 
@@ -248,14 +275,31 @@ void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
     NVM__WriteString(HTMLCONF_STA_PRI_DNS, config.sta_primary_dns);
     NVM__WriteString(HTMLCONF_STA_SCND_DNS, config.sta_secondary_dns);
 
+    NVM__WriteString(HTMLCONF_NTP_SRVR_ADDR, config.ntp_server_addr);
+	NVM__WriteString(HTMLCONF_NTP_SRVR_PORT, config.ntp_server_port);
+
+
+	if(0 != strlen(config.mqtt_server_addr) && 0 != strlen(config.mqtt_server_port)){
+		NVM__WriteString(HTMLCONF_MQTT_SRVR_ADDR, config.mqtt_server_addr);
+		NVM__WriteString(HTMLCONF_MQTT_SRVR_PORT, config.mqtt_server_port);
+		NVM__WriteU8Value(MQTT_URL, CONFIGURED);
+	}else{
+		NVM__EraseKey(MQTT_URL);
+	}
+
+
+
 }
 
 html_config_param_t WiFi__GetCustomConfig (void){
     return WiFiConfig;
 }
 
+html_config_param_t* WiFi__GetCustomConfigPTR (void){
+    return &WiFiConfig;
+}
 
-#define STA_WIFI_SSID 	"esp32STAa"
+#define STA_WIFI_SSID 	"esp32STA"
 #define STA_WIFI_PASS	"esp32carel"
 
 esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
@@ -275,9 +319,7 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 
     wifi_config_t wifi_config_AP = {
    		.ap = {
-   			//.ssid = config.ap_ssid,
    			.ssid_len = strlen(config.ap_ssid),
-   			//.password = config.ap_pswd,
 			.ssid_hidden = config.ap_ssid_hidden,
    			.max_connection = AP_DEF_MAX_CONN,
    			.authmode = WIFI_AUTH_WPA_WPA2_PSK
@@ -298,19 +340,14 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 		optValue.start_ip.addr = ipaddr_addr(config.ap_dhcp_ip);// End IP Address
 		end_ip = optValue.start_ip.addr & 0x00FFFFFF;
 		temp = optValue.start_ip.addr >> 24;
-		//printf("temp :0x%08x\n",temp);
 		temp += AP_DHCP_IP_RANGE;
-		//printf("temp :0x%08x\n",temp);
 		if(temp > 0xFA){
 			temp = 0xFA000000;
 		}else{
 			temp = temp << 24;
 		}
 		end_ip |= temp;
-		//printf("temp :0x%08x\n",end_ip);
 		optValue.end_ip.addr = end_ip; // Start IP Address
-		//printf("start_ip_range  :0x%08x \n",optValue.start_ip.addr);
-		//printf("end_ip_range  :0x%08x \n",optValue.end_ip.addr);
 		tcpip_adapter_dhcps_option(
 			TCPIP_ADAPTER_OP_SET,
 			TCPIP_ADAPTER_REQUESTED_IP_ADDRESS,
@@ -337,7 +374,7 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 
        if(!config.sta_dhcp_mode)
        {
-    	   printf("DHCP STA OFF\n");
+    	   PRINTF_DEBUG("DHCP STA OFF\n");
            SetSTAStaticIP(config.sta_static_ip,
                             config.sta_netmask,
                             config.sta_gateway_ip,
@@ -354,85 +391,14 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config_AP));
 
-    //ESP_ERROR_CHECK(esp_wifi_start());
-
-    return ESP_OK;
+   return ESP_OK;
 }
 
-
-esp_err_t test_sta(html_config_param_t config){
-    s_wifi_event_group = xEventGroupCreate();
-    tcpip_adapter_init();
-
-    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));
-
-    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-
-
-    ESP_ERROR_CHECK(esp_wifi_init(&cfg));
-    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
-
-
-
-        wifi_config_t wifi_config_STA = {
-          		.ap = {
-          			.ssid = STA_WIFI_SSID,
-          			.password = STA_WIFI_PASS,
-          			},
-              };
-        strcpy((char*)wifi_config_STA.sta.ssid,config.sta_ssid);
-        strcpy((char*)wifi_config_STA.sta.password,config.sta_pswd);
-
-        /*wifi_config_t wifi_config_STA = {
-            .sta = {
-                .ssid = "esp32STA",
-                .password = "esp32carel",
-            },
-        };*/
-
-        printf("\nSTA SSID = %s  and  Password = %s\n",wifi_config_STA.sta.ssid,wifi_config_STA.sta.password);
-
-       if(!config.sta_dhcp_mode)
-       {
-    	   printf("DHCP STA OFF\n");
-           SetSTAStaticIP(config.sta_static_ip,
-                            config.sta_netmask,
-                            config.sta_gateway_ip,
-                            config.sta_primary_dns,
-                            config.sta_secondary_dns);
-       }
-        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
-        ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config_STA));
-
-
-
-    return ESP_OK;
-}
 
 
 void WiFi__ErasingConfig(void){
 
 	NVM__EraseAll();
-	//NVM__WriteU8Value("wifi_conf",1);
-	/*NVM__EraseKey("wifi_conf");
-	NVM__EraseKey("config2");
-	NVM__EraseKey(HTMLCONF_GATEWAY_MODE);
-	NVM__EraseKey(HTMLCONF_AP_SSID);
-	NVM__EraseKey(HTMLCONF_AP_SSID_HIDDEN);
-	NVM__EraseKey(HTMLCONF_AP_PSWD);
-	NVM__EraseKey(HTMLCONF_AP_IP);
-	NVM__EraseKey(HTMLCONF_AP_DHCP_MODE);
-	NVM__EraseKey(HTMLCONF_AP_DHCP_IP);
-	NVM__EraseKey(HTMLCONF_STA_SSID);
-	NVM__EraseKey(HTMLCONF_STA_ENCRYP);
-	NVM__EraseKey(HTMLCONF_STA_PSWD);
-	NVM__EraseKey(HTMLCONF_STA_DHCP_MODE);
-	NVM__EraseKey(HTMLCONF_STA_STATIC_IP);
-	NVM__EraseKey(HTMLCONF_STA_NETMASK);
-	NVM__EraseKey(HTMLCONF_STA_GATEWAY_IP);
-	NVM__EraseKey(HTMLCONF_STA_PRI_DNS);
-	NVM__EraseKey(HTMLCONF_STA_SCND_DNS);*/
-
 
 }
 
@@ -440,3 +406,22 @@ void WiFi__WaitConnection(void)
 {
     xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
 }
+
+
+
+void WIFI__SetSTAConnectionTime(void){
+	STAConnectionTime = Get_UTC_Current_Time();
+}
+
+uint32_t WIFI__GetSTAConnectionTime(void){
+	return STAConnectionTime;
+}
+
+void WIFI__SetSTAStatus(connection_status_t status){
+	STAStatus = status;
+}
+connection_status_t WIFI__GetSTAStatus(void){
+	return STAStatus;
+}
+
+

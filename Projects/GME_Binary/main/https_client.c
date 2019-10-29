@@ -14,27 +14,22 @@
 #include "lwip/sys.h"
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
+#include "file_system.h"
+#include "mqtt.h"
+#include "poll_engine.h"
 
 #include "esp_http_client.h"
+#include "sys.h"
 
-
-#define MAX_HTTP_RECV_BUFFER 512
+#define MAX_HTTP_RECV_BUFFER 2048	//1045
 static const char *TAG = "HTTP_CLIENT";
 
-/* Root cert for howsmyssl.com, taken from howsmyssl_com_root_cert.pem
 
-   The PEM file was extracted from the output of this command:
-   openssl s_client -showcerts -connect www.howsmyssl.com:443 </dev/null
 
-   The CA root cert is the last cert given in the chain of certs.
-
-   To embed it in the app binary, the PEM file is named
-   in the component.mk COMPONENT_EMBED_TXTFILES variable.
-*/
-extern const char howsmyssl_com_root_cert_pem_start[] asm("_binary_howsmyssl_com_root_cert_pem_start");
-extern const char howsmyssl_com_root_cert_pem_end[]   asm("_binary_howsmyssl_com_root_cert_pem_end");
-
-esp_err_t _http_event_handler(esp_http_client_event_t *evt)
+/*	Description:http task events handler
+ * 				all the functions in this files are using the same event handler
+ */
+static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
@@ -52,8 +47,6 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
         case HTTP_EVENT_ON_DATA:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
             if (!esp_http_client_is_chunked_response(evt->client)) {
-                // Write out data
-                // printf("%.*s", evt->data_len, (char*)evt->data);
             }
 
             break;
@@ -67,327 +60,212 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
-static void http_rest()
+
+//Description: Testing https connection on carel server using the spiffs certificates , used from CMD LINE
+static void https_carel_server_test()
 {
-    esp_http_client_config_t config = {
-        .url = "http://httpbin.org/get",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
+char username_devs[20] = "gme";
+char pass_devs[20] = "+q9aOC-&EejZuV;~";
+char uri_devs[100] = "https://mqtt-dev.tera.systems:8080/";
 
-    // GET
-    esp_err_t err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
-    }
+	esp_err_t err;
 
-    // POST
-    const char *post_data = "field1=value1&field2=value2";
-    esp_http_client_set_url(client, "http://httpbin.org/post");
-    esp_http_client_set_method(client, HTTP_METHOD_POST);
-    esp_http_client_set_post_field(client, post_data, strlen(post_data));
-    err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP POST Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP POST request failed: %s", esp_err_to_name(err));
-    }
+		char *buffer = malloc(MAX_HTTP_RECV_BUFFER + 1);
 
-    //PUT
-    esp_http_client_set_url(client, "http://httpbin.org/put");
-    esp_http_client_set_method(client, HTTP_METHOD_PUT);
-    err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP PUT Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP PUT request failed: %s", esp_err_to_name(err));
-    }
+		if (buffer == NULL) {
+			ESP_LOGE(TAG, "Cannot malloc http receive buffer");
+		}
 
-    //PATCH
-    esp_http_client_set_url(client, "http://httpbin.org/patch");
-    esp_http_client_set_method(client, HTTP_METHOD_PATCH);
-    esp_http_client_set_post_field(client, NULL, 0);
-    err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP PATCH Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP PATCH request failed: %s", esp_err_to_name(err));
-    }
+		uint16_t url_len = strlen(username_devs) + strlen(pass_devs) + strlen(uri_devs);
+		char *url = malloc(url_len+5);
+		memset((void*)url, 0, url_len);
+		sprintf(url,"%.*s%s:%s@%s",8,uri_devs,username_devs,pass_devs,uri_devs+8);
 
-    //DELETE
-    esp_http_client_set_url(client, "http://httpbin.org/delete");
-    esp_http_client_set_method(client, HTTP_METHOD_DELETE);
-    err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP DELETE Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP DELETE request failed: %s", esp_err_to_name(err));
-    }
+		PRINTF_DEBUG("%s\n",url);
 
-    //HEAD
-    esp_http_client_set_url(client, "http://httpbin.org/get");
-    esp_http_client_set_method(client, HTTP_METHOD_HEAD);
-    err = esp_http_client_perform(client);
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP HEAD Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "HTTP HEAD request failed: %s", esp_err_to_name(err));
-    }
+		esp_http_client_config_t config = {
+			.url = url,
+			.event_handler = _http_event_handler,
+			.auth_type = HTTP_AUTH_TYPE_BASIC,
+			.cert_pem = Sys__GetCert(CERT_1),
+		};
 
-    esp_http_client_cleanup(client);
-}
 
-static void http_auth_basic()
-{
-    esp_http_client_config_t config = {
-        .url = "http://user:passwd@httpbin.org/basic-auth/user/passwd",
-        .event_handler = _http_event_handler,
-        .auth_type = HTTP_AUTH_TYPE_BASIC,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
+		esp_http_client_handle_t client = esp_http_client_init(&config);
 
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP Basic Auth Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
-}
 
-static void http_auth_basic_redirect()
-{
-    esp_http_client_config_t config = {
-        .url = "http://user:passwd@httpbin.org/basic-auth/user/passwd",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
+		if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
+			ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
+			free(buffer);
+			free(url);
+		}else{
 
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP Basic Auth redirect Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
-}
 
-static void http_auth_digest()
-{
-    esp_http_client_config_t config = {
-        .url = "http://user:passwd@httpbin.org/digest-auth/auth/user/passwd/MD5/never",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
+		ESP_LOGI(TAG, "HTTP Stream reader Status = %d, content_length = %d",
+						esp_http_client_get_status_code(client),
+						esp_http_client_get_content_length(client));
+		esp_http_client_close(client);
+		esp_http_client_cleanup(client);
 
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP Digest Auth Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
-}
-
-static void https()
-{
-    esp_http_client_config_t config = {
-        .url = "https://www.howsmyssl.com",
-        .event_handler = _http_event_handler,
-        .cert_pem = howsmyssl_com_root_cert_pem_start,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
-
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTPS Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
-}
-
-static void http_relative_redirect()
-{
-    esp_http_client_config_t config = {
-        .url = "http://httpbin.org/relative-redirect/3",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
-
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP Relative path redirect Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
-}
-
-static void http_absolute_redirect()
-{
-    esp_http_client_config_t config = {
-        .url = "http://httpbin.org/absolute-redirect/3",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
-
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP Absolute path redirect Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
-}
-
-static void http_redirect_to_https()
-{
-    esp_http_client_config_t config = {
-        .url = "http://httpbin.org/redirect-to?url=https%3A%2F%2Fwww.howsmyssl.com",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
-
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP redirect to HTTPS Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
+		free(buffer);
+		free(url);
+		}
 }
 
 
-static void http_download_chunk()
-{
-    esp_http_client_config_t config = {
-        .url = "http://httpbin.org/stream-bytes/8912",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err = esp_http_client_perform(client);
+/*	Description:Routine for downloading the file's model from the server using the passed certificate
+ * 				Downloads the model file and rewrite it in the spiffs
+ */
 
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTP chunk encoding Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
+https_conn_err_t HttpsClient__DownloadModelFile(req_download_devs_config_t *download_devs_config, uint8_t cert_num)
+{
+	https_conn_err_t err = CONN_OK;
+	esp_err_t err2;
+
+	char *buffer = malloc(MAX_HTTP_RECV_BUFFER + 1);
+
+	uint16_t url_len = strlen(download_devs_config->uri) + strlen(download_devs_config->password) + strlen(download_devs_config->username);
+	char *url = malloc(url_len+5);
+	memset((void*)url, 0, url_len);
+
+	sprintf(url,"%.*s%s:%s@%s",8,download_devs_config->uri,download_devs_config->username,download_devs_config->password,download_devs_config->uri+8);
+
+	printf("%s\n",url);
+
+
+
+	esp_http_client_config_t config = {
+		.url = url,
+		.event_handler = _http_event_handler,
+		.auth_type = HTTP_AUTH_TYPE_BASIC,
+		.cert_pem =  Sys__GetCert(cert_num),
+	};
+
+	esp_http_client_handle_t client = esp_http_client_init(&config);
+
+	if ((err2 = esp_http_client_open(client, 0)) != ESP_OK) {
+		ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err2));
+		free(buffer);
+		free(url);
+		return CONN_FAIL;
+	}
+
+
+	int content_length =  esp_http_client_fetch_headers(client);
+	int total_read_len = 0, read_len;
+	if (total_read_len < content_length && content_length <= MAX_HTTP_RECV_BUFFER) {
+		read_len = esp_http_client_read(client, buffer, content_length);
+		if (read_len <= 0) {
+			ESP_LOGE(TAG, "Error read data");
+		}
+		buffer[read_len] = 0;
+#if (DEEP_DEBUG_PRINTF_DEFAULT == 1)
+		ESP_LOGD(TAG, "read_len = %d", read_len);
+		ESP_LOG_BUFFER_HEXDUMP(__func__, buffer, MAX_HTTP_RECV_BUFFER, ESP_LOG_INFO);
+#endif
+		if( ESP_OK != FS_SaveFile(buffer , (size_t)read_len, MODEL_FILE)){
+			err = FILE_NOT_SAVED;
+		}
+	}
+
+	ESP_LOGI(TAG, "HTTP Stream reader Status = %d, content_length = %d",
+					esp_http_client_get_status_code(client),
+					esp_http_client_get_content_length(client));
+
+
+	free(buffer);
+	free(url);
+
+	esp_http_client_close(client);
+	esp_http_client_cleanup(client);
+
+	return err;
 }
 
-static void http_perform_as_stream_reader()
-{
-    char *buffer = memmgr_alloc(MAX_HTTP_RECV_BUFFER + 1);
-    if (buffer == NULL) {
-        ESP_LOGE(TAG, "Cannot malloc http receive buffer");
-        return;
-    }
-    esp_http_client_config_t config = {
-        .url = "http://httpbin.org/get",
-        .event_handler = _http_event_handler,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err;
-    if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
-        memmgr_free(buffer);
-        return;
-    }
-    int content_length =  esp_http_client_fetch_headers(client);
-    int total_read_len = 0, read_len;
-    if (total_read_len < content_length && content_length <= MAX_HTTP_RECV_BUFFER) {
-        read_len = esp_http_client_read(client, buffer, content_length);
-        if (read_len <= 0) {
-            ESP_LOGE(TAG, "Error read data");
-        }
-        buffer[read_len] = 0;
-        ESP_LOGD(TAG, "read_len = %d", read_len);
-    }
-    ESP_LOGI(TAG, "HTTP Stream reader Status = %d, content_length = %d",
-                    esp_http_client_get_status_code(client),
-                    esp_http_client_get_content_length(client));
-    esp_http_client_close(client);
-    esp_http_client_cleanup(client);
-    free(buffer);
+
+/*	Description:Updating certificates routine, using the passed certificate
+ * 				The function downloads the new certificate and updates the not used certificate
+ */
+https_conn_err_t HttpsClient__UpdateCertificate(req_update_ca_cert_t *update_ca_cert, uint8_t cert_num){
+
+	https_conn_err_t err = CONN_OK;
+	esp_err_t err2;
+
+		char *buffer = malloc(MAX_HTTP_RECV_BUFFER + 1);
+
+		uint16_t url_len = strlen(update_ca_cert->uri) + strlen(update_ca_cert->password) + strlen(update_ca_cert->username);
+		char *url = malloc(url_len+5);
+		memset((void*)url, 0, url_len);
+
+		sprintf(url,"%.*s%s:%s@%s",8,update_ca_cert->uri,update_ca_cert->username,update_ca_cert->password,update_ca_cert->uri+8);
+
+		esp_http_client_config_t config = {
+			.url = url,
+			.event_handler = _http_event_handler,
+			.auth_type = HTTP_AUTH_TYPE_BASIC,
+			.cert_pem = Sys__GetCert(cert_num),
+		};
+
+
+
+		esp_http_client_handle_t client = esp_http_client_init(&config);
+		if ((err2 = esp_http_client_open(client, 0)) != ESP_OK) {
+			ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err2));
+			free(buffer);
+			free(url);
+			return CONN_FAIL;
+		}
+
+		int content_length =  esp_http_client_fetch_headers(client);
+		int total_read_len = 0, read_len;
+		if (total_read_len < content_length && content_length <= MAX_HTTP_RECV_BUFFER) {
+			read_len = esp_http_client_read(client, buffer, content_length);
+			if (read_len <= 0) {
+				ESP_LOGE(TAG, "Error read data");
+			}
+			buffer[read_len] = 0;
+			ESP_LOGD(TAG, "read_len = %d", read_len);
+			ESP_LOG_BUFFER_HEXDUMP(__func__, buffer, MAX_HTTP_RECV_BUFFER, ESP_LOG_INFO);
+
+		//check the passed certificate and update the other one
+			if(CERT_1 == cert_num)
+			{
+				if( ESP_OK != FS_SaveFile(buffer , (size_t)read_len, CERT2_SPIFFS)){
+					err = FILE_NOT_SAVED;
+				}
+
+			}else if (CERT_2 == cert_num){
+				if( ESP_OK != FS_SaveFile(buffer , (size_t)read_len, CERT1_SPIFFS)){
+					err = FILE_NOT_SAVED;
+				}
+
+			}
+
+		}
+
+		ESP_LOGI(TAG, "HTTP Stream reader Status = %d, content_length = %d",
+						esp_http_client_get_status_code(client),
+						esp_http_client_get_content_length(client));
+		esp_http_client_close(client);
+		esp_http_client_cleanup(client);
+
+
+		free(buffer);
+		free(url);
+
+		return err;
+
 }
 
-static void https_async()
-{
-    esp_http_client_config_t config = {
-        .url = "https://postman-echo.com/post",
-        .event_handler = _http_event_handler,
-        .is_async = true,
-        .timeout_ms = 5000,
-    };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
-    esp_err_t err;
-    const char *post_data = "Using a Palantír requires a person with great strength of will and wisdom. The Palantíri were meant to "
-                            "be used by the Dúnedain to communicate throughout the Realms in Exile. During the War of the Ring, "
-                            "the Palantíri were used by many individuals. Sauron used the Ithil-stone to take advantage of the users "
-                            "of the other two stones, the Orthanc-stone and Anor-stone, but was also susceptible to deception himself.";
-    esp_http_client_set_method(client, HTTP_METHOD_POST);
-    esp_http_client_set_post_field(client, post_data, strlen(post_data));
-    while (1) {
-        err = esp_http_client_perform(client);
-        if (err != ESP_ERR_HTTP_EAGAIN) {
-            break;
-        }
-    }
-    if (err == ESP_OK) {
-        ESP_LOGI(TAG, "HTTPS Status = %d, content_length = %d",
-                esp_http_client_get_status_code(client),
-                esp_http_client_get_content_length(client));
-    } else {
-        ESP_LOGE(TAG, "Error perform http request %s", esp_err_to_name(err));
-    }
-    esp_http_client_cleanup(client);
-}
 
+//Description: Task called from cmdline to test carel server
 void HTTPClient__TestTask(void *pvParameters)
 {
     ESP_LOGI(TAG, "Connected to AP, begin http example");
-    http_rest();
-    http_auth_basic();
-    http_auth_basic_redirect();
-    http_auth_digest();
-    http_relative_redirect();
-    http_absolute_redirect();
-    https();
-    http_redirect_to_https();
-    http_download_chunk();
-    http_perform_as_stream_reader();
-    https_async();
+    PollEngine__MBSuspend();
+    https_carel_server_test();
+
+    PollEngine__MBResume();
     vTaskDelete(NULL);
 }
 

@@ -9,10 +9,6 @@
 
 #include "nvm.h"
 #include "sys.h"
-#include "data_types_IS.h"
-#include "data_types_CAREL.h"
-
-#ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_spiffs.h"
 
 static nvs_handle my_handle;
@@ -33,12 +29,10 @@ void NVM__Open(void){
 void NVM__Close(void){
 	nvs_close(my_handle);
 }
-#endif
 
-C_INT16 NVM__ReadU8Value(const C_SCHAR* var, C_BYTE* val)
+esp_err_t NVM__ReadU8Value(const char* var, uint8_t* val)
 {
-    C_INT16 err = C_FAIL;
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+    esp_err_t err ;
 
     	NVM__Open();
         // Read
@@ -59,15 +53,14 @@ C_INT16 NVM__ReadU8Value(const C_SCHAR* var, C_BYTE* val)
         }
 
         NVM__Close();
-#endif
     return err;
 }
 
-C_INT16 NVM__WriteU8Value(const C_SCHAR* var, C_BYTE val)
+esp_err_t NVM__WriteU8Value(const char* var, uint8_t val)
 {
-    C_INT16 err = C_FAIL;
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-		NVM__Open();
+    esp_err_t err ;
+
+    	NVM__Open();
         // Write
         //PRINTF_DEBUG_NVM("Updating %s in NVS ... ", var);
         err = nvs_set_u8(my_handle, var, val);
@@ -82,16 +75,14 @@ C_INT16 NVM__WriteU8Value(const C_SCHAR* var, C_BYTE val)
         NVM__Close();
     PRINTF_DEBUG_NVM("\n");
 
-#endif
 return err;
 }
 
 
 
-C_INT16 NVM__ReadU32Value(const C_SCHAR* var, C_UINT32* val)
+esp_err_t NVM__ReadU32Value(const char* var, uint32_t* val)
 {
-    C_INT16 err =C_FAIL;
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+    esp_err_t err ;
 
     	NVM__Open();
         // Read
@@ -112,14 +103,13 @@ C_INT16 NVM__ReadU32Value(const C_SCHAR* var, C_UINT32* val)
         }
 
         NVM__Close();
-#endif
     return err;
 }
 
-C_INT16 NVM__WriteU32Value(const C_SCHAR* var, C_UINT32 val)
+esp_err_t NVM__WriteU32Value(const char* var, uint32_t val)
 {
-	C_INT16 err = C_FAIL;
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+    esp_err_t err ;
+
     	NVM__Open();
         // Write
         //PRINTF_DEBUG_NVM("Updating %s in NVS ... ", var);
@@ -131,16 +121,19 @@ C_INT16 NVM__WriteU32Value(const C_SCHAR* var, C_UINT32 val)
 
         NVM__Close();
     PRINTF_DEBUG_NVM("\n");
-#endif
-	return err;
+
+return err;
 }
 
 
-C_INT16 NVM__WriteString (const C_SCHAR* var, C_SCHAR* str)
-{
-    C_INT16 err = C_FAIL;
 
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+
+esp_err_t NVM__WriteString (const char* var, char* str)
+{
+    esp_err_t err ;
+
+
     	NVM__Open();
         //PRINTF_DEBUG_NVM("Updating %s in NVS ... ",var);
         err = nvs_set_str(my_handle, var, str);
@@ -153,11 +146,9 @@ C_INT16 NVM__WriteString (const C_SCHAR* var, C_SCHAR* str)
         //PRINTF_DEBUG_NVM((err2 != ESP_OK) ? "Failed!\n" : "Done\n");
 
         NVM__Close();
-#endif
     return err;
 }
 
-#ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "http_server.h"
 void test_write_config_to_nvm(void){
 	html_config_param_t config = HTTPServer__GetCustomConfig();
@@ -194,45 +185,45 @@ void test_write_config_to_nvm(void){
 
 	        NVM__Close();
 	    }
+
+
 }
-#endif
 
-C_INT16 NVM__ReadString(const C_SCHAR* var, C_SCHAR* str, size_t* len)
+
+
+esp_err_t NVM__ReadString(const char* var, char* str, size_t* len)
 {
-    C_INT16 err = C_FAIL;
+    esp_err_t err ;
 
-#ifdef INCLUDE_PLATFORM_DEPENDENT
     	NVM__Open();
     	nvs_get_str(my_handle, var, NULL, len);
 
-    	char* temp = memmgr_alloc(*len);
+    	char* temp = malloc(*len);
 
     	err = nvs_get_str(my_handle, var, temp, len);
 
 
 
 	    if (err != ESP_OK) {
-	        PRINTF_DEBUG_NVM("Error (%s) Read %s for length %ul!\n", esp_err_to_name(err),str, *len);
+//	        PRINTF_DEBUG_NVM("Error (%s) Read %s for length %ul!\n", esp_err_to_name(err),str, *len);
 	    } else {
 	    	PRINTF_DEBUG_NVM("Reading %s, is %s  ....  length = %d \n",var ,temp, *len);
+	        strcpy(str,temp);
 	    }
 
         NVM__Close();
 
 
-        strcpy(str,temp);
-        memmgr_free(temp);
 
-#endif
+        free(temp);
+
     return err;
 }
 
 
-C_INT16 NVM__EraseKey(const C_SCHAR* var)
+esp_err_t NVM__EraseKey(const char* var)
 {
-	C_INT16 err = C_FAIL;
-
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+	esp_err_t err ;
 	NVM__Open();
 
 		err = nvs_erase_key(my_handle, var);
@@ -244,16 +235,14 @@ C_INT16 NVM__EraseKey(const C_SCHAR* var)
 		PRINTF_DEBUG_NVM((err2 != ESP_OK) ? "Failed!\n" : "Done\n");
 
 		NVM__Close();
-#endif
 	return err;
 }
 
 
-C_INT16 NVM__EraseAll(void)
-{
-	C_INT16 err = C_FAIL;
 
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+esp_err_t NVM__EraseAll(void)
+{
+	esp_err_t err ;
 	NVM__Open();
 
 		err = nvs_erase_all(my_handle);
@@ -265,18 +254,18 @@ C_INT16 NVM__EraseAll(void)
 		PRINTF_DEBUG_NVM((err2 != ESP_OK) ? "Failed!\n" : "Done\n");
 
 		NVM__Close();
-
-#endif
 	return err;
 }
 
 
-C_INT16 NVM__ReadBlob(const C_SCHAR* var, void* vec, size_t* len)
-{
-    C_INT16 err = C_FAIL;
 
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-	        // Open
+
+
+esp_err_t NVM__ReadBlob(const char* var, void* vec, size_t* len)
+{
+    esp_err_t err ;
+
+        // Open
         PRINTF_DEBUG_NVM("\n");
         PRINTF_DEBUG_NVM("Opening Non-Volatile Storage (NVS) handle... ");
         //nvs_handle my_handle;
@@ -288,7 +277,7 @@ C_INT16 NVM__ReadBlob(const C_SCHAR* var, void* vec, size_t* len)
 
             err = nvs_get_blob(my_handle, var, NULL, len);
 
-            char* temp = memmgr_alloc(*len);
+            char* temp = malloc(*len);
 
             err = nvs_get_blob(my_handle, var, temp, len);
             PRINTF_DEBUG_NVM("Reading %s, is  ....  length = %d \n",var , (int)*len);
@@ -296,19 +285,20 @@ C_INT16 NVM__ReadBlob(const C_SCHAR* var, void* vec, size_t* len)
             NVM__Close();
 
 		   memcpy(vec,(void*)temp,*len);
-		   memmgr_free(temp);
+		   free(temp);
 
         }
-#endif
+
     return err;
 }
 
 
-C_INT16 NVM__WriteBlob (const C_SCHAR* var, void* vec, size_t len)
-{
-    C_INT16 err = C_FAIL;
 
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+esp_err_t NVM__WriteBlob (const char* var, void* vec, size_t len)
+{
+    esp_err_t err ;
+
     // Open
     PRINTF_DEBUG_NVM("\n");
     PRINTF_DEBUG_NVM("Opening Non-Volatile Storage (NVS) handle... ");
@@ -332,6 +322,19 @@ C_INT16 NVM__WriteBlob (const C_SCHAR* var, void* vec, size_t len)
         // Close
         nvs_close(my_handle);
     }
-#endif
+
     return err;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

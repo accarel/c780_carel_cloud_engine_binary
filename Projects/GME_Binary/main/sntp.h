@@ -15,7 +15,7 @@ extern "C" {
 /* INCLUDE */
 
 #include "stdint.h"
-#include "stddef.h"
+#include <string.h>
 
 /* DEFINE */
 
@@ -26,7 +26,7 @@ void Init_RTC(void);
 void sntp_get_time(char * buffer, size_t size);
 uint32_t Get_UTC_Current_Time(void);
 uint32_t Get_last_boot_time(void);
-
+void Set_last_boot_time(void);
 #ifdef __cplusplus
 }
 #endif
