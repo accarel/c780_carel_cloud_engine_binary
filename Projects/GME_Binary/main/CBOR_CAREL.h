@@ -184,7 +184,7 @@ typedef struct db_values{
 	c_cborvals vls[VLS_NUMBER];
 }db_values;
 
-#if 0
+
 
 /*----------------------------------------------------------------------------------------*/
 size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms);
@@ -215,20 +215,17 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
 CborError CBOR_DiscardElement(CborValue* recursed);
-C_INT16 CBOR_ExtractInt(CborValue* recursed, int64_t* read);
+CborError CBOR_ExtractInt(CborValue* recursed, int64_t* read);
 
 #define 	CBOR_ReqUpdateCaCertificate 	CBOR_ReqSetDevsConfig
 #define 	CBOR_ReqChangeCredentials	CBOR_ReqSetDevsConfig
 
-C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector);
-C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config);
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
-C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
+C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config);
 C_INT16 execute_scan_devices(C_BYTE* data_rx);
+C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector);
+C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
-
-
-#endif
 
 #ifdef __cplusplus
 }

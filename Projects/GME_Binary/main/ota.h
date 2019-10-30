@@ -8,8 +8,7 @@
 #ifndef MAIN_OTA_H_
 #define MAIN_OTA_H_
 #include"common.h"
-
-#include "mqtt.h"
+#include "MQTT_Interface_CAREL.h"
 
 #pragma pack(1)
 typedef struct mb_write_file_record_s {

@@ -386,7 +386,7 @@ C_RES File_System_Model_Store(void)
 	return 1;      	
 	
 }
-
+#endif
 /**
  * @brief Get_RS485_BaudRate
  *        Gets RS485 baud rate 
@@ -651,6 +651,3 @@ C_UINT16 Get_DB_number(void)
 	return 1;
 }
 
-
-
-#endif

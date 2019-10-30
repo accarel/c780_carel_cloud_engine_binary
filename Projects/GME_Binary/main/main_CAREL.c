@@ -36,7 +36,7 @@
 #include "mb_m.h"
 #include "gme_types.h"
 #include "wifi.h"
-#include "mqtt.h"
+#include "MQTT_Interface_CAREL.h"
 #include "poll_engine.h"
 #include "file_system.h"
 #include "nvm.h"
@@ -91,6 +91,7 @@ void app_main(void)  // main_Carel
 
   }
   */
+	MQTT_Start();
 
   xTaskCreate(Carel_Main_Task, "Carel_Task", 3*(CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE+512), NULL, tskIDLE_PRIORITY, NULL );
 
@@ -209,7 +210,7 @@ void Carel_Main_Task(void)
 			}
 
 			Utilities__Init();
-			//MQTT__Start();
+			MQTT_Start();
 
 			GME__CheckHTMLConfig();
 			break;
@@ -246,7 +247,7 @@ void Carel_Main_Task(void)
 
           	//Utilities__Init();						// da togliere
 
-  			//MQTT__Start();							// da togliere
+  			MQTT_Start();							// da togliere
 
 
           	sm = GME_START_POLLING_ENGINE;
@@ -255,7 +256,7 @@ void Carel_Main_Task(void)
           }
           case GME_START_POLLING_ENGINE:
           {
-          	if(1){    // MQTT_GetFlags().init == 1
+          	if(MQTT_GetFlags()){
 
           	    retval = BinaryModel_Init();		// CAREL
           	    CAREL_CHECK(retval, "MODEL");
@@ -284,9 +285,9 @@ void Carel_Main_Task(void)
           	//TODO
               WiFi__WaitConnection();
 
-              if(MQTT__GetFlags().init == 1){
-              	MQTT__PeriodicTasks();			// manage the MQTT subscribes
-             }
+              if(MQTT_GetFlags())
+              	MQTT_PeriodicTasks();			// manage the MQTT subscribes
+
 
               //If we received a new WiFi configuration during system running (Re-Configure)
               if(IsConfigReceived()){

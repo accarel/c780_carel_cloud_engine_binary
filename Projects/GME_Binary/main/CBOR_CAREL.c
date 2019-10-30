@@ -21,7 +21,6 @@
 #include "binary_model.h"
 
 
-#if 0
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -284,7 +283,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	return len;
 }
 
-extern db_values val_array[10];
+db_values val_array[10];
 
 C_UINT32 Get_Counter(C_UINT16 index){return val_array[index].cnt;}
 C_TIME Get_SamplingTime(C_UINT16 index){return val_array[index].t;}
@@ -1857,4 +1856,3 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 }
 
 
-#endif

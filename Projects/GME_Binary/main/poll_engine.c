@@ -14,7 +14,6 @@
  */
 #include "poll_engine.h"
 #include "binary_model.h"
-#include "mqtt.h"
 #include "utilities.h"
 
 #include "RTC_IS.h"
@@ -26,6 +25,7 @@
 #include "driver/gpio.h"
 #include "mb_m.h"
 
+#include "MQTT_Interface_CAREL.h"
 //#define __DEBUG_POLL_ENGINE_CAREL
 
 
@@ -1031,8 +1031,21 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 
 /* Description: send JSON msg via MQTT if any alarm's value is changed */
 
-static void send_js_alarm(uint16_t alias, alarm_read_t *data, uint8_t alarm_issue){
-	MQTT__Alarms( alias, data->start_time,  data->stop_time, alarm_issue);
+static void send_cbor_alarm(uint16_t alias, alarm_read_t *data, uint8_t alarm_issue){
+	c_cboralarms cbor_al;
+	cbor_al.st = data->start_time;
+	cbor_al.et = data->stop_time;
+	if (alarm_issue == 0){
+		cbor_al.aty = 2;
+		cbor_al.aco = 1;
+		strcpy((char*)cbor_al.ali, "");
+	}
+	else {
+		cbor_al.aty = 1;
+		cbor_al.aco = 0;
+		itoa(alias,(char*)cbor_al.ali,10);
+	}
+	MQTT_Alarms(cbor_al);// alias, data->start_time,  data->stop_time, alarm_issue);
 };
 
 
@@ -1096,7 +1109,7 @@ static void check_alarms_change(void)
 			HRAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == HRAlarmPollTab[i].data.send_flag){
-			send_js_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, CHANGED);
+	//		send_js_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, CHANGED);
 			PRINTF_POLL_ENG(("HR Alarm changed num %d \n ",i))
 			HRAlarmPollTab[i].data.send_flag = 0;
 		};

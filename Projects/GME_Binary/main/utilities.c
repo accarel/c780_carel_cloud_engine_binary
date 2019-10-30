@@ -8,7 +8,6 @@
 
 
 
-#include"mqtt.h"
 //#include "lwip/sockets.h"
 //#include "lwip/dns.h"
 //#include "lwip/netdb.h"
@@ -16,6 +15,7 @@
 #include "wifi.h"
 #include "nvm.h"
 #include "utilities.h"
+#include "MQTT_Interface_CAREL.h"
 
 static req_set_gw_config_t gw_config_data = {0};
 

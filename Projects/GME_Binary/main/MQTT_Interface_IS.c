@@ -134,6 +134,7 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 		.lwt_qos = 0,
 		.lwt_retain = 0,
 		.cert_pem = mqtt_cfg_nvm->cert_pem,
+		.task_stack = 8192,
 	};
 	
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);

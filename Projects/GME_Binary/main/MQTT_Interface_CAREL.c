@@ -13,20 +13,25 @@
 /* Includes ------------------------------------------------------------------*/
 #include "MQTT_Interface_CAREL.h"
 #include "MQTT_Interface_IS.h"
-
-#if 0
-
+#include "File_System_CAREL.h"
+#include "nvm.h"
+#include "wifi.h"
+#include "sys.h"
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
  */  
 C_BYTE mqtt_engine_status = MQTT_IS_NOT_CONNECTED;  
 
-static char* ServerCertificate = NULL;
+EventGroupHandle_t s_mqtt_event_group;
+const int MQTT_CONNECTED_BIT = BIT0;
+const int MQTT_DISCONNECTED_BIT = BIT1;
+
 static C_BYTE mqtt_init = 0;
 static C_MQTT_TOPIC mqtt_topic;
 static mqtt_times_t mqtt_time;
-
+static EventBits_t MQTT_BITS;
+#if 0
 /* Functions implementations -------------------------------------------------------*/
 
 /**
@@ -60,7 +65,7 @@ C_RES MQTT_Subscribe_Default_Topics(void)
 
 	return C_SUCCESS;
 }	
-
+#endif
 /**
  * @brief MQTT_Start
  *         
@@ -69,36 +74,34 @@ C_RES MQTT_Subscribe_Default_Topics(void)
  */
 C_RES MQTT_Start(void)
 {
-#if 0
-	printf("MQTT_Init\n");
+	PRINTF_DEBUG("MQTT_Init\n");
 
 	mqtt_config_t mqtt_cfg_nvm = {0};
-	
-	C_BYTE gw_config_status;
+	size_t pass_len = 0, user_len = 0;
+	uint8_t gw_config_status, mqtt_url;
 
-	/* FSC_ReadFile allocate dynamically using memmgr_alloc and return the pointer of the allocated space,
-	 * so we have to free the allocated space at the end of the function */
-	ServerCertificate = (char*) FSC_ReadFile(CERT_1);
+#if 0
+		if(ESP_OK == NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)
+			&& ESP_OK == NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)
+			&& ESP_OK == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 
-	if((Get_MQTT_username((C_SBYTE*)&mqtt_cfg_nvm.username) == C_SUCCESS) &&
-			(Get_MQTT_password((C_SBYTE*)&mqtt_cfg_nvm.password) == C_SUCCESS) &&
-			(Get_Gateway_Config(&gw_config_status) == C_SUCCESS) && CONFIGURED == gw_config_status){
+		size_t gw_config_len;
+		req_set_gw_config_t gw_config_nvm = {0};
 
-		C_URI mqtt_broker;
-		Get_MQTT_broker(&mqtt_broker);
-		C_UINT16 mqtt_port;
-		Get_MQTT_Port(&mqtt_port);
-		C_SCHAR mport[5];
-		Get_MQTT_keepalive(&mqtt_cfg_nvm.keepalive);
-		strcpy(mqtt_cfg_nvm.uri, mqtt_broker);
+		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&gw_config_len);
+
+		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
+		strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
 		strcat(mqtt_cfg_nvm.uri, ":");
-		strcat(mqtt_cfg_nvm.uri, itoa(mqtt_port, mport, 10));
+		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
 
-		printf("mqtt_configured\n");
+		PRINTF_DEBUG("mqtt_configured\n");
+
 	}else{
+
 		char mqtt_port_str[10] = {0};
 		sprintf(mqtt_port_str,"%d",MQTT_DEFAULT_PORT);
-		printf("mqtt_not_configured\n");
+		PRINTF_DEBUG("mqtt_not_configured\n");
 		strcpy(mqtt_cfg_nvm.uri, MQTT_DEFAULT_BROKER);
 		strcat(mqtt_cfg_nvm.uri, ":");
 		strcat(mqtt_cfg_nvm.uri, mqtt_port_str);
@@ -107,27 +110,66 @@ C_RES MQTT_Start(void)
 		mqtt_cfg_nvm.keepalive = MQTT_KEEP_ALIVE_DEFAULT_SEC;
 	}
 
-	printf("uri=%s\n",mqtt_cfg_nvm.uri);
-	printf("username=%s\n",mqtt_cfg_nvm.username);
-	printf("password=%s\n",mqtt_cfg_nvm.password);
-	printf("keepalive=%d\n",mqtt_cfg_nvm.keepalive);
-
-	strcpy((C_SCHAR*)mqtt_cfg_nvm.cert_pem, ServerCertificate);
-
-	//WiFi__WaitConnection();		//TODO
-#ifdef MQTT_DEBUG
-	C_UINT32 free;
-	Get_freememory(&free);
-    DEBUG_MQTT("[APP] Free memory: %ld bytes", free);
-#endif
-    mqtt_client_init(&mqtt_cfg_nvm);
-    return mqtt_client_start();
 
 #else
-    return 0;
+
+	char mqtt_port_str[10] = {0};
+	sprintf(mqtt_port_str,"%d",MQTT_DEFAULT_PORT);
+	//PRINTF_DEBUG("mqtt_not_configured\n");
+	strcpy(mqtt_cfg_nvm.uri, MQTT_DEFAULT_BROKER);
+	strcat(mqtt_cfg_nvm.uri, ":");
+	strcat(mqtt_cfg_nvm.uri, mqtt_port_str);
+	mqtt_cfg_nvm.keepalive = MQTT_KEEP_ALIVE_DEFAULT_SEC;
+
+
+	if(C_SUCCESS != NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)
+		|| C_SUCCESS != NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)){
+		printf("mqtt user pass check default \n");
+		strcpy(mqtt_cfg_nvm.username, MQTT_DEFAULT_USER);
+		strcpy(mqtt_cfg_nvm.password, MQTT_DEFAULT_PWD);
+	}
+
+	if(C_SUCCESS == NVM__ReadU8Value(MQTT_URL, &mqtt_url) && CONFIGURED == mqtt_url){
+		printf("mqtt url port check ok \n");
+		strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
+		strcat(mqtt_cfg_nvm.uri, ":");
+		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
+	}
+
+	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
+		size_t gw_config_len;
+		req_set_gw_config_t gw_config_nvm = {0};
+		printf("mqtt keepalive val check ok \n");
+		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&gw_config_len);
+
+		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
+	}
 #endif
 
+	mqtt_cfg_nvm.cert_pem = Sys__GetCert(CERT_1);
+	PRINTF_DEBUG("uri= %s\n",mqtt_cfg_nvm.uri);
+	PRINTF_DEBUG("username= %s\n",mqtt_cfg_nvm.username);
+	PRINTF_DEBUG("password= %s\n",mqtt_cfg_nvm.password);
+	PRINTF_DEBUG("keepalive= %d\n",mqtt_cfg_nvm.keepalive);
 
+    WiFi__WaitConnection();
+    s_mqtt_event_group = xEventGroupCreate();
+
+    mqtt_client_init(&mqtt_cfg_nvm);
+    C_RES err = mqtt_client_start();
+
+    MQTT_BITS = xEventGroupWaitBits(s_mqtt_event_group, MQTT_CONNECTED_BIT | MQTT_DISCONNECTED_BIT, true, false, 30000/portTICK_RATE_MS);
+
+    if( ( MQTT_BITS & MQTT_DISCONNECTED_BIT ) != 0 ){
+
+    	err = mqtt_client_stop();
+		mqtt_cfg_nvm.cert_pem = Sys__GetCert(CERT_2);
+	//	memset((void*)mqtt_client,0,sizeof(esp_mqtt_client_handle_t));
+		mqtt_client_init(&mqtt_cfg_nvm);
+		err = mqtt_client_start();
+    }
+
+    return err;
 }
 
 /**
@@ -146,7 +188,7 @@ void MQTT_Stop(void)
 {
 	printf("mqtt_stop\n");
 	mqtt_client_stop();
-
+	vEventGroupDelete(s_mqtt_event_group);
 }
 
 void MQTT_Status(void)
@@ -202,6 +244,7 @@ C_RES EventHandler(mqtt_client_config_t event)
     switch (event.event_id) {
         case MQTT_EVENT_CONNECTED:
 
+        	xEventGroupSetBits(s_mqtt_event_group, MQTT_CONNECTED_BIT);
 
             DEBUG_MQTT("MQTT_EVENT_CONNECTED");
             msg_id = mqtt_client_subscribe((C_SCHAR*)MQTT_GetUuidTopic("/req"), 0);
@@ -213,17 +256,20 @@ C_RES EventHandler(mqtt_client_config_t event)
             if(0 == mqtt_init)
 			{
 				CBOR_SendHello();
-            	mqtt_init = 1;
+				MQTT_Status();
+				mqtt_init = 1;
+            	mqtt_time.cbor_status = RTC_Get_UTC_Current_Time();
+				mqtt_time.cbor_values = RTC_Get_UTC_Current_Time();
     		}
 
         	break;
         case MQTT_EVENT_DISCONNECTED:
+        	xEventGroupSetBits(s_mqtt_event_group, MQTT_DISCONNECTED_BIT);
             DEBUG_MQTT("MQTT_EVENT_DISCONNECTED");
             break;
 
         case MQTT_EVENT_SUBSCRIBED:
             DEBUG_MQTT("MQTT_EVENT_SUBSCRIBED, msg_id=%d", event.msg_id);
-
             break;
         case MQTT_EVENT_UNSUBSCRIBED:
             DEBUG_MQTT("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event.msg_id);
@@ -265,4 +311,6 @@ C_RES EventHandler(mqtt_client_config_t event)
 	return C_SUCCESS;
 }
 
-#endif
+C_BYTE MQTT_GetFlags(void){
+	return mqtt_init;
+}

@@ -50,6 +50,42 @@ typedef struct mqtt_timing_s{
 }mqtt_times_t;
 #pragma pack()
 
+/*****************
+* Cloud to GME
+*****************/
+#pragma pack(1)
+typedef struct req_set_gw_config_s{
+	char hostname[20];
+	uint32_t valuesPeriod;
+	uint32_t statusPeriod;
+	uint32_t mqttKeepAliveInterval;
+	uint32_t lowspeedsamplevalue;
+	uint32_t hispeedsamplevalue;
+}req_set_gw_config_t;
+#pragma pack()
+
+#pragma pack(1)
+typedef struct req_download_devs_config_s{
+	char *username;
+	char *password;
+	char *uri;
+}req_download_devs_config_t;
+#pragma pack()
+
+typedef req_download_devs_config_t req_update_ca_cert_t;
+
+#pragma pack(1)
+typedef struct req_update_dev_fw_s{
+	char *username;
+	char *password;
+	char *uri;
+	uint32_t file_index;
+	uint32_t sec_to_wait;
+}req_update_dev_fw_t;
+#pragma pack()
+
+
+
 /* Exported constants --------------------------------------------------------*/
 
 #define QOS_0 	0
@@ -82,6 +118,8 @@ void MQTT__FlushValues(void);
 C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic);
 C_RES EventHandler(mqtt_client_config_t event);
 void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len);
+C_BYTE MQTT_GetFlags(void);
+
 #ifdef __cplusplus
 }
 #endif
