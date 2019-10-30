@@ -20,6 +20,9 @@
 #include "nvm.h"
 #include "binary_model.h"
 
+
+#if 0
+
 /* Exported types ------------------------------------------------------------*/
 
 
@@ -1852,3 +1855,6 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 	}
 	return result;
 }
+
+
+#endif

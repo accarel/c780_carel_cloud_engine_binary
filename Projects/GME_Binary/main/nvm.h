@@ -16,7 +16,9 @@
 #define SET_GW_PARAM_NVM "set_gw_param"
 #define SET_LINE_CONFIG_NVM	"set_line"
 #define MB_BAUDRATE_NVM	"mb_baud"
-#define SET_DEVS_CONFIG	"set_dev_conf"
+#define SET_DEVS_CONFIG_NVM	"set_dev_conf"
+#define MB_CONNECTOR_NVM "mb_conn"
+
 
 #define MQTT_USER "mqtt_user"
 #define MQTT_PASS "mqtt_pass"

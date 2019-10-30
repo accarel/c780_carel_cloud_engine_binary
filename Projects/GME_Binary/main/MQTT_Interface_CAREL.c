@@ -14,6 +14,7 @@
 #include "MQTT_Interface_CAREL.h"
 #include "MQTT_Interface_IS.h"
 
+#if 0
 
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
@@ -68,6 +69,7 @@ C_RES MQTT_Subscribe_Default_Topics(void)
  */
 C_RES MQTT_Start(void)
 {
+#if 0
 	printf("MQTT_Init\n");
 
 	mqtt_config_t mqtt_cfg_nvm = {0};
@@ -120,6 +122,11 @@ C_RES MQTT_Start(void)
 #endif
     mqtt_client_init(&mqtt_cfg_nvm);
     return mqtt_client_start();
+
+#else
+    return 0;
+#endif
+
 
 }
 
@@ -257,3 +264,5 @@ C_RES EventHandler(mqtt_client_config_t event)
     	
 	return C_SUCCESS;
 }
+
+#endif

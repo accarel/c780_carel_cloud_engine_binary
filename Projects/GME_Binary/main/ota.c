@@ -23,9 +23,9 @@
 #include "esp_partition.h"
 #include "ota.h"
 #include "wifi.h"
-#include "js_msgs_hndlr.h"
+
 #include "file_system.h"
-#include "js_msgs_hndlr.h"
+
 #include "poll_engine.h"
 #include "sys.h"
 
@@ -72,6 +72,7 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 
 void GME_ota_task(void * pvParameter)
 {
+#if 0
     ESP_LOGI(TAG, "Starting OTA ...");
     /* Wait for the callback to set the CONNECTED_BIT in the
        event group.
@@ -112,6 +113,7 @@ void GME_ota_task(void * pvParameter)
     	//Send true to ota group to send the res and restart gme
     	JSON__OTAGroup(true);
     }
+#endif
 }
 
 
@@ -142,7 +144,7 @@ esp_err_t UpdateDevFirmware(uint8_t *fw_chunk, uint16_t ch_size, uint16_t file_n
 	record_data_reg_no = ch_size * 2;
 	packet_len = record_data_reg_no + MAX_HEADER_BYTES + 2;		// + 2 for crc
 
-	data_tx = memmgr_alloc(packet_len);
+	data_tx = malloc(packet_len);
 	memset((void*)data_tx, 0, packet_len);
 
 	data_tx[SLAVE_ADD] = 0x01;
@@ -207,7 +209,7 @@ esp_err_t UpdateDevFirmware(uint8_t *fw_chunk, uint16_t ch_size, uint16_t file_n
 		}
 	}*/
 
-	memmgr_free(data_tx);
+	free(data_tx);
 
 	return err;
 
@@ -223,7 +225,7 @@ esp_err_t OTA__DevFWInit(req_update_dev_fw_t *dev_fw_config){
 
 
 	uint16_t url_len = strlen(dev_fw_config->uri) + strlen(dev_fw_config->password) + strlen(dev_fw_config->username);
-	char *url = memmgr_alloc(url_len + 5);
+	char *url = malloc(url_len + 5);
 	memset((void*)url, 0, url_len);
 
 	sprintf(url,"%.*s%s:%s@%s",8,dev_fw_config->uri,dev_fw_config->username,dev_fw_config->password,dev_fw_config->uri+8);
@@ -248,7 +250,7 @@ esp_err_t OTA__DevFWInit(req_update_dev_fw_t *dev_fw_config){
 		if ((err = esp_http_client_open(client, 0)) != ESP_OK) {
 
 			ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
-			memmgr_free(url);
+			free(url);
 			return ESP_FAIL;
 		}
 	}
@@ -261,7 +263,7 @@ esp_err_t OTA__DevFWInit(req_update_dev_fw_t *dev_fw_config){
 	int chunk_size = DEV_OTA_BUF_SIZE;
 	bool new_file=false;
 
-	upgrade_data_buf = (uint8_t *)memmgr_alloc(DEV_OTA_BUF_SIZE);
+	upgrade_data_buf = (uint8_t *)malloc(DEV_OTA_BUF_SIZE);
 	memset((void*)upgrade_data_buf, 0, DEV_OTA_BUF_SIZE * sizeof(uint8_t));
 
 	int content_length =  esp_http_client_fetch_headers(client);
@@ -327,8 +329,8 @@ esp_err_t OTA__DevFWInit(req_update_dev_fw_t *dev_fw_config){
 //	ClearQueueMB();
 //	mbc_master_resume();
 
-	memmgr_free(url);
-	memmgr_free(upgrade_data_buf);
+	free(url);
+	free(upgrade_data_buf);
 	return err;
 }
 

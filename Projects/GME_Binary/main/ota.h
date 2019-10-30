@@ -8,7 +8,8 @@
 #ifndef MAIN_OTA_H_
 #define MAIN_OTA_H_
 #include"common.h"
-#include"js_types.h"
+
+#include "mqtt.h"
 
 #pragma pack(1)
 typedef struct mb_write_file_record_s {

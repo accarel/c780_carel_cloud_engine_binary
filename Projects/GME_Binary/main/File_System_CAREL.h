@@ -77,6 +77,7 @@ typedef struct model_file{
 
 }model_file;
 
+#if 0
 /* Function prototypes -------------------------------------------------------*/
 C_INT32 FSC_filesize(const C_CHAR *fname);
 C_RES FSC_file_checksum_check(C_CHAR *fname);
@@ -95,6 +96,8 @@ C_RES File_System_Model_Check(C_CHAR* name);
 C_RES File_System_Model_Load(C_CHAR* name);
 C_RES File_System_DefaultModel_Load(void);
 C_RES File_System_Model_Store(void);
+
+#endif
 
 C_RES Get_Device_Address(C_UINT16* device);
 C_RES Get_Guid(C_BYTE* Guid);
@@ -128,6 +131,9 @@ C_RES Get_StatusPeriod(C_UINT16* pst);
 
 C_UINT16 Get_DB_index(void);
 C_UINT16 Get_DB_number(void);
+
+
+
 #ifdef __cplusplus
 }
 #endif

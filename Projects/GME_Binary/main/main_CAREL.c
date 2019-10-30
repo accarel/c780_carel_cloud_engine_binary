@@ -175,7 +175,7 @@ void Carel_Main_Task(void)
 			WiFi__WaitConnection();
 
 			//Init_RTC();
-			retval = RTC_Init();							// Carel
+			retval = RTC_Init("TIME",0);							// Carel
 			CAREL_CHECK(retval, "TIME");
 
 			Sys__CertAlloc();
@@ -196,7 +196,7 @@ void Carel_Main_Task(void)
 
 			NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status);
 			NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
-			NVM__ReadU8Value(SET_DEVS_CONFIG, &devs_config_status);
+			NVM__ReadU8Value(SET_DEVS_CONFIG_NVM, &devs_config_status);
 
 			if(( CONFIGURED == gw_config_status &&
 				 CONFIGURED == line_config_status &&
@@ -222,7 +222,7 @@ void Carel_Main_Task(void)
         	if(Get_UTC_Current_Time() > waiting_conf_timer + WAITING_CONF_COUNTER){
         		NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status);
         		NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
-        		NVM__ReadU8Value(SET_DEVS_CONFIG, &devs_config_status);
+        		NVM__ReadU8Value(SET_DEVS_CONFIG_NVM, &devs_config_status);
 
 				if(	CONFIGURED == gw_config_status &&			//Set_GW_config
 					CONFIGURED == line_config_status &&			//Set_Line_config

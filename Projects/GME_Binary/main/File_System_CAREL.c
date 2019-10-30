@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include "data_types_CAREL.h"
 #include "File_System_CAREL.h"
-      
+
+
+#if 0
 
 /* Defines  ------------------------------------------------------------------*/
 #define CRC_RESET_ENGINE 1
@@ -648,3 +650,7 @@ C_UINT16 Get_DB_number(void)
 {
 	return 1;
 }
+
+
+
+#endif

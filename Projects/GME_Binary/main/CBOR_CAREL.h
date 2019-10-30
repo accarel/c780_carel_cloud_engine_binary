@@ -184,6 +184,8 @@ typedef struct db_values{
 	c_cborvals vls[VLS_NUMBER];
 }db_values;
 
+#if 0
+
 /*----------------------------------------------------------------------------------------*/
 size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms);
 void CBOR_SendAlarms(c_cboralarms cbor_alarms);
@@ -224,6 +226,9 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
 C_INT16 execute_scan_devices(C_BYTE* data_rx);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
+
+
+#endif
 
 #ifdef __cplusplus
 }
