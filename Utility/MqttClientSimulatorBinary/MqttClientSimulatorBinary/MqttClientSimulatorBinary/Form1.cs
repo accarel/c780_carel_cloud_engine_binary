@@ -40,7 +40,7 @@ namespace MqttClientSimulatorBinary
 
     public partial class Form1 : Form
     {
-        const string JSON_VALIDATOR = "https://jsonformatter.curiousconcept.com/";
+        const string JSON_VALIDATOR = "http://cbor.me/";
         // "https://jsonformatter.org/";    
         // "https://jsonformatter.curiousconcept.com/"
 
@@ -109,6 +109,8 @@ namespace MqttClientSimulatorBinary
         
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
+            Save_Last_Used_Values();
+
             if (MQTT_Connect == true)
             {
                 client.Disconnect();
@@ -134,6 +136,7 @@ namespace MqttClientSimulatorBinary
         private void Form1_Load(object sender, EventArgs e)
         {
             Debug.WriteLine("MessageId 1");
+            Load_Last_Used_Values();
         }
 
 
@@ -1096,8 +1099,11 @@ namespace MqttClientSimulatorBinary
 
         private void Button_JSON_Validate_Pub_Click(object sender, EventArgs e)
         {
-            MessageBoxInfo("use CTRL-V to paste the JSON", "Info");
-            System.Windows.Forms.Clipboard.SetText(textBoxPublish.Text);
+            MessageBoxInfo("use CTRL-V to paste the CBOR", "Info");
+            if (textBoxPublish.Text != "")
+            {
+              System.Windows.Forms.Clipboard.SetText(textBoxPublish.Text);
+            }
             System.Diagnostics.Process.Start(JSON_VALIDATOR);
             //SendKeys.Send("^V");
         }
@@ -1225,6 +1231,97 @@ namespace MqttClientSimulatorBinary
         {
 
         }
+
+
+
+        private void Save_Last_Used_Values()
+        {
+            string cfg_file;
+            string val;
+            
+            cfg_file = @"MqttClientSimulatorBinary_Last_Set.ini";
+            
+            var MyIni = new IniFile(cfg_file);
+
+            MyIni.Write("Server", textBoxMQTT_Server_URL.Text);
+            MyIni.Write("Port", textBoxMQTT_Server_Port.Text);
+
+            if (checkBox_TLS.Checked == true)
+            {
+                MyIni.Write("TLS", "1");
+            }
+            else
+            {
+                MyIni.Write("TLS", "0");
+            }
+
+
+            MyIni.Write("Target", textBox_Target.Text);
+
+            if (checkBox_Cfg_Dbg_Rel.Checked == true)
+            {
+                val = @"1";
+            }
+            else
+            {
+                val = @"0";
+            }
+
+            if (checkBox_Cfg_Dbg_Rel.Checked == true)
+                MyIni.Write("DBGREL", @"1");
+            else
+                MyIni.Write("DBGREL", @"0");
+        }
+
+
+        private void Load_Last_Used_Values()
+        {
+            String cfg_file;
+            String val;
+            string par_val;
+
+            cfg_file = @"MqttClientSimulatorBinary_Last_Set.ini";
+
+            var MyIni = new IniFile(cfg_file);
+
+            par_val = MyIni.Read("Server");
+            textBoxMQTT_Server_URL.Text = par_val;
+
+            par_val = MyIni.Read("Port");
+            textBoxMQTT_Server_Port.Text = par_val;
+
+            par_val = MyIni.Read("TLS");
+
+            if (par_val.Equals("1"))
+            {
+                checkBox_TLS.Checked = true;
+            }
+            else
+            {
+                checkBox_TLS.Checked = false;
+            }
+
+
+            par_val = MyIni.Read("Target");
+            textBox_Target.Text = par_val;
+
+            val = MyIni.Read("DBGREL");
+
+
+            if (val == @"1")
+            {
+                checkBox_Cfg_Dbg_Rel.Checked = true;
+            }
+            else
+            {
+                checkBox_Cfg_Dbg_Rel.Checked = false;
+            }
+
+
+
+
+        }
+
 
         private void Button_Load_settings_Click(object sender, EventArgs e)
         {

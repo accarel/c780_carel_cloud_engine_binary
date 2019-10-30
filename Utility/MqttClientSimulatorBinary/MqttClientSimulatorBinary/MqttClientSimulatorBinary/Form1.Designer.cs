@@ -205,7 +205,7 @@
             this.txtConsole.AcceptsReturn = true;
             this.txtConsole.AcceptsTab = true;
             this.txtConsole.Location = new System.Drawing.Point(20, 378);
-            this.txtConsole.Margin = new System.Windows.Forms.Padding(2);
+            this.txtConsole.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.txtConsole.Multiline = true;
             this.txtConsole.Name = "txtConsole";
             this.txtConsole.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -391,7 +391,7 @@
             this.groupBox1.Controls.Add(this.buttonUpdate_gw_firmware);
             this.groupBox1.Controls.Add(this.buttonUpdate_ca_cerficates);
             this.groupBox1.Controls.Add(this.buttonChangeCredential);
-            this.groupBox1.Location = new System.Drawing.Point(719, 109);
+            this.groupBox1.Location = new System.Drawing.Point(686, 109);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(214, 445);
             this.groupBox1.TabIndex = 22;
@@ -401,7 +401,7 @@
             // button_stop_engine
             // 
             this.button_stop_engine.Location = new System.Drawing.Point(109, 62);
-            this.button_stop_engine.Margin = new System.Windows.Forms.Padding(2);
+            this.button_stop_engine.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button_stop_engine.Name = "button_stop_engine";
             this.button_stop_engine.Size = new System.Drawing.Size(98, 36);
             this.button_stop_engine.TabIndex = 20;
@@ -412,7 +412,7 @@
             // button_start_engine
             // 
             this.button_start_engine.Location = new System.Drawing.Point(110, 19);
-            this.button_start_engine.Margin = new System.Windows.Forms.Padding(2);
+            this.button_start_engine.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.button_start_engine.Name = "button_start_engine";
             this.button_start_engine.Size = new System.Drawing.Size(98, 36);
             this.button_start_engine.TabIndex = 19;
@@ -475,7 +475,7 @@
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.textBox_HR_Val);
             this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Location = new System.Drawing.Point(408, 109);
+            this.groupBox2.Location = new System.Drawing.Point(375, 109);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Size = new System.Drawing.Size(146, 281);
             this.groupBox2.TabIndex = 24;
@@ -699,7 +699,7 @@
             this.groupBox3.Controls.Add(this.label21);
             this.groupBox3.Controls.Add(this.textBox_MB_COIL_Val);
             this.groupBox3.Controls.Add(this.label22);
-            this.groupBox3.Location = new System.Drawing.Point(408, 405);
+            this.groupBox3.Location = new System.Drawing.Point(375, 405);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(146, 151);
             this.groupBox3.TabIndex = 44;
@@ -1164,7 +1164,7 @@
             this.groupBox7.Controls.Add(this.label42);
             this.groupBox7.Controls.Add(this.textBox_MB_DI_R_Func);
             this.groupBox7.Controls.Add(this.label43);
-            this.groupBox7.Location = new System.Drawing.Point(567, 404);
+            this.groupBox7.Location = new System.Drawing.Point(534, 404);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Size = new System.Drawing.Size(146, 151);
             this.groupBox7.TabIndex = 47;
@@ -1371,7 +1371,7 @@
             this.groupBox8.Controls.Add(this.label36);
             this.groupBox8.Controls.Add(this.label44);
             this.groupBox8.Controls.Add(this.label45);
-            this.groupBox8.Location = new System.Drawing.Point(567, 109);
+            this.groupBox8.Location = new System.Drawing.Point(534, 109);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Size = new System.Drawing.Size(146, 281);
             this.groupBox8.TabIndex = 45;
@@ -1557,7 +1557,7 @@
             this.button_JSON_Validate_Resp.Name = "button_JSON_Validate_Resp";
             this.button_JSON_Validate_Resp.Size = new System.Drawing.Size(89, 34);
             this.button_JSON_Validate_Resp.TabIndex = 48;
-            this.button_JSON_Validate_Resp.Text = "JSON Validate";
+            this.button_JSON_Validate_Resp.Text = "CBOR WEB";
             this.button_JSON_Validate_Resp.UseVisualStyleBackColor = true;
             this.button_JSON_Validate_Resp.Click += new System.EventHandler(this.Button_JSON_Validate_Resp_Click);
             // 
@@ -1567,7 +1567,7 @@
             this.button_JSON_Validate_Pub.Name = "button_JSON_Validate_Pub";
             this.button_JSON_Validate_Pub.Size = new System.Drawing.Size(89, 34);
             this.button_JSON_Validate_Pub.TabIndex = 49;
-            this.button_JSON_Validate_Pub.Text = "JSON Validate";
+            this.button_JSON_Validate_Pub.Text = "CBOR WEB";
             this.button_JSON_Validate_Pub.UseVisualStyleBackColor = true;
             this.button_JSON_Validate_Pub.Click += new System.EventHandler(this.Button_JSON_Validate_Pub_Click);
             // 
@@ -1642,7 +1642,7 @@
             // 
             // textBox_Message
             // 
-            this.textBox_Message.Location = new System.Drawing.Point(939, 355);
+            this.textBox_Message.Location = new System.Drawing.Point(913, 355);
             this.textBox_Message.Multiline = true;
             this.textBox_Message.Name = "textBox_Message";
             this.textBox_Message.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
@@ -1671,19 +1671,19 @@
             // 
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
-            this.textBox_Resp_Hash.Location = new System.Drawing.Point(938, 113);
-            this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(2);
+            this.textBox_Resp_Hash.Location = new System.Drawing.Point(912, 113);
+            this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_Resp_Hash.Size = new System.Drawing.Size(344, 212);
+            this.textBox_Resp_Hash.Size = new System.Drawing.Size(388, 212);
             this.textBox_Resp_Hash.TabIndex = 55;
             this.textBox_Resp_Hash.Text = "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
             // 
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(939, 97);
+            this.label50.Location = new System.Drawing.Point(913, 97);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(75, 13);
             this.label50.TabIndex = 57;
@@ -1710,7 +1710,7 @@
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(939, 339);
+            this.label51.Location = new System.Drawing.Point(913, 339);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(30, 13);
             this.label51.TabIndex = 60;
@@ -1733,7 +1733,7 @@
             // button_Save_settings
             // 
             this.button_Save_settings.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
-            this.button_Save_settings.Location = new System.Drawing.Point(1142, 4);
+            this.button_Save_settings.Location = new System.Drawing.Point(1246, 7);
             this.button_Save_settings.Name = "button_Save_settings";
             this.button_Save_settings.Size = new System.Drawing.Size(54, 29);
             this.button_Save_settings.TabIndex = 62;
@@ -1782,7 +1782,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1369, 596);
+            this.ClientSize = new System.Drawing.Size(1326, 605);
             this.Controls.Add(this.checkBox_Split_Resp);
             this.Controls.Add(this.checkBox_Cfg_Dbg_Rel);
             this.Controls.Add(this.button_Load_settings);
@@ -1817,7 +1817,7 @@
             this.Controls.Add(this.txtConsole);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2);
+            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
             this.Name = "Form1";
             this.Text = "IoT Server Simulator Binary Edition V.1.2";
             this.Load += new System.EventHandler(this.Form1_Load);
