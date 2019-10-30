@@ -91,8 +91,7 @@ void app_main(void)  // main_Carel
 
   }
   */
-	MQTT_Start();
-
+  
   xTaskCreate(Carel_Main_Task, "Carel_Task", 3*(CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE+512), NULL, tskIDLE_PRIORITY, NULL );
 
 }
