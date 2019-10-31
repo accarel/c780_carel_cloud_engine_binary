@@ -41,8 +41,8 @@ C_CHAR txbuff[1000];
  */
 void CBOR_SendAlarms(c_cboralarms cbor_alarms)
 {
-	CBOR_Alarms(txbuff, cbor_alarms);
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, 0, 0, 0);
+	size_t len = CBOR_Alarms(txbuff, cbor_alarms);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, len, 0, 0);
 }
 
 /**
@@ -112,8 +112,8 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
  */
 void CBOR_SendHello(void)
 {
-	CBOR_Hello(txbuff);
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, 0, 1, 1);
+	size_t len = CBOR_Hello(txbuff);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, len, 1, 1);
 }
 
 /**
@@ -217,8 +217,8 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
  */
 void CBOR_SendStatus(void)
 {
-	CBOR_Status(txbuff);
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/status"), (C_SBYTE*)txbuff, 0, 0, 0);
+	size_t len = CBOR_Status(txbuff);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/status"), (C_SBYTE*)txbuff, len, 0, 0);
 }
 
 /**
@@ -305,7 +305,7 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 {
 	C_CHAR mybuf[500];
 
-	CBOR_Values(mybuf, index, number, frame);
+	size_t len = CBOR_Values(mybuf, index, number, frame);
 	#if 0
 	size_t len = CBOR_Values(mybuf, index, number, frame);
 	printf("valuespkt len %d: \n", len);
@@ -319,7 +319,7 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 	}
 	printf("\n");
 	#endif
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, 0, 0, 0);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, len, 0, 0);
 }
 
 /**
