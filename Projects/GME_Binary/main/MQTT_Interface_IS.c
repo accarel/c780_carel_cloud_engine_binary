@@ -65,7 +65,7 @@ C_RES mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qo
 {
 	C_RES err;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	err = esp_mqtt_client_publish(MQTT__GetClient(), (C_SCHAR*)MQTT_GetUuidTopic("/connected"), (C_SCHAR*)data, len, qos, retain);
+	err = esp_mqtt_client_publish(MQTT__GetClient(), topic, (C_SCHAR*)data, len, qos, retain);
 #endif
 	return err;	
 }
