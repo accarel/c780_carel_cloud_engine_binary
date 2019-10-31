@@ -11,16 +11,10 @@ xxxxx_IS.h
 
 this files are (I)mplementation (S)pecific that means that the
 routine inside must be implemented/completed to support the 
-specific HW platform.
+specific target HW platform.
 
 xxxxx_CAREL.c
 xxxxx_CAREL.h
 
 this files are developed by CAREL, is the library, and you don't 
 need to modify at all.
-
-
-
-
-
-
