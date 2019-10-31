@@ -17,6 +17,7 @@
 #include "nvm.h"
 #include "wifi.h"
 #include "sys.h"
+#include "utilities.h"
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
