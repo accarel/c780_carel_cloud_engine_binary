@@ -183,7 +183,10 @@ void Carel_Main_Task(void)
 			//Init_RTC();
 			retval = RTC_Init("TIME",0);							// Carel
 			CAREL_CHECK(retval, "TIME");
-
+			
+			//Set boot time
+			RTC_Set_UTC_Boot_Time();
+			
 			Sys__CertAlloc();
 
 			sm = GME_CHECK_GW_CONFIG;
