@@ -182,14 +182,6 @@ uint32_t Get_UTC_Current_Time(void)
 
 }
 
-uint32_t Get_last_boot_time(void){
-	return last_boot_time;
-}
-
-void Set_last_boot_time(void){
-	last_boot_time = Get_UTC_Current_Time();
-}
-
 void Update_RTC (void)
 {
 //TODO
