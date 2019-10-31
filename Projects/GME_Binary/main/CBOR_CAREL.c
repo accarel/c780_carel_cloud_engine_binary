@@ -163,28 +163,29 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	// encode bau - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "bau");
 	C_UINT32 baud_rate;
-	Get_RS485_BaudRate(&baud_rate);
-	err |= cbor_encode_uint(&mapEncoder, baud_rate);
+	if(C_SUCCESS == NVM__ReadU32Value(MB_BAUDRATE_NVM, &baud_rate)){
+    	err |= cbor_encode_uint(&mapEncoder, baud_rate);
+    }else{
+    	err |= cbor_encode_uint(&mapEncoder, 0);
+    }
 	DEBUG_ADD(err, "baud rate");
 
 	// encode mqv - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "mqv");
-	C_BYTE MQTTver[3] = {3, 1, 1};
+	C_BYTE MQTTver[3] = {3, 1, 1};							// todo maybe the version could be found somewhere...
 	err |= cbor_encode_byte_string(&mapEncoder, MQTTver, 3);
 	DEBUG_ADD(err, "mqttversion");
 
 	// encode dev - elem8
 	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
-	C_UINT16 device_address;
-	Get_Device_Address(&device_address);
+	C_UINT16 device_address = 1;	//same as done by Arsanius
+	//Get_Device_Address(&device_address);
 	err |= cbor_encode_uint(&mapEncoder, device_address);
 	DEBUG_ADD(err, "dev");
 
 	// encode gid - elem9
 	err |= cbor_encode_text_stringz(&mapEncoder, "gid");
-	C_BYTE Guid[16];
-	Get_Guid(Guid);
-	err |= cbor_encode_byte_string(&mapEncoder, Guid, 16);
+	err |= cbor_encode_byte_string(&mapEncoder, BinaryModel__GetHeaderptr(), 16);
 	DEBUG_ADD(err, "guid");
 
 	//encode crc - elem10
@@ -195,15 +196,20 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	//encode cid - elem11
 	err |= cbor_encode_text_stringz(&mapEncoder, "cid");
-	C_UINT16 cid=0;														// to be implemented
-	err |= cbor_encode_uint(&mapEncoder, cid);
+	C_UINT16 cid=0;
+	if(C_SUCCESS == NVM__ReadU32Value(MB_CID_NVM, &cid)){
+	   	err |= cbor_encode_uint(&mapEncoder, cid);
+	}else{
+	   	err |= cbor_encode_uint(&mapEncoder, 0);
+	}
 	DEBUG_ADD(err, "cid");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
-
+	for(int i=0; i<len; i++)
+	printf("%x\n", cbor_stream[i]);
 	return len;
 }
 
@@ -247,14 +253,12 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	// encode t - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "t");
 	C_TIME t = RTC_Get_UTC_Current_Time();
-	t=1571216311;
 	err |= cbor_encode_uint(&mapEncoder, t);
 	DEBUG_ADD(err, "t");
 
 	// encode upt - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "upt");
-	//err |= cbor_encode_uint(&mapEncoder, t - RTC_Get_UTC_Boot_Time());
-	err |= cbor_encode_uint(&mapEncoder, 347);
+	err |= cbor_encode_uint(&mapEncoder, t - RTC_Get_UTC_Boot_Time());
 	DEBUG_ADD(err, "upt");
 
 	// encode fme -elem4
@@ -265,8 +269,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 
 	// encode est -elem5
 	err |= cbor_encode_text_stringz(&mapEncoder, "est");
-	//err |= cbor_encode_uint(&mapEncoder, Get_Polling_Status());
-	err |= cbor_encode_uint(&mapEncoder, 1);
+	err |= cbor_encode_uint(&mapEncoder, PollEngine__GetEngineStatus());
 	DEBUG_ADD(err,"est");
 
 	// encode sgn -elem6
@@ -356,14 +359,13 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	// encode btm - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "btm");
-	//C_TIME t = RTC_Get_UTC_Boot_Time();
-	C_TIME t = 1571220602;
+	C_TIME t = RTC_Get_UTC_Boot_Time();
 	err |= cbor_encode_uint(&mapEncoder, t);
 	DEBUG_ADD(err, "btm");
 
 	// encode t - elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "t");
-	t = Get_SamplingTime(index);
+	t = RTC_Get_UTC_Current_Time();
 	err |= cbor_encode_uint(&mapEncoder, t);
 	DEBUG_ADD(err, "t");
 

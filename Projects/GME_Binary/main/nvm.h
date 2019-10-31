@@ -18,7 +18,7 @@
 #define MB_BAUDRATE_NVM	"mb_baud"
 #define SET_DEVS_CONFIG_NVM	"set_dev_conf"
 #define MB_CONNECTOR_NVM "mb_conn"
-
+#define MB_CID_NVM "cid"
 
 #define MQTT_USER "mqtt_user"
 #define MQTT_PASS "mqtt_pass"
