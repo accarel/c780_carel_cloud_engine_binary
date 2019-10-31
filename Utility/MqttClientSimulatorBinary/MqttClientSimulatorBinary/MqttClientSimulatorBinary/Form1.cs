@@ -255,39 +255,51 @@ namespace MqttClientSimulatorBinary
             //    txtConsole.Invoke(new Action(() => txtConsole.AppendText(payload + Environment.NewLine)));
             //}
             CBORObject cbor_rx;
-            cbor_rx = CBORObject.DecodeFromBytes(e.Message);
-                                          
-            //BILATO receive the CBOR payload
-            
-            if ((targer_topic_for_me == true))
-            {
-                //payload = Encoding.UTF8.GetString(e.Message);
-                //txtConsole.Invoke(new Action(() => txtConsole.AppendText(payload + Environment.NewLine)));
 
-                if (checkBox_Split_Resp.Checked == true)
-                {                   
-                    string data = cbor_rx.ToString();                    
-                    string[] words = data.Split(',');
-                    foreach (string word in words)
-                    {                      
-                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(word + Environment.NewLine)));
+            try
+            {
+                cbor_rx = CBORObject.DecodeFromBytes(e.Message);
+
+                if ((targer_topic_for_me == true))
+                {
+                    //payload = Encoding.UTF8.GetString(e.Message);
+                    //txtConsole.Invoke(new Action(() => txtConsole.AppendText(payload + Environment.NewLine)));
+
+                    if (checkBox_Split_Resp.Checked == true)
+                    {
+                        string data = cbor_rx.ToString();
+                        string[] words = data.Split(',');
+                        foreach (string word in words)
+                        {
+                            txtConsole.Invoke(new Action(() => txtConsole.AppendText(word + Environment.NewLine)));
+                        }
                     }
+                    else
+                    {
+                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(cbor_rx.ToString() + Environment.NewLine)));
+                    }
+
                 }
                 else
                 {
-                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(cbor_rx.ToString() + Environment.NewLine)));
+                    //default on # box
+                    //payload = Encoding.UTF8.GetString(e.Message);                                           
+                    //txtConsole.Invoke(new Action(() => textBox_Resp_Hash.AppendText(payload + Environment.NewLine)));
+                    txtConsole.Invoke(new Action(() => textBox_Resp_Hash.AppendText(cbor_rx.ToString())));
                 }
-                               
+
             }
-            else
-            {
-                //default on # box
-                //payload = Encoding.UTF8.GetString(e.Message);                                           
-                //txtConsole.Invoke(new Action(() => textBox_Resp_Hash.AppendText(payload + Environment.NewLine)));
-                txtConsole.Invoke(new Action(() => textBox_Resp_Hash.AppendText(cbor_rx.ToString())));
+            catch {
+                txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP ARE:" + Environment.NewLine)));
+                
+                foreach (var item in e.Message)
+                {                                    
+                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(item.ToString() + Environment.NewLine)));
+                }
+
             }
 
-
+            //BILATO receive the CBOR payload
             MessageBoxUpdated(" e.Topic = " + e.Topic);
 
         }
