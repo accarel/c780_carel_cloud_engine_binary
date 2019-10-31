@@ -1071,12 +1071,15 @@ static void check_alarms_change(void)
 	for(i=0; i<alarm_n.coil; i++){
 		if(0 != COILAlarmPollTab[i].data.error){
 			//send_js_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data, ERROR);
+			send_cbor_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data, ERROR);
+
 			PRINTF_POLL_ENG(("Coil Alarm error num %d \n ",i))
 			set_null_alarm_timer();
 			COILAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == COILAlarmPollTab[i].data.send_flag){
 			//send_js_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data, CHANGED);
+			send_cbor_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data, CHANGED);
 
 			if(COILAlarmPollTab[i].data.value == 1)
 			   printf("Coil Alarm rise num %d \n ",i);
@@ -1090,12 +1093,16 @@ static void check_alarms_change(void)
 	for(i=0; i<alarm_n.di; i++){
 		if(0 != DIAlarmPollTab[i].data.error){
 			//send_js_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, ERROR);
+			send_cbor_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, ERROR);
+
 			printf("DI Alarm error num %d \n ",i);
 			set_null_alarm_timer();
 			DIAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == DIAlarmPollTab[i].data.send_flag){
 			//send_js_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, CHANGED);
+			send_cbor_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, CHANGED);
+
 			PRINTF_POLL_ENG(("DI Alarm changed num %d \n ",i))
 			DIAlarmPollTab[i].data.send_flag = 0;
 		};
@@ -1104,12 +1111,16 @@ static void check_alarms_change(void)
 	for(i=0; i<alarm_n.hr; i++){
 		if(0 != HRAlarmPollTab[i].data.error){
 			//send_js_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, ERROR);
+			send_cbor_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, ERROR);
+
 			PRINTF_POLL_ENG(("HR Alarm error num %d \n ",i))
 			set_null_alarm_timer();
 			HRAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == HRAlarmPollTab[i].data.send_flag){
 	//		send_js_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, CHANGED);
+			send_cbor_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, CHANGED);
+
 			PRINTF_POLL_ENG(("HR Alarm changed num %d \n ",i))
 			HRAlarmPollTab[i].data.send_flag = 0;
 		};
@@ -1118,12 +1129,16 @@ static void check_alarms_change(void)
 	for(i=0; i<alarm_n.ir; i++){
 		if(0 != IRAlarmPollTab[i].data.error){
 			//send_js_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, ERROR);
+			send_cbor_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, ERROR);
+
 	PRINTF_POLL_ENG(("IR Alarm error num %d \n ",i))
 			set_null_alarm_timer();
 			IRAlarmPollTab[i].data.error = 0;
 		}
 		else if (1 == IRAlarmPollTab[i].data.send_flag){
 			//send_js_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, CHANGED);
+			send_cbor_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, CHANGED);
+
 			PRINTF_POLL_ENG(("IR Alarm changed num %d \n ",i))
 			IRAlarmPollTab[i].data.send_flag = 0;
 		};
@@ -1602,7 +1617,7 @@ void DoPolling(req_set_gw_config_t* polling_times)
 
 				//print_Alarmtables();
 				//if(rete =! 0)
-//				 send_alarm_cbor();    // CHIEBAO
+				check_alarms_change();    // CHIEBAO
 				// else
 				// metto in fifo
 			}
