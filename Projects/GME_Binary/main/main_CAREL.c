@@ -91,7 +91,7 @@ void app_main(void)  // main_Carel
 
   }
   */
-  
+
   xTaskCreate(Carel_Main_Task, "Carel_Task", 3*(CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE+512), NULL, tskIDLE_PRIORITY, NULL );
 
 }
@@ -209,6 +209,7 @@ void Carel_Main_Task(void)
 			}
 
 			Utilities__Init();
+
 			MQTT_Start();
 
 			GME__CheckHTMLConfig();
@@ -244,12 +245,7 @@ void Carel_Main_Task(void)
           {
           	//WiFi__WaitConnection();                   // RELATED TO ESP32 BOARD
 
-          	//Utilities__Init();						// da togliere
-
-  			MQTT_Start();							// da togliere
-
-
-          	sm = GME_START_POLLING_ENGINE;
+            sm = GME_START_POLLING_ENGINE;
 
   			break;
           }
