@@ -116,7 +116,7 @@ void MQTT_Alarms(c_cboralarms alarms);
 void MQTT_PeriodicTasks(void);
 void MQTT__FlushValues(void);
 C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic);
-C_RES EventHandler(mqtt_client_config_t event);
+C_RES EventHandler(mqtt_event_handle_t event);
 void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len);
 C_BYTE MQTT_GetFlags(void);
 

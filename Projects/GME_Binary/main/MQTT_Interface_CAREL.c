@@ -238,10 +238,11 @@ C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
 	return (C_MQTT_TOPIC*)mqtt_topic;
 }
 
-C_RES EventHandler(mqtt_client_config_t event)
+C_RES EventHandler(mqtt_event_handle_t event)
 {
-    int msg_id;
-    switch (event.event_id) {
+
+	int msg_id;
+    switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
 
         	xEventGroupSetBits(s_mqtt_event_group, MQTT_CONNECTED_BIT);
@@ -269,13 +270,13 @@ C_RES EventHandler(mqtt_client_config_t event)
             break;
 
         case MQTT_EVENT_SUBSCRIBED:
-            DEBUG_MQTT("MQTT_EVENT_SUBSCRIBED, msg_id=%d", event.msg_id);
+            DEBUG_MQTT("MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
             break;
         case MQTT_EVENT_UNSUBSCRIBED:
-            DEBUG_MQTT("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event.msg_id);
+            DEBUG_MQTT("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
             break;
         case MQTT_EVENT_PUBLISHED:
-            DEBUG_MQTT("MQTT_EVENT_PUBLISHED, msg_id=%d", event.msg_id);
+            DEBUG_MQTT("MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
             break;
         case MQTT_EVENT_DATA:
         {
@@ -283,20 +284,20 @@ C_RES EventHandler(mqtt_client_config_t event)
 			Get_Gateway_ID(&dev_id);
 		
             DEBUG_MQTT("MQTT_EVENT_DATA");
-            printf("TOPIC=%.*s\r\n", event.topic_len, event.topic);
-            printf("DATA=%.*s\r\n", event.data_len, event.data);
+            printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+            printf("DATA=%.*s\r\n", event->data_len, event->data);
 
             C_MQTT_TOPIC parsed_topic;
             memset((void*)parsed_topic,0,sizeof(parsed_topic));
-            C_UINT16 rec_topic_len = event.topic_len - strlen(dev_id);	//wifi_mac_address_gw_str
-            C_SCHAR* rec_topic = event.topic + strlen(dev_id);	//wifi_mac_address_gw_str
+            C_UINT16 rec_topic_len = event->topic_len - strlen(dev_id);	//wifi_mac_address_gw_str
+            C_SCHAR* rec_topic = event->topic + strlen(dev_id);	//wifi_mac_address_gw_str
 
             sprintf(parsed_topic,"%.*s", rec_topic_len, rec_topic);
             printf("parsed_topic = %s\n", parsed_topic);
 
 			if(strcmp(parsed_topic, "/req") == 0){
 				printf("/req found_topic\n");
-				CBOR_ReqTopicParser((C_CHAR*)event.data, event.data_len);
+				CBOR_ReqTopicParser((C_CHAR*)event->data, event->data_len);
 			}
         }
             break;
@@ -304,7 +305,7 @@ C_RES EventHandler(mqtt_client_config_t event)
             DEBUG_MQTT("MQTT_EVENT_ERROR");
             break;
         default:
-            DEBUG_MQTT("Other event id:%d", event.event_id);
+            DEBUG_MQTT("Other event id:%d", event->event_id);
             break;
     }
     	

@@ -15,9 +15,8 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
-#include "data_types_CAREL.h"      
-#include "MQTT_Interface_CAREL.h"
-#include "MQTT_Interface_IS.h"
+#include "data_types_CAREL.h"
+
 #if INCLUDE_PLATFORM_DEPENDENT
 #include "mqtt_client.h"
 #include "mqtt_config.h"
@@ -34,6 +33,10 @@ typedef struct mqtt_config_s{
 }mqtt_config_t;
 #pragma pack()
 
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+typedef esp_mqtt_event_handle_t mqtt_event_handle_t;
+typedef esp_mqtt_client_handle_t mqtt_client_handle_t;
+#endif
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -46,10 +49,8 @@ C_RES mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qo
 C_RES mqtt_client_start(void);
 C_RES mqtt_client_stop(void);
 void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm);
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-C_RES esp_EventHandler(esp_mqtt_event_handle_t event);
-esp_mqtt_client_handle_t MQTT__GetClient (void);
-#endif
+mqtt_client_handle_t MQTT__GetClient (void);
+
 
 
 #ifdef __cplusplus

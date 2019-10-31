@@ -12,8 +12,11 @@
 
 /* Includes ------------------------------------------------------------------------ */
 #include "MQTT_Interface_IS.h"
+#include "data_types_CAREL.h"
+#include "MQTT_Interface_CAREL.h"
 
-static esp_mqtt_client_handle_t mqtt_client;  
+
+static mqtt_client_handle_t mqtt_client;
 /* Functions implementations ------------------------------------------------------- */
 
 /**
@@ -124,7 +127,7 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 	*/
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 		esp_mqtt_client_config_t mqtt_cfg = {
-		.event_handle = esp_EventHandler,
+		.event_handle = EventHandler,
 		.uri = (C_SCHAR*)mqtt_cfg_nvm->uri,
 		.username = (C_SCHAR*)mqtt_cfg_nvm->username,
 		.password = (C_SCHAR*)mqtt_cfg_nvm->password,
@@ -142,23 +145,7 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 	return mqtt_client;	
 }
 
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-C_RES esp_EventHandler(esp_mqtt_event_handle_t event)
-{
-	mqtt_client_config_t gen_mqtt = {
-		.event_id = event->event_id,
-		.msg_id = event->msg_id,
-		.topic = event->topic,
-		.topic_len = event->topic_len,
-		.data = event->data,
-		.data_len = event->data_len,
-		.client = event->client,
-	};
-	return EventHandler(gen_mqtt);
-}
-#endif
-
-esp_mqtt_client_handle_t MQTT__GetClient (void)
+mqtt_client_handle_t MQTT__GetClient (void)
 {
 	return mqtt_client;
 }
