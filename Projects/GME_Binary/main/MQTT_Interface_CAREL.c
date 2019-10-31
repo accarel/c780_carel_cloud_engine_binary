@@ -193,9 +193,7 @@ void MQTT_Stop(void)
 
 void MQTT_Status(void)
 {
-	C_UINT16 pst;
-	Get_StatusPeriod(&pst);
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + pst))
+	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + Utilities__GetGWConfigData()->statusPeriod))
 	{
 		printf("Sending STATUS CBOR \n\n");
 		CBOR_SendStatus();
@@ -205,9 +203,7 @@ void MQTT_Status(void)
 
 void MQTT_Values(void)
 {
-	C_UINT16 pva;
-	Get_ValuesPeriod(&pva);
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + pva))
+	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + Utilities__GetGWConfigData()->valuesPeriod))
 	{
 		CBOR_SendFragmentedValues(Get_DB_index(), Get_DB_number());
 		mqtt_time.cbor_values = RTC_Get_UTC_Current_Time();
