@@ -20,7 +20,7 @@
 #include "data_types_CAREL.h"
 #include "tinycbor/cbor.h"
 #include "binary_model.h"
-
+#include "poll_engine.h"
 /* Exported constants --------------------------------------------------------*/
 
 #define CBORSTREAM_SIZE			1024
@@ -180,7 +180,6 @@ typedef struct C_CBORVALS{
 
 typedef struct db_values{
 	C_TIME t;
-	C_UINT32 cnt;
 	c_cborvals vls[VLS_NUMBER];
 }db_values;
 
@@ -218,15 +217,20 @@ CborError CBOR_DiscardElement(CborValue* recursed);
 CborError CBOR_ExtractInt(CborValue* recursed, int64_t* read);
 
 #define 	CBOR_ReqUpdateCaCertificate 	CBOR_ReqSetDevsConfig
-#define 	CBOR_ReqChangeCredentials	CBOR_ReqSetDevsConfig
+#define 	CBOR_ReqChangeCredentials		CBOR_ReqSetDevsConfig
+typedef 	c_cborreqdwldevsconfig			c_cborrequpdatecacert;
+typedef		c_cborreqdwldevsconfig			c_cborreqchangecred;
 
-C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
-C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config);
-C_INT16 execute_scan_devices(C_BYTE* data_rx);
 C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector);
+C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config);
+C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
+C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert);
+C_INT16 execute_scan_devices(C_BYTE* data_rx);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
+C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv);
 
+long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
 #ifdef __cplusplus
 }
 #endif

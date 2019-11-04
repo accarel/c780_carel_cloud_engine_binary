@@ -154,11 +154,11 @@ typedef struct mb_param_char_s{
 #pragma pack(1)
 typedef struct sampling_tstamp{
 	uint32_t current_alarm;
-	uint32_t previous_alarm;
+	//uint32_t previous_alarm;
 	uint32_t current_high;
-	uint32_t previous_high;
+	//uint32_t previous_high;
 	uint32_t current_low;
-	uint32_t previous_low;
+	//uint32_t previous_low;
 }sampling_tstamp_t;
 #pragma pack()
 

@@ -796,7 +796,7 @@ static void compare_prev_curr_reads(PollType_t poll_type)
 				//assign idx to time buffer
 			time_values_buff[values_buffer_read_section-1].index = values_buffer_read_section;
 				//assign time in time buffer
-				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_low;
+//				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_low;
 				time_values_buff[values_buffer_read_section-1].t_stop = timestamp.current_low;
 				break;
 
@@ -804,7 +804,7 @@ static void compare_prev_curr_reads(PollType_t poll_type)
 				//assign idx to time buffer
 	time_values_buff[values_buffer_read_section-1].index = values_buffer_read_section;
 				//assign time in time buffer
-				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_high;
+//				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_high;
 				time_values_buff[values_buffer_read_section-1].t_stop = timestamp.current_high;
 				break;
 
@@ -1612,7 +1612,7 @@ void DoPolling(req_set_gw_config_t* polling_times)
 
 				DoAlarmPolling(COILAlarmPollTab, DIAlarmPollTab, HRAlarmPollTab, IRAlarmPollTab);
 
-				timestamp.previous_alarm = timestamp.current_alarm;
+				//timestamp.previous_alarm = timestamp.current_alarm;
 				timestamp.current_alarm = RTC_Get_UTC_Current_Time();
 
 				//print_Alarmtables();
@@ -1627,7 +1627,7 @@ void DoPolling(req_set_gw_config_t* polling_times)
 				printf("LOW \n");
 				DoLowPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab);
 
-				timestamp.previous_low = timestamp.current_low;
+				//timestamp.previous_low = timestamp.current_low;
 				timestamp.current_low = RTC_Get_UTC_Current_Time();  // Get_UTC_Current_Time();
 
 				//compare_prev_curr_reads(LOW_POLLING);
@@ -1639,7 +1639,7 @@ void DoPolling(req_set_gw_config_t* polling_times)
 				printf("HIGH \n");
 				DoHighPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab);
 
-				timestamp.previous_high = timestamp.current_high;
+				//timestamp.previous_high = timestamp.current_high;
 				timestamp.current_high = RTC_Get_UTC_Current_Time();
 
 				//print_Hightables();

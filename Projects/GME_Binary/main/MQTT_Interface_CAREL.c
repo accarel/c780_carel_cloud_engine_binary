@@ -18,6 +18,7 @@
 #include "wifi.h"
 #include "sys.h"
 #include "utilities.h"
+#include "poll_engine.h"
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
@@ -192,6 +193,49 @@ void MQTT_Stop(void)
 	vEventGroupDelete(s_mqtt_event_group);
 }
 
+
+db_values val_array[10];
+C_TIME Get_SamplingTime(C_UINT16 index){return val_array[index].t;}
+C_CHAR a[1];
+C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i){return val_array[index].vls[i].alias;}
+C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i){return val_array[index].vls[i].values;}
+
+void CBOR_CreateSendValues(values_buffer_t *values_buffer, values_buffer_timing_t *time_values_buff, uint16_t values_buffer_index, uint16_t values_buffer_read_section)
+{
+	uint32_t i, j;
+	j = 0;
+	for(i = 0; i < values_buffer_read_section - 1; i++){
+
+		val_array[i].t = time_values_buff[i].t_stop;
+
+		while(time_values_buff[i].index == values_buffer[j].index){
+			char alias[6] = {0};
+			sprintf(alias, "%d", values_buffer[j].alias);
+			if(0 != values_buffer[j].info_err)
+				itoa(values_buffer[j].value, "", 10);
+			else{
+				itoa(values_buffer[j].value, (char*)val_array[i].vls[j].values, 10);
+			}
+			j++;
+		}
+
+	}
+	CBOR_SendFragmentedValues(0, j);
+
+}
+
+void MQTT_FlushValues(void){
+
+	CBOR_CreateSendValues(PollEngine__GetValuesBuffer(), PollEngine__GetTimeBuffer(),
+			PollEngine__GetValuesBufferIndex(),	PollEngine__GetTimerBufferIndex());
+
+
+	mqtt_time.cbor_values = 0;
+
+	PollEngine__ResetValuesBuffer();
+
+}
+
 void MQTT_Status(void)
 {
 	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + Utilities__GetGWConfigData()->statusPeriod))
@@ -206,7 +250,7 @@ void MQTT_Values(void)
 {
 	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + Utilities__GetGWConfigData()->valuesPeriod))
 	{
-		CBOR_SendFragmentedValues(Get_DB_index(), Get_DB_number());
+		MQTT_FlushValues();
 		mqtt_time.cbor_values = RTC_Get_UTC_Current_Time();
 	}
 }

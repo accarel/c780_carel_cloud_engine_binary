@@ -114,11 +114,15 @@ void MQTT_Status(void);
 void MQTT_Values(void);
 void MQTT_Alarms(c_cboralarms alarms);
 void MQTT_PeriodicTasks(void);
-void MQTT__FlushValues(void);
+void MQTT_FlushValues(void);
 C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic);
 C_RES EventHandler(mqtt_event_handle_t event);
 void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len);
 C_BYTE MQTT_GetFlags(void);
+
+C_TIME Get_SamplingTime(C_UINT16 index);
+C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i);
+C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i);
 
 #ifdef __cplusplus
 }

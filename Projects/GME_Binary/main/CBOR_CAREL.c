@@ -19,7 +19,7 @@
 #include "MQTT_Interface_CAREL.h"
 #include "nvm.h"
 #include "binary_model.h"
-
+#include "poll_engine.h"
 
 
 /* Exported types ------------------------------------------------------------*/
@@ -197,7 +197,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	//encode cid - elem11
 	err |= cbor_encode_text_stringz(&mapEncoder, "cid");
 	C_UINT16 cid=0;
-	if(C_SUCCESS == NVM__ReadU32Value(MB_CID_NVM, &cid)){
+	if(C_SUCCESS == NVM__ReadU32Value(MB_CID_NVM, (C_UINT32*)&cid)){
 	   	err |= cbor_encode_uint(&mapEncoder, cid);
 	}else{
 	   	err |= cbor_encode_uint(&mapEncoder, 0);
@@ -286,13 +286,8 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	return len;
 }
 
-db_values val_array[10];
 
-C_UINT32 Get_Counter(C_UINT16 index){return val_array[index].cnt;}
-C_TIME Get_SamplingTime(C_UINT16 index){return val_array[index].t;}
-C_CHAR a[1];
-C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i){return val_array[index].vls[i].alias;}
-C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i){return val_array[index].vls[i].values;}
+static C_UINT32 pkt_cnt = 0;
 
 /**
  * @brief CBOR_SendValues
@@ -310,6 +305,17 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 
 	size_t len = CBOR_Values(mybuf, index, number, frame);
 	#if 0
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
+#define BYTE_TO_BINARY(byte)  \
+  (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
+
 	size_t len = CBOR_Values(mybuf, index, number, frame);
 	printf("valuespkt len %d: \n", len);
 	for (int i=0;i<len;i++){
@@ -353,8 +359,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	// encode cnt - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "cnt");
-	C_UINT32 cnt = Get_Counter(index);
-	err |= cbor_encode_uint(&mapEncoder, cnt);
+	err |= cbor_encode_uint(&mapEncoder, pkt_cnt++);
 	DEBUG_ADD(err, "cnt");
 
 	// encode btm - elem3
@@ -365,7 +370,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	// encode t - elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "t");
-	t = RTC_Get_UTC_Current_Time();
+	t = Get_SamplingTime(index);
 	err |= cbor_encode_uint(&mapEncoder, t);
 	DEBUG_ADD(err, "t");
 
@@ -893,7 +898,7 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 		}
 		else if (strncmp(tag, "cid", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)download_devs_config->cid));
+			err |= CBOR_ExtractInt(&recursed, (int64_t*)&download_devs_config->cid);
 			DEBUG_DEC(err, "req_set_devs_config: cid");
 		}
 		else
@@ -1296,9 +1301,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if(PollEngine__GetEngineStatus() == RUNNING){
 				PollEngine__StopEngine();
-//				MQTT__FlushValues();
+				MQTT_FlushValues();
 			}
-//			GME__Reboot();		//todo
+			GME__Reboot();		//todo
 		}
 		break;
 
@@ -1326,8 +1331,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			if(SUCCESS_CMD == cbor_req.res)
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-//					MQTT__FlushValues();
-			//		GME__Reboot();		//todo
+					MQTT_FlushValues();
+					GME__Reboot();		//todo
 			}
 		}
 		break;
@@ -1348,8 +1353,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-//					MQTT__FlushValues();
-//					GME__Reboot();		//todo
+					MQTT_FlushValues();
+					GME__Reboot();		//todo
 				}
 			}
 		}
@@ -1368,8 +1373,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				C_INT16 length;
 				cbor_req.res = SUCCESS_CMD;
 
-//				PollEngine__MBSuspend();
-//				PollEngine__SetPassModeCMD(RECEIVED);
+				PollEngine__MBSuspend();
+				PollEngine__SetPassModeCMD(RECEIVED);
 
 				length = execute_scan_devices(answer);
 				if(length <= 0){
@@ -1380,8 +1385,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
 				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
-//				PollEngine__SetPassModeCMD(EXECUTED);
-//				PollEngine__MBResume();
+				PollEngine__SetPassModeCMD(EXECUTED);
+				PollEngine__MBResume();
 			}
 
 		}
@@ -1402,8 +1407,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-//					MQTT__FlushValues();
-//					GME__Reboot();		//todo
+					MQTT_FlushValues();
+					GME__Reboot();		//todo
 				}
 			}
 		}
@@ -1418,7 +1423,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			// execute command (when polling machine available) and gather result
 			// put modbus answer in adu buffer to reuse resources and save memory
-			cbor_req.res = 1; // todo
+		/*	cbor_req.res = 1; // todo
 			C_UINT16 adulen = 8; // todo
 			adu[0]=0x01;
 			adu[1]=0x03;
@@ -1427,16 +1432,10 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			adu[4]=0x00;
 			adu[5]=0x01;
 			adu[6]=0xAA;
-			adu[7]=0xBB;
-			// mqtt response
-			// TODO BILATO to be implemented as Cellini suggested
-			// len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, adu, adulen);
-			
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			adu[7]=0xBB;*/
 
-			// restart polling machine?
-/*EGISIAN
 			if(ACTIVETED == PollEngine__GetPassModeStatus()){
+#if 0
 				PollEngine__MBSuspend();
 				PollEngine__SetPassModeCMD(RECEIVED);
 
@@ -1446,18 +1445,20 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				parse_send_mb_adu(root, &send_mb_adu);
 				data_rx_len = PollEngine__SendMBAdu(&send_mb_adu, data_rx);
 
-				if(data_rx_len <= 0){
-					send_mb_adu_res(ReqHeader.replyTo, SEND_MB_ADU, data_rx, data_rx_len, send_mb_adu.sequence, MQTT__GetClient());
-				}else{
-					send_mb_adu_res(ReqHeader.replyTo, SEND_MB_ADU, data_rx, data_rx_len, send_mb_adu.sequence, MQTT__GetClient());
-				}
-				PollEngine__SetPassModeCMD(EXECUTED);
+				// mqtt response
+				if(data_rx_len <= 0)
+					cbor_req.res = C_FAIL;
+				else
+					cbor_req.res = C_SUCCESS;
 
-				memmgr_free(send_mb_adu.adu);
+				len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, data_rx, data_rx_len);
+				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+
 				PollEngine__SetPassModeCMD(EXECUTED);
 				PollEngine__MBResume();
+#endif
 			}
-//EGISIAN*/
+
 		}
 		break;
 
@@ -1468,27 +1469,29 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// which status should be polling engine?
 			// should I check it is in a specific status?
 			// what to do if it is not in that status?
-
 			c_cborreqrdwrvalues cbor_rv = {0};
 			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rv);
 
 			// send modbus command to write values
 			// wait modbus response to get result
-			C_CHAR val[VAL_SIZE];
-			memcpy(val, "1.2", sizeof("1.2"));
-			cbor_req.res = 1; // todo
-			// send response with result
-			len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, val);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-
-			// put polling machine in some specific status?
-/*EGISIAN
 			if(ACTIVETED == PollEngine__GetPassModeStatus()){
+#if 0
 				PollEngine__SetPassModeCMD(RECEIVED);
-				parse_read_values(root, ReqHeader.replyTo);
+				cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+				if(cbor_req.res == C_SUCCESS)
+				{
+					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rv.val);
+					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, cbor_rv.val);
+				}
+				else
+				{
+					printf("OPERATION_FAILED\n");
+					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, 0);
+				}
+				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 				PollEngine__SetPassModeCMD(EXECUTED);
+#endif
 			}
-//EGISIAN*/
 		}
 		break;
 
@@ -1498,20 +1501,19 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// which status should be polling engine?
 			// should I check it is in a specific status?
 			// what to do if it is not in that status?
-
 			c_cborreqrdwrvalues cbor_wv = {0};
 			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_wv);
 
 			// send modbus command to write values
-//			if(ACTIVETED == PollEngine__GetPassModeStatus())
-//			{
-//				PollEngine__SetPassModeCMD(RECEIVED);
+			if(ACTIVETED == PollEngine__GetPassModeStatus())
+			{
+				PollEngine__SetPassModeCMD(RECEIVED);
 				cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 				// send response with result
 				len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, NULL);
 				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-//				PollEngine__SetPassModeCMD(EXECUTED);
-//			}
+				PollEngine__SetPassModeCMD(EXECUTED);
+			}
 		}
 		break;
 
@@ -1526,7 +1528,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if(PollEngine__GetEngineStatus() == RUNNING){
 				PollEngine__StopEngine();
-				MQTT__FlushValues();
+				MQTT_FlushValues();
 				previous_poll_engine_status = true;
 			}
 
@@ -1565,7 +1567,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if(PollEngine__GetEngineStatus() == RUNNING){
 				PollEngine__StopEngine();
-				MQTT__FlushValues();
+				MQTT_FlushValues();
 				previous_poll_engine_status = true;
 			}
 
@@ -1586,39 +1588,29 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case UPDATE_CA_CERTIFICATES:
 		{
-			c_cborreqdwldevsconfig update_ca_config = {0};
+			c_cborrequpdatecacert update_ca_config = {0};
 			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &update_ca_config);
 
 			// perform a https read file from uri, using usr and pwd authentication data
-			cbor_req.res = 1; // todo
-
+			cbor_req.res = (execute_update_ca_cert(&update_ca_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			// send a report of operation
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-
-			// reboot?
-/*EGISIAN
-			if(ESP_OK == execute_update_ca_cert(&update_ca_cert)){
-				send_simple_res(ReqHeader.replyTo, UPDATE_CA_CERTIFICATES, SUCCESS_CMD, MQTT__GetClient());
+			if (cbor_req.res == C_SUCCESS)
+			{
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-					MQTT__FlushValues();
+					MQTT_FlushValues();
 					GME__Reboot();
 				}
-			}else{
-				send_simple_res(ReqHeader.replyTo, UPDATE_CA_CERTIFICATES, ERROR_CMD, MQTT__GetClient());
 			}
-			memmgr_free(update_ca_cert.username);
-			memmgr_free(update_ca_cert.password);
-			memmgr_free(update_ca_cert.uri);
-//EGISIAN*/
 		}
 		break;
 
 
 		case CHANGE_CREDENTIALS:
 		{
-			c_cborreqdwldevsconfig change_cred_config = {0};
+			c_cborreqchangecred change_cred_config = {0};
 			err = CBOR_ReqChangeCredentials(cbor_stream, cbor_len, &change_cred_config);
 
 			// write new credentials to configuration file and put in res the result of operation
@@ -1631,8 +1623,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
-//					MQTT__FlushValues();
-//					GME__Reboot();		//todo
+					MQTT_FlushValues();
+					GME__Reboot();		//todo
 				}
 			}
 		}
@@ -1681,6 +1673,29 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	return 0;
 }
 
+C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
+#if 0
+	https_conn_err_t err;
+
+	printf("execute_download_devs_config \n");
+
+	err = HttpsClient__UpdateCertificate(update_ca_cert,CERT_1);
+
+	if(CONN_FAIL == err){
+		err = HttpsClient__UpdateCertificate(update_ca_cert,CERT_2);
+
+	}else if(FILE_NOT_SAVED == err){
+		return ESP_FAIL;
+	}
+
+	printf("execute_update_ca_cert err= %d \n",err);
+
+	if(err != CONN_OK){
+		return ESP_FAIL;
+	}
+#endif
+	return ESP_OK;
+}
 
 
 C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector){
@@ -1834,6 +1849,7 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 	//C_INT32 val_to_write = atof((C_SCHAR*)cbor_wv.val);
 	C_FLOAT val_to_write = atof((C_SCHAR*)cbor_wv.val);
 	switch(cbor_wv.func){
+
 		case mbW_COIL:{
 			printf("Alias: %s, Addr = %d, val to write: %d \n",cbor_wv.alias, cbor_wv.addr, (C_UINT16)val_to_write);
 			result = PollEngine__Write_COIL_Req(cbor_wv.alias, val_to_write, cbor_wv.addr);
@@ -1856,6 +1872,159 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 
 	}
 	return result;
+}
+
+C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
+
+	printf("function = %d\n", cbor_rv->func);
+	C_RES result = C_FAIL;
+#if 0
+	switch(cbor_rv->func){
+
+	case mbR_COIL:
+	case mbR_DI:{
+		r_coil_di coil_to_read = {0};
+		coil_to_read.Alias = (C_UINT16)atoi((C_SCHAR*)cbor_rv->alias);
+		coil_to_read.Addr = cbor_rv->addr;
+		printf("Alias: %d, Addr = %d\n", coil_to_read.Alias, coil_to_read.Addr);
+
+		C_UINT16 read_value = 0;
+		result = PollEngine__Read_COIL_DI_Req((C_SCHAR*)cbor_rv->alias, &read_value);
+
+		C_UINT16 temp = 0;
+		C_BYTE bit = 0;
+
+		printf("coil_di_save_value: 0x%04X\n",(read_value));
+
+		bit = coil_to_read.Addr % 16;
+		temp = read_value & (C_UINT16)(1 << bit);
+		printf("addr= %d, bit= %d, temp = %d\n", coil_to_read.Addr, bit, temp);
+
+		temp == 0 ? (temp = 0) : (temp = 1);
+		itoa(temp, (C_SCHAR*)cbor_rv->val, 10);
+	}
+	break;
+
+	case mbR_HR:{
+		hr_ir_low_high_poll_t hr_to_read = {0};
+		long double conv_value = 0;
+		hr_to_read.info.Addr = cbor_rv->addr;
+		hr_to_read.info.dim = cbor_rv->dim;
+		hr_to_read.info.bitposition = cbor_rv->pos;
+		hr_to_read.info.len = cbor_rv->len;
+		hr_to_read.info.linA = atoi((C_SCHAR*)cbor_rv->a);
+		hr_to_read.info.linB = atoi((C_SCHAR*)cbor_rv->b);
+		hr_to_read.info.flag.byte = cbor_rv->flags.byte;
+		printf("Alias = %d, Addr = %d\n", hr_to_read.info.Alias,hr_to_read.info.Addr);
+
+		result = PollEngine__Read_HR_IR_Req((C_SCHAR*)cbor_rv->alias, (void*)&hr_to_read.c_value.value);
+		if(C_SUCCESS == result){
+			printf("OPERATION_SUCCEEDED %d\n",result);
+			printf("PollEngine__Read_HR_Req x = %0X\n",*((uint32_t*)&hr_to_read.c_value.value));
+
+			if(hr_to_read.info.dim > 16 && 1 == hr_to_read.info.flag.bit.bigendian){
+				C_UINT32 temp = hr_to_read.c_value.value;
+				hr_to_read.c_value.reg.high = (C_UINT16)temp;
+				hr_to_read.c_value.reg.low = (C_UINT16)(temp >> 16);
+			}
+			hr_to_read.read_type = check_hr_ir_reg_type(hr_to_read.info);
+
+			conv_value = read_values_conversion(&hr_to_read);
+			itoa(conv_value, (C_SCHAR*)cbor_rv->val, 10);
+		}
+		else
+			itoa(0, (C_SCHAR*)cbor_rv->val, 10);
+	}
+	break;
+
+	default:
+	break;
+	}
+#endif
+	return result;
+}
+
+long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
+
+	long double conv_value = 0;
+
+	switch(hr_to_read->read_type){
+		case TYPE_A:
+		{
+			float c_read= 0.0;
+			c_read = get_type_a(hr_to_read, CURRENT);
+			printf("TYPE_A/B c_read: %f \n",c_read);
+			conv_value = (long double)c_read;
+		}
+			break;
+
+		case TYPE_B:
+		{
+			float c_read= 0.0;
+			c_read = get_type_b(hr_to_read, CURRENT);
+			printf("TYPE_A/B c_read: %f \n",c_read);
+			conv_value = (long double)c_read;
+		}
+			break;
+
+		case TYPE_C_SIGNED:
+		{
+			int32_t c_read = 0;
+			c_read = get_type_c_signed(hr_to_read, CURRENT);
+			printf("TYPE_CU c_read: %d \n",c_read);
+			conv_value = (long double)c_read;
+		}
+			break;
+
+		case TYPE_C_UNSIGNED:
+		{
+			uint32_t c_read = 0;
+			c_read = get_type_c_unsigned(hr_to_read, CURRENT);
+			printf("TYPE_CS c_read: %d \n",c_read);
+			conv_value = (long double)c_read;
+		}
+			break;
+
+		case TYPE_D:
+		{
+			uint8_t c_read = 0;
+			c_read = get_type_d(hr_to_read, CURRENT);
+			printf("TYPE_D c_read: %d \n",c_read);
+			conv_value = (long double)c_read;
+		}
+			break;
+
+		case TYPE_E:
+		{
+			int32_t c_read = 0;
+			c_read = get_type_e(hr_to_read, CURRENT);
+			printf("TYPE_E c_read: %d \n",c_read);
+			conv_value = (long double)c_read;
+		}
+			break;
+
+		case TYPE_F_SIGNED:
+		{
+			int16_t c_read = 0;
+			c_read = get_type_f_signed(hr_to_read, CURRENT);
+			printf("TYPE_FS c_read: %d \n",c_read);
+			conv_value = (long double)c_read;
+		}
+				break;
+
+		case TYPE_F_UNSIGNED:
+		{
+			uint16_t c_read = 0;
+			c_read = get_type_f_unsigned(hr_to_read, CURRENT);
+			printf("TYPE_FU c_read: %d \n",c_read);
+			conv_value = (long double)c_read;
+		}
+			break;
+
+		default:
+			break;
+		}
+	return conv_value;
 }
 
 
