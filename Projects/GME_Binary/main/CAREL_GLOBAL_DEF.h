@@ -12,16 +12,29 @@
 /* include                                                                    */
 /* ========================================================================== */
 
+/* ========================================================================== */
+/* general purpose                                                            */
+/* ========================================================================== */
+
+/* ========================================================================== */
+/* debugging purpose                                                          */
+/* ========================================================================== */
+/**
+ * @brief __CCL_DEBUG_MODE 
+ *        if defined enable print on the debug console some debugger message 
+ *        take care to enable the _DEBUG_filename locally in each file you want
+ *        to debug. 
+ *        WARNING! remember that the debug output take elaboration time 
+ *        WARNING! this define MUST be DISABLE in the release version of the FW
+ */
+#define __CCL_DEBUG_MODE 
+
 
 /* ========================================================================== */
 /* general purpose                                                            */
 /* ========================================================================== */
 #define FALSE 0
 #define TRUE 1
-
-
-
-
 
 /* ========================================================================== */
 /* Device information                                                         */

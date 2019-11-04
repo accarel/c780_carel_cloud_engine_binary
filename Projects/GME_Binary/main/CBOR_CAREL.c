@@ -1429,8 +1429,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			adu[6]=0xAA;
 			adu[7]=0xBB;
 			// mqtt response
-			// to be implemented
-			len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, adu, adulen);
+			// TODO BILATO to be implemented as Cellini suggested
+			// len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, adu, adulen);
+			
 			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			// restart polling machine?

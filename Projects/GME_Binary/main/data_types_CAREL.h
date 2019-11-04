@@ -13,6 +13,15 @@
 #include "data_types_IS.h"
 #include <stddef.h>
 
+
+
+/**
+ * @brief INCLUDE_PLATFORM_DEPENDENT 
+ *        you MUST enable this define as soon you have implemented all the  
+ *        platform dependente routines.
+ *        undef it to test you specific compiler and understand if all right. 
+ *        WARNING! this define MUST be DEFINED in the release version of the FW
+ */
 #define INCLUDE_PLATFORM_DEPENDENT 1
 
 #define  CAREL_TYPES_VERSION   257	// 0x101
