@@ -60,7 +60,7 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 	size_t len;
 	int err;
 
-	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "alarms create main map");
@@ -96,7 +96,7 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -131,7 +131,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	size_t len;
 	int err;
 
-	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "hello create main map");
@@ -206,7 +206,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 	for(int i=0; i<len; i++)
 	printf("%x\n", cbor_stream[i]);
@@ -241,7 +241,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	size_t len;
 	int err;
 
-	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "status create main map");
@@ -280,7 +280,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -342,7 +342,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	size_t len;
 	CborError err;
 
-	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, 6);
 	DEBUG_ENC(err, "values create main map");
@@ -390,7 +390,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -444,7 +444,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	size_t len;
 	int err;
 
-	cbor_encoder_init(&encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "mobile create main map");
@@ -510,7 +510,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_stream);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -533,7 +533,7 @@ void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* enco
 
 	int err;
 
-	cbor_encoder_init(encoder, cbor_stream, CBORSTREAM_SIZE, 0);
+	cbor_encoder_init(encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
 	err = cbor_encoder_create_map(encoder, mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "header response");
@@ -580,7 +580,7 @@ size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req)
 	err = cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -619,7 +619,7 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -658,7 +658,7 @@ size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 s
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -699,7 +699,7 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -732,7 +732,7 @@ size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, cbor_response);
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
 	return len;
@@ -759,7 +759,7 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 	CborError err;
 	CborValue it, recursed;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "header request map");
 
@@ -814,7 +814,7 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT3
 	CborValue it, recursed;
 	CborParser parser;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set lines config request map");
 
@@ -864,7 +864,7 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 	CborValue it, recursed;
 	CborParser parser;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set devs config request map");
 
@@ -926,7 +926,7 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 	CborValue it, recursed;
 	CborParser parser;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "write values request map");
 
@@ -1038,7 +1038,7 @@ CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqs
 	CborValue it, recursed;
 	CborParser parser;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set gw config request map");
 
@@ -1102,7 +1102,7 @@ CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* se
 	CborValue it, recursed;
 	CborParser parser;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "send mb adu request map");
 
@@ -1150,7 +1150,7 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 	CborValue it, recursed;
 	CborParser parser;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "send_mb_pass_through request map");
 
@@ -1194,7 +1194,7 @@ CborError CBOR_ReqReboot(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cid)
 	CborValue it, recursed;
 	CborParser parser;
 
-	err = cbor_parser_init(cbor_stream, cbor_len, 0, &parser, &it);
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "reboot request map");
 

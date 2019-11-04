@@ -5,7 +5,7 @@
  * @brief  functions to managment the download of some files via HTTPS
  */
 #include "CAREL_GLOBAL_DEF.h"
-#include "http_client_IS.h"
+#include "https_client_IS.h"
 #include "https_client_CAREL.h"
 #include "poll_engine.h"
 #include "sys.h"
@@ -44,12 +44,13 @@ static const char *TAG = "HTTP_CLIENT_CAREL";
  * @param   filename : the name of the file that will be updated
  * @return 
  */
+#if 0
 https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_devs_config, uint8_t cert_num, const char *filename)
 {	
 	https_conn_err_t err = CONN_OK;	
-	c_http_client_config_t c_config 
+	c_http_client_config_t c_config;
 		
-    C_INT err2;
+    C_RES err2;
 	http_client_handle_t client;
 		
 	int total_read_len = 0;
@@ -145,7 +146,7 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	return err;
 }
 
-
+#endif
 
 /**
  * @brief HttpsClient__UpdateCertificate
@@ -159,7 +160,7 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
  * @param   cert_num : the index of certificate to be used to log in 
  * @return 
  */
-
+#if 0
 https_conn_err_t HttpsClient__UpdateCertificate(req_download_devs_config_t *update_ca_cert, C_BYTE cert_num)
 {
 	C_BYTE filename[32];
@@ -175,7 +176,7 @@ https_conn_err_t HttpsClient__UpdateCertificate(req_download_devs_config_t *upda
 		
 	return HttpsClient__DownloadFile(update_ca_cert, cert_num, &filename[0])
 }
-
+#endif
 
 
 
@@ -185,7 +186,7 @@ void HTTPClient__TestTask(void *pvParameters)
 {
     ESP_LOGI(TAG, "Connected to AP, begin http example");
     PollEngine__MBSuspend();
-    https_carel_server_test();
+//    https_carel_server_test();
 
     PollEngine__MBResume();
     vTaskDelete(NULL);

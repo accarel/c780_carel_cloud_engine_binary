@@ -75,7 +75,7 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
  http_client_handle_t http_client_init(c_http_client_config_t *config, C_BYTE cert_num)
  {
 	http_client_handle_t client = NULL;
-	
+#if 0
 	#ifdef INCLUDE_PLATFORM_DEPENDENT 
 	esp_http_client_config_t c_config;
 	 
@@ -86,7 +86,7 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     
 	client = esp_http_client_init(esp_config);
     #endif
-		
+#endif
 	return client;
  }
  
@@ -109,7 +109,7 @@ C_INT32 http_client_open(http_client_handle_t client, C_INT32 write_len)
 	
     #ifdef INCLUDE_PLATFORM_DEPENDENT 
 	esp_err_t err2;	
-	err2 = http_client_open(client, 0)
+	err2 = http_client_open(client, 0);
 	
 	if (err2 != ESP_OK)
 	  err_val = C_FAIL;
@@ -163,7 +163,7 @@ C_INT32 http_client_fetch_headers(http_client_handle_t client)
  *     - C_FAIL if any errors
  *     - Length of data was read
  */
-C_INT http_client_read(http_client_handle_t client, C_CHAR *buffer, C_INT32 len)
+C_INT32 http_client_read(http_client_handle_t client, C_CHAR *buffer, C_INT32 len)
 {    
    C_INT32 read_len = C_FAIL;
  
@@ -191,7 +191,7 @@ C_INT32 http_client_close(http_client_handle_t client)
 	
   #ifdef INCLUDE_PLATFORM_DEPENDENT 
   esp_err_t err_t;
-  esp_http_client_close(client);
+  err_t = esp_http_client_close(client);
   if (ESP_OK == err_t)
 	 ret_val = C_SUCCESS; 
   #endif

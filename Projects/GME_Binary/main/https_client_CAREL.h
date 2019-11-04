@@ -17,7 +17,7 @@
 
 #include "common.h"
 #include "esp_tls.h"
-
+#include "MQTT_Interface_CAREL.h"
 
 /* ========================================================================== */
 /* debugging purpose                                                          */
@@ -32,6 +32,7 @@ typedef enum https_conn_err_s{
 	CONN_OK = 0,
 	CONN_FAIL,
 	FILE_NOT_SAVED,
+	NO_HEAP_MEMORY,
 }https_conn_err_t;
 
 

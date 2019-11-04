@@ -208,7 +208,7 @@ static int httpclient_test(int argc, char **argv)
 
     WiFi__WaitConnection();
 
-    xTaskCreate(&HTTPClient__TestTask, "http_test_task", 8192, NULL, 5, NULL);
+ //   xTaskCreate(&HTTPClient__TestTask, "http_test_task", 8192, NULL, 5, NULL);
 
     return 0;
 }

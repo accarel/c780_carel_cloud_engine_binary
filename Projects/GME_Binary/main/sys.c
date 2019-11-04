@@ -15,7 +15,7 @@
 #include "common.h"
 #include "cmd_custom.h"
 #include "file_system.h"
-#include "https_client.h"
+#include "https_client_CAREL.h"
 #include "driver/gpio.h"
 #include "http_server.h"
 #include "binary_model.h"
