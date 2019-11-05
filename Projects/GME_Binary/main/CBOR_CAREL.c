@@ -20,7 +20,7 @@
 #include "nvm.h"
 #include "binary_model.h"
 #include "poll_engine.h"
-
+#include "https_client_CAREL.h"
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -1344,7 +1344,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			// write new data to configuration file and put in res the result of operation
 			// to be implemented
-			cbor_req.res = (execute_download_devs_config(download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			cbor_req.res = (execute_download_devs_config(&download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
@@ -1435,16 +1435,16 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			adu[7]=0xBB;*/
 
 			if(ACTIVETED == PollEngine__GetPassModeStatus()){
-#if 0
+
 				PollEngine__MBSuspend();
 				PollEngine__SetPassModeCMD(RECEIVED);
 
 				uint8_t data_rx[20] = {0};
 				uint8_t data_rx_len;
-				req_send_mb_adu_t send_mb_adu = {0};
-				parse_send_mb_adu(root, &send_mb_adu);
-				data_rx_len = PollEngine__SendMBAdu(&send_mb_adu, data_rx);
-
+//				c_cbor_send_mb_adu send_mb_adu = {0};
+//				parse_send_mb_adu(root, &send_mb_adu);
+//				data_rx_len = PollEngine__SendMBAdu(&send_mb_adu, data_rx);
+data_rx_len=0;
 				// mqtt response
 				if(data_rx_len <= 0)
 					cbor_req.res = C_FAIL;
@@ -1456,7 +1456,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 				PollEngine__SetPassModeCMD(EXECUTED);
 				PollEngine__MBResume();
-#endif
+
 			}
 
 		}
@@ -1475,7 +1475,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// send modbus command to write values
 			// wait modbus response to get result
 			if(ACTIVETED == PollEngine__GetPassModeStatus()){
-#if 0
+
 				PollEngine__SetPassModeCMD(RECEIVED);
 				cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 				if(cbor_req.res == C_SUCCESS)
@@ -1490,7 +1490,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				}
 				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 				PollEngine__SetPassModeCMD(EXECUTED);
-#endif
 			}
 		}
 		break;
@@ -1674,27 +1673,27 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 }
 
 C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
-#if 0
+
 	https_conn_err_t err;
 
-	printf("execute_download_devs_config \n");
+	printf("execute_update_ca_cert \n");
 
-	err = HttpsClient__UpdateCertificate(update_ca_cert,CERT_1);
+	err = HttpsClient__UpdateCertificate(update_ca_cert, CERT_1);
 
 	if(CONN_FAIL == err){
-		err = HttpsClient__UpdateCertificate(update_ca_cert,CERT_2);
+		err = HttpsClient__UpdateCertificate(update_ca_cert, CERT_2);
 
 	}else if(FILE_NOT_SAVED == err){
-		return ESP_FAIL;
+		return C_FAIL;
 	}
 
 	printf("execute_update_ca_cert err= %d \n",err);
 
 	if(err != CONN_OK){
-		return ESP_FAIL;
+		return C_FAIL;
 	}
-#endif
-	return ESP_OK;
+
+	return C_SUCCESS;
 }
 
 
@@ -1707,39 +1706,32 @@ C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector){
 	return err;
 }
 
-C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config){
-#if 0
-	https_conn_err_t err;
+C_RES execute_download_devs_config(c_cborreqdwldevsconfig* download_devs_config){
 
+	https_conn_err_t err;
 
 	printf("execute_download_devs_config \n");
 
-	err = HttpsClient__DownloadModelFile(download_devs_config,CERT_1);
+	err = HttpsClient__DownloadFile(download_devs_config, CERT_1, CERT1_SPIFFS);
 
-	if(CONN_FAIL == err){
-		err = HttpsClient__DownloadModelFile(download_devs_config,CERT_2);
-
-	}else if(FILE_NOT_SAVED == err){
-		return ESP_FAIL;
-	}
+	if(CONN_FAIL == err)
+		err = HttpsClient__DownloadFile(download_devs_config, CERT_2, CERT2_SPIFFS);
+	else if(FILE_NOT_SAVED == err)
+		return C_FAIL;
 
 	printf("execute_download_devs_config err= %d \n",err);
 	if(CONN_OK == err){
-
-		if(ESP_OK == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)){
+		if(C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)){
 			printf("MODEL FILE SAVED\n");
-			err = ESP_OK;
+			err = C_SUCCESS;
 		}else{
 			printf("MODEL FILE NOT SAVED\n");
-			err = ESP_FAIL;
+			err = C_FAIL;
 		}
-	}else{
-		return ESP_FAIL;
-	}
+	}else
+		return C_FAIL;
 
-	return ESP_OK;
-#endif
-	return 1;
+	return C_SUCCESS;
 }
 
 
@@ -1832,16 +1824,6 @@ C_INT16 execute_scan_devices(C_BYTE* data_rx){
 	return len;
 }
 
-C_RES PollEngine__Write_COIL_Req(C_CHAR* alias, C_UINT16 write_value, C_UINT16 addr){
-	printf("write_coil: alias %s, addr %d, val %d\n", alias, addr, (C_UINT16)write_value);
-	return 0;
-}
-
-C_RES PollEngine__Write_HR_Req(C_CHAR* alias, void* write_value){
-	printf("write_hr: alias %s, val %d\n", alias, (C_UINT16)write_value);
-	return 0;
-}
-
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 {
 	C_RES result = C_FAIL;
@@ -1878,7 +1860,7 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 
 	printf("function = %d\n", cbor_rv->func);
 	C_RES result = C_FAIL;
-#if 0
+
 	switch(cbor_rv->func){
 
 	case mbR_COIL:
@@ -1929,7 +1911,7 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 			}
 			hr_to_read.read_type = check_hr_ir_reg_type(hr_to_read.info);
 
-			conv_value = read_values_conversion(&hr_to_read);
+//			conv_value = read_values_conversion(&hr_to_read);
 			itoa(conv_value, (C_SCHAR*)cbor_rv->val, 10);
 		}
 		else
@@ -1940,10 +1922,10 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 	default:
 	break;
 	}
-#endif
+
 	return result;
 }
-
+#if 0
 long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 	long double conv_value = 0;
@@ -2028,3 +2010,4 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 }
 
 
+#endif

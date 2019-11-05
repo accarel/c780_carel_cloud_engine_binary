@@ -13,8 +13,10 @@
 #include "binary_model.h"
 #include "mbcontroller.h"
 
-
+#include "CBOR_CAREL.h"
 #include "mb_m.h"
+#include "data_types_CAREL.h"
+
 //#include "mb_device_params.h"
 
 
@@ -278,13 +280,13 @@ uint8_t PollEngine__GetPassModeStatus(void);
 void PollEngine__SetPassModeCMD(uint8_t status);
 uint8_t PollEngine__GetPassModeCMD(void);
 
-#if 0
-uint8_t PollEngine__SendMBAdu(req_send_mb_adu_t *send_mb_adu, uint8_t* data_rx);
-operation_res_t PollEngine__Read_HR_IR_Req(char* alias, void* read_value);
-operation_res_t PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value);
-operation_res_t PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr);
-operation_res_t PollEngine__Write_HR_Req(char* alias, void* write_value);
-#endif
+
+//uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx);
+C_RES PollEngine__Read_HR_IR_Req(char* alias, void* read_value);
+C_RES PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value);
+C_RES PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr);
+C_RES PollEngine__Write_HR_Req(char* alias, void* write_value);
+
 
 values_buffer_t* PollEngine__GetValuesBuffer(void);
 values_buffer_timing_t* PollEngine__GetTimeBuffer(void);

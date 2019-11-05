@@ -26,6 +26,7 @@
 #include "mb_m.h"
 
 #include "MQTT_Interface_CAREL.h"
+#include "data_types_CAREL.h"
 //#define __DEBUG_POLL_ENGINE_CAREL
 
 
@@ -1721,9 +1722,9 @@ void PollEngine__MBSuspend(void){
 }
 
 
-#if 0
 
-operation_res_t PollEngine__Read_HR_IR_Req(char* alias, void* read_value){
+
+C_RES PollEngine__Read_HR_IR_Req(char* alias, void* read_value){
 	uint16_t cid;
 	//char temp[6] = {0};
 	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
@@ -1740,13 +1741,13 @@ operation_res_t PollEngine__Read_HR_IR_Req(char* alias, void* read_value){
 			break;
 
 		}else if(cid == (max_reg - 1)){
-			return OPERATION_FAILED;
+			return C_FAIL;
 		}
 	}
-	return OPERATION_SUCCEEDED;
+	return C_SUCCESS;
 }
 
-operation_res_t PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value){
+C_RES PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value){
 	uint16_t cid;
 	//char temp[6] = {0};
 	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
@@ -1763,13 +1764,13 @@ operation_res_t PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value){
 			break;
 
 		}else if(cid == (max_reg - 1)){
-			return OPERATION_FAILED;
+			return C_FAIL;
 		}
 	}
-	return OPERATION_SUCCEEDED;
+	return C_SUCCESS;
 }
 
-operation_res_t PollEngine__Write_HR_Req(char* alias, void* write_value){
+C_RES PollEngine__Write_HR_Req(char* alias, void* write_value){
 	uint16_t cid;
 	//char temp[6] = {0};
 	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
@@ -1788,14 +1789,14 @@ operation_res_t PollEngine__Write_HR_Req(char* alias, void* write_value){
 			break;
 
 		}else if(cid == (max_reg - 1)){
-			return OPERATION_FAILED;
+			return C_FAIL;
 		}
 	}
-	return OPERATION_SUCCEEDED;
+	return C_SUCCESS;
 }
 
 
-operation_res_t PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr){
+C_RES PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr){
 	uint16_t cid;
 	uint16_t reg_to_write = 0;
 	uint16_t bit = 0;
@@ -1829,14 +1830,14 @@ operation_res_t PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, ui
 			break;
 
 		}else if(cid == (max_reg - 1)){
-			return OPERATION_FAILED;
+			return C_FAIL;
 		}
 	}
-	return OPERATION_SUCCEEDED;
+	return C_SUCCESS;
 }
 
 
-uint8_t PollEngine__SendMBAdu(req_send_mb_adu_t *send_mb_adu, uint8_t* data_rx){
+uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx){
 
 //	mbc_master_suspend();   // CHIEBAO
 
@@ -1874,7 +1875,6 @@ uint8_t PollEngine__SendMBAdu(req_send_mb_adu_t *send_mb_adu, uint8_t* data_rx){
 
 }
 
-#endif
 
 
 static uint8_t test1=0;

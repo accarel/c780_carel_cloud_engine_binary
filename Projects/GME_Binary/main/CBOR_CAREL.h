@@ -157,6 +157,15 @@ typedef struct C_CBORDWLDEVSCFG{
 }c_cborreqdwldevsconfig;
 #pragma pack()
 
+
+#pragma pack(1)
+typedef struct C_CBORSENDMBADU{
+	uint16_t sequence;
+	uint8_t *adu;
+	uint8_t adu_len;
+}c_cbor_send_mb_adu;
+#pragma pack()
+
 /**
  * @brief C_CBORALARMS
  *
@@ -222,7 +231,7 @@ typedef 	c_cborreqdwldevsconfig			c_cborrequpdatecacert;
 typedef		c_cborreqdwldevsconfig			c_cborreqchangecred;
 
 C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector);
-C_RES execute_download_devs_config(c_cborreqdwldevsconfig download_devs_config);
+C_RES execute_download_devs_config(c_cborreqdwldevsconfig* download_devs_config);
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
 C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert);
@@ -230,7 +239,7 @@ C_INT16 execute_scan_devices(C_BYTE* data_rx);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
 C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv);
 
-long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
+//long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
 #ifdef __cplusplus
 }
 #endif
