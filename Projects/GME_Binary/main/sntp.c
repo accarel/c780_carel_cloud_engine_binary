@@ -37,8 +37,6 @@ static esp_console_cmd_t esp_cli_commands[] = {
 };
 
 
-static uint32_t last_boot_time;
-
 static int sntp_esp_cli_commands_init(){
     int i;
 
