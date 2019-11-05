@@ -31,6 +31,9 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 
+
+#define  MODBUS_TIME_OUT     25
+
 int app_holding_register_read(const uint8_t addr, const int func, const int index, const int num);
 
 // TO DO...implementatiotion depend on the sistem chip in use!!!
@@ -132,7 +135,7 @@ void Modbus_Task_Start(void)
 // 0x01 //single or multi-coils
 int app_coil_read(const uint8_t addr, const int func, const int index, const int num)
 {
-    const long timeout = 100;
+    const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadCoils(addr, saddr, num, timeout);
@@ -143,7 +146,7 @@ int app_coil_read(const uint8_t addr, const int func, const int index, const int
 //  0x02 //single or multi-coils
 int app_coil_discrete_input_read(const uint8_t addr, const int func, const int index, const int num)
 {
-    const long timeout = 100;
+    const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadDiscreteInputs(addr, saddr, num, timeout);
@@ -154,7 +157,7 @@ int app_coil_discrete_input_read(const uint8_t addr, const int func, const int i
 //  0x03 //single or multi-coils
 int app_holding_register_read(const uint8_t addr, const int func, const int index, const int num)
 {
-    const long timeout = 100;
+    const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadHoldingRegister(addr, saddr, num, timeout);
@@ -165,7 +168,7 @@ int app_holding_register_read(const uint8_t addr, const int func, const int inde
 //  0x04 //single or multi-coils
 int app_input_register_read(const uint8_t addr, const int func, const int index, const int num)
 {
-    const long timeout = 100;
+    const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadInputRegister(addr, saddr, num, timeout);

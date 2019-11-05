@@ -238,7 +238,7 @@ void MQTT_FlushValues(void){
 
 void MQTT_Status(void)
 {
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + Utilities__GetGWConfigData()->statusPeriod))
+	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + 240))   // Utilities__GetGWConfigData()->statusPeriod
 	{
 		printf("Sending STATUS CBOR \n\n");
 		CBOR_SendStatus();
@@ -248,7 +248,7 @@ void MQTT_Status(void)
 
 void MQTT_Values(void)
 {
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + Utilities__GetGWConfigData()->valuesPeriod))
+	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + 240)) // Utilities__GetGWConfigData()->valuesPeriod
 	{
 		MQTT_FlushValues();
 		mqtt_time.cbor_values = RTC_Get_UTC_Current_Time();
@@ -336,7 +336,8 @@ C_RES EventHandler(mqtt_event_handle_t event)
             sprintf(parsed_topic,"%.*s", rec_topic_len, rec_topic);
             printf("parsed_topic = %s\n", parsed_topic);
 
-			if(strcmp(parsed_topic, "/req") == 0){
+			if(strcmp(parsed_topic, "/req") == 0)
+			{
 				printf("/req found_topic\n");
 				CBOR_ReqTopicParser((C_CHAR*)event->data, event->data_len);
 			}
