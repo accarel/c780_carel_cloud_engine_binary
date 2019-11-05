@@ -298,7 +298,6 @@ C_RES File_System_Config_Load(C_CHAR* name)
 C_RES File_System_DefaultConfig_Load(void)
 {  /* TO BE implemented */
 	return 1;      	
-	
 }
 
 /**
@@ -501,21 +500,21 @@ C_RES Get_Gateway_ID(C_SBYTE *s_id)
 
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)
   /* this function returns the MAC address of the WiFi appliance */
+    
+    #ifdef INCLUDE_PLATFORM_DEPENDENT
+	uint8_t s_id_tmp[6];
+	esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
 
-	// TODO   hex2char(bdAddr.bdAddr[2]>>4);
-	*(s_id+0) = hex2char(base_mac_addr[0]>>4);
-	*(s_id+1) = hex2char(base_mac_addr[0]& 0x0F);
-	*(s_id+2) = hex2char(base_mac_addr[1]>>4);
-	*(s_id+3) = hex2char(base_mac_addr[1]& 0x0F);
-	*(s_id+4) = hex2char(base_mac_addr[2]>>4);
-	*(s_id+5) = hex2char(base_mac_addr[2]& 0x0F);
-	*(s_id+6) = hex2char(base_mac_addr[3]>>4);
-	*(s_id+7) = hex2char(base_mac_addr[3]& 0x0F);
-	*(s_id+8) = hex2char(base_mac_addr[4]>>4);
-	*(s_id+9) = hex2char(base_mac_addr[4]& 0x0F);
-	*(s_id+10) = hex2char(base_mac_addr[5]>>4);
-	*(s_id+11) = hex2char(base_mac_addr[5]& 0x0F);
-	*(s_id+12) = '\0';
+    sprintf(s_id,"%X%X%X%X%X%X",
+            s_id_tmp[0],
+            s_id_tmp[1],
+            s_id_tmp[2],
+            s_id_tmp[3],
+            s_id_tmp[4],
+            s_id_tmp[5]
+           );
+   #endif
+
 
 #elif (NETWORK_INTERFACE == GSM_INTERFACE)
   /* this function returns the IMEI of the GSM module*/
