@@ -44,7 +44,7 @@ static const char *TAG = "HTTP_CLIENT_CAREL";
  * @param   filename : the name of the file that will be updated
  * @return 
  */
-#if 0
+
 https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_devs_config, uint8_t cert_num, const char *filename)
 {	
 	https_conn_err_t err = CONN_OK;	
@@ -79,7 +79,7 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	c_config.password = download_devs_config->password;
 	c_config.cert_num = cert_num;
 	
-	client = http_client_init(&config, cert_num);
+	client = http_client_init(&c_config, cert_num);
 
 
 	if ((err2 = http_client_open(client, 0)) != C_SUCCESS) {
@@ -146,7 +146,7 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	return err;
 }
 
-#endif
+
 
 /**
  * @brief HttpsClient__UpdateCertificate
@@ -160,10 +160,10 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
  * @param   cert_num : the index of certificate to be used to log in 
  * @return 
  */
-#if 0
+
 https_conn_err_t HttpsClient__UpdateCertificate(req_download_devs_config_t *update_ca_cert, C_BYTE cert_num)
 {
-	C_BYTE filename[32];
+	C_CHAR filename[32];
 	
 	
     //check the passed certificate and update the other one
@@ -174,9 +174,8 @@ https_conn_err_t HttpsClient__UpdateCertificate(req_download_devs_config_t *upda
 	  strcpy(filename, CERT1_SPIFFS);	
 	}
 		
-	return HttpsClient__DownloadFile(update_ca_cert, cert_num, &filename[0])
+	return HttpsClient__DownloadFile(update_ca_cert, cert_num, &filename[0]);
 }
-#endif
 
 
 

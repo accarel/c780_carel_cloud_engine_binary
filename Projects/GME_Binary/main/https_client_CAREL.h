@@ -43,7 +43,7 @@ typedef enum https_conn_err_s{
 void HTTPClient__TestTask(void *pvParameters);
 #endif
 
-https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_devs_config, C_BYTE cert_num);
+https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_devs_config, uint8_t cert_num, const char *filename);
 https_conn_err_t HttpsClient__UpdateCertificate(req_update_ca_cert_t *update_ca_cert, C_BYTE cert_num);
 
 #endif /* MAIN_HTTPS_CLIENT_C_ */

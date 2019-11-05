@@ -8,6 +8,8 @@
  
 /* Includes ------------------------------------------------------------------------ */
 #include "https_client_IS.h"
+#include "sys.h"
+#include "esp_http_client.h"
 
 static const char *TAG = "HTTP_CLIENT_IS";
 
@@ -75,18 +77,18 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
  http_client_handle_t http_client_init(c_http_client_config_t *config, C_BYTE cert_num)
  {
 	http_client_handle_t client = NULL;
-#if 0
+
 	#ifdef INCLUDE_PLATFORM_DEPENDENT 
 	esp_http_client_config_t c_config;
 	 
-  	esp_config.url           = config->url;
-	esp_config.event_handler = config->http_event_handler;
-	esp_config.auth_type     = HTTP_AUTH_TYPE_BASIC;
-	esp_config.cert_pem      = Sys__GetCert((uint8_t)cert_num);
+	c_config.url           = config->url;
+	c_config.event_handler = _http_event_handler;
+	c_config.auth_type     = HTTP_AUTH_TYPE_BASIC;
+	c_config.cert_pem      = Sys__GetCert((uint8_t)cert_num);
     
-	client = esp_http_client_init(esp_config);
+	client = esp_http_client_init(&c_config);
     #endif
-#endif
+
 	return client;
  }
  

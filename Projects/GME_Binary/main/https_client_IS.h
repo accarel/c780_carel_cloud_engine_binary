@@ -49,7 +49,7 @@ typedef struct {
     const char                  *url;                
     const char                  *username;           
     const char                  *password;           
-	const int                    cert_num;
+	int                 	   cert_num;
 } c_http_client_config_t;
 
 
