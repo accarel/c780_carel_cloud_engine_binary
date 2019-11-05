@@ -12,6 +12,11 @@
 #include "File_System_CAREL.h"
 
 
+char hex2char (uint8_t n);
+
+
+extern uint8_t base_mac_addr[6];
+
 #if 0
 
 /* Defines  ------------------------------------------------------------------*/
@@ -491,11 +496,26 @@ C_RES Get_MQTT_Port(C_UINT16* mqtt_port)
  * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
  * @return C_SUCCESS or C_FAIL
  */
-C_RES Get_Gateway_ID(C_GATEWAY_ID *s_id)
+C_RES Get_Gateway_ID(C_SBYTE *s_id)
 { /* TO BE implemented */
 
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)
   /* this function returns the MAC address of the WiFi appliance */
+
+	// TODO   hex2char(bdAddr.bdAddr[2]>>4);
+	*(s_id+0) = hex2char(base_mac_addr[0]>>4);
+	*(s_id+1) = hex2char(base_mac_addr[0]& 0x0F);
+	*(s_id+2) = hex2char(base_mac_addr[1]>>4);
+	*(s_id+3) = hex2char(base_mac_addr[1]& 0x0F);
+	*(s_id+4) = hex2char(base_mac_addr[2]>>4);
+	*(s_id+5) = hex2char(base_mac_addr[2]& 0x0F);
+	*(s_id+6) = hex2char(base_mac_addr[3]>>4);
+	*(s_id+7) = hex2char(base_mac_addr[3]& 0x0F);
+	*(s_id+8) = hex2char(base_mac_addr[4]>>4);
+	*(s_id+9) = hex2char(base_mac_addr[4]& 0x0F);
+	*(s_id+10) = hex2char(base_mac_addr[5]>>4);
+	*(s_id+11) = hex2char(base_mac_addr[5]& 0x0F);
+	*(s_id+12) = '\0';
 
 #elif (NETWORK_INTERFACE == GSM_INTERFACE)
   /* this function returns the IMEI of the GSM module*/
@@ -651,3 +671,10 @@ C_UINT16 Get_DB_number(void)
 	return 1;
 }
 
+
+
+
+char hex2char (uint8_t n)
+{
+	return n <= 9 ? (n+'0') : (n-10+'A');
+}

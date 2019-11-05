@@ -109,7 +109,7 @@ C_RES Get_RS485_Parity(C_BYTE* rs485_parity);
 C_RES Get_MQTT_broker(C_URI* mqtt_broker);
 C_RES Get_MQTT_Port(C_UINT16* mqtt_port);
 
-C_RES Get_Gateway_ID(C_GATEWAY_ID *s_id);
+C_RES Get_Gateway_ID(C_SBYTE *s_id);
 C_RES Get_DNS(C_IPV4* dns_address);
 C_RES Get_NTP_server(C_URI* ntp_server);
 C_RES Get_NTP_port(C_UINT16* ntp_port);
