@@ -1152,7 +1152,8 @@ namespace MqttClientSimulatorBinary
 
         private void Button_test_set_gw_config_req_Click(object sender, EventArgs e)
         {
-            string textFilePath = @"test-set_gw_config-req.json";
+            //string textFilePath = @"test-set_gw_config-req.json";
+            string textFilePath = @".\cbor_cloud\REQ_SET_GW_CONFIG.cbor";
             PublishTestFile(textFilePath);
         }
 

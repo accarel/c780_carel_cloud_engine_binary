@@ -171,14 +171,13 @@
     </AdditionalFiles>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Numbers, Version=1.4.3.0, Culture=neutral, PublicKeyToken=9cd62db60ea5554c">
-      <HintPath>..\..\..\Numbers-master_CANCELLABILE\Numbers-master\Numbers40\obj\Debug\Numbers.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Numbers40\Numbers40.csproj">
+      <Project>{d7e09f55-3156-44b0-87d9-1babcbb398d9}</Project>
+      <Name>Numbers40</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup />

@@ -9,6 +9,8 @@ using System;
 using PeterO;
 using PeterO.Numbers;
 
+
+
 namespace PeterO.Cbor {
   internal class CBORExtendedRational : ICBORNumber {
     public bool IsPositiveInfinity(object obj) {
