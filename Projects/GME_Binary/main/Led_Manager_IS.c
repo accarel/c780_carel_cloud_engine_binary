@@ -23,6 +23,7 @@
  */
 
 #include "CAREL_GLOBAL_DEF.h"
+#include "data_types_CAREL.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include <stdio.h>
