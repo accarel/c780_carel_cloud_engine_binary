@@ -42,6 +42,7 @@
 #include "nvm.h"
 //#
 
+#include "Led_Manager_IS.h"
 
 #ifdef IS_A_GSM_GATEWAY
 #include "GSM_Miscellaneous_IS.h"
@@ -95,9 +96,7 @@ void app_main(void)  // main_Carel
   }
   */
 
-
-  //esp_base_mac_addr_set(base_mac_addr);
-
+  xTaskCreate(Led_task, "Led_task", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
   xTaskCreate(Carel_Main_Task, "Carel_Task", 3*(CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE+512), NULL, tskIDLE_PRIORITY, NULL );
 
 }
@@ -209,7 +208,7 @@ void Carel_Main_Task(void)
 
 			if(( CONFIGURED == gw_config_status &&
 				 CONFIGURED == line_config_status &&
-				 CONFIGURED == devs_config_status)    || force_configuration )
+				 CONFIGURED == devs_config_status))
 			{
 				sm = GME_SYSTEM_PREPARATION;
 			}else{

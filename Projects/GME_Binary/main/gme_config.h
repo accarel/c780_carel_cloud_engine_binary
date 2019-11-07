@@ -129,8 +129,8 @@
  * RESET DATA
  *-----------------------------*/
 //Reset Buttons
-#define CONFIG_RESET_BUTTON		GPIO_NUM_0
-#define FACTORY_RESET_BUTTON	GPIO_NUM_0
+#define CONFIG_RESET_BUTTON		GPIO_NUM_15
+#define FACTORY_RESET_BUTTON	GPIO_NUM_16
 //Time to keep Reset buttonS pressed to execute a factory reset
 #define CONFIG_RESET_SEC		(10)	//Write the value in seconds
 #define FACTORY_RESET_SEC		(30)	//Write the value in seconds

@@ -43,6 +43,14 @@
 /*                        This section is for the WiFi Gateway                      */
 /* ================================================================================ */
 #ifdef IS_A_WIFI_GATEWAY
+
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+#define LED_PHY_ON   1
+#define LED_PHY_OFF  0
+#endif
+
+
 /**
  * @brief LED_STATUS_IO 
  *        is platform dependent redefine it to match your I/O schema 
@@ -61,14 +69,14 @@ void Led_Status_Update(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT		  		      	    	
-    	  gpio_set_level(LED_STATUS_IO, 1);		  
+    	  gpio_set_level(LED_STATUS_IO, LED_PHY_OFF);
 		  #endif
 		  break;
 		  
 		case LED_ON:  
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT		  
-		  gpio_set_level(LED_STATUS_IO, 0);
+		  gpio_set_level(LED_STATUS_IO, LED_PHY_ON);
 		  #endif		  
 		  break;
 		  
@@ -82,7 +90,7 @@ void Led_Status_Update(Led_Show_Status_t status){
             {       	     	  		
 		     /* put the I/O instruction here */
 		     #ifdef INCLUDE_PLATFORM_DEPENDENT	
-             gpio_set_level(LED_STATUS_IO, 0);
+             gpio_set_level(LED_STATUS_IO, LED_PHY_ON);
 			 #endif
              blink_status = LED_ON;
             }
@@ -90,7 +98,7 @@ void Led_Status_Update(Led_Show_Status_t status){
             {
 			/* put the I/O instruction here */	
 			#ifdef INCLUDE_PLATFORM_DEPENDENT		
-            gpio_set_level(LED_STATUS_IO, 1);
+            gpio_set_level(LED_STATUS_IO, LED_PHY_OFF);
 			#endif
             blink_status = LED_OFF;			
             }
@@ -121,6 +129,20 @@ void Led_init(void)
 	#ifdef INCLUDE_PLATFORM_DEPENDENT	
 	gpio_pad_select_gpio(LED_STATUS_IO);
     gpio_set_direction(LED_STATUS_IO, GPIO_MODE_OUTPUT);	
+
+    /* only for debug on ESP32-WROVER */
+    #define LED_GREEN   GPIO_NUM_2
+    #define LED_BLUE    GPIO_NUM_4
+
+    gpio_pad_select_gpio(LED_GREEN);
+    gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_GREEN, LED_PHY_OFF);
+
+    gpio_pad_select_gpio(LED_BLUE);
+    gpio_set_direction(LED_BLUE, GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_BLUE, LED_PHY_OFF);
+
+
 	#endif
 
     led_status = LED_OFF;

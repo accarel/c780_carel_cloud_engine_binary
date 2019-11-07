@@ -19,6 +19,8 @@
 #include "sys.h"
 #include "utilities.h"
 #include "poll_engine.h"
+
+#include "Led_Manager_IS.h"
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
@@ -297,6 +299,13 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
             if(0 == mqtt_init)
 			{
+
+                #ifdef IS_A_WIFI_GATEWAY
+            	led_status = LED_ON;
+                #endif
+
+
+
 				CBOR_SendHello();
 				MQTT_Status();
 				mqtt_init = 1;
