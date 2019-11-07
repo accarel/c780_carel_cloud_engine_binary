@@ -96,7 +96,7 @@ void app_main(void)  // main_Carel
   */
 
 
-  esp_base_mac_addr_set(base_mac_addr);
+  //esp_base_mac_addr_set(base_mac_addr);
 
   xTaskCreate(Carel_Main_Task, "Carel_Task", 3*(CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE+512), NULL, tskIDLE_PRIORITY, NULL );
 
