@@ -74,15 +74,15 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	printf("%s\n",url);
 	#endif
 
-	c_config.url = download_devs_config->uri;
+	c_config.url = url; //download_devs_config->uri;
 	c_config.username = download_devs_config->username;
 	c_config.password = download_devs_config->password;
 	c_config.cert_num = cert_num;
 	
-	client = http_client_init(&c_config, cert_num);
+	client = http_client_init_IS(&c_config, cert_num);
 
 
-	if ((err2 = http_client_open(client, 0)) != C_SUCCESS) {
+	if ((err2 = http_client_open_IS(client, 0)) != C_SUCCESS) {
 		#ifdef _DEBUG_HTTPS_CLIENT_CAREL 		
 		//ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err2));				
 		PRINTF_DEBUG("Failed to open HTTP connection");		
@@ -94,12 +94,12 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	}
 
 
-	content_length =  http_client_fetch_headers(client);
+	content_length =  http_client_fetch_headers_IS(client);
 	
 	
 	if (total_read_len < content_length && content_length <= MAX_HTTP_RECV_BUFFER) {
 		
-		read_len = http_client_read(client, buffer, content_length);
+		read_len = http_client_read_IS(client, buffer, content_length);
 		
 		if (read_len >= 0) 
 		{
@@ -141,8 +141,8 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	free(buffer);
 	free(url);
 
-	http_client_close(client);
-	http_client_cleanup(client);
+	http_client_close_IS(client);
+	http_client_cleanup_IS(client);
 	return err;
 }
 

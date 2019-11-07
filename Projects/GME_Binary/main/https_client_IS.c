@@ -74,19 +74,20 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
  *     - `http_client_handle_t`
  *     - NULL if any errors
  */
- http_client_handle_t http_client_init(c_http_client_config_t *config, C_BYTE cert_num)
+ http_client_handle_t http_client_init_IS(c_http_client_config_t *config, C_BYTE cert_num)
  {
 	http_client_handle_t client = NULL;
 
 	#ifdef INCLUDE_PLATFORM_DEPENDENT 
-	esp_http_client_config_t c_config;
-	 
-	c_config.url           = config->url;
-	c_config.event_handler = _http_event_handler;
-	c_config.auth_type     = HTTP_AUTH_TYPE_BASIC;
-	c_config.cert_pem      = Sys__GetCert((uint8_t)cert_num);
-    
-	client = esp_http_client_init(&c_config);
+
+	esp_http_client_config_t esp_config = {
+		.url = config->url,
+		.event_handler = _http_event_handler,
+		.auth_type = HTTP_AUTH_TYPE_BASIC,
+		.cert_pem =  Sys__GetCert((uint8_t)cert_num),
+	};
+
+	client = esp_http_client_init(&esp_config);
     #endif
 
 	return client;
@@ -105,13 +106,13 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
  *  - C_FAIL   
  *  - C_SUCCESS
  */
-C_INT32 http_client_open(http_client_handle_t client, C_INT32 write_len)
+C_INT32 http_client_open_IS(http_client_handle_t client, C_INT32 write_len)
 {
 	C_INT32 err_val = C_FAIL;
 	
     #ifdef INCLUDE_PLATFORM_DEPENDENT 
-	esp_err_t err2;	
-	err2 = http_client_open(client, 0);
+	esp_err_t err2;
+	err2 = esp_http_client_open(client, 0);
 	
 	if (err2 != ESP_OK)
 	  err_val = C_FAIL;
@@ -136,7 +137,7 @@ C_INT32 http_client_open(http_client_handle_t client, C_INT32 write_len)
  *     - (-1: C_FAIL) if any errors
  *     - Download data length defined by content-length header
  */
-C_INT32 http_client_fetch_headers(http_client_handle_t client)
+C_INT32 http_client_fetch_headers_IS(http_client_handle_t client)
 {
   C_INT32 ret_val = C_FAIL;
  
@@ -165,7 +166,7 @@ C_INT32 http_client_fetch_headers(http_client_handle_t client)
  *     - C_FAIL if any errors
  *     - Length of data was read
  */
-C_INT32 http_client_read(http_client_handle_t client, C_CHAR *buffer, C_INT32 len)
+C_INT32 http_client_read_IS(http_client_handle_t client, C_CHAR *buffer, C_INT32 len)
 {    
    C_INT32 read_len = C_FAIL;
  
@@ -187,7 +188,7 @@ C_INT32 http_client_read(http_client_handle_t client, C_CHAR *buffer, C_INT32 le
  *     - C_SUCCESS
  *     - C_FAIL
  */
-C_INT32 http_client_close(http_client_handle_t client)
+C_INT32 http_client_close_IS(http_client_handle_t client)
 {
   C_INT32 ret_val = C_FAIL; 
 	
@@ -216,7 +217,7 @@ C_INT32 http_client_close(http_client_handle_t client)
  *     - C_SUCCESS
  *     - C_FAIL
  */
-C_INT32 http_client_cleanup(http_client_handle_t client)
+C_INT32 http_client_cleanup_IS(http_client_handle_t client)
 {
  
  C_INT32 ret_val = C_FAIL; 

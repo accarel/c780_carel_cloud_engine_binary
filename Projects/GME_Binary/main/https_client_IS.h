@@ -71,11 +71,11 @@ typedef  (YOU MUST INSERT HERE YOUR CLIENT STRUCTURE ACCORDING WITH YOUR LIBRARY
 /* Functions prototypes                                                       */
 /* ========================================================================== */
 
-http_client_handle_t http_client_init(c_http_client_config_t *config, C_BYTE cert_num);
-C_INT32 http_client_open(http_client_handle_t client, C_INT32 write_len);
-C_INT32 http_client_fetch_headers(http_client_handle_t client);
-C_INT32 http_client_read(http_client_handle_t client, C_CHAR *buffer, C_INT32 len);
-C_INT32 http_client_close(http_client_handle_t client);
-C_INT32 http_client_cleanup(http_client_handle_t client);
+http_client_handle_t http_client_init_IS(c_http_client_config_t *config, C_BYTE cert_num);
+C_INT32 http_client_open_IS(http_client_handle_t client, C_INT32 write_len);
+C_INT32 http_client_fetch_headers_IS(http_client_handle_t client);
+C_INT32 http_client_read_IS(http_client_handle_t client, C_CHAR *buffer, C_INT32 len);
+C_INT32 http_client_close_IS(http_client_handle_t client);
+C_INT32 http_client_cleanup_IS(http_client_handle_t client);
  
 #endif
