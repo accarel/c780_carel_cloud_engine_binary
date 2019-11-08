@@ -1165,13 +1165,13 @@ namespace MqttClientSimulatorBinary
 
         private void Button_start_engine_Click(object sender, EventArgs e)
         {
-            string textFilePath = @"test-start_engine_req.json";
+            string textFilePath = @".\cbor_cloud\REQ_START_ENGINE.cbor";
             PublishTestFile(textFilePath);
         }
 
         private void Button_stop_engine_Click(object sender, EventArgs e)
         {            
-            string textFilePath = @"test-stop_engine_req.json";
+            string textFilePath = @".\cbor_cloud\REQ_STOP_ENGINE.cbor";
             PublishTestFile(textFilePath);
 
         }
