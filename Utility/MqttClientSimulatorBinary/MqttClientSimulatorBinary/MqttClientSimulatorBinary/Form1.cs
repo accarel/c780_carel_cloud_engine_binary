@@ -290,13 +290,14 @@ namespace MqttClientSimulatorBinary
 
             }
             catch {
-                txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP ARE:" + Environment.NewLine)));
-                
+                txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP START:" + Environment.NewLine)));
+                              
                 foreach (var item in e.Message)
-                {                                    
-                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(item.ToString() + Environment.NewLine)));
+                {                   
+                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(item.ToString("X") + Environment.NewLine)));
                 }
 
+                txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP END " + Environment.NewLine)));
             }
 
             //BILATO receive the CBOR payload
@@ -1280,10 +1281,15 @@ namespace MqttClientSimulatorBinary
                 val = @"0";
             }
 
+            MyIni.Write("Topic", textBox_SubTopic.Text);
+                                             
             if (checkBox_Cfg_Dbg_Rel.Checked == true)
                 MyIni.Write("DBGREL", @"1");
             else
                 MyIni.Write("DBGREL", @"0");
+
+
+
         }
 
 
@@ -1317,6 +1323,14 @@ namespace MqttClientSimulatorBinary
 
             par_val = MyIni.Read("Target");
             textBox_Target.Text = par_val;
+
+            par_val = MyIni.Read("Topic");
+
+            if (par_val == "")
+              textBox_SubTopic.Text = "+";
+            else
+              textBox_SubTopic.Text = par_val;
+
 
             val = MyIni.Read("DBGREL");
 
@@ -1378,6 +1392,11 @@ namespace MqttClientSimulatorBinary
         private void TextBox_MB_COIL_R_Func_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void Button_CLS_Infos_Click(object sender, EventArgs e)
+        {
+            textBox_Message.Text = "";
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)

@@ -188,6 +188,7 @@
             this.button_Load_settings = new System.Windows.Forms.Button();
             this.checkBox_Cfg_Dbg_Rel = new System.Windows.Forms.CheckBox();
             this.checkBox_Split_Resp = new System.Windows.Forms.CheckBox();
+            this.button_CLS_Infos = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -205,7 +206,7 @@
             this.txtConsole.AcceptsReturn = true;
             this.txtConsole.AcceptsTab = true;
             this.txtConsole.Location = new System.Drawing.Point(20, 378);
-            this.txtConsole.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.txtConsole.Margin = new System.Windows.Forms.Padding(2);
             this.txtConsole.Multiline = true;
             this.txtConsole.Name = "txtConsole";
             this.txtConsole.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -266,7 +267,7 @@
             this.buttonClear.Name = "buttonClear";
             this.buttonClear.Size = new System.Drawing.Size(43, 34);
             this.buttonClear.TabIndex = 10;
-            this.buttonClear.Text = "Clear";
+            this.buttonClear.Text = "CLS";
             this.buttonClear.UseVisualStyleBackColor = true;
             this.buttonClear.Click += new System.EventHandler(this.ButtonClear_Click);
             // 
@@ -401,7 +402,7 @@
             // button_stop_engine
             // 
             this.button_stop_engine.Location = new System.Drawing.Point(109, 62);
-            this.button_stop_engine.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button_stop_engine.Margin = new System.Windows.Forms.Padding(2);
             this.button_stop_engine.Name = "button_stop_engine";
             this.button_stop_engine.Size = new System.Drawing.Size(98, 36);
             this.button_stop_engine.TabIndex = 20;
@@ -412,7 +413,7 @@
             // button_start_engine
             // 
             this.button_start_engine.Location = new System.Drawing.Point(110, 19);
-            this.button_start_engine.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.button_start_engine.Margin = new System.Windows.Forms.Padding(2);
             this.button_start_engine.Name = "button_start_engine";
             this.button_start_engine.Size = new System.Drawing.Size(98, 36);
             this.button_start_engine.TabIndex = 19;
@@ -446,7 +447,7 @@
             this.buttonClearResponse.Name = "buttonClearResponse";
             this.buttonClearResponse.Size = new System.Drawing.Size(43, 34);
             this.buttonClearResponse.TabIndex = 23;
-            this.buttonClearResponse.Text = "Clear";
+            this.buttonClearResponse.Text = "CLS";
             this.buttonClearResponse.UseVisualStyleBackColor = true;
             this.buttonClearResponse.Click += new System.EventHandler(this.ButtonClearResponse_Click);
             // 
@@ -1672,7 +1673,7 @@
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
             this.textBox_Resp_Hash.Location = new System.Drawing.Point(912, 113);
-            this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -1777,12 +1778,23 @@
             this.checkBox_Split_Resp.Text = "Split Resp";
             this.checkBox_Split_Resp.UseVisualStyleBackColor = true;
             // 
+            // button_CLS_Infos
+            // 
+            this.button_CLS_Infos.Location = new System.Drawing.Point(1257, 330);
+            this.button_CLS_Infos.Name = "button_CLS_Infos";
+            this.button_CLS_Infos.Size = new System.Drawing.Size(43, 19);
+            this.button_CLS_Infos.TabIndex = 66;
+            this.button_CLS_Infos.Text = "CLS";
+            this.button_CLS_Infos.UseVisualStyleBackColor = true;
+            this.button_CLS_Infos.Click += new System.EventHandler(this.Button_CLS_Infos_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1326, 605);
+            this.Controls.Add(this.button_CLS_Infos);
             this.Controls.Add(this.checkBox_Split_Resp);
             this.Controls.Add(this.checkBox_Cfg_Dbg_Rel);
             this.Controls.Add(this.button_Load_settings);
@@ -1817,7 +1829,7 @@
             this.Controls.Add(this.txtConsole);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "IoT Server Simulator Binary Edition V.1.2";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -2005,6 +2017,7 @@
         private System.Windows.Forms.Button button_Load_settings;
         private System.Windows.Forms.CheckBox checkBox_Cfg_Dbg_Rel;
         private System.Windows.Forms.CheckBox checkBox_Split_Resp;
+        private System.Windows.Forms.Button button_CLS_Infos;
     }
 }
 
