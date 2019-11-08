@@ -3,3 +3,7 @@ cd ~/esp
 git clone -b v4.0-beta2  https://github.com/espressif/esp-idf.git
 cd ~/esp/esp-idf
 git submodule update --init --recursive
+
+# this will apply possible patches
+# patch modbus implementation for esp32
+patch components/freemodbus/common/esp_modbus_master.c ~/esp/GME_Binary/patches/0001-esp-modbus-master.patch
