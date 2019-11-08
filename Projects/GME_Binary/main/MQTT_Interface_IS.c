@@ -126,6 +126,9 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 		mqtt_message_received_callback(C_CHAR *msg, C_UINT len) 
 	*/
 #ifdef INCLUDE_PLATFORM_DEPENDENT
+		C_SBYTE mac[6];
+		Get_Gateway_ID(mac);
+
 		esp_mqtt_client_config_t mqtt_cfg = {
 		.event_handle = EventHandler,
 		.uri = (C_SCHAR*)mqtt_cfg_nvm->uri,
@@ -138,6 +141,7 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 		.lwt_retain = 0,
 		.cert_pem = mqtt_cfg_nvm->cert_pem,
 		.task_stack = 8192,
+		.client_id = mac,
 	};
 	
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
