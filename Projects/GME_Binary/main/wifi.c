@@ -410,7 +410,7 @@ void WiFi__WaitConnection(void)
 
 
 void WIFI__SetSTAConnectionTime(void){
-	STAConnectionTime = Get_UTC_Current_Time();
+	STAConnectionTime = RTC_Get_UTC_Current_Time();
 }
 
 uint32_t WIFI__GetSTAConnectionTime(void){
