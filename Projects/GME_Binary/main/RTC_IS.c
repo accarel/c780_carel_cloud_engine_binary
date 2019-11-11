@@ -5,7 +5,7 @@
  * @brief  implementations target specific related to the managment of the
  *         real time clock.   
  */
-#include "RTC_IS.h"
+
 #include "data_types_CAREL.h"
 #include "data_types_IS.h"
 
@@ -13,26 +13,37 @@
 //depend of device
 #include "sntp.h"
 #endif
+
+#include "RTC_IS.h"
 /* Functions implementation -------------------------------------------------------*/
 
 C_TIME Boot_Time = 0;
+
 
 /**
  * @brief RTC_Init
  *
  * Description of what the function does. This part may refer to the parameters
  * 
- * @param none
+ * @param  ntp_server url of the NTP server ie. "pool.ntp.org"
+ * @param  ntp_port   NTP server port       ie. 123
  * @return C_SUCCESS/C_FAIL 
  */
 C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
 { /* TO BE Implemented */
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-  Init_RTC();	    // RELATED TO ESP32 BOARD
-#endif
 
- 	return C_TRUE;
+  #ifdef INCLUDE_PLATFORM_DEPENDENT  
+  sntp_stop();
+  sntp_setoperatingmode(SNTP_OPMODE_POLL);
+  sntp_setservername(0, ntp_server);
+  sntp_init();
+  //sntp_esp_cli_commands_init();  
+  #endif
+  
+  return C_TRUE;
 }
+
+
 
 /**
  * @brief RTC_Get_UTC_Current_Time
@@ -45,11 +56,15 @@ C_TIME RTC_Get_UTC_Current_Time(void)
 { /* TO BE Implemented  */
   C_TIME value = 0;
   
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-  value = Get_UTC_Current_Time(); 			// RELATED TO ESP32 BOARD
-#endif  
+  #ifdef INCLUDE_PLATFORM_DEPENDENT  
+  struct timeval now_timeval;
+  gettimeofday(&now_timeval, NULL);
+  value = (uint32_t)now_timeval.tv_sec;
+  #endif  
+  
   return value;
 }
+  
   
 /**
  * @brief RTC_Get_UTC_Boot_Time
@@ -72,7 +87,7 @@ C_TIME RTC_Get_UTC_Boot_Time(void)
  */
 void RTC_Set_UTC_Boot_Time(void)
 {
-	if(Boot_Time == 0)
+	if (Boot_Time == 0)
 		Boot_Time = RTC_Get_UTC_Current_Time();
 	
 	return;

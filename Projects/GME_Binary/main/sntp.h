@@ -22,9 +22,18 @@ extern "C" {
 /* STRUCT */
 
 /* PROTOTYPES */
-void Init_RTC(void);
-void sntp_get_time(char * buffer, size_t size);
-uint32_t Get_UTC_Current_Time(void);
+//void Init_RTC(void);
+//void sntp_get_time(char * buffer, size_t size);
+//uint32_t Get_UTC_Current_Time(void);
+
+
+void sntp_stop(void);
+void sntp_setoperatingmode(u8_t operating_mode);
+void sntp_setservername(u8_t idx, char *server);
+void sntp_init(void);
+
+
+
 #ifdef __cplusplus
 }
 #endif

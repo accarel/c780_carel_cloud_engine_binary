@@ -227,7 +227,7 @@ void Carel_Main_Task(void)
 
         case GME_WAITING_FOR_CONFIG_FROM_MQTT:
         {
-        	if(Get_UTC_Current_Time() > waiting_conf_timer + WAITING_CONF_COUNTER){
+        	if(RTC_Get_UTC_Current_Time() > waiting_conf_timer + WAITING_CONF_COUNTER){
         		NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status);
         		NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
         		NVM__ReadU8Value(SET_DEVS_CONFIG_NVM, &devs_config_status);
@@ -238,7 +238,7 @@ void Carel_Main_Task(void)
 				{
 					sm = GME_REBOOT;
 				}else{
-					waiting_conf_timer = Get_UTC_Current_Time();
+					waiting_conf_timer = RTC_Get_UTC_Current_Time();
 				}
         	}
 
