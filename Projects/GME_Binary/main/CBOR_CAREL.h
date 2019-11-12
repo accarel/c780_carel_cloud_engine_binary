@@ -26,7 +26,7 @@
 #define CBORSTREAM_SIZE			1024
 
 #define TAG_SIZE				3
-#define REPLYTO_SIZE			48
+
 #define RESPONSE_SIZE			80
 #define ALIAS_SIZE				10	//TODO
 #define VAL_SIZE				30
@@ -100,7 +100,7 @@ typedef enum CloudtoGME_Commands_l{
 #pragma pack(1)
 typedef struct C_CBORHREQ{
 	C_UINT16 ver;
-	C_BYTE rto[REPLYTO_SIZE];
+	C_BYTE rto[RTO_SIZE];
 	C_UINT16 cmd;
 	C_INT16 res;
 } c_cborhreq;

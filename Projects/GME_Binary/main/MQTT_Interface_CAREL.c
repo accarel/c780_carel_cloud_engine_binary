@@ -272,7 +272,7 @@ C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
 {
 	
 	C_GATEWAY_ID dev_id;
-	Get_Gateway_ID(&dev_id);
+	Get_Gateway_ID((C_SBYTE*)&dev_id);
 	
 	memset((void*)mqtt_topic,0,sizeof(mqtt_topic));
 	sprintf(mqtt_topic,"%s%s", dev_id, (C_SCHAR*)topic);
@@ -294,7 +294,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
             msg_id = mqtt_client_subscribe((C_SCHAR*)MQTT_GetUuidTopic("/req"), 0);
             DEBUG_MQTT("sent subscribe successful, msg_id=%d", msg_id);
 
-            msg_id = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/connected"), "1", 0, 1, 1);
+            msg_id = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/connected"), (C_SBYTE*)1, 0, 1, 1);
             DEBUG_MQTT("sent publish successful, msg_id=%d", msg_id);
 
             if(0 == mqtt_init)

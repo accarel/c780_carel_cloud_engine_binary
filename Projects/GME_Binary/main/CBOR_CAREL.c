@@ -208,8 +208,8 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
-	for(int i=0; i<len; i++)
-	printf("%x\n", cbor_stream[i]);
+	//for(int i=0; i<len; i++)
+	//printf("%x\n", cbor_stream[i]);
 	return len;
 }
 
@@ -760,7 +760,7 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 	CborParser parser;
 	size_t stlen;
     char tag[TAG_SIZE];
-	char rto[REPLYTO_SIZE];
+	char rto[RTO_SIZE];
 	CborError err;
 	CborValue it, recursed;
 
@@ -1303,6 +1303,12 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				PollEngine__StopEngine();
 				MQTT_FlushValues();
 			}
+			// mqtt response
+			cbor_req.res = 0;
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+
 			GME__Reboot();		//todo
 		}
 		break;
@@ -1327,7 +1333,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if(SUCCESS_CMD == cbor_req.res)
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
@@ -1348,7 +1355,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
@@ -1383,7 +1391,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				}
 				device = answer[0];
 				len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
-				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+				sprintf(topic,"%s%s", "/res", cbor_req.rto);
+				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 				PollEngine__SetPassModeCMD(EXECUTED);
 				PollEngine__MBResume();
@@ -1402,7 +1411,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// write new baud rate and connector to configuration file and put in res the result of operation
 			cbor_req.res = (execute_set_line_config(new_baud_rate, new_connector) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
@@ -1452,7 +1462,8 @@ data_rx_len=0;
 					cbor_req.res = C_SUCCESS;
 
 				len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, data_rx, data_rx_len);
-				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+				sprintf(topic,"%s%s", "/res", cbor_req.rto);
+				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 				PollEngine__SetPassModeCMD(EXECUTED);
 				PollEngine__MBResume();
@@ -1488,7 +1499,8 @@ data_rx_len=0;
 					printf("OPERATION_FAILED\n");
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, 0);
 				}
-				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+				sprintf(topic,"%s%s", "/res", cbor_req.rto);
+				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 				PollEngine__SetPassModeCMD(EXECUTED);
 			}
 		}
@@ -1510,7 +1522,8 @@ data_rx_len=0;
 				cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 				// send response with result
 				len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, NULL);
-				mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+				sprintf(topic,"%s%s", "/res", cbor_req.rto);
+				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 				PollEngine__SetPassModeCMD(EXECUTED);
 			}
 		}
@@ -1594,7 +1607,8 @@ data_rx_len=0;
 			cbor_req.res = (execute_update_ca_cert(&update_ca_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			// send a report of operation
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if (cbor_req.res == C_SUCCESS)
 			{
 				if(PollEngine__GetEngineStatus() == RUNNING){
@@ -1617,8 +1631,8 @@ data_rx_len=0;
 			// mqtt response
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine__GetEngineStatus() == RUNNING){
 					PollEngine__StopEngine();
@@ -1635,7 +1649,8 @@ data_rx_len=0;
 			PollEngine__StartEngine();
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -1645,7 +1660,8 @@ data_rx_len=0;
 			PollEngine__StopEngine();
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -1657,14 +1673,16 @@ data_rx_len=0;
 			PollEngine__ActivatePassMode();
 
 			len = CBOR_ResSendMbPassThrough(cbor_response, &cbor_req, cbor_pass);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
 		default:
 			cbor_req.res = INVALID_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			mqtt_client_publish((C_SCHAR*)topic, (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			sprintf(topic,"%s%s", "/res", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		break;
 
 	}
