@@ -29,7 +29,7 @@
 #define USERNAME_SIZE	34
 #define PASSWORD_SIZE	34
 #define URI_SIZE 		64
-#define RTO_SIZE 		48
+#define RTO_SIZE 		64
 #define TOPIC_SIZE		100
 
 
@@ -51,7 +51,7 @@ typedef C_SBYTE       C_URI[URI_SIZE];
                      
 typedef C_INT16      C_RES;     
 
-typedef C_SCHAR       C_MQTT_TOPIC[URI_SIZE];
+typedef C_SCHAR       C_MQTT_TOPIC[TOPIC_SIZE];
 
 typedef C_BYTE	     C_GUID[16];
 
