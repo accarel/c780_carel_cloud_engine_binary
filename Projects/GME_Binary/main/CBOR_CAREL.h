@@ -158,6 +158,24 @@ typedef struct C_CBORDWLDEVSCFG{
 #pragma pack()
 
 
+
+/**
+ * @brief C_CBORREQUPDDEVFW
+ *
+ * Request
+ */
+#pragma pack(1)
+typedef struct C_CBORREQUPDDEVFW{
+	C_USERNAME usr;
+	C_PASSWORD pwd;
+	C_URI uri;
+	C_UINT16 fid;
+	C_UINT16 wet;
+}c_cborrequpddevfw;
+#pragma pack()
+
+
+
 #pragma pack(1)
 typedef struct C_CBORSENDMBADU{
 	uint16_t sequence;

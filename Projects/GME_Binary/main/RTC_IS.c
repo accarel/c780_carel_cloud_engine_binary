@@ -5,18 +5,21 @@
  * @brief  implementations target specific related to the managment of the
  *         real time clock.   
  */
-
+#include "RTC_IS.h"
 #include <sys/time.h>
 #include "data_types_CAREL.h"
 #include "data_types_IS.h"
 #include "sntp.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT 
+
+#include "lwip/ip_addr.h"
+#include "lwip/err.h"
+#include "lwip/apps/sntp.h"
+
 //depend of device
 #include "sntp.h"
 #endif
-
-#include "RTC_IS.h"
 /* Functions implementation -------------------------------------------------------*/
 
 C_TIME Boot_Time = 0;
@@ -35,6 +38,7 @@ C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
 { /* TO BE Implemented */
 
   #ifdef INCLUDE_PLATFORM_DEPENDENT  
+  printf("Initializing SNTP");
   sntp_stop();
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
   sntp_setservername(0, ntp_server);

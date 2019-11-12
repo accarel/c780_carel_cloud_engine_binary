@@ -9,7 +9,10 @@
 /* Includes ------------------------------------------------------------------------ */
 #include "https_client_IS.h"
 #include "sys.h"
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_http_client.h"
+#endif
 
 static const char *TAG = "HTTP_CLIENT_IS";
 
@@ -145,7 +148,6 @@ C_INT32 http_client_fetch_headers_IS(http_client_handle_t client)
  #ifdef INCLUDE_PLATFORM_DEPENDENT
  ret_val =  esp_http_client_fetch_headers(client);
  #endif
- 
  
  return ret_val;
  

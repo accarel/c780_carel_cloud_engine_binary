@@ -49,9 +49,28 @@
 #define GW_CLOUDIFACE_MODE "client"
 
 #define GW_CLOUDIFACE_MAC_ADDRESS "3C:71:BF:F7:F4"
+
 /* ========================================================================== */
 /* File system related                                                        */
 /* ========================================================================== */
+
+
+
+
+
+/* ========================================================================== */
+/* OS related                                                                 */
+/* ========================================================================== */
+
+/** @brief SYSTEM_TIME_TICK  system tick of the OS expressed in ms
+ *                           if used in non OS system this is the incremet of 
+ *                           tick time 
+*/
+
+#define SYSTEM_TIME_TICK	1
+
+
+
 
 
 

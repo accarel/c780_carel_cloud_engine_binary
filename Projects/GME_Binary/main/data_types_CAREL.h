@@ -59,6 +59,8 @@ typedef C_BYTE	     C_RTO[48];
 
 extern CRC_TABLE_TYPE CRCTABLE[256];
 
+typedef C_BYTE       C_BOOL;
+
 
 /** 
 @brief this data type is able to store both a WiFi or GSM ID
@@ -112,9 +114,9 @@ enum list_protocols{
 /* ======================================================= */
 
 /* ==== CBOR tag used type ==== */
-#define C_CBOR_TAG_TIME	    1
+#define C_CBOR_TAG_TIME	        1
  
-#define C_CBOR_TAG_FLOAT      85
+#define C_CBOR_TAG_FLOAT        85
 #define C_CBOR_TAG_IPV4_ADDR	260
 
 

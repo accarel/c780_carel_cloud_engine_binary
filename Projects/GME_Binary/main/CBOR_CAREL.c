@@ -21,6 +21,7 @@
 #include "binary_model.h"
 #include "poll_engine.h"
 #include "https_client_CAREL.h"
+#include "ota_CAREL.h"
 
 /* Exported types ------------------------------------------------------------*/
 
@@ -710,7 +711,6 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	return len;
 }
 
-
 /**
  * @brief CBOR_ResSendMbPassThrough
  *
@@ -911,7 +911,6 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 	err = cbor_value_leave_container(&it, &recursed);
 	return err;
 }
-
 
 /**
  * @brief CBOR_ReqRdWrValues
@@ -1266,6 +1265,80 @@ CborError CBOR_DiscardElement(CborValue* it)
 	return err;
 }
 
+
+
+/**
+ * @brief CBOR_ReqUpdateDevFW
+ *
+ * Interprets CBOR update dev FW
+ *
+ * @param Pointer to the CBOR current element
+ * @param Pointer to username
+ * @param Pointer to password
+ * @param Pointer to uri
+ * @param Pointer to fid          0..9999 file index, valid only for modbus file transf.
+ * @param Pointer to wet          number of second needed by the target to perform a reboot after an upgrade
+ *
+ * @return CborError
+ */
+CborError CBOR_ReqUpdateDevFW(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborrequpddevfw* update_dev_fw)
+{
+	CborError err = CborNoError;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	CborValue it, recursed;
+	CborParser parser;
+
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
+	err |= cbor_value_enter_container(&it, &recursed);
+	DEBUG_DEC(err, "set devs config request map");
+
+	while (!cbor_value_at_end(&recursed)) {
+		stlen = TAG_SIZE;
+		memset(tag,'0',sizeof(tag));
+		err = cbor_value_copy_text_string(&recursed, tag, &stlen, &recursed);
+
+		if (strncmp(tag, "usr", 3) == 0)
+		{
+			stlen = USERNAME_SIZE;
+			err |= cbor_value_copy_text_string(&recursed, update_dev_fw->usr, &stlen, &recursed);
+			DEBUG_DEC(err, "req_set_devs_config: usr");
+		}
+		else if (strncmp(tag, "pwd", 3) == 0)
+		{
+			stlen = PASSWORD_SIZE;
+			err |= cbor_value_copy_text_string(&recursed, update_dev_fw->pwd, &stlen, &recursed);
+			DEBUG_DEC(err, "req_set_devs_config: pwd");
+		}
+		else if (strncmp(tag, "uri", 3) == 0)
+		{
+			stlen = URI_SIZE;
+			err |= cbor_value_copy_text_string(&recursed, update_dev_fw->uri, &stlen, &recursed);
+			DEBUG_DEC(err, "req_set_devs_config: uri");
+		}
+		else if (strncmp(tag, "fid", 3) == 0)
+		{
+			err |= CBOR_ExtractInt(&recursed, (int64_t*)&update_dev_fw->fid);
+			DEBUG_DEC(err, "req_set_devs_config: fid");
+		}
+		else if (strncmp(tag, "wet", 3) == 0)
+		{
+			err |= CBOR_ExtractInt(&recursed, (int64_t*)&update_dev_fw->wet);
+			DEBUG_DEC(err, "req_set_devs_config: wet");
+		}
+		else
+		{
+			err = CBOR_DiscardElement(&recursed);
+			DEBUG_DEC(err, "req_: discard element");
+		}
+	}
+
+	err = cbor_value_leave_container(&it, &recursed);
+	return err;
+}
+
+
+
 /**
  * @brief CBOR_ReqTopicParser
  *
@@ -1275,7 +1348,6 @@ CborError CBOR_DiscardElement(CborValue* it)
  * @param Length of the CBOR stream
  * @return CborError
  */
-
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 	c_cborhreq cbor_req = {0};
@@ -1572,28 +1644,36 @@ data_rx_len=0;
 
 		case UPDATE_DEV_FIRMWARE:
 		{
-/*EGISIAN
 			bool previous_poll_engine_status = false;
-			req_update_dev_fw_t update_dev_fw = {0};
-			parse_update_dev_fw(root, &update_dev_fw);
 
-			if(PollEngine__GetEngineStatus() == RUNNING){
+			c_cborrequpddevfw update_dev_fw = {0};
+
+			CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
+
+
+			/* TODO BILATO
+			if (PollEngine__GetEngineStatus() == RUNNING){
 				PollEngine__StopEngine();
 				MQTT_FlushValues();
 				previous_poll_engine_status = true;
 			}
+			*/
 
-			if(ESP_OK == OTA__DevFWInit(&update_dev_fw)){
-				send_simple_res(ReqHeader.replyTo, UPDATE_DEV_FIRMWARE, SUCCESS_CMD, MQTT__GetClient());
+
+			if (C_SUCCESS == OTA__DevFWUpdate(&update_dev_fw)){
 				GME__Reboot();
 			}else{
-				send_simple_res(ReqHeader.replyTo, UPDATE_DEV_FIRMWARE, ERROR_CMD, MQTT__GetClient());
+				//TODO BILATO
+				//send_simple_res(ReqHeader.replyTo, UPDATE_DEV_FIRMWARE, ERROR_CMD, MQTT__GetClient());
+
 			}
 
+			/* TODO BILATO
 			if(previous_poll_engine_status == true){
 				PollEngine__StartEngine();
 			}
-//EGISIAN*/
+			*/
+
 		}
 		break;
 
