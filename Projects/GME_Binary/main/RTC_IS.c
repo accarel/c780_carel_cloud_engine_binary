@@ -6,8 +6,10 @@
  *         real time clock.   
  */
 
+#include <sys/time.h>
 #include "data_types_CAREL.h"
 #include "data_types_IS.h"
+#include "sntp.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT 
 //depend of device

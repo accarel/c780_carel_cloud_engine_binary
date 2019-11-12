@@ -1018,12 +1018,12 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 	if(temp != alarm->data.value){
 		//temp is not shifted, so it can have the entire value in uint16_t
 		if(0 != temp){
-			alarm->data.start_time = Get_UTC_Current_Time();
+			alarm->data.start_time = RTC_Get_UTC_Current_Time();
 			alarm->data.stop_time = 0;
 			alarm->data.value = 1;
 			alarm->data.send_flag = 1;
 		}else{
-			alarm->data.stop_time = Get_UTC_Current_Time();
+			alarm->data.stop_time = RTC_Get_UTC_Current_Time();
 			alarm->data.value = 0;
 			alarm->data.send_flag = 1;
 		}
@@ -1891,7 +1891,7 @@ void PollEngine__PassModeFSM(void){
 		case START_TIMER:
 			{
 
-				PassModeTimer =	Get_UTC_Current_Time();
+				PassModeTimer =	RTC_Get_UTC_Current_Time();
 				PassMode_FSM = WAIT_MQTT_CMD;
 
 				PRINTF_DEBUG("\nPassModeFSM 	START_TIMER\n");
@@ -1902,7 +1902,7 @@ void PollEngine__PassModeFSM(void){
 			{
 				if(RECEIVED == PollEngine__GetPassModeCMD()){
 					PassMode_FSM = RESET_TIMER;
-				}else if(Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
+				}else if(RTC_Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
 						PassMode_FSM = DEACTIVATE_PASS_MODE;
 				}
 
@@ -1912,7 +1912,7 @@ void PollEngine__PassModeFSM(void){
 
 		case RESET_TIMER:
 			{
-				PassModeTimer =	Get_UTC_Current_Time();
+				PassModeTimer =	RTC_Get_UTC_Current_Time();
 				PassMode_FSM = EXECUTE_CMD;
 
 				if(test2==0){PRINTF_DEBUG("\nPassModeFSM	RESET_TIMER\n"); test2=1;}
@@ -1922,7 +1922,7 @@ void PollEngine__PassModeFSM(void){
 		case EXECUTE_CMD:
 			{
 				if(EXECUTED == PollEngine__GetPassModeCMD() ||
-					Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
+					RTC_Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
 
 					PassMode_FSM = DEACTIVATE_PASS_MODE;
 				}

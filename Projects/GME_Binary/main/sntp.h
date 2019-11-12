@@ -23,13 +23,16 @@ extern "C" {
 
 /* PROTOTYPES */
 //void Init_RTC(void);
-//void sntp_get_time(char * buffer, size_t size);
 //uint32_t Get_UTC_Current_Time(void);
+/* SNTP operating modes: default is to poll using unicast.
+   The mode has to be set before calling sntp_init(). */
+#define SNTP_OPMODE_POLL            0
+#define SNTP_OPMODE_LISTENONLY      1
 
-
+void sntp_get_time(char * buffer, size_t size);
 void sntp_stop(void);
-void sntp_setoperatingmode(u8_t operating_mode);
-void sntp_setservername(u8_t idx, char *server);
+void sntp_setoperatingmode(uint8_t operating_mode);
+void sntp_setservername(uint8_t idx, const char *server);
 void sntp_init(void);
 
 
