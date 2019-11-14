@@ -154,6 +154,7 @@ typedef struct C_CBORDWLDEVSCFG{
 	C_PASSWORD pwd;
 	C_URI uri;
 	C_UINT16 cid;
+	C_UINT16 crc;
 }c_cborreqdwldevsconfig;
 #pragma pack()
 
@@ -199,7 +200,7 @@ typedef struct C_CBORALARMS{
 }c_cboralarms;
 #pragma pack()
 
-#define VLS_NUMBER 		3
+#define VLS_NUMBER 		30
 typedef struct C_CBORVALS{
 	C_CHAR alias[ALIAS_SIZE];
 	C_CHAR values[ALIAS_SIZE];

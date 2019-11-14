@@ -305,7 +305,8 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 	C_CHAR mybuf[500];
 
 	size_t len = CBOR_Values(mybuf, index, number, frame);
-	#if 0
+
+#if 0
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte)  \
   (byte & 0x80 ? '1' : '0'), \
@@ -316,20 +317,22 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
   (byte & 0x04 ? '1' : '0'), \
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
+#endif
 
-	size_t len = CBOR_Values(mybuf, index, number, frame);
 	printf("valuespkt len %d: \n", len);
 	for (int i=0;i<len;i++){
 		printf("%02X ", mybuf[i]);
 	}
 	printf("\n");
+#if 0
 	printf("values pkt binary: \n");
 	for (int i=0;i<len;i++){
 			printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(mybuf[i]));
 	}
 	printf("\n");
-	#endif
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, len, 0, 0);
+#endif
+
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)mybuf, len, 0, 0);
 }
 
 /**
@@ -371,7 +374,11 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	// encode t - elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "t");
-	t = Get_SamplingTime(index);
+	// if there's no change to notify, update t at current time
+	if (number == 0)
+		t = RTC_Get_UTC_Current_Time();
+	else
+		t = Get_SamplingTime(index);
 	err |= cbor_encode_uint(&mapEncoder, t);
 	DEBUG_ADD(err, "t");
 
@@ -900,6 +907,11 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 		{
 			err |= CBOR_ExtractInt(&recursed, (int64_t*)&download_devs_config->cid);
 			DEBUG_DEC(err, "req_set_devs_config: cid");
+		}
+		else if (strncmp(tag, "crc", 3) == 0)
+		{
+			err |= CBOR_ExtractInt(&recursed, (int64_t*)&download_devs_config->crc);
+			DEBUG_DEC(err, "req_set_devs_config: crc");
 		}
 		else
 		{
