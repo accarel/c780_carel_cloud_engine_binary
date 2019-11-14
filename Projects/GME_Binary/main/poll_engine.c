@@ -568,6 +568,7 @@ static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
  */
 static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
 {
+	static int first_run_h=1;
 bool to_values_buff = false;
 long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
@@ -578,6 +579,8 @@ long double value = 0;
 			check_increment_values_buff_len(&values_buffer_index);
 		}
 		else{
+			// reinit value otherwise all variables will be considered changed
+			value = 0;
 			switch(arr->tab[i].read_type){
 			case TYPE_A:
 			{
@@ -702,7 +705,7 @@ long double value = 0;
 			default:
 				break;
 			}
-			if(value != 0){
+			if(value != 0 || (first_run_h <= 4)){
 				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 				values_buffer[values_buffer_index].value = value;
 				values_buffer[values_buffer_index].info_err = 0;
@@ -710,6 +713,7 @@ long double value = 0;
 			}
 		}
 	}
+	first_run_h++;
 }
 
 /*	Descriptions: Comparing the current read with previous COIL and IR reads
@@ -722,6 +726,7 @@ long double value = 0;
  */
 static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 {
+	static uint8_t first_run_c = 1;
 	for(uint8_t i=0; i<arr_len; i++){
 		//error?
 		if(0 != arr->reg[i].error){
@@ -733,7 +738,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 
 		}
 		//value changed
-		else if(arr->reg[i].c_value != arr->reg[i].p_value){
+		else if(arr->reg[i].c_value != arr->reg[i].p_value || (first_run_c <= 4)){
 			//send values to values buffer
 			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
 			values_buffer[values_buffer_index].value = (long double)arr->reg[i].c_value;
@@ -741,6 +746,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 			check_increment_values_buff_len(&values_buffer_index);
 		}
 	}
+	first_run_c++;// = 0;
 }
 
 
@@ -1225,13 +1231,13 @@ void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir
 		addr = (Coil->reg[i].info.Addr);
 
 		errorReq = app_coil_read(1, 1, addr, 1);
-
+		Coil->reg[i].error = errorReq;
 		// reset to the default for the next reading
 		SetResult(MB_ENOREG);
 		errorReq = MB_MRE_NO_REG;
 
 #ifdef __DEBUG_POLL_ENGINE_CAREL
-		printf("letto %f\n", (float)param_buffer[0]);
+		printf("letto coil address %d: %f, error: %d\n", addr, (float)param_buffer[0], Coil->reg[i].error);
 #endif
 
 		save_coil_di_value(&Coil->reg[i] , param_buffer);
@@ -1248,13 +1254,13 @@ void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir
 		addr = (Di->reg[i].info.Addr);
 
 		errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
-
+		Di->reg[i].error = errorReq;
 		// reset to the default for the next reading
 		SetResult(MB_ENOREG);
 		errorReq = MB_MRE_NO_REG;
 
 #ifdef __DEBUG_POLL_ENGINE_CAREL
-		printf("letto %f\n", (float)param_buffer[0]);
+		printf("letto di address %d: %f, error: %d\n", addr, (float)param_buffer[0], Di->reg[i].error);
 #endif
 		save_coil_di_value(&Di->reg[i] , param_buffer);
 
@@ -1276,7 +1282,7 @@ void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir
 
 
 		errorReq = app_holding_register_read(1, 1, addr, numOf);
-
+		Hr->tab[i].error = errorReq;
 
 
 		// reset to the default for the next reading
@@ -1284,7 +1290,7 @@ void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir
 		errorReq = MB_MRE_NO_REG;
 
 #ifdef __DEBUG_POLL_ENGINE_CAREL
-		printf("letto %f\n", (float)param_buffer[0]);
+		printf("letto hr address %d: %f, error: %d\n", addr, (float)param_buffer[0], Hr->tab[i].error);
 #endif
 		save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
 
@@ -1306,19 +1312,20 @@ void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir
 		  numOf = 2;
 
 		errorReq = app_input_register_read(1, 1, addr, numOf);
-
+		Ir->tab[i].error = errorReq;
 
 		// reset to the default for the next reading
 		SetResult(MB_ENOREG);
 		errorReq = MB_MRE_NO_REG;
 
 #ifdef __DEBUG_POLL_ENGINE_CAREL
-		printf("letto %f\n", (float)param_buffer[0]);
+		printf("letto ir address %d: %f, error: %d\n", addr, (float)param_buffer[0], Ir->tab[i].error);
 #endif
 		save_hr_ir_value(&Ir->tab[i], param_buffer);
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
+
 }
 
 // CHIEBAO A.
@@ -1629,10 +1636,12 @@ void DoPolling(req_set_gw_config_t* polling_times)
 				DoLowPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab);
 
 				//timestamp.previous_low = timestamp.current_low;
-				timestamp.current_low = RTC_Get_UTC_Current_Time();  // Get_UTC_Current_Time();
+				timestamp.current_low = RTC_Get_UTC_Current_Time();
 
-				//compare_prev_curr_reads(LOW_POLLING);
-				//update_current_previous_tables(LOW_POLLING);
+				compare_prev_curr_reads(LOW_POLLING);
+				update_current_previous_tables(LOW_POLLING);
+
+				MQTT_FlushValues();
 
 			}
 			else if (timeout > (timestamp.current_high + polling_times->hispeedsamplevalue)   &&   high_n.total > 0) {
@@ -1644,9 +1653,10 @@ void DoPolling(req_set_gw_config_t* polling_times)
 				timestamp.current_high = RTC_Get_UTC_Current_Time();
 
 				//print_Hightables();
-				//compare_prev_curr_reads(HIGH_POLLING);
-				//update_current_previous_tables(HIGH_POLLING);
+				compare_prev_curr_reads(HIGH_POLLING);
+				update_current_previous_tables(HIGH_POLLING);
 				//print_ValuesTable();
+				MQTT_FlushValues();
 
 		    }
 		}
@@ -2006,10 +2016,12 @@ uint16_t PollEngine__GetTimerBufferIndex(void){
 
 void PollEngine__ResetValuesBuffer(void){
 	//Reset Values Buffer
-	memset((void*)values_buffer, 0, sizeof(values_buffer));
+	//memset((void*)values_buffer, 0, sizeof(values_buffer));
+	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
 	values_buffer_index = 0;
 	//Reset Time Buffer
-	memset((void*)time_values_buff, 0, sizeof(time_values_buff));
+	//memset((void*)time_values_buff, 0, sizeof(time_values_buff));
+	memset((void*)time_values_buff, 0, time_values_buff_len * sizeof(values_buffer_timing_t));
 	values_buffer_read_section = 1;
 }
 
