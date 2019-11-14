@@ -197,24 +197,32 @@ void MQTT_Stop(void)
 
 
 db_values val_array[10];
-C_TIME Get_SamplingTime(C_UINT16 index){return val_array[index].t;}
+C_TIME Get_SamplingTime(C_UINT16 index){
+	PRINTF_DEBUG("Get_SamplingTime index: %d, t:%d\n", index, val_array[index].t);
+	return val_array[index].t;}
 C_CHAR a[1];
-C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i){return val_array[index].vls[i].alias;}
-C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i){return val_array[index].vls[i].values;}
+C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i){
+	PRINTF_DEBUG("Get_Alias index: %d, i: %d, alias:%s\n", index, i, val_array[index].vls[i].alias);
+	return val_array[index].vls[i].alias;}
+C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i){
+	PRINTF_DEBUG("Get_Value index: %d, i: %d, vls:%s\n", index, i, val_array[index].vls[i].values);
+	return val_array[index].vls[i].values;}
 
 void CBOR_CreateSendValues(values_buffer_t *values_buffer, values_buffer_timing_t *time_values_buff, uint16_t values_buffer_index, uint16_t values_buffer_read_section)
 {
 	uint32_t i, j;
 	j = 0;
+	PRINTF_DEBUG("CBOR_CreateSendValues values_buffer_read_section: %d, values_buffer_index: %d\n", values_buffer_read_section, values_buffer_index);
 	for(i = 0; i < values_buffer_read_section - 1; i++){
 
 		val_array[i].t = time_values_buff[i].t_stop;
 
 		while(time_values_buff[i].index == values_buffer[j].index){
-			char alias[6] = {0};
-			sprintf(alias, "%d", values_buffer[j].alias);
+			PRINTF_DEBUG("i: %d, j: %d, alias: %d, value: %Lf, err:%d\n", i, j, values_buffer[j].alias, values_buffer[j].value, values_buffer[j].info_err);
+			PRINTF_DEBUG("time index %d, values index %d\n", time_values_buff[i].index, values_buffer[j].index);
+			itoa(values_buffer[j].alias, (char*)val_array[i].vls[j].alias, 10);
 			if(0 != values_buffer[j].info_err)
-				itoa(values_buffer[j].value, "", 10);
+				memcpy(val_array[i].vls[j].values, "", 1);
 			else{
 				itoa(values_buffer[j].value, (char*)val_array[i].vls[j].values, 10);
 			}
@@ -232,7 +240,7 @@ void MQTT_FlushValues(void){
 			PollEngine__GetValuesBufferIndex(),	PollEngine__GetTimerBufferIndex());
 
 
-	mqtt_time.cbor_values = 0;
+	mqtt_time.cbor_values =  RTC_Get_UTC_Current_Time();
 
 	PollEngine__ResetValuesBuffer();
 
@@ -264,7 +272,7 @@ void MQTT_Alarms(c_cboralarms alarms)
 
 void MQTT_PeriodicTasks(void)
 {
-	MQTT_Values();
+//	MQTT_Values();
 	MQTT_Status();
 }
 

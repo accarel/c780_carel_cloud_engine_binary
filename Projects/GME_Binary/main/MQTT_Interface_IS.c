@@ -126,7 +126,7 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 		mqtt_message_received_callback(C_CHAR *msg, C_UINT len) 
 	*/
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-		C_SBYTE mac[12];
+		C_SBYTE mac[18];
 		Get_Gateway_ID(mac);
 
 		esp_mqtt_client_config_t mqtt_cfg = {
