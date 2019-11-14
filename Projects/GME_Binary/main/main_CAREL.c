@@ -180,7 +180,7 @@ void Carel_Main_Task(void)
 			WiFi__WaitConnection();
 
 			//Init_RTC();
-			retval = RTC_Init("TIME",0);							// Carel
+			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr,0);		// Vale: make this call hw independent					// Carel
 			CAREL_CHECK(retval, "TIME");
 			
 			//Set boot time
