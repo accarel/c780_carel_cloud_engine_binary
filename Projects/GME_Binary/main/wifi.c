@@ -425,3 +425,10 @@ connection_status_t WIFI__GetSTAStatus(void){
 }
 
 
+C_RES WiFi__GetMac(uint8_t* wifi_mac_address_gw){
+	C_RES err = C_FAIL;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+		err = esp_wifi_get_mac(ESP_IF_WIFI_STA, wifi_mac_address_gw);
+#endif
+	return err;
+}

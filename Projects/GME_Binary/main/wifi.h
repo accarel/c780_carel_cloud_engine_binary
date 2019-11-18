@@ -33,7 +33,7 @@ void WIFI__SetSTAConnectionTime(void);
 uint32_t WIFI__GetSTAConnectionTime(void);
 void WIFI__SetSTAStatus(connection_status_t status);
 connection_status_t WIFI__GetSTAStatus(void);
-
+C_RES WiFi__GetMac(uint8_t* wifi_mac_address_gw);
 
 
 esp_err_t test_sta(html_config_param_t config);
