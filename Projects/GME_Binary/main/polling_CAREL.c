@@ -412,7 +412,8 @@ static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
  */
 static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
 {
-	bool to_values_buff = false;
+	static int first_run_h=1;
+bool to_values_buff = false;
 	long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
 		if(0 != arr->tab[i].error){
@@ -422,6 +423,8 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
 			check_increment_values_buff_len(&values_buffer_index);
 		}
 		else{
+			// reinit value otherwise all variables will be considered changed
+			value = 0;
 			switch(arr->tab[i].read_type){
 			case TYPE_A:
 			{
@@ -546,7 +549,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
 			default:
 				break;
 			}
-			if(value != 0){
+			if(value != 0 || (first_run_h <= 4)){
 				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 				values_buffer[values_buffer_index].value = value;
 				values_buffer[values_buffer_index].info_err = 0;
@@ -554,6 +557,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
 			}
 		}
 	}
+	first_run_h++;
 }
 
 
@@ -567,6 +571,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
  */
 static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 {
+	static uint8_t first_run_c = 1;
 	for(uint8_t i=0; i<arr_len; i++){
 		//error?
 		if(0 != arr->reg[i].error){
@@ -578,7 +583,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 
 		}
 		//value changed
-		else if(arr->reg[i].c_value != arr->reg[i].p_value){
+		else if(arr->reg[i].c_value != arr->reg[i].p_value || (first_run_c <= 4)){
 			//send values to values buffer
 			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
 			values_buffer[values_buffer_index].value = (long double)arr->reg[i].c_value;
@@ -586,6 +591,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 			check_increment_values_buff_len(&values_buffer_index);
 		}
 	}
+	first_run_c++;// = 0;
 }
 
 
@@ -862,12 +868,12 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 	if(temp != alarm->data.value){
 		//temp is not shifted, so it can have the entire value in uint16_t
 		if(0 != temp){
-			alarm->data.start_time = Get_UTC_Current_Time();
+			alarm->data.start_time = RTC_Get_UTC_Current_Time();
 			alarm->data.stop_time = 0;
 			alarm->data.value = 1;
 			alarm->data.send_flag = 1;
 		}else{
-			alarm->data.stop_time = Get_UTC_Current_Time();
+			alarm->data.stop_time = RTC_Get_UTC_Current_Time();
 			alarm->data.value = 0;
 			alarm->data.send_flag = 1;
 		}
@@ -1035,7 +1041,7 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 		addr = (Coil->reg[i].info.Addr);
 
 		errorReq = app_coil_read(1, 1, addr, 1);
-
+		Coil->reg[i].error = errorReq;
 		// reset to the default for the next reading
 		SetResult(MB_ENOREG);
 		errorReq = MB_MRE_NO_REG;
@@ -1055,7 +1061,7 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 		addr = (Di->reg[i].info.Addr);
 
 		errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
-
+		Di->reg[i].error = errorReq;
 		// reset to the default for the next reading
 		SetResult(MB_ENOREG);
 		errorReq = MB_MRE_NO_REG;
@@ -1080,7 +1086,7 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 
 
 		errorReq = app_holding_register_read(1, 1, addr, numOf);
-
+		Hr->tab[i].error = errorReq;
 
 
 		// reset to the default for the next reading
@@ -1107,7 +1113,7 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 		  numOf = 2;
 
 		errorReq = app_input_register_read(1, 1, addr, numOf);
-
+		Ir->tab[i].error = errorReq;
 
 		// reset to the default for the next reading
 		SetResult(MB_ENOREG);
@@ -1380,10 +1386,12 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				DoLowPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab);
 
 				//timestamp.previous_low = timestamp.current_low;
-				timestamp.current_low = RTC_Get_UTC_Current_Time();  // Get_UTC_Current_Time();
+				timestamp.current_low = RTC_Get_UTC_Current_Time();
 
-				//compare_prev_curr_reads(LOW_POLLING);
-				//update_current_previous_tables(LOW_POLLING);
+				compare_prev_curr_reads(LOW_POLLING);
+				update_current_previous_tables(LOW_POLLING);
+
+				MQTT_FlushValues();
 
 			}
 			else if (timeout > (timestamp.current_high + polling_times->hispeedsamplevalue)   &&   high_n.total > 0) {
@@ -1395,9 +1403,10 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				timestamp.current_high = RTC_Get_UTC_Current_Time();
 
 				//print_Hightables();
-				//compare_prev_curr_reads(HIGH_POLLING);
-				//update_current_previous_tables(HIGH_POLLING);
+				compare_prev_curr_reads(HIGH_POLLING);
+				update_current_previous_tables(HIGH_POLLING);
 				//print_ValuesTable();
+				MQTT_FlushValues();
 
 		    }
 		}
@@ -1578,7 +1587,7 @@ void PollEngine__PassModeFSM(void){
 		case START_TIMER:
 			{
 
-				PassModeTimer =	Get_UTC_Current_Time();
+				PassModeTimer =	RTC_Get_UTC_Current_Time();
 				PassMode_FSM = WAIT_MQTT_CMD;
 
 				PRINTF_DEBUG("\nPassModeFSM 	START_TIMER\n");
@@ -1589,7 +1598,7 @@ void PollEngine__PassModeFSM(void){
 			{
 				if(RECEIVED == PollEngine__GetPassModeCMD()){
 					PassMode_FSM = RESET_TIMER;
-				}else if(Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
+				}else if(RTC_Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
 						PassMode_FSM = DEACTIVATE_PASS_MODE;
 				}
 
@@ -1599,7 +1608,7 @@ void PollEngine__PassModeFSM(void){
 
 		case RESET_TIMER:
 			{
-				PassModeTimer =	Get_UTC_Current_Time();
+				PassModeTimer =	RTC_Get_UTC_Current_Time();
 				PassMode_FSM = EXECUTE_CMD;
 
 				if(test2==0){PRINTF_DEBUG("\nPassModeFSM	RESET_TIMER\n"); test2=1;}
@@ -1609,7 +1618,7 @@ void PollEngine__PassModeFSM(void){
 		case EXECUTE_CMD:
 			{
 				if(EXECUTED == PollEngine__GetPassModeCMD() ||
-					Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
+					RTC_Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
 
 					PassMode_FSM = DEACTIVATE_PASS_MODE;
 				}
@@ -1698,10 +1707,10 @@ uint16_t PollEngine__GetTimerBufferIndex(void){
 
 void PollEngine__ResetValuesBuffer(void){
 	//Reset Values Buffer
-	memset((void*)values_buffer, 0, sizeof(values_buffer));
+	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
 	values_buffer_index = 0;
 	//Reset Time Buffer
-	memset((void*)time_values_buff, 0, sizeof(time_values_buff));
+	memset((void*)time_values_buff, 0, time_values_buff_len * sizeof(values_buffer_timing_t));
 	values_buffer_read_section = 1;
 }
 

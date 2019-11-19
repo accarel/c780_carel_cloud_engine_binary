@@ -1883,9 +1883,9 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 	err = NVM__WriteU32Value(MB_DEV_NVM, download_devs_config->dev);
 	if (err == C_FAIL)
 		return C_FAIL;
-	err = HttpsClient__DownloadFile(&download_info, CERT_1, CERT1_SPIFFS);
+	err = HttpsClient__DownloadFile(&download_info, CERT_1, MODEL_FILE);
 	if(CONN_FAIL == err)
-		err = HttpsClient__DownloadFile(&download_info, CERT_2, CERT2_SPIFFS);
+		err = HttpsClient__DownloadFile(&download_info, CERT_2, MODEL_FILE);
 	else if(FILE_NOT_SAVED == err)
 		return C_FAIL;
 

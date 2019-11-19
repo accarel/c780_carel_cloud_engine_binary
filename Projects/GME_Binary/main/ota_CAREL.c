@@ -12,7 +12,7 @@
 #include "nvs_flash.h"
 
 #include "wifi.h"
-#include "file_system.h"
+//#include "file_system.h"
 
 #include "polling_CAREL.h"
 #include "polling_IS.h"

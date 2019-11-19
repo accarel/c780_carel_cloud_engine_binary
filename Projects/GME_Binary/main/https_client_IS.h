@@ -24,7 +24,7 @@
 #include "lwip/sys.h"
 #include "lwip/netdb.h"
 #include "lwip/dns.h"
-#include "file_system.h"
+//#include "file_system.h"
 #include "esp_http_client.h"
 #endif
 

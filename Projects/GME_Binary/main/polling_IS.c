@@ -39,7 +39,7 @@ void Polling_Engine_Init_IS(void)
 	create_values_buffers();
 
 
-	req_set_gw_config_t * polling_times = Utilities_GetGWConfigData();
+	req_set_gw_config_t * polling_times = Utilities__GetGWConfigData();
 
 
 	while(1)

@@ -25,11 +25,7 @@ static req_set_gw_config_t gw_config_data = {0};
 
 static uint8_t wifi_mac_address_gw[6] = {0};
 static char wifi_mac_address_gw_str[14] = {0};
-
-static uint8_t gsm_imei_gw_[15] = {0};
 static char gsm_imei_gw_str[16] = {0};
-
-static void Utilities__ScanGWConfigData(void);
 
 void Utilities__CalcMACAddr(void){
 	C_RES err = WiFi__GetMac(wifi_mac_address_gw);
@@ -64,7 +60,7 @@ static void Utilities_ScanGWConfigData(void){
 }
 
 
-req_set_gw_config_t* Utilities_GetGWConfigData(void){
+req_set_gw_config_t* Utilities__GetGWConfigData(void){
 	return &gw_config_data;
 }
 

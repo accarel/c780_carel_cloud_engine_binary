@@ -75,7 +75,7 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	printf("%s\n",url);
 	#endif
 
-	c_config.url = url; //download_devs_config->uri;
+	c_config.url = url;
 	c_config.username = download_devs_config->username;
 	c_config.password = download_devs_config->password;
 	c_config.cert_num = cert_num;
@@ -111,15 +111,8 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 		  ESP_LOG_BUFFER_HEXDUMP(__func__, buffer, MAX_HTTP_RECV_BUFFER, ESP_LOG_INFO);
           #endif
 
-
-          /* TODO BILATO
-		  if (C_SUCCESS != FS_SaveFile(buffer , (size_t)read_len, filename)){
-		    err = FILE_NOT_SAVED;
-		    }
-			
-			
-		  */
-			
+		  if (C_SUCCESS != FS_SaveFile(buffer , (size_t)read_len, filename))
+			  err = FILE_NOT_SAVED;
 		}
 		else
 		{
