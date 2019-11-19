@@ -16,6 +16,7 @@ COMPONENT_ADD_INCLUDEDIRS := ../../esp-idf/components/freemodbus/modbus/include
 COMPONENT_ADD_INCLUDEDIRS += ../../esp-idf/components/freemodbus/port
 COMPONENT_SRCDIRS += ./tinycbor
 
+COMPONENT_SRCDIRS += ../../esp-idf/components/freemodbus/functions
 #COMPONENT_EMBED_TXTFILES := carel_mqtt_broker_cert.crt
 #COMPONENT_EMBED_TXTFILES += howsmyssl_com_root_cert.pem
 #COMPONENT_EMBED_TXTFILES += iot_eclipse_org.pem

@@ -18,9 +18,15 @@
 #include "wifi.h"
 #include "sys.h"
 #include "utilities.h"
-#include "poll_engine.h"
+#include "polling_CAREL.h"
+#include "polling_IS.h"
 
 #include "Led_Manager_IS.h"
+#if INCLUDE_PLATFORM_DEPENDENT
+#include "mqtt_client.h"
+#include "mqtt_config.h"
+#include "freertos/FreeRTOS.h"
+#endif
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
@@ -272,7 +278,7 @@ void MQTT_Alarms(c_cboralarms alarms)
 
 void MQTT_PeriodicTasks(void)
 {
-//	MQTT_Values();
+	MQTT_Values();
 	MQTT_Status();
 }
 

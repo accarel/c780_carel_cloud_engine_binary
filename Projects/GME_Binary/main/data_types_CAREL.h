@@ -89,6 +89,19 @@ enum list_protocols{
 	LPR_CAREL,
 	LPR_BACNET};
 
+/*****************
+* Cloud to GME
+*****************/
+#pragma pack(1)
+typedef struct req_set_gw_config_s{
+	C_CHAR hostname[URI_SIZE];
+	C_UINT32 valuesPeriod;
+	C_UINT32 statusPeriod;
+	C_UINT32 mqttKeepAliveInterval;
+	C_UINT32 lowspeedsamplevalue;
+	C_UINT32 hispeedsamplevalue;
+}req_set_gw_config_t;
+#pragma pack()
 #ifdef IS_A_WIFI_GATEWAY
 #define MACORIMEISIZE 	12
 #endif

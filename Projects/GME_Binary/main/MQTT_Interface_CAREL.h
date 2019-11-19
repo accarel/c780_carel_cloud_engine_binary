@@ -9,6 +9,7 @@
 #ifndef __MQTT_INTERFACE_CAREL_H
 #define __MQTT_INTERFACE_CAREL_H
 
+#include "CBOR_CAREL.h"
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -50,19 +51,7 @@ typedef struct mqtt_timing_s{
 }mqtt_times_t;
 #pragma pack()
 
-/*****************
-* Cloud to GME
-*****************/
-#pragma pack(1)
-typedef struct req_set_gw_config_s{
-	char hostname[20];
-	uint32_t valuesPeriod;
-	uint32_t statusPeriod;
-	uint32_t mqttKeepAliveInterval;
-	uint32_t lowspeedsamplevalue;
-	uint32_t hispeedsamplevalue;
-}req_set_gw_config_t;
-#pragma pack()
+
 
 #pragma pack(1)
 typedef struct req_download_devs_config_s{

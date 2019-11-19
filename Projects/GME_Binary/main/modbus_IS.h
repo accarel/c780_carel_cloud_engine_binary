@@ -34,7 +34,7 @@ int app_coil_discrete_input_read(const uint8_t addr, const int func, const int i
 int app_holding_register_read(const uint8_t addr, const int func, const int index, const int num);
 int app_input_register_read(const uint8_t addr, const int func, const int index, const int num);
 
-
+C_RES app_report_slave_id_read(const uint8_t addr);
 
 
 #endif   /* #ifndef __MODBUS_IS_H */

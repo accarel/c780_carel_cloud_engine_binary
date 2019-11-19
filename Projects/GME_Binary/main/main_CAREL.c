@@ -37,7 +37,8 @@
 #include "gme_types.h"
 #include "wifi.h"
 #include "MQTT_Interface_CAREL.h"
-#include "poll_engine.h"
+#include "polling_CAREL.h"
+#include "polling_IS.h"
 #include "file_system.h"
 #include "nvm.h"
 //#
@@ -250,7 +251,7 @@ void Carel_Main_Task(void)
 
           case GME_SYSTEM_PREPARATION:
           {
-          	//WiFi__WaitConnection();                   // RELATED TO ESP32 BOARD
+          	WiFi__WaitConnection();                   // RELATED TO ESP32 BOARD
 
             sm = GME_START_POLLING_ENGINE;
 
@@ -271,7 +272,8 @@ void Carel_Main_Task(void)
           	    Modbus_Task_Start();                // CAREL
           	    vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-          	    CarelEngineMB_Init();				// CAREL
+
+          	    PollEngine_MBStart_IS();
 
 
   				sm = GME_IDLE_INTERNET_CONNECTED;

@@ -15,14 +15,14 @@
 #include "modbus_IS.h"
 #include "data_types_CAREL.h"
 #include "data_types_IS.h"
-#include "poll_engine.h"
+#include "polling_CAREL.h"
 
 #include "gme_config.h"
 
 // related to the system!!!!
 #include "port.h"
 #include "mb_m.h"
-#include "mbcontroller.h"
+//#include "mbcontroller.h"
 #include "mbconfig.h"
 #include "driver/uart.h"
 #include "driver/gpio.h"
@@ -32,9 +32,8 @@
 #include "freertos/event_groups.h"
 
 
-#define  MODBUS_TIME_OUT     25
+#define  MODBUS_TIME_OUT     100
 
-int app_holding_register_read(const uint8_t addr, const int func, const int index, const int num);
 
 // TO DO...implementatiotion depend on the sistem chip in use!!!
 extern BOOL xMBMasterPortSerialTxPoll(void);
@@ -106,6 +105,7 @@ C_RES Modbus_Init(C_INT16 baud)  // stop /start /parity
 
 void Modbus_Task(void)
 {
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 	while(1)
 	{
 			eMBMasterPoll();
@@ -117,17 +117,17 @@ void Modbus_Task(void)
 				(void)xMBMasterPortEventPost(EV_MASTER_FRAME_TRANSMITTED);
 			}
 		}
+#endif
 }
 
 
 void Modbus_Task_Start(void)
 {
 	// to be implemented by USR
-
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 	xTaskCreate(&Modbus_Task, "MODBUS_START", 2*2048, NULL, 10, MODBUS_TASK );
+#endif
 
-
-	// the required stack for the task are 4096    <---------
 }
 
 
@@ -135,49 +135,85 @@ void Modbus_Task_Start(void)
 // 0x01 //single or multi-coils
 int app_coil_read(const uint8_t addr, const int func, const int index, const int num)
 {
+	C_RES result = C_SUCCESS;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadCoils(addr, saddr, num, timeout);
-    return errorCode;
+    result = errorCode;
+#endif
+
+    return result;
 }
 
 
 //  0x02 //single or multi-coils
 int app_coil_discrete_input_read(const uint8_t addr, const int func, const int index, const int num)
 {
+	C_RES result = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadDiscreteInputs(addr, saddr, num, timeout);
-    return errorCode;
+    result = errorCode;
+#endif
+
+    return result;
 }
 
 
 //  0x03 //single or multi-coils
 int app_holding_register_read(const uint8_t addr, const int func, const int index, const int num)
 {
+	C_RES result = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadHoldingRegister(addr, saddr, num, timeout);
-    return errorCode;
+    result = errorCode;
+#endif
+
+    return result;
 }
 
 
 //  0x04 //single or multi-coils
 int app_input_register_read(const uint8_t addr, const int func, const int index, const int num)
 {
+	C_RES result = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
     errorCode = eMBMasterReqReadInputRegister(addr, saddr, num, timeout);
-    return errorCode;
+    result = errorCode;
+#endif
+
+    return result;
 }
 
 
 
+C_RES app_report_slave_id_read(const uint8_t addr)
+{
+   C_RES result = C_SUCCESS;
 
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+    const long timeout = MODBUS_TIME_OUT;
+    eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
+
+    errorCode = eMBMAsterReqReportSlaveId(addr, timeout);
+    result = errorCode;
+#endif
+
+    return result;
+}
 
 
 

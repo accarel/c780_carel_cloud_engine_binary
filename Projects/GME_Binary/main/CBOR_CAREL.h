@@ -20,7 +20,7 @@
 #include "data_types_CAREL.h"
 #include "tinycbor/cbor.h"
 #include "binary_model.h"
-#include "poll_engine.h"
+#include "polling_CAREL.h"
 /* Exported constants --------------------------------------------------------*/
 
 #define CBORSTREAM_SIZE			1024
@@ -256,11 +256,12 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig* download_devs_config)
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
 C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert);
-C_INT16 execute_scan_devices(C_BYTE* data_rx);
+C_RES execute_scan_devices(C_BYTE* data_rx, C_UINT16 *add, C_INT16 * lnt);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
 C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv);
 
 //long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
+void Manage_Report_SlaveId_CAREL( C_CHAR * pucFrame, C_UINT16 * usLen);
 #ifdef __cplusplus
 }
 #endif

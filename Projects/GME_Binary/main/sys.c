@@ -100,11 +100,11 @@ bool Sys__ResetCheck(void){
 	// Debounce check using up/down counter every 10ms
 	if (gpio_get_level(CONFIG_RESET_BUTTON) == 0) {
 		config_reset_debounce_counter++;
-		PRINTF_DEBUG("CONFIG RESET CHECK -- = %d\n",config_reset_debounce_counter);
+		//PRINTF_DEBUG("CONFIG RESET CHECK -- = %d\n",config_reset_debounce_counter);
 		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}else if(gpio_get_level(CONFIG_RESET_BUTTON) == 1 && config_reset_debounce_counter > 0){
 		config_reset_debounce_counter--;
-		PRINTF_DEBUG("CONFIG RESET CHECK ++ = %d\n",config_reset_debounce_counter);
+		//PRINTF_DEBUG("CONFIG RESET CHECK ++ = %d\n",config_reset_debounce_counter);
 		vTaskDelay(100 / portTICK_PERIOD_MS);
 	}
 	if((CONFIG_RESET_SEC * 10) == config_reset_debounce_counter){

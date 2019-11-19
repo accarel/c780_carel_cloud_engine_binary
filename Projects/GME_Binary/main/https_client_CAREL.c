@@ -7,7 +7,8 @@
 #include "CAREL_GLOBAL_DEF.h"
 #include "https_client_IS.h"
 #include "https_client_CAREL.h"
-#include "poll_engine.h"
+#include "polling_CAREL.h"
+#include "polling_IS.h"
 #include "sys.h"
 #include "MQTT_Interface_CAREL.h"
 
@@ -184,10 +185,10 @@ https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca
 void HTTPClient__TestTask(void *pvParameters)
 {
     ESP_LOGI(TAG, "Connected to AP, begin http example");
-    PollEngine__MBSuspend();
+    PollEngine_MBSuspend_IS();
 //    https_carel_server_test();
 
-    PollEngine__MBResume();
+    PollEngine_MBResume_IS();
     vTaskDelete(NULL);
 }
 #endif

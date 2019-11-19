@@ -9,21 +9,29 @@
  */
 #include "CAREL_GLOBAL_DEF.h"
 #include "data_types_CAREL.h"
+
+#include "modbus_IS.h"
+
 #include "CBOR_CAREL.h"
 #include "File_System_CAREL.h"
 #include "tinycbor/cbor.h"
 #include "Miscellaneous_IS.h"
 #include "RTC_IS.h"
-#include "poll_engine.h"
+#include "polling_CAREL.h"
+#include "polling_IS.h"
 #include "MQTT_Interface_IS.h"
 #include "MQTT_Interface_CAREL.h"
 #include "nvm.h"
 #include "binary_model.h"
-#include "poll_engine.h"
 #include "https_client_CAREL.h"
 #include "ota_CAREL.h"
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+#include "mb_m.h"
+#endif
 
 /* Exported types ------------------------------------------------------------*/
+extern  CHAR     ucMBSlaveID[256];
+extern  USHORT   usMBSlaveIDLen;
 
 
 /* Exported constants --------------------------------------------------------*/
@@ -275,7 +283,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 
 	// encode est -elem5
 	err |= cbor_encode_text_stringz(&mapEncoder, "est");
-	err |= cbor_encode_uint(&mapEncoder, PollEngine__GetEngineStatus());
+	err |= cbor_encode_uint(&mapEncoder, PollEngine_GetEngineStatus_CAREL());
 	DEBUG_ADD(err,"est");
 
 	// encode sgn -elem6
@@ -1429,8 +1437,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res)
-				if(PollEngine__GetEngineStatus() == RUNNING){
-					PollEngine__StopEngine();
+				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
 					// save cid for successive hello
 					NVM__WriteU32Value(MB_CID_NVM, cbor_cid);
 					MQTT_FlushValues();
@@ -1462,8 +1470,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			sprintf(topic,"%s%s", "/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if(SUCCESS_CMD == cbor_req.res)
-				if(PollEngine__GetEngineStatus() == RUNNING){
-					PollEngine__StopEngine();
+				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
 					MQTT_FlushValues();
 					GME__Reboot();		//todo
 			}
@@ -1486,8 +1494,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
-				if(PollEngine__GetEngineStatus() == RUNNING){
-					PollEngine__StopEngine();
+				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
 					// save cid for successive hello
 					NVM__WriteU32Value(MB_CID_NVM, download_devs_config.cid);
 					MQTT_FlushValues();
@@ -1499,34 +1507,34 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case SCAN_DEVICES:
 		{
-			C_UINT16 device = 0;
 			// scan Modbus line
 
-			// save address of first responding device in device and corresponding answer in answer
-			// answer with result
-			if(ACTIVETED == PollEngine__GetPassModeStatus()){		//ACTIVATED!!!
+			C_UINT16 device = 0;
+			C_BYTE answer[REPORT_SLAVE_ID_SIZE];
+			C_INT16 length;
+			cbor_req.res = SUCCESS_CMD;
 
-				C_BYTE answer[REPORT_SLAVE_ID_SIZE];
-				C_INT16 length;
-				cbor_req.res = SUCCESS_CMD;
+			PollEngine_MBSuspend_IS();
 
-				PollEngine__MBSuspend();
-				PollEngine__SetPassModeCMD(RECEIVED);
+			execute_scan_devices(&answer, &device, &length);
 
-				length = execute_scan_devices(answer);
-				if(length <= 0){
-					memcpy(answer, "", 1);
-					length=1;
-				}
-				device = answer[0];
-				len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
-				sprintf(topic,"%s%s", "/", cbor_req.rto);
-				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-
-				PollEngine__SetPassModeCMD(EXECUTED);
-				PollEngine__MBResume();
+			if(length <= 0){
+				memcpy(answer, "", 1);
+				length=1;
+			}
+			else
+			{   //include the 2 byte of the CRC modbus TODO
+				length += 2;
 			}
 
+			//  // da riarrangiare
+            len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
+
+            // TODO
+            sprintf(topic,"%s%s", "/", cbor_req.rto);
+            mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+
+			PollEngine_MBResume_IS();
 		}
 		break;
 
@@ -1544,8 +1552,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
-				if(PollEngine__GetEngineStatus() == RUNNING){
-					PollEngine__StopEngine();
+				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
 					MQTT_FlushValues();
 					GME__Reboot();		//todo
 				}
@@ -1573,9 +1581,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			adu[6]=0xAA;
 			adu[7]=0xBB;*/
 
-			if(ACTIVETED == PollEngine__GetPassModeStatus()){
+			if(ACTIVATED == PollEngine__GetPassModeStatus()){
 
-				PollEngine__MBSuspend();
+				PollEngine_MBSuspend_IS();
 				PollEngine__SetPassModeCMD(RECEIVED);
 
 				uint8_t data_rx[20] = {0};
@@ -1595,7 +1603,7 @@ data_rx_len=0;
 				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 				PollEngine__SetPassModeCMD(EXECUTED);
-				PollEngine__MBResume();
+				PollEngine_MBResume_IS();
 
 			}
 
@@ -1614,7 +1622,7 @@ data_rx_len=0;
 
 			// send modbus command to write values
 			// wait modbus response to get result
-			if(ACTIVETED == PollEngine__GetPassModeStatus()){
+			if(ACTIVATED == PollEngine__GetPassModeStatus()){
 
 				PollEngine__SetPassModeCMD(RECEIVED);
 				cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1645,7 +1653,7 @@ data_rx_len=0;
 			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_wv);
 
 			// send modbus command to write values
-			if(ACTIVETED == PollEngine__GetPassModeStatus())
+			if(ACTIVATED == PollEngine__GetPassModeStatus())
 			{
 				PollEngine__SetPassModeCMD(RECEIVED);
 				cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1748,8 +1756,8 @@ data_rx_len=0;
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if (cbor_req.res == C_SUCCESS)
 			{
-				if(PollEngine__GetEngineStatus() == RUNNING){
-					PollEngine__StopEngine();
+				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
 					MQTT_FlushValues();
 					GME__Reboot();
 				}
@@ -1771,8 +1779,8 @@ data_rx_len=0;
 			sprintf(topic,"%s%s", "/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if(SUCCESS_CMD == cbor_req.res){
-				if(PollEngine__GetEngineStatus() == RUNNING){
-					PollEngine__StopEngine();
+				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
 					MQTT_FlushValues();
 					GME__Reboot();		//todo
 				}
@@ -1783,7 +1791,7 @@ data_rx_len=0;
 
 		case START_ENGINE:
 		{
-			PollEngine__StartEngine();
+			PollEngine_StartEngine_CAREL();
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/", cbor_req.rto);
@@ -1794,7 +1802,7 @@ data_rx_len=0;
 
 		case STOP_ENGINE:
 		{
-			PollEngine__StopEngine();
+			PollEngine_StopEngine_CAREL();
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/", cbor_req.rto);
@@ -1900,21 +1908,24 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 {
 	printf("Execute Set GW Config\n");
+	req_set_gw_config_t gw_config_nvm = {0};
 	//c_cborreqsetgwconfig gw_config_nvm = {0};	// todo: is a copy actually needed?
 	size_t len = 0;
 	C_BYTE gw_config_status;
 
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
-		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&set_gw_config,&len);
+		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&len);
 	}
 /*
-	gw_config_nvm.hss = set_gw_config.hss;
+	gw_config_nvm.hispeedsamplevalue = set_gw_config.hss;
 	gw_config_nvm.lss = set_gw_config.lss;
-	gw_config_nvm.mka = set_gw_config.mka;
+	gw_config_nvm.lowspeedsamplevalue = set_gw_config.lss;
 	gw_config_nvm.pst = set_gw_config.pst;
-	gw_config_nvm.pva = set_gw_config.pva;
+	gw_config_nvm.mqttKeepAliveInterval = set_gw_config.mka;
 */
-	C_RES err = NVM__WriteBlob(SET_GW_PARAM_NVM,(void*)&set_gw_config,sizeof(set_gw_config));
+	gw_config_nvm.statusPeriod = set_gw_config.pst;
+	gw_config_nvm.valuesPeriod = set_gw_config.pva;
+	C_RES err = NVM__WriteBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,sizeof(gw_config_nvm));
 	if(C_SUCCESS == err){
 		err = NVM__WriteU8Value(SET_GW_CONFIG_NVM, CONFIGURED);
 	}
@@ -1933,57 +1944,53 @@ C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred){
 	}
 }
 
-C_INT16 execute_scan_devices(C_BYTE* data_rx){
 
-	C_INT16 len = -2;
-#if 0
-	mbc_master_suspend();
+/**
+ * @brief execute_scan_devices
+ *
+ * execute_scan_devices
+ *
+ * @param Pointer to the
+ * @param Pointer to
+ * @param Pointer to
+ * @return C_RES
+ */
+C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
+{
+	C_INT16 len = 0;
+	C_UINT16 addr = 0;
+	C_RES err = 0;
 
-	C_BYTE data_tx[4] = {0};
-	int i = 0;
-	data_tx[0]=	line_id;
-	data_tx[1]=	0x11;	//cmd 17
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	// send request  ... manda la richiesta ma ritorna comunque un errore  TODO
+	do{
+	  err = app_report_slave_id_read(++addr);
 
-	C_UINT16 crc = CRC16(data_tx, 2 );
+	  vTaskDelay(500 / portTICK_PERIOD_MS);
 
-	data_tx[2] = (C_BYTE)(crc & 0x00ff);
-	data_tx[3] = (C_BYTE)((crc>>8) & 0x00ff);
-
-	if(PollEngine__GetPollEnginePrintMsgs() == 1){
-		printf("Scan Line Request Packet:  ");
-		for(i=0; i<sizeof(data_tx); i++){
-				printf("[%d]=%02X  ",i,data_tx[i]);
-			}
-		printf("\n\n");
-	}
-
-	ClearQueueMB();
-
-	for(int i=0; i<4; i++)
-	{
-		uart_write_bytes(MB_PORTNUM, (const char *) &data_tx[i], 1);
-	}
-
-	len = uart_read_bytes(MB_PORTNUM, data_rx, 255,  MB_RESPONSE_TIMEOUT(4));
-
-	if(PollEngine__GetPollEnginePrintMsgs() == 1){
-		printf("\nuart_read_bytes len = %d\n\n",len);
-
-		for(i=0; i<len; i++){
-			printf("[%d]=%02X  ",i,data_rx[i]);
-		}
-		printf("\n\n");
-	}
-
-	uart_flush_input(MB_PORTNUM);
-	uart_flush(MB_PORTNUM);
-
-	ClearQueueMB();
-	mbc_master_resume();
+	}while(err != C_SUCCESS);
 
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 #endif
-	return len;
+
+	if(err != 0)
+	  return C_FAIL;
+//
+// save the data
+//
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	len = usMBSlaveIDLen;
+
+	// get response
+	for(C_INT16 i = 0; i < len; i++)
+	  *(data_rx + i) = 	ucMBSlaveID[i];
+
+#endif
+
+	*add = addr;
+	*lnt = len;
+
+	return C_SUCCESS;
 }
 
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)

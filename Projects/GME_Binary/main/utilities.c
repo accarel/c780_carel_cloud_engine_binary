@@ -58,18 +58,22 @@ char* Utilities__GetIMEICode(void){
 
 //NVM
 
-static void Utilities__ScanGWConfigData(void){
+static void Utilities_ScanGWConfigData(void){
 	size_t len = 0;
 	NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_data,&len);
 }
 
-req_set_gw_config_t* Utilities__GetGWConfigData(void){
+
+req_set_gw_config_t* Utilities_GetGWConfigData(void){
 	return &gw_config_data;
 }
 
 void Utilities__Init(void){
 
-	Utilities__ScanGWConfigData();
+	Utilities_ScanGWConfigData();
+	//JSON__ParseLineId();
+//	Set_last_boot_time();
+//	WIFI__SetSTAConnectionTime();
 
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)
 	Utilities__CalcMACAddr();
