@@ -19,7 +19,6 @@
 #include "driver/gpio.h"
 #include "http_server.h"
 #include "binary_model.h"
-#include "utilities.h"
 #include "esp_ota_ops.h"
 #include "esp_partition.h"
 

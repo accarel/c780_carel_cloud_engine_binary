@@ -22,8 +22,6 @@
 
 //#include ""binary_model_CAREL.h  // TODO
 #include "binary_model.h" 
-//#include "utilities_CAREL.h"	   // TODO	
-#include "utilities.h"
 
 #include "RTC_IS.h"
 #include "modbus_IS.h"

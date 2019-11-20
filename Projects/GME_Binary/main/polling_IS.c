@@ -20,7 +20,7 @@
 #endif
 
 #include "polling_IS.h"
-#include "utilities.h"
+#include "utilities_CAREL.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 static xTaskHandle xPollingEngine;
