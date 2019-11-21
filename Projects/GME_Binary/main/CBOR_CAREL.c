@@ -367,7 +367,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
-	err = cbor_encoder_create_map(&encoder, &mapEncoder, 6);
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, 7);
 	DEBUG_ENC(err, "values create main map");
 	// encode ver - elem1
 	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
@@ -413,6 +413,13 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	err |= cbor_encode_text_stringz(&mapEncoder, "frm");
 	err |= cbor_encode_int(&mapEncoder, frame);
 	DEBUG_ADD(err, "frm");
+
+	// encode dev - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
+	C_UINT16 device = 0;
+	err = NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
+	err |= cbor_encode_int(&mapEncoder, device);
+	DEBUG_ADD(err, "dev");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
@@ -1433,7 +1440,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// mqtt response
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res)
@@ -1467,7 +1474,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if(SUCCESS_CMD == cbor_req.res)
 				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
@@ -1490,7 +1497,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// mqtt response
 			//len = CBOR_ResSimple(cbor_response, &cbor_req);
 			len = CBOR_ResSetDevsConfig(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
@@ -1531,7 +1538,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
             len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
 
             // TODO
-            sprintf(topic,"%s%s", "/", cbor_req.rto);
+            sprintf(topic,"%s%s", "/res/", cbor_req.rto);
             mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			PollEngine_MBResume_IS();
@@ -1548,7 +1555,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// write new baud rate and connector to configuration file and put in res the result of operation
 			cbor_req.res = (execute_set_line_config(new_baud_rate, new_connector) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
@@ -1599,7 +1606,7 @@ data_rx_len=0;
 					cbor_req.res = C_SUCCESS;
 
 				len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, data_rx, data_rx_len);
-				sprintf(topic,"%s%s", "/", cbor_req.rto);
+				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 				PollEngine__SetPassModeCMD(EXECUTED);
@@ -1636,7 +1643,7 @@ data_rx_len=0;
 					printf("OPERATION_FAILED\n");
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, 0);
 				}
-				sprintf(topic,"%s%s", "/", cbor_req.rto);
+				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 				PollEngine__SetPassModeCMD(EXECUTED);
 			}
@@ -1659,7 +1666,7 @@ data_rx_len=0;
 				cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 				// send response with result
 				len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, NULL);
-				sprintf(topic,"%s%s", "/", cbor_req.rto);
+				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 				PollEngine__SetPassModeCMD(EXECUTED);
 			}
@@ -1752,7 +1759,7 @@ data_rx_len=0;
 			cbor_req.res = (execute_update_ca_cert(&update_ca_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			// send a report of operation
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if (cbor_req.res == C_SUCCESS)
 			{
@@ -1776,7 +1783,7 @@ data_rx_len=0;
 			// mqtt response
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if(SUCCESS_CMD == cbor_req.res){
 				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
@@ -1794,7 +1801,7 @@ data_rx_len=0;
 			PollEngine_StartEngine_CAREL();
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
@@ -1805,7 +1812,7 @@ data_rx_len=0;
 			PollEngine_StopEngine_CAREL();
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
@@ -1818,7 +1825,7 @@ data_rx_len=0;
 			PollEngine__ActivatePassMode();
 
 			len = CBOR_ResSendMbPassThrough(cbor_response, &cbor_req, cbor_pass);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
@@ -1826,7 +1833,7 @@ data_rx_len=0;
 		default:
 			cbor_req.res = INVALID_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		break;
 
@@ -1909,12 +1916,11 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 {
 	printf("Execute Set GW Config\n");
 	req_set_gw_config_t gw_config_nvm = {0};
-	//c_cborreqsetgwconfig gw_config_nvm = {0};	// todo: is a copy actually needed?
 	size_t len = 0;
 	C_BYTE gw_config_status;
 
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
-		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&len);
+		NVM__ReadBlob(SET_GW_PARAM_NVM, (void*)&gw_config_nvm, &len);
 	}
 
 	gw_config_nvm.hispeedsamplevalue = set_gw_config.hss;
