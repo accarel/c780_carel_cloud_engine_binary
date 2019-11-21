@@ -254,7 +254,7 @@ void MQTT_FlushValues(void){
 
 void MQTT_Status(void)
 {
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + 240))   // Utilities__GetGWConfigData()->statusPeriod
+	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + Utilities__GetGWConfigData()->statusPeriod))
 	{
 		printf("Sending STATUS CBOR \n\n");
 		CBOR_SendStatus();
@@ -264,7 +264,7 @@ void MQTT_Status(void)
 
 void MQTT_Values(void)
 {
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + 240)) // Utilities__GetGWConfigData()->valuesPeriod
+	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + Utilities__GetGWConfigData()->valuesPeriod))
 	{
 		MQTT_FlushValues();
 		mqtt_time.cbor_values = RTC_Get_UTC_Current_Time();
