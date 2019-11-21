@@ -25,7 +25,8 @@
 #include "binary_model.h"
 #include "utilities_CAREL.h"
 
-#include "sys.h"
+#include "sys_CAREL.h"
+#include "sys_IS.h"
 
 #include "common.h"
 

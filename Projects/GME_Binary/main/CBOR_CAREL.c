@@ -1916,15 +1916,17 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&len);
 	}
-/*
+
 	gw_config_nvm.hispeedsamplevalue = set_gw_config.hss;
-	gw_config_nvm.lss = set_gw_config.lss;
+
 	gw_config_nvm.lowspeedsamplevalue = set_gw_config.lss;
-	gw_config_nvm.pst = set_gw_config.pst;
+
 	gw_config_nvm.mqttKeepAliveInterval = set_gw_config.mka;
-*/
+
 	gw_config_nvm.statusPeriod = set_gw_config.pst;
+
 	gw_config_nvm.valuesPeriod = set_gw_config.pva;
+
 	C_RES err = NVM__WriteBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,sizeof(gw_config_nvm));
 	if(C_SUCCESS == err){
 		err = NVM__WriteU8Value(SET_GW_CONFIG_NVM, CONFIGURED);

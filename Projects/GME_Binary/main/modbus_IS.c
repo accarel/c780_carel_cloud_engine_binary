@@ -96,7 +96,7 @@ C_RES Modbus_Init(C_INT16 baud)  // stop /start /parity
 
 
 /**
- * @brief Modbus_Init
+ * @brief Modbus_Task
  *        Start the modbus comunication
  *
  * @param none
@@ -121,6 +121,13 @@ void Modbus_Task(void)
 }
 
 
+/**
+ * @brief Modbus_Task_Start
+ *        if we have a OS we let's start the task here
+ *
+ * @param none
+ * @return none
+ */
 void Modbus_Task_Start(void)
 {
 	// to be implemented by USR
