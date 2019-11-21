@@ -1399,6 +1399,12 @@ namespace MqttClientSimulatorBinary
             textBox_Message.Text = "";
         }
 
+        private void Button7_Click(object sender, EventArgs e)
+        {
+            string textFilePath = @".\cbor_cloud\REQ_REBOOT.cbor";
+            PublishTestFile(textFilePath);
+        }
+
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
         {
             const string template_name = @"test-send_mb_adu-req.json";

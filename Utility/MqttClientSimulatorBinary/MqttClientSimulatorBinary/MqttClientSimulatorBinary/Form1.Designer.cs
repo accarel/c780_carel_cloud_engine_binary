@@ -189,6 +189,7 @@
             this.checkBox_Cfg_Dbg_Rel = new System.Windows.Forms.CheckBox();
             this.checkBox_Split_Resp = new System.Windows.Forms.CheckBox();
             this.button_CLS_Infos = new System.Windows.Forms.Button();
+            this.button_reboot = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -380,6 +381,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button_reboot);
             this.groupBox1.Controls.Add(this.button_stop_engine);
             this.groupBox1.Controls.Add(this.button_start_engine);
             this.groupBox1.Controls.Add(this.button_test_set_gw_config_req);
@@ -1788,6 +1790,17 @@
             this.button_CLS_Infos.UseVisualStyleBackColor = true;
             this.button_CLS_Infos.Click += new System.EventHandler(this.Button_CLS_Infos_Click);
             // 
+            // button_reboot
+            // 
+            this.button_reboot.Location = new System.Drawing.Point(109, 104);
+            this.button_reboot.Margin = new System.Windows.Forms.Padding(2);
+            this.button_reboot.Name = "button_reboot";
+            this.button_reboot.Size = new System.Drawing.Size(98, 36);
+            this.button_reboot.TabIndex = 21;
+            this.button_reboot.Text = "ReBoot";
+            this.button_reboot.UseVisualStyleBackColor = true;
+            this.button_reboot.Click += new System.EventHandler(this.Button7_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -2018,6 +2031,7 @@
         private System.Windows.Forms.CheckBox checkBox_Cfg_Dbg_Rel;
         private System.Windows.Forms.CheckBox checkBox_Split_Resp;
         private System.Windows.Forms.Button button_CLS_Infos;
+        private System.Windows.Forms.Button button_reboot;
     }
 }
 
