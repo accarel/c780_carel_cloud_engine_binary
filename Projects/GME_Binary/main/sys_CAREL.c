@@ -23,8 +23,6 @@
 
 #include "binary_model.h"
 
-#include "utilities.h"
-
 #include "esp_partition.h"
 
 

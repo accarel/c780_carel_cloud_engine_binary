@@ -13,8 +13,6 @@
 
 #include "binary_model.h"
 
-#include "utilities.h"
-
 #ifdef INCLUDE_PLATFORM_DEPENDENT
   #include "esp_partition.h"
   #include "nvm.h"
