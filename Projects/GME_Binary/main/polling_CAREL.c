@@ -281,7 +281,6 @@ void create_modbus_tables(void)
 	low_n.ir 	=	DeviceParamCount[LOW_POLLING][IR];
 	low_n.total	=  	low_n.coil + low_n.di + low_n.hr + low_n.ir;
 
-
 	high_n.coil 	=	DeviceParamCount[HIGH_POLLING][COIL];
 	high_n.di 	=	DeviceParamCount[HIGH_POLLING][DI];
 	high_n.hr 	=	DeviceParamCount[HIGH_POLLING][HR];
@@ -1383,7 +1382,6 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				printf("LOW \n");
 				DoLowPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab);
 
-				//timestamp.previous_low = timestamp.current_low;
 				timestamp.current_low = RTC_Get_UTC_Current_Time();
 
 				compare_prev_curr_reads(LOW_POLLING);
@@ -1397,7 +1395,6 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				printf("HIGH \n");
 				DoHighPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab);
 
-				//timestamp.previous_high = timestamp.current_high;
 				timestamp.current_high = RTC_Get_UTC_Current_Time();
 
 				//print_Hightables();
@@ -1418,15 +1415,18 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 // CHIEBAO A.
 
-C_RES PollEngine__Read_HR_IR_Req(char* alias, void* read_value){
+C_RES PollEngine__Read_HR_IR_Req(char* alias, void* read_value)
+{
 	uint16_t cid;
 	//char temp[6] = {0};
+
 	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
-	//characteristic_descriptor_t cid_data = { 0 };
+
 
 	for(cid=0; cid < max_reg; cid++){
 
 		PRINTF_POLL_ENG(("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key))
+
 		if(strcmp(MBParameters[cid].param_key, alias) == 0){
 
 			//ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));
@@ -1441,28 +1441,25 @@ C_RES PollEngine__Read_HR_IR_Req(char* alias, void* read_value){
 	return C_SUCCESS;
 }
 
-C_RES PollEngine__Read_COIL_DI_Req(char* alias, uint16_t* read_value){
-	uint16_t cid;
-	//char temp[6] = {0};
-	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
-	//characteristic_descriptor_t cid_data = { 0 };
 
-	for(cid=0; cid < max_reg; cid++){
 
-		PRINTF_POLL_ENG(("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key))
-		if(strcmp(MBParameters[cid].param_key, alias) == 0){
 
-			//ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));
-//			sense_modbus_read_value(cid, (void*)read_value);       // CHIEBAO
-			PRINTF_POLL_ENG(("value is = %d\n\n",*((uint16_t*)read_value)))
-			break;
+C_RES PollEngine__Read_COIL_DI_Req(char addr, uint16_t* read_value){
 
-		}else if(cid == (max_reg - 1)){
-			return C_FAIL;
-		}
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+
+	errorReq = app_coil_read(1, 1, addr, 1);
+
+	if(errorReq == MB_MRE_NO_ERR)
+	{
+		*read_value = param_buffer[0];
+		return C_SUCCESS;
 	}
-	return C_SUCCESS;
+	else
+	  	return C_FAIL;
 }
+
+
 
 C_RES PollEngine__Write_HR_Req(char* alias, void* write_value){
 	uint16_t cid;

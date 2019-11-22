@@ -746,7 +746,7 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 
 	// encode val - elem5
 	err = cbor_encode_text_stringz(&mapEncoder, "val");
-	if (val == NULL)
+	if (memcmp(val,"0",sizeof("0"))==0)
 		err |= cbor_encode_null(&mapEncoder);
 	else
 		err |= cbor_encode_text_stringz(&mapEncoder, (char*)val);
@@ -755,7 +755,7 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	// encode dev - elem6
 	err = cbor_encode_text_stringz(&mapEncoder, "dev");
 	C_UINT16 device;
-	err |= NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
+	NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
 	err |= cbor_encode_int(&mapEncoder, device);
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -824,6 +824,7 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "header request map");
 
+	C_UINT16 tmp = 0;
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -831,7 +832,8 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 
 		if (strncmp(tag, "ver", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_req->ver));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_req->ver = tmp;
 			DEBUG_DEC(err, "header: ver");
 		}
 		else if (strncmp(tag, "rto", 3) == 0)
@@ -843,7 +845,8 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 		}
 		else if (strncmp(tag, "cmd", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_req->cmd));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_req->cmd = tmp;
 			DEBUG_DEC(err, "header: cmd");
 		}
 		else
@@ -1021,7 +1024,9 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 		}
 		else if (strncmp(tag, "fun", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_rwv->func));
+			C_UINT16 tmp=0;
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_rwv->func = tmp;
 			DEBUG_DEC(err, "req_rdwr_values: fun");
 		}
 		else if (strncmp(tag, "adr", 3) == 0)
@@ -1627,26 +1632,25 @@ data_rx_len=0;
 			c_cborreqrdwrvalues cbor_rv = {0};
 			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rv);
 
-			// send modbus command to write values
+			// send modbus command to write values     //CHIEBAO
 			// wait modbus response to get result
-			if(ACTIVATED == PollEngine__GetPassModeStatus()){
+			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+				vTaskDelay(100/portTICK_RATE_MS);
 
-				PollEngine__SetPassModeCMD(RECEIVED);
-				cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-				if(cbor_req.res == C_SUCCESS)
-				{
+			cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+
+			if(cbor_req.res == C_SUCCESS)
+			{
 					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rv.val);
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, cbor_rv.val);
-				}
-				else
-				{
-					printf("OPERATION_FAILED\n");
-					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, 0);
-				}
-				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-				PollEngine__SetPassModeCMD(EXECUTED);
 			}
+			else
+			{
+					printf("OPERATION_FAILED\n");
+					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, "0");
+			}
+			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -2041,25 +2045,33 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 	switch(cbor_rv->func){
 
 	case mbR_COIL:
-	case mbR_DI:{
+	case mbR_DI:
+	{
 		r_coil_di coil_to_read = {0};
+
 		coil_to_read.Alias = (C_UINT16)atoi((C_SCHAR*)cbor_rv->alias);
+
 		coil_to_read.Addr = cbor_rv->addr;
-		printf("Alias: %d, Addr = %d\n", coil_to_read.Alias, coil_to_read.Addr);
+
+		//printf("Alias: %d, Addr = %d\n", coil_to_read.Alias, coil_to_read.Addr);
 
 		C_UINT16 read_value = 0;
-		result = PollEngine__Read_COIL_DI_Req((C_SCHAR*)cbor_rv->alias, &read_value);
+
+		result = PollEngine__Read_COIL_DI_Req(cbor_rv->addr, &read_value);
 
 		C_UINT16 temp = 0;
 		C_BYTE bit = 0;
 
-		printf("coil_di_save_value: 0x%04X\n",(read_value));
+		//printf("coil_di_save_value: 0x%04X\n",(read_value));
 
 		bit = coil_to_read.Addr % 16;
+
 		temp = read_value & (C_UINT16)(1 << bit);
-		printf("addr= %d, bit= %d, temp = %d\n", coil_to_read.Addr, bit, temp);
+
+		//printf("addr= %d, bit= %d, temp = %d\n", coil_to_read.Addr, bit, temp);
 
 		temp == 0 ? (temp = 0) : (temp = 1);
+
 		itoa(temp, (C_SCHAR*)cbor_rv->val, 10);
 	}
 	break;
