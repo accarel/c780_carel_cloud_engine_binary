@@ -893,7 +893,7 @@ static void send_cbor_alarm(uint16_t alias, alarm_read_t *data, uint8_t alarm_is
 		cbor_al.aco = 0;
 		itoa(alias,(char*)cbor_al.ali,10);
 	}
-	MQTT_Alarms(cbor_al);// alias, data->start_time,  data->stop_time, alarm_issue);
+	MQTT_Alarms(cbor_al);
 };
 
 
@@ -1039,13 +1039,12 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 
 		errorReq = app_coil_read(1, 1, addr, 1);
 		Coil->reg[i].error = errorReq;
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
-
-
-		save_coil_di_value(&Coil->reg[i] , param_buffer);
-
+		if(errorReq == 0) {
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
+			save_coil_di_value(&Coil->reg[i] , param_buffer);
+		}
 		param_buffer[0] = param_buffer[1] = 0;
 
 	}
@@ -1059,12 +1058,12 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 
 		errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
 		Di->reg[i].error = errorReq;
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
-
-		save_coil_di_value(&Di->reg[i] , param_buffer);
-
+		if(errorReq == 0) {
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
+			save_coil_di_value(&Di->reg[i] , param_buffer);
+		}
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
@@ -1084,18 +1083,14 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 
 		errorReq = app_holding_register_read(1, 1, addr, numOf);
 		Hr->tab[i].error = errorReq;
-
-
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
-
-		save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
-
+		if(errorReq == 0) {
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
+			save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
+		}
 		param_buffer[0] = param_buffer[1] = 0;
-
 	}
-
 
 	// POlling the Ir register
 	for (uint16_t i = 0; i < low_n.ir; i++)
@@ -1111,13 +1106,12 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 
 		errorReq = app_input_register_read(1, 1, addr, numOf);
 		Ir->tab[i].error = errorReq;
-
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
-
-		save_hr_ir_value(&Ir->tab[i], param_buffer);
-
+		if(errorReq == 0) {
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
+			save_hr_ir_value(&Ir->tab[i], param_buffer);
+		}
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 }
@@ -1252,9 +1246,8 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
 		errorReq = MB_MRE_NO_REG;
 
 		addr = (Coil[i].info.Addr);
-
         errorReq = app_coil_read(1, 1, addr, 1);
-
+        Coil->data.error = errorReq;
 		if(errorReq == 0)
 		{
 		// reset to the default for the next reading
@@ -1274,8 +1267,8 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
 		errorReq = MB_MRE_NO_REG;
 
 		addr = (Di[i].info.Addr);
-
 		errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+		Di->data.error = errorReq;
 
 		if(errorReq == 0)
 		{
@@ -1295,9 +1288,8 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
 		errorReq = MB_MRE_NO_REG;
 
 		addr = (Hr[i].info.Addr);
-
 		errorReq = app_holding_register_read(1, 1, addr, 1);
-
+		Hr->data.error = errorReq;
 		if(errorReq == 0)
 		{
 		// reset to the default for the next reading
@@ -1316,10 +1308,8 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
 		errorReq = MB_MRE_NO_REG;
 
 		addr = (Ir[i].info.Addr);
-
-
 		errorReq = app_input_register_read(1, 1, addr, 1);
-
+		Ir->data.error = errorReq;
 		if(errorReq == 0)
 		{
 		// reset to the default for the next reading
@@ -1386,7 +1376,6 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 				compare_prev_curr_reads(LOW_POLLING);
 				update_current_previous_tables(LOW_POLLING);
-
 				MQTT_FlushValues();
 
 			}

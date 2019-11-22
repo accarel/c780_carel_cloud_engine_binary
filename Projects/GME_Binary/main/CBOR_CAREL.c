@@ -108,6 +108,12 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
 	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
 
+	printf("alarmspkt len %d: \n", len);
+	for (int i=0;i<len;i++){
+		printf("%02X ", cbor_stream[i]);
+	}
+	printf("\n");
+
 	return len;
 }
 
@@ -889,12 +895,12 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT3
 
 		if (strncmp(tag, "bau", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)new_baud_rate));
+			err |= CBOR_ExtractInt(&recursed, new_baud_rate);
 			DEBUG_DEC(err, "req_set_lines_config: bau");
 		}
 		else if (strncmp(tag, "con", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)new_connector));
+			err |= CBOR_ExtractInt(&recursed, new_connector);
 			DEBUG_DEC(err, "req_set_lines_config: con");
 		}
 		else
@@ -1003,6 +1009,7 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "write values request map");
 
+	C_UINT16 tmp = 0;
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1024,29 +1031,32 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 		}
 		else if (strncmp(tag, "fun", 3) == 0)
 		{
-			C_UINT16 tmp=0;
 			err |= CBOR_ExtractInt(&recursed, &tmp);
 			cbor_rwv->func = tmp;
 			DEBUG_DEC(err, "req_rdwr_values: fun");
 		}
 		else if (strncmp(tag, "adr", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_rwv->addr));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_rwv->addr = tmp;
 			DEBUG_DEC(err, "req_rdwr_values: adr");
 		}
 		else if (strncmp(tag, "dim", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_rwv->dim));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_rwv->dim = tmp;
 			DEBUG_DEC(err, "req_rdwr_values: dim");
 		}
 		else if (strncmp(tag, "pos", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_rwv->pos));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_rwv->pos = tmp;
 			DEBUG_DEC(err, "req_rdwr_values: pos");
 		}
 		else if (strncmp(tag, "len", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_rwv->len));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_rwv->len = tmp;
 			DEBUG_DEC(err, "req_rdwr_values: len");
 		}
 		else if (strncmp(tag, "a", 3) == 0)
@@ -1065,7 +1075,9 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 		}
 		else if (strncmp(tag, "flg", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_rwv->flags));
+			flag_t ftmp = {0};
+			err |= CBOR_ExtractInt(&recursed, &ftmp);
+			cbor_rwv->flags = ftmp;
 			DEBUG_DEC(err, "req_rdwr_values: flg");
 		}
 		else
@@ -1117,6 +1129,7 @@ CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqs
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set gw config request map");
 
+	C_UINT16 tmp = 0;
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1124,27 +1137,32 @@ CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqs
 
 		if (strncmp(tag, "pva", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_setgwconfig->pva));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_setgwconfig->pva = tmp;
 			DEBUG_DEC(err, "req_set_gw_config: pva");
 		}
 		else if (strncmp(tag, "pst", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_setgwconfig->pst));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_setgwconfig->pst = tmp;
 			DEBUG_DEC(err, "req_set_gw_config: pst");
 		}
 		else if (strncmp(tag, "mka", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_setgwconfig->mka));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_setgwconfig->mka = tmp;
 			DEBUG_DEC(err, "req_set_gw_config: mka");
 		}
 		else if (strncmp(tag, "lss", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_setgwconfig->lss));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_setgwconfig->lss = tmp;
 			DEBUG_DEC(err, "req_set_gw_config: lss");
 		}
 		else if (strncmp(tag, "hss", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, ((int64_t*)&cbor_setgwconfig->hss));
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			cbor_setgwconfig->hss = tmp;
 			DEBUG_DEC(err, "req_set_gw_config: hss");
 		}
 		else
@@ -1188,7 +1206,7 @@ CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* se
 
 		if (strncmp(tag, "seq", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)seq);
+			err |= CBOR_ExtractInt(&recursed, seq);
 			DEBUG_DEC(err, "req_send_mb_adu: seq");
 		}
 		else if (strncmp(tag, "adu", 3) == 0)
@@ -1236,7 +1254,7 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 
 		if (strncmp(tag, "pas", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)cbor_pass);
+			err |= CBOR_ExtractInt(&recursed, cbor_pass);
 			DEBUG_DEC(err, "send_mb_pass_through: pas");
 		}
 		else
@@ -1280,7 +1298,7 @@ CborError CBOR_ReqReboot(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cid)
 
 		if (strncmp(tag, "cid", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)cid);
+			err |= CBOR_ExtractInt(&recursed, cid);
 			DEBUG_DEC(err, "reboot: cid");
 		}
 		else
@@ -1364,6 +1382,7 @@ CborError CBOR_ReqUpdateDevFW(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborrequ
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set devs config request map");
 
+	C_UINT16 tmp;
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1389,12 +1408,14 @@ CborError CBOR_ReqUpdateDevFW(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborrequ
 		}
 		else if (strncmp(tag, "fid", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)&update_dev_fw->fid);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			update_dev_fw->fid = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: fid");
 		}
 		else if (strncmp(tag, "wet", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)&update_dev_fw->wet);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			update_dev_fw->wet = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: wet");
 		}
 		else
@@ -1448,14 +1469,13 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
-			if(SUCCESS_CMD == cbor_req.res)
-				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-					// save cid for successive hello
-					NVM__WriteU32Value(MB_CID_NVM, cbor_cid);
-					MQTT_FlushValues();
-					GME__Reboot();		//todo
-				}
+			if(SUCCESS_CMD == cbor_req.res){
+				PollEngine_StopEngine_CAREL();
+				// save cid for successive hello
+				NVM__WriteU32Value(MB_CID_NVM, cbor_cid);
+				MQTT_FlushValues();
+				GME__Reboot();		//todo
+			}
 		}
 		break;
 
