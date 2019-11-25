@@ -325,6 +325,12 @@ uint8_t PollEngine__GetPollEnginePrintMsgs(void);
 void PollEngine__SetPollEnginePrintMsgs(uint8_t status);
 
 
+void SetFirstRun(void);
+void ResetFirstLow(void);
+void ResetFirstHigh(void);
+uint8_t IsFirstLow(void);
+uint8_t IsFirstHigh(void);
+
 #define	PRINTF_POLL_ENG(x)	\
 		if(PollEngine__GetPollEnginePrintMsgs() == 1)\
 		printf x;\

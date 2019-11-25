@@ -95,13 +95,15 @@ USHORT param_buffer[2];				// max 32 bits
 eMBErrorCode retError = MB_ENOREG;
 
 static uint8_t PollEnginePrint = POLL_ENGINE_PRINTF_DEFAULT;
+static uint8_t first_high = 1;
+static uint8_t first_low = 1;
 
 /*Static Function*/
 
 static void check_increment_values_buff_len(uint16_t *values_buffer_idx);
-static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len);
-static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len);
-static void compare_prev_curr_reads(PollType_t poll_type);
+static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint8_t first);
+static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, uint8_t first);
+static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first);
 static void save_coil_di_value(coil_di_low_high_t *arr, void* instance_ptr);
 static void save_hr_ir_value(hr_ir_low_high_poll_t *arr, void* instance_ptr);
 static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* instance_ptr);
@@ -407,10 +409,9 @@ static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
  *					arr: is the HR or IR table
  *					arr_len: the table length
  */
-static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len)
+static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint8_t first_run)
 {
-	static int first_run_h=1;
-bool to_values_buff = false;
+	bool to_values_buff = false;
 	long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
 		if(0 != arr->tab[i].error){
@@ -546,7 +547,7 @@ bool to_values_buff = false;
 			default:
 				break;
 			}
-			if(value != 0 || (first_run_h <= 4)){
+			if(value != 0 || (first_run)){
 				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 				values_buffer[values_buffer_index].value = value;
 				values_buffer[values_buffer_index].info_err = 0;
@@ -554,7 +555,6 @@ bool to_values_buff = false;
 			}
 		}
 	}
-	first_run_h++;
 }
 
 
@@ -566,9 +566,8 @@ bool to_values_buff = false;
  *					arr: is the COIL or DI table
  *					arr_len: the table length
  */
-static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
+static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, uint8_t first_run)
 {
-	static uint8_t first_run_c = 1;
 	for(uint8_t i=0; i<arr_len; i++){
 		//error?
 		if(0 != arr->reg[i].error){
@@ -580,7 +579,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 
 		}
 		//value changed
-		else if(arr->reg[i].c_value != arr->reg[i].p_value || (first_run_c <= 4)){
+		else if(arr->reg[i].c_value != arr->reg[i].p_value || (first_run)){
 			//send values to values buffer
 			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
 			values_buffer[values_buffer_index].value = (long double)arr->reg[i].c_value;
@@ -588,7 +587,6 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
 			check_increment_values_buff_len(&values_buffer_index);
 		}
 	}
-	first_run_c++;// = 0;
 }
 
 
@@ -598,7 +596,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len)
  * 					Should be called directly after finishing the polling routine
  */
 
-static void compare_prev_curr_reads(PollType_t poll_type)
+static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 {
 	//get current index of values buffer
 	uint16_t index_temp =  values_buffer_index;
@@ -606,18 +604,18 @@ static void compare_prev_curr_reads(PollType_t poll_type)
 
 	switch(poll_type){
 	case LOW_POLLING:
-		check_coil_di_read_val(&COILLowPollTab, low_n.coil);
-		check_coil_di_read_val(&DILowPollTab, low_n.di);
-		check_hr_ir_read_val(&HRLowPollTab,  low_n.hr);
-		check_hr_ir_read_val(&IRLowPollTab,  low_n.ir);
+		check_coil_di_read_val(&COILLowPollTab, low_n.coil, first);
+		check_coil_di_read_val(&DILowPollTab, low_n.di, first);
+		check_hr_ir_read_val(&HRLowPollTab,  low_n.hr, first);
+		check_hr_ir_read_val(&IRLowPollTab,  low_n.ir, first);
 
 		break;
 
 	case HIGH_POLLING:
-		check_coil_di_read_val(&COILHighPollTab, high_n.coil);
-		check_coil_di_read_val(&DIHighPollTab, high_n.di);
-		check_hr_ir_read_val(&HRHighPollTab,  high_n.hr);
-		check_hr_ir_read_val(&IRHighPollTab,  high_n.ir);
+		check_coil_di_read_val(&COILHighPollTab, high_n.coil, first);
+		check_coil_di_read_val(&DIHighPollTab, high_n.di, first);
+		check_hr_ir_read_val(&HRHighPollTab,  high_n.hr, first);
+		check_hr_ir_read_val(&IRHighPollTab,  high_n.ir, first);
 		break;
 
 	default:
@@ -1325,7 +1323,31 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
 
 }
 
+void SetFirstRun(void)
+{
+	first_low = 1;
+	first_high = 1;
+}
 
+void ResetFirstLow(void)
+{
+	first_low = 0;
+}
+
+void ResetFirstHigh(void)
+{
+	first_high = 0;
+}
+
+uint8_t IsFirstLow(void)
+{
+	return first_low;
+}
+
+uint8_t IsFirstHigh(void)
+{
+	return first_high;
+}
 
 //CHIEBAO A.
 
@@ -1339,9 +1361,9 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
  */
 static uint32_t timeout = 0;
 
+
 void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 {
-
 		if(RUNNING == PollEngine_Status.engine)
 		{
 
@@ -1374,7 +1396,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 				timestamp.current_low = RTC_Get_UTC_Current_Time();
 
-				compare_prev_curr_reads(LOW_POLLING);
+				compare_prev_curr_reads(LOW_POLLING, IsFirstLow());
+				ResetFirstLow();
 				update_current_previous_tables(LOW_POLLING);
 				MQTT_FlushValues();
 
@@ -1387,7 +1410,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				timestamp.current_high = RTC_Get_UTC_Current_Time();
 
 				//print_Hightables();
-				compare_prev_curr_reads(HIGH_POLLING);
+				compare_prev_curr_reads(HIGH_POLLING, IsFirstHigh());
+				ResetFirstHigh();
 				update_current_previous_tables(HIGH_POLLING);
 				//print_ValuesTable();
 				MQTT_FlushValues();

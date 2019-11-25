@@ -40,7 +40,8 @@ void Polling_Engine_Init_IS(void)
 
 
 	req_set_gw_config_t * polling_times = Utilities__GetGWConfigData();
-
+	SetFirstRun();
+	PollEngine_StartEngine_CAREL();	//decidere cosa fare!!!
 
 	while(1)
 	{
