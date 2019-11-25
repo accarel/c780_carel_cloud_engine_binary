@@ -30,6 +30,7 @@
 #include "polling_CAREL.h"
 
 
+#define RET_DIM(x,l)     (x == 16 ? (l = 1) : (l = 2))
 
 
 #define OPTS(min_val, max_val, step_val) { .opt1 = min_val, .opt2 = max_val, .opt3 = step_val }
@@ -1428,40 +1429,43 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 // CHIEBAO A.
 
-C_RES PollEngine__Read_HR_IR_Req(char* alias, void* read_value)
+C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UINT16* read_value)
 {
-	uint16_t cid;
-	//char temp[6] = {0};
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
-	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
+	C_CHAR len = 0;
 
+	RET_DIM(dim,len);
 
-	for(cid=0; cid < max_reg; cid++){
+	// TODO read from nvm the device address!!!!
+	if(func == mbR_HR)
+		errorReq = app_holding_register_read(1, NULL, addr, len);
+	else // mbR_IR
+		errorReq = app_input_register_read(1, NULL, addr, len);
 
-		PRINTF_POLL_ENG(("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key))
+	if(errorReq == MB_MRE_NO_ERR)
+	{
+		*read_value 	  = param_buffer[0];
+		*(read_value + 1) = param_buffer[1];
 
-		if(strcmp(MBParameters[cid].param_key, alias) == 0){
-
-			//ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));
-//			sense_modbus_read_value(cid, read_value);    // CHIEBAO
-			PRINTF_POLL_ENG(("value is = %0X\n\n",*((uint32_t*)read_value)))
-			break;
-
-		}else if(cid == (max_reg - 1)){
-			return C_FAIL;
-		}
+		return C_SUCCESS;
 	}
-	return C_SUCCESS;
+	else
+	  	return C_FAIL;
 }
 
 
 
 
-C_RES PollEngine__Read_COIL_DI_Req(char addr, uint16_t* read_value){
+C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_value){
 
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
-	errorReq = app_coil_read(1, 1, addr, 1);
+	// TODO read from nvm the device address!!!!
+	if(func == mbR_COIL)
+	   errorReq = app_coil_read(1, 1, addr, 1);
+	else // mbR_DI
+	   errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
 
 	if(errorReq == MB_MRE_NO_ERR)
 	{
@@ -1474,70 +1478,40 @@ C_RES PollEngine__Read_COIL_DI_Req(char addr, uint16_t* read_value){
 
 
 
-C_RES PollEngine__Write_HR_Req(char* alias, void* write_value){
-	uint16_t cid;
-	//char temp[6] = {0};
-	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
-	//characteristic_descriptor_t cid_data = { 0 };
-	uint32_t read_value = 0;
-	for(cid=0; cid < max_reg; cid++){
-
-		//PRINTF_DEBUG("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key);
-		if(strcmp(MBParameters[cid].param_key, alias) == 0){
-
-//			ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));          // CHIEBAO
-//			sense_modbus_send_value(cid, write_value);											// CHIEBAO
-			//PRINTF_DEBUG("Write value is = %0X\n\n",*((uint32_t*)write_value));
-//			sense_modbus_read_value(cid, (void*)&read_value);									// CHIEBAO
-			//PRINTF_DEBUG("Read value is = %0X\n\n",*((uint32_t*)&read_value));
-			break;
-
-		}else if(cid == (max_reg - 1)){
-			return C_FAIL;
-		}
-	}
-	return C_SUCCESS;
-}
+//C_RES PollEngine__Write_HR_Req(uint16_t addr, uint16_t* read_value)
+//{
+//
+//    // TODO CHIEBAO
+//
+//
+//	return C_SUCCESS;
+//}
 
 
-C_RES PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr){
-	uint16_t cid;
+C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr){
+
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+
 	uint16_t reg_to_write = 0;
 	uint16_t bit = 0;
-	uint16_t max_reg = low_n.total + high_n.total + alarm_n.total;
-//	characteristic_descriptor_t cid_data = { 0 };
-	uint16_t read_value = 0;
-	for(cid=0; cid < max_reg; cid++){
 
-		PRINTF_POLL_ENG(("MBParameters[%d].param_key = %s\n",cid,MBParameters[cid].param_key))
-		if(strcmp(MBParameters[cid].param_key, alias) == 0){
+	uint16_t value = 0;
 
-			//ESP_ERROR_CHECK_WITHOUT_ABORT (sense_modbus_get_cid_data(cid, &cid_data));
+	bit = addr % 16;
 
-//			sense_modbus_read_value(cid, (void*)&read_value);      // CHIEBAO
-			PRINTF_POLL_ENG(("Read value is = %04X\n\n",*((uint16_t*)&read_value)))
+	if(write_value == 1)
+	  value = 0xFF00;
+	else
+	  value = 0x0000;
 
-			bit = addr % 16;
-			printf("read_coil bit = %d\n",bit);
+	errorReq = app_coil_write(1, addr, value);
 
-			if(write_value  ==  1){
-				reg_to_write = read_value | (uint16_t)(1 << bit);
-				printf("val reg to write 1 : %X\n",reg_to_write);
-			}else if (write_value  ==  0){
-				reg_to_write = read_value & ~((uint16_t)(1 << bit));
-				printf("val reg to write 0 : %X\n",reg_to_write);
-			}
-
-			printf("val reg to write : %X\n",reg_to_write);
-//			sense_modbus_send_value(cid, (void*)&reg_to_write);     // CHIEBAO
-
-			break;
-
-		}else if(cid == (max_reg - 1)){
-			return C_FAIL;
-		}
+	if(errorReq == MB_MRE_NO_ERR)
+	{
+		return C_SUCCESS;
 	}
-	return C_SUCCESS;
+	else
+		return C_FAIL;
 }
 
 

@@ -29,6 +29,7 @@ void Modbus_Task_Start(void);
 
 void Modbus_rw_test(void);
 
+// READ
 int app_coil_read(const uint8_t addr, const int func, const int index, const int num);
 int app_coil_discrete_input_read(const uint8_t addr, const int func, const int index, const int num);
 int app_holding_register_read(const uint8_t addr, const int func, const int index, const int num);
@@ -36,5 +37,7 @@ int app_input_register_read(const uint8_t addr, const int func, const int index,
 
 C_RES app_report_slave_id_read(const uint8_t addr);
 
+// WRITE
+int app_coil_write(const uint8_t addr, const int index, short newData);
 
 #endif   /* #ifndef __MODBUS_IS_H */

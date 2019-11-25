@@ -1683,17 +1683,30 @@ data_rx_len=0;
 			c_cborreqrdwrvalues cbor_wv = {0};
 			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_wv);
 
-			// send modbus command to write values
-			if(ACTIVATED == PollEngine__GetPassModeStatus())
+			// send modbus command to write values     //CHIEBAO
+			// wait modbus response to get result
+			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+				vTaskDelay(100/portTICK_RATE_MS);
+
+
+			cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+
+
+			if(cbor_req.res == C_SUCCESS)
 			{
-				PollEngine__SetPassModeCMD(RECEIVED);
-				cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-				// send response with result
-				len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, NULL);
-				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-				PollEngine__SetPassModeCMD(EXECUTED);
+					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_wv.val);
+					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, cbor_wv.val);
 			}
+			else
+			{
+					printf("OPERATION_FAILED\n");
+					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, "0");
+			}
+
+			// send response with result
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
+
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -2025,116 +2038,7 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 	return C_SUCCESS;
 }
 
-C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
-{
-	C_RES result = C_FAIL;
-	// todo da gestire tutte le conversioni di tipo nei vari casi
-	//C_INT32 val_to_write = atof((C_SCHAR*)cbor_wv.val);
-	C_FLOAT val_to_write = atof((C_SCHAR*)cbor_wv.val);
-	switch(cbor_wv.func){
 
-		case mbW_COIL:{
-			printf("Alias: %s, Addr = %d, val to write: %d \n",cbor_wv.alias, cbor_wv.addr, (C_UINT16)val_to_write);
-			result = PollEngine__Write_COIL_Req(cbor_wv.alias, val_to_write, cbor_wv.addr);
-			printf("OPERATION_RESULT %d\n",result);
-		}
-		break;
-
-		case mbW_HR:{
-			if(cbor_wv.flags.bit.fixedpoint == 1  ||  cbor_wv.flags.bit.ieee == 1)
-				val_to_write = (val_to_write - (long double)(atoi((C_SCHAR*)cbor_wv.a)))  /  (long double)(atoi((C_SCHAR*)cbor_wv.b));
-
-			printf("Alias = %s, Addr = %d val_to_write = %.6f\n", cbor_wv.alias, cbor_wv.addr, val_to_write);
-			result = PollEngine__Write_HR_Req(cbor_wv.alias, (void*)&val_to_write);
-			printf("OPERATION_RESULT %d\n",result);
-		}
-		break;
-
-		default:
-		break;
-
-	}
-	return result;
-}
-
-C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
-
-	printf("function = %d\n", cbor_rv->func);
-	C_RES result = C_FAIL;
-
-	switch(cbor_rv->func){
-
-	case mbR_COIL:
-	case mbR_DI:
-	{
-		r_coil_di coil_to_read = {0};
-
-		coil_to_read.Alias = (C_UINT16)atoi((C_SCHAR*)cbor_rv->alias);
-
-		coil_to_read.Addr = cbor_rv->addr;
-
-		//printf("Alias: %d, Addr = %d\n", coil_to_read.Alias, coil_to_read.Addr);
-
-		C_UINT16 read_value = 0;
-
-		result = PollEngine__Read_COIL_DI_Req(cbor_rv->addr, &read_value);
-
-		C_UINT16 temp = 0;
-		C_BYTE bit = 0;
-
-		//printf("coil_di_save_value: 0x%04X\n",(read_value));
-
-		bit = coil_to_read.Addr % 16;
-
-		temp = read_value & (C_UINT16)(1 << bit);
-
-		//printf("addr= %d, bit= %d, temp = %d\n", coil_to_read.Addr, bit, temp);
-
-		temp == 0 ? (temp = 0) : (temp = 1);
-
-		itoa(temp, (C_SCHAR*)cbor_rv->val, 10);
-	}
-	break;
-
-	case mbR_HR:{
-		hr_ir_low_high_poll_t hr_to_read = {0};
-		long double conv_value = 0;
-		hr_to_read.info.Addr = cbor_rv->addr;
-		hr_to_read.info.dim = cbor_rv->dim;
-		hr_to_read.info.bitposition = cbor_rv->pos;
-		hr_to_read.info.len = cbor_rv->len;
-		hr_to_read.info.linA = atoi((C_SCHAR*)cbor_rv->a);
-		hr_to_read.info.linB = atoi((C_SCHAR*)cbor_rv->b);
-		hr_to_read.info.flag.byte = cbor_rv->flags.byte;
-		printf("Alias = %d, Addr = %d\n", hr_to_read.info.Alias,hr_to_read.info.Addr);
-
-		result = PollEngine__Read_HR_IR_Req((C_SCHAR*)cbor_rv->alias, (void*)&hr_to_read.c_value.value);
-		if(C_SUCCESS == result){
-			printf("OPERATION_SUCCEEDED %d\n",result);
-			printf("PollEngine__Read_HR_Req x = %0X\n",*((uint32_t*)&hr_to_read.c_value.value));
-
-			if(hr_to_read.info.dim > 16 && 1 == hr_to_read.info.flag.bit.bigendian){
-				C_UINT32 temp = hr_to_read.c_value.value;
-				hr_to_read.c_value.reg.high = (C_UINT16)temp;
-				hr_to_read.c_value.reg.low = (C_UINT16)(temp >> 16);
-			}
-			hr_to_read.read_type = check_hr_ir_reg_type(hr_to_read.info);
-
-//			conv_value = read_values_conversion(&hr_to_read);
-			itoa(conv_value, (C_SCHAR*)cbor_rv->val, 10);
-		}
-		else
-			itoa(0, (C_SCHAR*)cbor_rv->val, 10);
-	}
-	break;
-
-	default:
-	break;
-	}
-
-	return result;
-}
-#if 0
 long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 	long double conv_value = 0;
@@ -2220,3 +2124,115 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 
 #endif
+
+
+C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
+{
+	C_RES result = C_FAIL;
+	// todo da gestire tutte le conversioni di tipo nei vari casi
+
+	C_FLOAT val_to_write = atof((C_SCHAR*)cbor_wv.val);
+
+	switch(cbor_wv.func){
+
+		case mbW_COIL:{
+			printf("Alias: %s, Addr = %d, val to write: %d \n",cbor_wv.alias, cbor_wv.addr, (C_UINT16)val_to_write);
+
+			result = PollEngine__Write_COIL_Req(val_to_write, cbor_wv.addr);
+
+			printf("OPERATION_RESULT %d\n",result);
+		}
+		break;
+
+		case mbW_HR:{
+			if(cbor_wv.flags.bit.fixedpoint == 1  ||  cbor_wv.flags.bit.ieee == 1)
+				val_to_write = (val_to_write - (long double)(atoi((C_SCHAR*)cbor_wv.a)))  /  (long double)(atoi((C_SCHAR*)cbor_wv.b));
+
+			printf("Alias = %s, Addr = %d val_to_write = %.6f\n", cbor_wv.alias, cbor_wv.addr, val_to_write);
+//			result = PollEngine__Write_HR_Req(cbor_wv.alias, (void*)&val_to_write);
+			printf("OPERATION_RESULT %d\n",result);
+		}
+		break;
+
+		default:
+		break;
+
+	}
+	return result;
+}
+
+C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
+
+	printf("function = %d\n", cbor_rv->func);
+	C_RES result = C_FAIL;
+
+	switch(cbor_rv->func){
+
+	case mbR_COIL:
+	case mbR_DI:
+	{
+		r_coil_di coil_to_read = {0};
+		coil_to_read.Addr = cbor_rv->addr;
+
+		C_UINT16 read_value = 0;
+
+		result = PollEngine__Read_COIL_DI_Req(cbor_rv->func ,cbor_rv->addr, &read_value);
+
+		C_UINT16 temp = 0;
+		C_BYTE bit = 0;
+
+		bit = coil_to_read.Addr % 16;
+
+		temp = read_value & (C_UINT16)(1 << bit);
+		temp == 0 ? (temp = 0) : (temp = 1);
+		itoa(temp, (C_SCHAR*)cbor_rv->val, 10);
+	}
+	break;
+
+
+	case mbR_IR:
+	case mbR_HR:
+	{
+		hr_ir_low_high_poll_t hr_to_read = {0};
+
+		long double conv_value = 0;
+
+		hr_to_read.info.Addr = cbor_rv->addr;
+		hr_to_read.info.dim = cbor_rv->dim;
+		hr_to_read.info.bitposition = cbor_rv->pos;
+		hr_to_read.info.len = cbor_rv->len;
+		hr_to_read.info.linA = atoi((C_SCHAR*)cbor_rv->a);
+		hr_to_read.info.linB = atoi((C_SCHAR*)cbor_rv->b);
+		hr_to_read.info.flag.byte = cbor_rv->flags.byte;
+
+		result = PollEngine__Read_HR_IR_Req(cbor_rv->func, hr_to_read.info.Addr, hr_to_read.info.dim ,(void*)&hr_to_read.c_value.value);
+
+		if(C_SUCCESS == result){
+			if(hr_to_read.info.dim > 16 && 1 == hr_to_read.info.flag.bit.bigendian){
+				C_UINT32 temp = hr_to_read.c_value.value;
+				hr_to_read.c_value.reg.high = (C_UINT16)temp;
+				hr_to_read.c_value.reg.low = (C_UINT16)(temp >> 16);
+		    }
+
+		    hr_to_read.read_type = check_hr_ir_reg_type(hr_to_read.info);
+
+			conv_value = read_values_conversion(&hr_to_read);
+
+			if(hr_to_read.info.dim > 16)
+			   sprintf((C_SCHAR*)cbor_rv->val,"%.1Lf", conv_value);
+			else
+			   itoa(conv_value, (C_SCHAR*)cbor_rv->val, 10);
+		}
+		else
+			itoa(0, (C_SCHAR*)cbor_rv->val, 10);
+	}
+	break;
+
+	default:
+	break;
+	}
+
+	return result;
+}
+
+

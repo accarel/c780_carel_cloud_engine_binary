@@ -287,13 +287,13 @@ uint8_t PollEngine__GetPassModeCMD(void);
 
 
 //uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx);
-C_RES PollEngine__Read_HR_IR_Req(char* alias, void* read_value);
+C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr,C_BYTE dim , C_UINT16* read_value);
 
-C_RES PollEngine__Read_COIL_DI_Req(char addr, uint16_t* read_value);
+C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_value);
 
-C_RES PollEngine__Write_COIL_Req(char* alias, uint16_t write_value, uint16_t addr);
+C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr);
 
-C_RES PollEngine__Write_HR_Req(char* alias, void* write_value);
+//C_RES PollEngine__Write_HR_Req(char* alias, void* write_value);
 
 
 values_buffer_t* PollEngine__GetValuesBuffer(void);

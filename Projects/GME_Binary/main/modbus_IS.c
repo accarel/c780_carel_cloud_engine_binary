@@ -206,6 +206,25 @@ int app_input_register_read(const uint8_t addr, const int func, const int index,
 }
 
 
+// 0x01 //single or multi-coils
+int app_coil_write(const uint8_t addr, const int index, short newData)
+{
+	C_RES result = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+    const long timeout = MODBUS_TIME_OUT;
+    eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
+    const USHORT saddr = index;
+
+    errorCode = eMBMasterReqWriteCoil( addr, saddr, newData,timeout);
+
+    result = errorCode;
+#endif
+
+    return result;
+}
+
+
 
 C_RES app_report_slave_id_read(const uint8_t addr)
 {
