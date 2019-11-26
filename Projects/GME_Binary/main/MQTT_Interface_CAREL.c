@@ -41,41 +41,7 @@ static C_BYTE mqtt_init = 0;
 static C_MQTT_TOPIC mqtt_topic;
 static mqtt_times_t mqtt_time;
 static EventBits_t MQTT_BITS;
-#if 0
-/* Functions implementations -------------------------------------------------------*/
 
-/**
- * @brief mqtt_subscribe_to_default_topics
- *        
- * @param none
- * @return C_SUCCESS/C_FAIL
- */
-
-C_RES MQTT_Subscribe_Default_Topics(void)
-{	
-	C_GATEWAY_ID dev_id={0};
-	C_RES resval;
-	C_MQTT_TOPIC topic={0};
-
-	if (MQTT_IS_NOT_CONNECTED == mqtt_engine_status) 
-		return C_FAIL;
-
-	Get_Gateway_ID(&dev_id);
-
-	/* /req topic is the topic that receive the command from the cloud */    
-	strcpy(topic,(C_SCHAR*)dev_id); 
-	strcat(topic, "/req");  
-	resval = mqtt_client_subscribe(&topic[0], 0);
-
-	/* after the subscribing we communicate that we are connected */
-	memset(topic,0,sizeof(topic));
-	strcpy(topic,(C_SCHAR*)dev_id); 
-	strcat(topic, "/connected");
-	mqtt_client_publish(&topic[0], (C_SBYTE*)"1", 1, 1, 1);
-
-	return C_SUCCESS;
-}	
-#endif
 /**
  * @brief MQTT_Start
  *         
