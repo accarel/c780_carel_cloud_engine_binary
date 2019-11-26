@@ -324,12 +324,10 @@ void scanline_test(void);
 uint8_t PollEngine__GetPollEnginePrintMsgs(void);
 void PollEngine__SetPollEnginePrintMsgs(uint8_t status);
 
-
-void SetFirstRun(void);
-void ResetFirstLow(void);
-void ResetFirstHigh(void);
-uint8_t IsFirstLow(void);
-uint8_t IsFirstHigh(void);
+void FlushValues(PollType_t type);
+void ForceSending(void);
+void ResetFirst(PollType_t type);
+uint8_t IsFirst(PollType_t type);
 
 #define	PRINTF_POLL_ENG(x)	\
 		if(PollEngine__GetPollEnginePrintMsgs() == 1)\

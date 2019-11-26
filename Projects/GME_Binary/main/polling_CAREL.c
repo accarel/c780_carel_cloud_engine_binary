@@ -763,6 +763,34 @@ static void update_current_previous_tables(RegType_t poll_type){
 
 }
 
+static void SetAllErrors(void){
+	int i=0;
+
+	//Coil
+	for(i=0;i<low_n.coil;i++)
+		COILLowPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+	//DI
+	for(i=0;i<low_n.di;i++)
+		DILowPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+	//HR
+	for(int i=0;i<low_n.hr;i++)
+		HRLowPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+	//IR
+	for(int i=0;i<high_n.ir;i++)
+		IRLowPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+	//Coil
+	for(i=0;i<high_n.coil;i++)
+		COILHighPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+	//DI
+	for(i=0;i<high_n.di;i++)
+		DIHighPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+	//HR
+	for(int i=0;i<high_n.hr;i++)
+		HRHighPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+	//IR
+	for(int i=0;i<high_n.ir;i++)
+		IRHighPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+}
 
 /**
  * @brief save_coil_di_value
@@ -878,53 +906,38 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 
 /* Description: send JSON msg via MQTT if any alarm's value is changed */
 
-static void send_cbor_alarm(uint16_t alias, alarm_read_t *data, uint8_t alarm_issue){
+static void send_cbor_alarm(uint16_t alias, alarm_read_t *data){
 	c_cboralarms cbor_al;
 	cbor_al.st = data->start_time;
 	cbor_al.et = data->stop_time;
-	if (alarm_issue == 0){
-		cbor_al.aty = 2;
-		cbor_al.aco = 1;
-		strcpy((char*)cbor_al.ali, "");
-	}
-	else {
-		cbor_al.aty = 1;
-		cbor_al.aco = 0;
-		itoa(alias,(char*)cbor_al.ali,10);
-	}
+	cbor_al.aty = 1;
+	cbor_al.aco = 0;
+	itoa(alias,(char*)cbor_al.ali,10);
 	MQTT_Alarms(cbor_al);
-};
-
-
-static void set_null_alarm_timer(){
-	NullTimerAlarm = NULL_ALARM_TIMER;
-	PRINTF_DEBUG("set NullTimerAlarm = %d\n",NullTimerAlarm);
 }
 
-static void clear_null_alarm_timer(){
-	NullTimerAlarm = 0;
-}
 
-static uint16_t get_null_alarm_timer(){
-	return NullTimerAlarm;
-}
+static void send_cbor_offalarm(uint16_t alias, uint32_t st, uint32_t et){
+	c_cboralarms cbor_al;
 
+	cbor_al.st = st;
+	cbor_al.et = et;
+	cbor_al.aty = 2;
+	cbor_al.aco = 1;
+	strcpy((char*)cbor_al.ali, "");
+
+	MQTT_Alarms(cbor_al);
+}
 
 /* Description: Check if any alarm's value is changed, activated or deactivated */
 
 static void check_alarms_change(void)
 {
 	uint16_t i;
-	for(i=0; i<alarm_n.coil; i++){
-		if(0 != COILAlarmPollTab[i].data.error){
-			send_cbor_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data, ERROR);
 
-			PRINTF_POLL_ENG(("Coil Alarm error num %d \n ",i))
-			set_null_alarm_timer();
-			COILAlarmPollTab[i].data.error = 0;
-		}
-		else if (1 == COILAlarmPollTab[i].data.send_flag){
-			send_cbor_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data, CHANGED);
+	for(i=0; i<alarm_n.coil; i++){
+		if (1 == COILAlarmPollTab[i].data.send_flag){
+			send_cbor_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data);
 
 			if(COILAlarmPollTab[i].data.value == 1)
 			   printf("Coil Alarm rise num %d \n ",i);
@@ -932,58 +945,36 @@ static void check_alarms_change(void)
 			   printf("Coil Alarm fall num %d \n ",i);
 
 			COILAlarmPollTab[i].data.send_flag = 0;
-		};
+		}
 	}
 
 	for(i=0; i<alarm_n.di; i++){
-		if(0 != DIAlarmPollTab[i].data.error){
-			send_cbor_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, ERROR);
-
-			printf("DI Alarm error num %d \n ",i);
-			set_null_alarm_timer();
-			DIAlarmPollTab[i].data.error = 0;
-		}
-		else if (1 == DIAlarmPollTab[i].data.send_flag){
-			send_cbor_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data, CHANGED);
+		if (1 == DIAlarmPollTab[i].data.send_flag){
+			send_cbor_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data);
 
 			PRINTF_POLL_ENG(("DI Alarm changed num %d \n ",i))
 			DIAlarmPollTab[i].data.send_flag = 0;
-		};
+		}
 	}
 
 	for(i=0; i<alarm_n.hr; i++){
-		if(0 != HRAlarmPollTab[i].data.error){
-			send_cbor_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, ERROR);
-
-			PRINTF_POLL_ENG(("HR Alarm error num %d \n ",i))
-			set_null_alarm_timer();
-			HRAlarmPollTab[i].data.error = 0;
-		}
-		else if (1 == HRAlarmPollTab[i].data.send_flag){
-			send_cbor_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data, CHANGED);
+		if (1 == HRAlarmPollTab[i].data.send_flag){
+			send_cbor_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data);
 
 			PRINTF_POLL_ENG(("HR Alarm changed num %d \n ",i))
 			HRAlarmPollTab[i].data.send_flag = 0;
-		};
+		}
 	}
 
 	for(i=0; i<alarm_n.ir; i++){
-		if(0 != IRAlarmPollTab[i].data.error){
-			send_cbor_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, ERROR);
-
-	PRINTF_POLL_ENG(("IR Alarm error num %d \n ",i))
-			set_null_alarm_timer();
-			IRAlarmPollTab[i].data.error = 0;
-		}
-		else if (1 == IRAlarmPollTab[i].data.send_flag){
-			send_cbor_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data, CHANGED);
+		if (1 == IRAlarmPollTab[i].data.send_flag){
+			send_cbor_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data);
 
 			PRINTF_POLL_ENG(("IR Alarm changed num %d \n ",i))
 			IRAlarmPollTab[i].data.send_flag = 0;
-		};
+		}
 	}
-
-};
+}
 
 void print_ValuesTable(void){
 	int i;
@@ -1012,31 +1003,38 @@ void print_ValuesTable(void){
 eMBErrorCode GetResult(void) 	 {  return 	retError; }
 void SetResult(eMBErrorCode val) { retError = val;    }
 
-/**
- * @brief DoLowPolling
- *        Check the low poll variable (Coil, Di, Hr, Ir)
- *
- * @param coil_di_poll_tables_t *Coil
- *        coil_di_poll_tables_t *Di
- *        hr_ir_poll_tables_t *Hr
- *	      hr_ir_poll_tables_t *Ir
- * @return none
- */
-static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir_poll_tables_t *Hr, hr_ir_poll_tables_t *Ir)
+
+static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir_poll_tables_t *Hr, hr_ir_poll_tables_t *Ir, PollType_t type)
 {
 	uint8_t addr = 0;
     uint8_t numOf = 0;
-
+    uint8_t retry = 0;
+    uint8_t is_offline = 0;
     eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
-
+    uint8_t ncoil, ndi, nhr, nir;
+    if (type == 0) {
+    	ncoil = low_n.coil;
+    	ndi = low_n.di;
+    	nhr = low_n.hr;
+    	nir = low_n.di;
+    }
+    else {
+    	ncoil = high_n.coil;
+    	ndi = high_n.di;
+    	nhr = high_n.hr;
+    	nir = high_n.di;
+    }
 	// Polling the Coil register
-	for (uint16_t i = 0; i < low_n.coil; i++)
+	for (uint16_t i = 0; i < ncoil; i++)
 	{
 		errorReq = MB_MRE_NO_REG;
-
 		addr = (Coil->reg[i].info.Addr);
 
-		errorReq = app_coil_read(1, 1, addr, 1);
+		do {
+			errorReq = app_coil_read(1, 1, addr, 1);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+
 		Coil->reg[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
@@ -1044,18 +1042,28 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 			errorReq = MB_MRE_NO_REG;
 			save_coil_di_value(&Coil->reg[i] , param_buffer);
 		}
+		else
+			is_offline++;
+
+		if(is_offline == 2)
+			return C_FAIL; //this is the start of offline
+
 		param_buffer[0] = param_buffer[1] = 0;
 
 	}
 
 	// Polling the Di register
-	for (uint16_t i = 0; i < low_n.di; i++)
+	for (uint16_t i = 0; i < ndi; i++)
 	{
 		errorReq = MB_MRE_NO_REG;
-
+		retry = 0;
 		addr = (Di->reg[i].info.Addr);
 
-		errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+		do {
+			errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+
 		Di->reg[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
@@ -1063,15 +1071,18 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 			errorReq = MB_MRE_NO_REG;
 			save_coil_di_value(&Di->reg[i] , param_buffer);
 		}
+		else
+			is_offline++;
+		if(is_offline == 2)
+			return C_FAIL;
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
-
 	// Polling the Hr register
-	for (uint16_t i = 0; i < low_n.hr; i++)
+	for (uint16_t i = 0; i < nhr; i++)
 	{
 		errorReq = MB_MRE_NO_REG;
-
+		retry = 0;
 		addr = Hr->tab[i].info.Addr;
 
 		if((Hr->tab[i].info.dim) == 16)
@@ -1079,8 +1090,11 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 		else
 		  numOf = 2;
 
+		do {
+			errorReq = app_holding_register_read(1, 1, addr, numOf);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
-		errorReq = app_holding_register_read(1, 1, addr, numOf);
 		Hr->tab[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
@@ -1088,14 +1102,19 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 			errorReq = MB_MRE_NO_REG;
 			save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
 		}
+		else
+			is_offline++;
+
+		if(is_offline == 2)
+			return C_FAIL;
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
 	// POlling the Ir register
-	for (uint16_t i = 0; i < low_n.ir; i++)
+	for (uint16_t i = 0; i < nir; i++)
 	{
 		errorReq = MB_MRE_NO_REG;
-
+		retry = 0;
 		addr = Ir->tab[i].info.Addr;
 
 		if((Ir->tab[i].info.dim) == 16)
@@ -1103,7 +1122,11 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 		else
 		  numOf = 2;
 
-		errorReq = app_input_register_read(1, 1, addr, numOf);
+		do {
+			errorReq = app_input_register_read(1, 1, addr, numOf);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+
 		Ir->tab[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
@@ -1111,112 +1134,14 @@ static void DoLowPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di
 			errorReq = MB_MRE_NO_REG;
 			save_hr_ir_value(&Ir->tab[i], param_buffer);
 		}
-		param_buffer[0] = param_buffer[1] = 0;
-	}
-}
-
-// CHIEBAO A.
-
-/**
- * @brief DoHighPolling
- *        Check the high poll variable (Coil, Di, Hr, Ir)
- *
- * @param coil_di_poll_tables_t *Coil
- *        coil_di_poll_tables_t *Di
- *        hr_ir_poll_tables_t *Hr
- *	      hr_ir_poll_tables_t *Ir
- * @return none
- */
-static void DoHighPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir_poll_tables_t *Hr, hr_ir_poll_tables_t *Ir)
-{
-	uint8_t addr = 0;
-    uint8_t numOf = 0;
-
-    eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
-
-	// Polling the Coil register
-	for (uint16_t i = 0; i < high_n.coil; i++)
-	{
-		errorReq = MB_MRE_NO_REG;
-
-		addr = (Coil->reg[i].info.Addr);
-
-
-		errorReq = app_coil_read(1, 1, addr, 1);
-
-
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
-
-		save_coil_di_value(&Coil->reg[i] , param_buffer);
-
-		param_buffer[0] = param_buffer[1] = 0;
-	}
-
-	// Polling the Di register
-	for (uint16_t i = 0; i < high_n.di; i++)
-	{
-		errorReq = MB_MRE_NO_REG;
-
-		addr = (Di->reg[i].info.Addr);
-
-		errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
-
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
-
-		save_coil_di_value(&Di->reg[i] , param_buffer);
-
-		param_buffer[0] = param_buffer[1] = 0;
-	}
-
-
-	// Polling the Hr register
-	for (uint16_t i = 0; i < high_n.hr; i++)
-	{
-		errorReq = MB_MRE_NO_REG;
-
-		addr = Hr->tab[i].info.Addr;
-
-		if((Hr->tab[i].info.dim) == 16)
-		  numOf = 1;
 		else
-		  numOf = 2;
+			is_offline++;
 
-		errorReq = app_holding_register_read(1, 1, addr, numOf);
-
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-
-		save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
+		if(is_offline == 2)
+			return C_FAIL;
 		param_buffer[0] = param_buffer[1] = 0;
 	}
-
-
-	// Polling the Ir register
-	for (uint16_t i = 0; i < high_n.ir; i++)
-	{
-		errorReq = MB_MRE_NO_REG;
-
-		addr = Ir->tab[i].info.Addr;
-
-		if((Ir->tab[i].info.dim) == 16)
-		  numOf = 1;
-		else
-		  numOf = 2;
-
-
-	    errorReq = app_input_register_read(1, 1, addr, numOf);
-
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-
-		save_hr_ir_value(&Ir->tab[i], param_buffer);
-		param_buffer[0] = param_buffer[1] = 0;
-
-	}
+	return C_SUCCESS;
 }
 
 
@@ -1233,10 +1158,13 @@ static void DoHighPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *D
  *	      hr_ir_poll_tables_t *Ir
  * @return none
  */
-static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t *Di, hr_ir_alarm_tables_t *Hr, hr_ir_alarm_tables_t *Ir)
+
+
+static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t *Di, hr_ir_alarm_tables_t *Hr, hr_ir_alarm_tables_t *Ir)
 {
 	uint8_t addr = 0;
-
+	uint8_t retry = 0;
+	uint8_t is_offline = 0;
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
 	// Polling the Coil register
@@ -1245,38 +1173,56 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
 		errorReq = MB_MRE_NO_REG;
 
 		addr = (Coil[i].info.Addr);
-        errorReq = app_coil_read(1, 1, addr, 1);
+		do {
+			errorReq = app_coil_read(1, 1, addr, 1);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+
         Coil->data.error = errorReq;
 		if(errorReq == 0)
 		{
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
-
-		save_alarm_coil_di_value(&Coil[i], param_buffer);
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
+			is_offline = 0;
+			save_alarm_coil_di_value(&Coil[i], param_buffer);
 		}
+		else
+			is_offline++;
+
+		if(is_offline == 2)
+			return C_FAIL; //this is an offline
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
-
 
 	// Polling the Di register
 	for (uint16_t i = 0; i < alarm_n.di; i++)
 	{
 		errorReq = MB_MRE_NO_REG;
-
+		retry = 0;
 		addr = (Di[i].info.Addr);
-		errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+
+		do {
+			errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+
 		Di->data.error = errorReq;
 
 		if(errorReq == 0)
 		{
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
 
-		save_alarm_coil_di_value(&Di[i], param_buffer);
+			save_alarm_coil_di_value(&Di[i], param_buffer);
 		}
+		else
+			is_offline++;
+
+		if(is_offline == 2)
+			return C_FAIL; //this is an offline
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
@@ -1285,69 +1231,82 @@ static void DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t 
 	for (uint16_t i = 0; i < alarm_n.hr; i++)
 	{
 		errorReq = MB_MRE_NO_REG;
-
+		retry = 0;
 		addr = (Hr[i].info.Addr);
-		errorReq = app_holding_register_read(1, 1, addr, 1);
+
+		do {
+			errorReq = app_holding_register_read(1, 1, addr, 1);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 		Hr->data.error = errorReq;
 		if(errorReq == 0)
 		{
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
 
-		save_alarm_hr_ir_value(&Hr[i], param_buffer);
-		}
+			save_alarm_hr_ir_value(&Hr[i], param_buffer);
+		}else
+			is_offline++;
+
+		if(is_offline == 2)
+			return C_FAIL; //this is an offline
+
 		param_buffer[0] = param_buffer[1] = 0;
 	}
-
 
 	// Polling the Ir register
 	for (uint16_t i = 0; i < alarm_n.ir; i++)
 	{
 		errorReq = MB_MRE_NO_REG;
-
+		retry = 0;
 		addr = (Ir[i].info.Addr);
-		errorReq = app_input_register_read(1, 1, addr, 1);
+
+		do {
+			errorReq = app_input_register_read(1, 1, addr, 1);
+			retry++;
+		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 		Ir->data.error = errorReq;
 		if(errorReq == 0)
 		{
-		// reset to the default for the next reading
-		SetResult(MB_ENOREG);
-		errorReq = MB_MRE_NO_REG;
+			// reset to the default for the next reading
+			SetResult(MB_ENOREG);
+			errorReq = MB_MRE_NO_REG;
 
-		save_alarm_hr_ir_value(&Ir[i], param_buffer);
-		}
+			save_alarm_hr_ir_value(&Ir[i], param_buffer);
+		}else
+			is_offline++;
+
+		if(is_offline == 2)
+			return C_FAIL; //this is an offline
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
-
+	return C_SUCCESS;
 
 }
 
-void SetFirstRun(void)
+void ForceSending(void)
 {
 	first_low = 1;
 	first_high = 1;
 }
 
-void ResetFirstLow(void)
+void ResetForced(PollType_t type)
 {
-	first_low = 0;
+	if (type == LOW_POLLING)
+		first_low = 0;
+	else if (type == HIGH_POLLING)
+		first_high = 0;
 }
 
-void ResetFirstHigh(void)
+uint8_t IsForced(PollType_t type)
 {
-	first_high = 0;
-}
-
-uint8_t IsFirstLow(void)
-{
-	return first_low;
-}
-
-uint8_t IsFirstHigh(void)
-{
-	return first_high;
+	if (type == LOW_POLLING)
+		return first_low;
+	else if (type == HIGH_POLLING)
+		return first_high;
+	return 0;
 }
 
 //CHIEBAO A.
@@ -1361,10 +1320,32 @@ uint8_t IsFirstHigh(void)
  * @return none
  */
 static uint32_t timeout = 0;
+static uint32_t start_offline = 0;
+static uint32_t end_offline = 0;
 
+void SendOffline(C_RES poll_done) {
+	if (poll_done == C_FAIL) {
+		if (start_offline == 0) {
+			start_offline = RTC_Get_UTC_Current_Time();
+			send_cbor_offalarm("", start_offline, 0);
+			SetAllErrors();
+			ForceSending();
+			FlushValues(HIGH_POLLING);
+			FlushValues(LOW_POLLING);
+		}
+	}else{
+		if (start_offline != 0) {
+			end_offline = RTC_Get_UTC_Current_Time();
+			send_cbor_offalarm("", start_offline, end_offline);
+			start_offline = end_offline = 0;
+			ForceSending();
+		}
+	}
+}
 
 void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 {
+	C_RES poll_done = C_FAIL;
 		if(RUNNING == PollEngine_Status.engine)
 		{
 
@@ -1376,57 +1357,43 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			if(timeout > (timestamp.current_alarm) && alarm_n.total > 0) {  // + ALARM_POLLING_TIME
 			   //ALARM POLLING
 				printf("ALLARMI \n");
-				//clear_null_alarm_timer();
-
-				DoAlarmPolling(COILAlarmPollTab, DIAlarmPollTab, HRAlarmPollTab, IRAlarmPollTab);
-
-				//timestamp.previous_alarm = timestamp.current_alarm;
 				timestamp.current_alarm = RTC_Get_UTC_Current_Time();
 
-				//print_Alarmtables();
-				//if(rete =! 0)
-				check_alarms_change();    // CHIEBAO
-				// else
-				// metto in fifo
+				poll_done = DoAlarmPolling(COILAlarmPollTab, DIAlarmPollTab, HRAlarmPollTab, IRAlarmPollTab);
+				SendOffline(poll_done);
+
+				check_alarms_change();
 			}
 
-			if ((timeout > (timestamp.current_low + polling_times->lowspeedsamplevalue)   &&   low_n.total > 0)) {
-				//LOW POLLING
-				printf("LOW \n");
-				DoLowPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab);
-
-				timestamp.current_low = RTC_Get_UTC_Current_Time();
-
-				compare_prev_curr_reads(LOW_POLLING, IsFirstLow());
-				ResetFirstLow();
-				update_current_previous_tables(LOW_POLLING);
-				MQTT_FlushValues();
-
-			}
-			else if (timeout > (timestamp.current_high + polling_times->hispeedsamplevalue)   &&   high_n.total > 0) {
+			if ((timeout > (timestamp.current_high + polling_times->hispeedsamplevalue)   &&   high_n.total > 0) || IsForced(HIGH_POLLING)) {
 				//HIGH POLLING
 				printf("HIGH \n");
-				DoHighPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab);
-
 				timestamp.current_high = RTC_Get_UTC_Current_Time();
+				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
+				SendOffline(poll_done);
 
-				//print_Hightables();
-				compare_prev_curr_reads(HIGH_POLLING, IsFirstHigh());
-				ResetFirstHigh();
-				update_current_previous_tables(HIGH_POLLING);
-				//print_ValuesTable();
-				MQTT_FlushValues();
+				FlushValues(HIGH_POLLING);
 
-		    }
+			}
+			if ((timeout > (timestamp.current_low + polling_times->lowspeedsamplevalue)   &&   low_n.total > 0) || IsForced(LOW_POLLING)) {
+				//LOW POLLING
+				printf("LOW \n");
+				timestamp.current_low = RTC_Get_UTC_Current_Time();
+				poll_done = DoPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab, LOW_POLLING);
+				SendOffline(poll_done);
+
+				FlushValues(LOW_POLLING);
+			}
 		}
-
 		PollEngine_Status.polling = STOPPED;
 }
 
-
-
-
-
+void FlushValues(PollType_t type){
+	compare_prev_curr_reads(type, IsForced(type));
+	ResetForced(type);
+	update_current_previous_tables(type);
+	MQTT_FlushValues();
+}
 // CHIEBAO A.
 
 C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UINT16* read_value)
