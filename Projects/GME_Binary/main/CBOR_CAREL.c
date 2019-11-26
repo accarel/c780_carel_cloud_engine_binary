@@ -2123,7 +2123,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 }
 
 
-#endif
+
 
 
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
