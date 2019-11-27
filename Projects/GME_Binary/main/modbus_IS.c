@@ -206,7 +206,7 @@ int app_input_register_read(const uint8_t addr, const int func, const int index,
 }
 
 
-// 0x01 //single or multi-coils
+// app_coil_write
 int app_coil_write(const uint8_t addr, const int index, short newData)
 {
 	C_RES result = C_SUCCESS;
@@ -214,9 +214,8 @@ int app_coil_write(const uint8_t addr, const int index, short newData)
 #ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
-    const USHORT saddr = index;
 
-    errorCode = eMBMasterReqWriteCoil( addr, saddr, newData,timeout);
+    errorCode = eMBMasterReqWriteCoil( addr, index, newData,timeout);
 
     result = errorCode;
 #endif
@@ -226,6 +225,29 @@ int app_coil_write(const uint8_t addr, const int index, short newData)
 
 
 
+// app_hr_write
+int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 * newData)
+{
+	C_RES result = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+    const long timeout = MODBUS_TIME_OUT;
+    eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
+    const USHORT saddr = index;
+
+    errorCode = eMBMasterReqWriteMultipleHoldingRegister( addr, index, num_of, newData, timeout );
+
+    result = errorCode;
+#endif
+
+    return result;
+}
+
+
+
+
+
+// app_report_slave_id_read
 C_RES app_report_slave_id_read(const uint8_t addr)
 {
    C_RES result = C_SUCCESS;

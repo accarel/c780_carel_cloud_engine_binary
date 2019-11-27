@@ -1455,27 +1455,58 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
 }
 
 
+/**
+ * @brief PollEngine__Write_HR_Req
+ *        function that write a holding register via Modbus
+ *
+ * @param  C_FLOAT write_value, uint16_t addr, C_CHAR num
+ * @return C_RES
+ */
+C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num)
+{
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
-//C_RES PollEngine__Write_HR_Req(uint16_t addr, uint16_t* read_value)
-//{
-//
-//    // TODO CHIEBAO
-//
-//
-//	return C_SUCCESS;
-//}
+    data_f data;
+    C_UINT16 val[2];
 
+	data.reg.high = 0;
+	data.reg.low = 0;
 
+	data.value = write_value;
+
+	if(num == 1) {   val[0] = write_value; }
+	else{
+		val[1] =  data.reg.low;
+		val[0] =  data.reg.high;
+	}
+
+	errorReq = app_hr_write(1, addr, num, &val);
+
+	if(errorReq == MB_MRE_NO_ERR)
+	{
+		return C_SUCCESS;
+	}
+	else
+		return C_FAIL;
+}
+
+/**
+ * @brief PollEngine__Write_COIL_Req
+ *        function that write a Coil register via Modbus
+ *
+ * @param  uint16_t write_value, uint16_t addr
+ * @return C_RES
+ */
 C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr){
 
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
 	uint16_t reg_to_write = 0;
-	uint16_t bit = 0;
+	uint16_t bit = 0;  // ??
 
 	uint16_t value = 0;
 
-	bit = addr % 16;
+	bit = addr % 16; // ??
 
 	if(write_value == 1)
 	  value = 0xFF00;

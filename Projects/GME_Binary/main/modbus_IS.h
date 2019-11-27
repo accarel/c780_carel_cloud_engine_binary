@@ -39,5 +39,6 @@ C_RES app_report_slave_id_read(const uint8_t addr);
 
 // WRITE
 int app_coil_write(const uint8_t addr, const int index, short newData);
+int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 * newData);
 
 #endif   /* #ifndef __MODBUS_IS_H */
