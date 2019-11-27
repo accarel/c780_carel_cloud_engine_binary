@@ -127,7 +127,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[LOW_POLLING][COIL];
 	if(0 != temp){
 		COILLowPollTab.reg = malloc(temp * sizeof(coil_di_low_high_t));
-		memset((void*)&COILLowPollTab.reg[0] , 0, sizeof(coil_di_low_high_t));
+		memset((void*)&COILLowPollTab.reg[0] , 0, temp*sizeof(coil_di_low_high_t));
 		uint8_t  *p_coil_low_sect = BinaryModel__GetPtrSec(LOW_POLLING, COIL);
 		for(int i=0;i<temp;i++){
 			COILLowPollTab.reg[i].info =  *((r_coil_di*)(p_coil_low_sect + (i * sizeof(r_coil_di))));
@@ -138,7 +138,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[HIGH_POLLING][COIL];
 	if(0 != temp){
 		COILHighPollTab.reg = malloc(temp * sizeof(coil_di_low_high_t));
-		memset((void*)&COILHighPollTab.reg[0] , 0, sizeof(coil_di_low_high_t));
+		memset((void*)&COILHighPollTab.reg[0] , 0, temp*sizeof(coil_di_low_high_t));
 		uint8_t  *p_coil_high_sect = BinaryModel__GetPtrSec(HIGH_POLLING, COIL);
 		for(int i=0;i<temp;i++){
 			COILHighPollTab.reg[i].info =  *((r_coil_di*)(p_coil_high_sect + (i * sizeof(r_coil_di))));
@@ -150,7 +150,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[ALARM_POLLING][COIL];
 	if(0 != temp){
 		COILAlarmPollTab = malloc(temp * sizeof(coil_di_alarm_tables_t));
-		memset((void*)&COILAlarmPollTab[0] , 0, sizeof(coil_di_alarm_tables_t));
+		memset((void*)&COILAlarmPollTab[0] , 0, temp*sizeof(coil_di_alarm_tables_t));
 		uint8_t  *p_coil_alarm_sect = BinaryModel__GetPtrSec(ALARM_POLLING, COIL);
 		for(int i=0;i<temp;i++){
 			COILAlarmPollTab[i].info =  *((r_coil_di_alarm*)(p_coil_alarm_sect + (i * sizeof(r_coil_di_alarm))));
@@ -162,7 +162,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[LOW_POLLING][DI];
 	if(0 != temp){
 		DILowPollTab.reg = malloc(temp * sizeof(coil_di_low_high_t));
-		memset((void*)&DILowPollTab.reg[0] , 0, sizeof(coil_di_low_high_t));
+		memset((void*)&DILowPollTab.reg[0] , 0, temp*sizeof(coil_di_low_high_t));
 		uint8_t  *p_di_low_sect = BinaryModel__GetPtrSec(LOW_POLLING, DI);
 		for(int i=0;i<temp;i++){
 			DILowPollTab.reg[i].info =  *((r_coil_di*)(p_di_low_sect + (i * sizeof(r_coil_di))));
@@ -173,7 +173,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[HIGH_POLLING][DI];
 	if(0 != temp){
 		DIHighPollTab.reg = malloc(temp * sizeof(coil_di_low_high_t));
-		memset((void*)&DIHighPollTab.reg[0] , 0, sizeof(coil_di_low_high_t));
+		memset((void*)&DIHighPollTab.reg[0] , 0, temp*sizeof(coil_di_low_high_t));
 		uint8_t  *p_di_high_sect = BinaryModel__GetPtrSec(HIGH_POLLING, DI);
 		for(int i=0;i<temp;i++){
 			DIHighPollTab.reg[i].info =  *((r_coil_di*)(p_di_high_sect + (i * sizeof(r_coil_di))));
@@ -184,7 +184,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[ALARM_POLLING][DI];
 	if(0 != temp){
 		DIAlarmPollTab = malloc(temp * sizeof(coil_di_alarm_tables_t));
-		memset((void*)&DIAlarmPollTab[0] , 0, sizeof(coil_di_alarm_tables_t));
+		memset((void*)&DIAlarmPollTab[0] , 0, temp*sizeof(coil_di_alarm_tables_t));
 		uint8_t  *p_di_alarm_sect = BinaryModel__GetPtrSec(ALARM_POLLING, DI);
 		for(int i=0;i<temp;i++){
 			DIAlarmPollTab[i].info =  *((r_coil_di_alarm*)(p_di_alarm_sect + (i * sizeof(r_coil_di_alarm))));
@@ -196,7 +196,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[LOW_POLLING][HR];
 	if(0 != temp){
 		HRLowPollTab.tab = malloc(temp * sizeof(hr_ir_low_high_poll_t));
-		memset((void*)&HRLowPollTab.tab[0] , 0, sizeof(hr_ir_low_high_poll_t));
+		memset((void*)&HRLowPollTab.tab[0] , 0, temp*sizeof(hr_ir_low_high_poll_t));
 		uint8_t  *p_hr_low_sect = BinaryModel__GetPtrSec(LOW_POLLING, HR);
 		for(int i=0;i<temp;i++){
 			HRLowPollTab.tab[i].info =  *((r_hr_ir*)(p_hr_low_sect + (i * sizeof(r_hr_ir))));
@@ -208,7 +208,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[HIGH_POLLING][HR];
 	if(0 != temp){
 		HRHighPollTab.tab = malloc(temp * sizeof(hr_ir_low_high_poll_t));
-		memset((void*)&HRHighPollTab.tab[0] , 0, sizeof(hr_ir_low_high_poll_t));
+		memset((void*)&HRHighPollTab.tab[0] , 0, temp*sizeof(hr_ir_low_high_poll_t));
 		uint8_t  *p_hr_high_sect = BinaryModel__GetPtrSec(HIGH_POLLING, HR);
 		for(int i=0;i<temp;i++){
 			HRHighPollTab.tab[i].info =  *((r_hr_ir*)(p_hr_high_sect + (i * sizeof(r_hr_ir))));
@@ -220,7 +220,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[ALARM_POLLING][HR];
 	if(0 != temp){
 		HRAlarmPollTab = malloc(temp * sizeof(hr_ir_alarm_tables_t));
-		memset((void*)&HRAlarmPollTab[0] , 0, sizeof(hr_ir_alarm_tables_t));
+		memset((void*)&HRAlarmPollTab[0] , 0, temp*sizeof(hr_ir_alarm_tables_t));
 		uint8_t  *p_hr_alarm_sect = BinaryModel__GetPtrSec(ALARM_POLLING, HR);
 		for(int i=0;i<temp;i++){
 			HRAlarmPollTab[i].info =  *((r_hr_ir_alarm*)(p_hr_alarm_sect + (i * sizeof(r_hr_ir_alarm))));
@@ -233,7 +233,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[LOW_POLLING][IR];
 	if(0 != temp){
 		IRLowPollTab.tab = malloc(temp * sizeof(hr_ir_low_high_poll_t));
-		memset((void*)&IRLowPollTab.tab[0] , 0, sizeof(hr_ir_low_high_poll_t));
+		memset((void*)&IRLowPollTab.tab[0] , 0, temp*sizeof(hr_ir_low_high_poll_t));
 		uint8_t  *p_ir_low_sect = BinaryModel__GetPtrSec(LOW_POLLING, IR);
 		for(int i=0;i<temp;i++){
 			IRLowPollTab.tab[i].info =  *((r_hr_ir*)(p_ir_low_sect + (i * sizeof(r_hr_ir))));
@@ -245,7 +245,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[HIGH_POLLING][IR];
 	if(0 != temp){
 		IRHighPollTab.tab = malloc(temp * sizeof(hr_ir_low_high_poll_t));
-		memset((void*)&IRHighPollTab.tab[0] , 0, sizeof(hr_ir_low_high_poll_t));
+		memset((void*)&IRHighPollTab.tab[0] , 0, temp*sizeof(hr_ir_low_high_poll_t));
 		uint8_t  *p_ir_high_sect = BinaryModel__GetPtrSec(HIGH_POLLING, IR);
 		for(int i=0;i<temp;i++){
 			IRHighPollTab.tab[i].info =  *((r_hr_ir*)(p_ir_high_sect + (i * sizeof(r_hr_ir))));
@@ -257,7 +257,7 @@ void PollEngine__CreateTables(void){
 	temp = DeviceParamCount[ALARM_POLLING][IR];
 	if(0 != temp){
 		IRAlarmPollTab = malloc(temp * sizeof(hr_ir_alarm_tables_t));
-		memset((void*)&IRAlarmPollTab[0] , 0, sizeof(hr_ir_alarm_tables_t));
+		memset((void*)&IRAlarmPollTab[0] , 0, temp*sizeof(hr_ir_alarm_tables_t));
 		uint8_t  *p_ir_alarm_sect = BinaryModel__GetPtrSec(ALARM_POLLING, IR);
 		for(int i=0;i<temp;i++){
 			IRAlarmPollTab[i].info =  *((r_hr_ir_alarm*)(p_ir_alarm_sect + (i * sizeof(r_hr_ir_alarm))));
@@ -415,7 +415,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 	bool to_values_buff = false;
 	long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
-		if(0 != arr->tab[i].error){
+		if(0 != arr->tab[i].error && arr->tab[i].error != arr->tab[i].p_error){
 			values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 			values_buffer[values_buffer_index].value = 0;
 			values_buffer[values_buffer_index].info_err = arr->tab[i].error;
@@ -571,7 +571,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 {
 	for(uint8_t i=0; i<arr_len; i++){
 		//error?
-		if(0 != arr->reg[i].error){
+		if(0 != arr->reg[i].error && arr->reg[i].error != arr->reg[i].p_error){
 			//send values to values buffer as error
 			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
 			values_buffer[values_buffer_index].value = 0;
@@ -715,21 +715,26 @@ static void update_current_previous_tables(RegType_t poll_type){
 		for(i=0;i<low_n.coil;i++){
 			COILLowPollTab.reg[i].p_value = COILLowPollTab.reg[i].c_value;
 			COILLowPollTab.reg[i].c_value = 0;
+			COILLowPollTab.reg[i].p_error = COILLowPollTab.reg[i].error;
 		}
 		//DI
 		for(i=0;i<low_n.di;i++){
 			DILowPollTab.reg[i].p_value = DILowPollTab.reg[i].c_value;
 			DILowPollTab.reg[i].c_value = 0;
+			DILowPollTab.reg[i].p_error = DILowPollTab.reg[i].error;
 		}
 		//HR
 		for(int i=0;i<low_n.hr;i++){
 			HRLowPollTab.tab[i].p_value.value = HRLowPollTab.tab[i].c_value.value;
 			HRLowPollTab.tab[i].c_value.value = 0;
+			HRLowPollTab.tab[i].p_error = HRLowPollTab.tab[i].error;
+
 		}
 		//IR
 		for(int i=0;i<high_n.ir;i++){
 			IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
 			IRLowPollTab.tab[i].c_value.value = 0;
+			IRLowPollTab.tab[i].p_error = IRLowPollTab.tab[i].error;
 		}
 		break;
 
@@ -738,22 +743,26 @@ static void update_current_previous_tables(RegType_t poll_type){
 		for(i=0;i<high_n.coil;i++){
 			COILHighPollTab.reg[i].p_value = COILHighPollTab.reg[i].c_value;
 			COILHighPollTab.reg[i].c_value = 0;
+			COILHighPollTab.reg[i].p_error = COILHighPollTab.reg[i].error;
 		}
 		//DI
 		for(i=0;i<high_n.di;i++){
 			DIHighPollTab.reg[i].p_value = DIHighPollTab.reg[i].c_value;
 			DIHighPollTab.reg[i].c_value = 0;
+			DIHighPollTab.reg[i].p_error = DIHighPollTab.reg[i].error;
 		}
 		//HR
 		for(int i=0;i<high_n.hr;i++){
 			HRHighPollTab.tab[i].p_value.value = HRHighPollTab.tab[i].c_value.value;
 			HRHighPollTab.tab[i].c_value.value = 0;
+			HRHighPollTab.tab[i].p_error = HRHighPollTab.tab[i].error;
 		}
 
 		//IR
 		for(int i=0;i<high_n.ir;i++){
 			IRHighPollTab.tab[i].p_value.value = IRHighPollTab.tab[i].c_value.value;
 			IRHighPollTab.tab[i].c_value.value = 0;
+			IRHighPollTab.tab[i].p_error = IRHighPollTab.tab[i].error;
 		}
 		break;
 
@@ -763,33 +772,33 @@ static void update_current_previous_tables(RegType_t poll_type){
 
 }
 
-static void SetAllErrors(void){
+static void SetAllErrors(eMBMasterReqErrCode error){
 	int i=0;
 
 	//Coil
 	for(i=0;i<low_n.coil;i++)
-		COILLowPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+		COILLowPollTab.reg[i].error = error;
 	//DI
 	for(i=0;i<low_n.di;i++)
-		DILowPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+		DILowPollTab.reg[i].error = error;
 	//HR
 	for(int i=0;i<low_n.hr;i++)
-		HRLowPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+		HRLowPollTab.tab[i].error = error;
 	//IR
 	for(int i=0;i<high_n.ir;i++)
-		IRLowPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+		IRLowPollTab.tab[i].error = error;
 	//Coil
 	for(i=0;i<high_n.coil;i++)
-		COILHighPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+		COILHighPollTab.reg[i].error = error;
 	//DI
 	for(i=0;i<high_n.di;i++)
-		DIHighPollTab.reg[i].error = MB_MRE_TIMEDOUT;
+		DIHighPollTab.reg[i].error = error;
 	//HR
 	for(int i=0;i<high_n.hr;i++)
-		HRHighPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+		HRHighPollTab.tab[i].error = error;
 	//IR
 	for(int i=0;i<high_n.ir;i++)
-		IRHighPollTab.tab[i].error = MB_MRE_TIMEDOUT;
+		IRHighPollTab.tab[i].error = error;
 }
 
 /**
@@ -1328,7 +1337,9 @@ void SendOffline(C_RES poll_done) {
 		if (start_offline == 0) {
 			start_offline = RTC_Get_UTC_Current_Time();
 			send_cbor_offalarm("", start_offline, 0);
-			SetAllErrors();
+			SetAllErrors(MB_MRE_TIMEDOUT);
+			timestamp.current_high = RTC_Get_UTC_Current_Time();
+			timestamp.current_low = RTC_Get_UTC_Current_Time();
 			ForceSending();
 			FlushValues(HIGH_POLLING);
 			FlushValues(LOW_POLLING);

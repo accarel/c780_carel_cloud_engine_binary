@@ -35,6 +35,7 @@ typedef struct coil_di_low_high_s{
 	uint8_t 			c_value:1;
 	uint8_t 			p_value:1;
 	uint8_t				error:3;
+	uint8_t				p_error:3;
 }coil_di_low_high_t;
 #pragma pack()
 
@@ -106,6 +107,7 @@ typedef struct hr_ir_low_high_poll_s{
 	hr_ir_low_high_value_t p_value;
 	hr_ir_read_type_t	   read_type;
 	uint8_t					error;
+	uint8_t					p_error;
 }hr_ir_low_high_poll_t;
 #pragma pack()
 
