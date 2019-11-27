@@ -2038,7 +2038,14 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 	return C_SUCCESS;
 }
 
-
+/**
+ * @brief read_values_conversion
+ *
+ *   convert the read data into the right data type
+ *
+ * @param  hr_ir_low_high_poll_t *hr_to_read
+ * @return long double
+ */
 long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 	long double conv_value = 0;
@@ -2123,34 +2130,46 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 }
 
 
-
-
-
+/**
+ * @brief parse_write_values
+ *
+ *        manage the incoming cbor payload to write value via modbus
+ *
+ * @param  c_cborreqrdwrvalues cbor_wv
+ * @return C_RES
+ */
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 {
 	C_RES result = C_FAIL;
 	// todo da gestire tutte le conversioni di tipo nei vari casi
 
-	C_FLOAT val_to_write = atof((C_SCHAR*)cbor_wv.val);
+	C_CHAR num_reg;
+	C_FLOAT val_to_write;
+
+	double res;
+
+	res = atof((C_SCHAR*)cbor_wv.val);
+
+	val_to_write = (C_FLOAT)res;
 
 	switch(cbor_wv.func){
 
 		case mbW_COIL:{
-			printf("Alias: %s, Addr = %d, val to write: %d \n",cbor_wv.alias, cbor_wv.addr, (C_UINT16)val_to_write);
 
 			result = PollEngine__Write_COIL_Req(val_to_write, cbor_wv.addr);
-
-			printf("OPERATION_RESULT %d\n",result);
 		}
 		break;
 
 		case mbW_HR:{
-			if(cbor_wv.flags.bit.fixedpoint == 1  ||  cbor_wv.flags.bit.ieee == 1)
-				val_to_write = (val_to_write - (long double)(atoi((C_SCHAR*)cbor_wv.a)))  /  (long double)(atoi((C_SCHAR*)cbor_wv.b));
 
-			printf("Alias = %s, Addr = %d val_to_write = %.6f\n", cbor_wv.alias, cbor_wv.addr, val_to_write);
-//			result = PollEngine__Write_HR_Req(cbor_wv.alias, (void*)&val_to_write);
-			printf("OPERATION_RESULT %d\n",result);
+			if(cbor_wv.flags.bit.fixedpoint == 1 ||
+			   cbor_wv.flags.bit.ieee == 1)
+				val_to_write = (val_to_write - (long double)(atof((C_SCHAR*)cbor_wv.b)))  /  (long double)(atof((C_SCHAR*)cbor_wv.a));
+
+			if(cbor_wv.dim == 16) { num_reg = 1; }
+			else                  { num_reg = 2; }
+
+			result = PollEngine__Write_HR_Req(val_to_write , cbor_wv.addr, num_reg);
 		}
 		break;
 
@@ -2161,6 +2180,14 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 	return result;
 }
 
+/**
+ * @brief parse_read_values
+ *
+ *    manage the incoming cbor payload to read value via modbus
+ *
+ * @param  c_cborreqrdwrvalues* cbor_rv
+ * @return C_RES
+ */
 C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 
 	printf("function = %d\n", cbor_rv->func);
