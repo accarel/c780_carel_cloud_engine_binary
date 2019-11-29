@@ -771,6 +771,12 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
 	err |= cbor_encode_int(&mapEncoder, device);
 
+	// encode t - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "t");
+	C_TIME t = RTC_Get_UTC_Current_Time();
+	err |= cbor_encode_uint(&mapEncoder, t);
+	DEBUG_ADD(err, "t");
+
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 
 	if(err == CborNoError)
@@ -1468,7 +1474,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			C_UINT16 cbor_cid;
 			err = CBOR_ReqReboot(cbor_stream, cbor_len, &cbor_cid);
 			printf("cid %d\n", cbor_cid);
-			//save somewhere in nvm cbor_cid
 
 			// mqtt response
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
