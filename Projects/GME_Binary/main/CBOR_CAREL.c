@@ -103,6 +103,13 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 	err |= cbor_encode_uint(&mapEncoder, cbor_alarms.et);
 	DEBUG_ADD(err, "et");
 
+	// encode dev - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
+	C_UINT16 device = 0;
+	NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
+	err |= cbor_encode_int(&mapEncoder, device);
+	DEBUG_ADD(err, "dev");
+
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
@@ -423,7 +430,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	// encode dev - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
 	C_UINT16 device = 0;
-	err = NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
+	NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
 	err |= cbor_encode_int(&mapEncoder, device);
 	DEBUG_ADD(err, "dev");
 
@@ -1669,7 +1676,7 @@ data_rx_len=0;
 					printf("OPERATION_FAILED\n");
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, "0");
 			}
-			sprintf(topic,"%s%s", "/", cbor_req.rto);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
