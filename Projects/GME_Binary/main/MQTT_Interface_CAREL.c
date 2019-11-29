@@ -196,7 +196,12 @@ void CBOR_CreateSendValues(values_buffer_t *values_buffer, values_buffer_timing_
 			if(0 != values_buffer[j].info_err)
 				memcpy(val_array[i].vls[j].values, "", 1);
 			else{
-				sprintf((char*)val_array[i].vls[j].values, "%.1Lf", values_buffer[j].value);
+
+				// TODO CHIEBAO
+				if(values_buffer[i].data_type != 16)
+					sprintf(val_array[i].vls[j].values, "%.1Lf", values_buffer[j].value);
+				else
+				    itoa(values_buffer[j].value, (char*)val_array[i].vls[j].values, 10);
 			}
 			j++;
 		}

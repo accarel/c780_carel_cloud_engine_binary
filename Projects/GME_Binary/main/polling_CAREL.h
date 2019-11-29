@@ -185,6 +185,7 @@ typedef struct values_buffer_s{
 	uint16_t 	alias;
 	long double value;
 	uint8_t		info_err;
+	uint8_t     data_type;
 }values_buffer_t;
 #pragma pack()
 

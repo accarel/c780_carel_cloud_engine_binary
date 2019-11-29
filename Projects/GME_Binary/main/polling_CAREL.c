@@ -552,6 +552,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 				values_buffer[values_buffer_index].value = value;
 				values_buffer[values_buffer_index].info_err = 0;
+				values_buffer[values_buffer_index].data_type = arr->tab[i].info.dim;
 				check_increment_values_buff_len(&values_buffer_index);
 			}
 		}
@@ -1343,6 +1344,9 @@ void SendOffline(C_RES poll_done) {
 			ForceSending();
 			FlushValues(HIGH_POLLING);
 			FlushValues(LOW_POLLING);
+
+			//  TESTATA CHIEBAO
+			vMBMasterRunResRelease();
 		}
 	}else{
 		if (start_offline != 0) {
