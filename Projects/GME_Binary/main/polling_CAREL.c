@@ -433,7 +433,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				p_read = get_type_a(&arr->tab[i], PREVIOUS);
 				temp = fabs(c_read - p_read);
 				PRINTF_DEBUG("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
-				if(to_values_buff > arr->tab[i].info.Hyster){
+				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
 					value = (long double)c_read;
 					PRINTF_DEBUG("TYPE_A c_read = %f\n",c_read);
