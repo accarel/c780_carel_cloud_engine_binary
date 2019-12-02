@@ -132,7 +132,7 @@ void FS_DisplayFiles(void){
 }
 
 
-void* FS_ReadFile2(const char* filename, uint8_t* cert_ptr){
+long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 		FILE *input_file_ptr;
 		size_t sz_read;
 		long size;
@@ -161,15 +161,15 @@ void* FS_ReadFile2(const char* filename, uint8_t* cert_ptr){
 
 		printf("Size model Ok, %ld \n",size);
 
-		sz_read = fread(cert_ptr, sizeof(uint8_t), size, input_file_ptr);  // double
-		cert_ptr[size+1]=0;
+		sz_read = fread(file_ptr, sizeof(uint8_t), size, input_file_ptr);  // double
+		file_ptr[size+1]=0;
 		if(sz_read != size)
 			printf("Read ERROR!!!! \n");
 
 		// close streaming
 		fclose(input_file_ptr);
 
-		return cert_ptr;
+		return size;
 }
 
 

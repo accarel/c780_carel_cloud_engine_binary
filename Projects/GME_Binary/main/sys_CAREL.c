@@ -232,10 +232,10 @@ gme_sm_t Sys__Config (config_sm_t sm)
 
 void Sys__CertAlloc(void)
 {
-	if(NULL == FS_ReadFile2(CERT1_SPIFFS, (uint8_t*)certificates[0])){
+	if(0 == FS_ReadFile(CERT1_SPIFFS, (uint8_t*)certificates[0])){
 		GME__Reboot();
 	}
-	if(NULL == FS_ReadFile2(CERT2_SPIFFS, (uint8_t*)certificates[1])){
+	if(0 == FS_ReadFile(CERT2_SPIFFS, (uint8_t*)certificates[1])){
 		GME__Reboot();
 	}
 }
