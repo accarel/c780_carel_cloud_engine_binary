@@ -25,6 +25,8 @@
 #include "binary_model.h"
 #include "https_client_CAREL.h"
 #include "ota_CAREL.h"
+#include "sys_IS.h"
+#include "wifi.h"
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "mb_m.h"
 #endif
@@ -290,7 +292,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 
 	// encode fme -elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "fme");
-	C_UINT32 freemem = 2365; 												// to be implemented
+	C_UINT32 freemem = Sys__GetFreeHeapSize();
 	err |= cbor_encode_uint(&mapEncoder, freemem);
 	DEBUG_ADD(err,"upt");
 
@@ -301,7 +303,8 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 
 	// encode sgn -elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "sgn");
-	C_INT16 rssi = -47;													// to be implemented
+	int8_t rssi = 0;
+	rssi = WiFi__GetRSSI();
 	err |= cbor_encode_int(&mapEncoder, rssi);
 	DEBUG_ADD(err,"sgn");
 
@@ -312,9 +315,6 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 
 	return len;
 }
-
-
-static C_UINT32 pkt_cnt = 0;
 
 /**
  * @brief CBOR_SendValues
@@ -377,6 +377,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	CborEncoder encoder, mapEncoder, mapEncoder1;
 	size_t len;
 	CborError err;
+	static C_UINT32 pkt_cnt = 0;
 
 	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1

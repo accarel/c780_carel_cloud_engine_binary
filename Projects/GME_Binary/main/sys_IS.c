@@ -37,9 +37,9 @@ static uint32_t config_reset_debounce_counter = 0;
  * @param  none
  * @return C_RES
  */
-esp_err_t Sys__SetFactoryBootPartition(void){
+C_RES Sys__SetFactoryBootPartition(void){
 	
-	esp_err_t err;
+	C_RES err;
 	
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	const esp_partition_t *factory = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
@@ -120,4 +120,12 @@ C_BOOL Sys__FirmwareFactoryReset(void){
 	}
 #endif
 	return C_FALSE;
+}
+
+C_UINT32 Sys__GetFreeHeapSize(void){
+	C_UINT32 freemem = 0;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	freemem = esp_get_free_heap_size();
+#endif
+	return freemem;
 }

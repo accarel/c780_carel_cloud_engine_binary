@@ -432,3 +432,13 @@ C_RES WiFi__GetMac(uint8_t* wifi_mac_address_gw){
 #endif
 	return err;
 }
+
+int8_t WiFi__GetRSSI(void){
+	int8_t rssi = 0;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	wifi_ap_record_t wifidata;
+	esp_wifi_sta_get_ap_info(&wifidata);
+	rssi = wifidata.rssi;
+#endif
+	return rssi;
+}
