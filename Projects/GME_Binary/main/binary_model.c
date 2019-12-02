@@ -521,6 +521,39 @@ static void GetDeviceInfo(uint8_t *val)
 		printf("\nCRC FAIL \n\n");
 
 }
+
+uint16_t BinaryModel_CalcModelCrc(void){
+
+	sz = filesize(MODEL_FILE);
+
+	if (sz > 2048)
+	{
+#ifdef __DEBUG_BYNARY_MODEL
+		printf("ERROR MODEL TOO LARGE!!! \n");
+#endif
+		return 0;
+	}
+#ifdef __DEBUG_BYNARY_MODEL
+	printf("Size model Ok \n");
+#endif
+
+	uint8_t * chunk = (uint8_t *)malloc(sz);
+	if (chunk == NULL)
+	{
+#ifdef __DEBUG_BYNARY_MODEL
+		printf("NO MEMORY FOR MODEL!!! \n");
+#endif
+		return 0;
+	}
+	FS_ReadFile(MODEL_FILE, chunk);
+	// calcolo del crc
+	Crc = CRC16(chunk, sz-2);
+
+	free(chunk);
+
+	return Crc;
+}
+
 static uint8_t test = 0;
 
 int BinaryModel_Init (void)

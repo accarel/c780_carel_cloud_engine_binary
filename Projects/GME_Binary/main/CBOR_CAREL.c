@@ -217,7 +217,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	//encode crc - elem10
 	err |= cbor_encode_text_stringz(&mapEncoder, "crc");
-	C_UINT16 crc = 0;													// to be implemented
+	C_UINT16 crc = BinaryModel_CalcModelCrc();
 	err |= cbor_encode_uint(&mapEncoder, crc);
 	DEBUG_ADD(err, "crc");
 
