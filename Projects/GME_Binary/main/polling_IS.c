@@ -41,7 +41,8 @@ void Polling_Engine_Init_IS(void)
 
 	req_set_gw_config_t * polling_times = Utilities__GetGWConfigData();
 	ForceSending();
-	PollEngine_StartEngine_CAREL();	//if GME is properly configured, then start polling
+	if (BinaryModel_CheckCrc() == C_SUCCESS)
+		PollEngine_StartEngine_CAREL();	//if GME is properly configured, then start polling
 
 	while(1)
 	{

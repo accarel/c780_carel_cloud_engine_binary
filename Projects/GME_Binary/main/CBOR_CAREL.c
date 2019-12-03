@@ -217,7 +217,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	//encode crc - elem10
 	err |= cbor_encode_text_stringz(&mapEncoder, "crc");
-	C_UINT16 crc = BinaryModel_CalcModelCrc();
+	C_UINT16 crc = BinaryModel_GetCrc();
 	err |= cbor_encode_uint(&mapEncoder, crc);
 	DEBUG_ADD(err, "crc");
 
@@ -1514,12 +1514,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-			if(SUCCESS_CMD == cbor_req.res)
-				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-					MQTT_FlushValues();
-					GME__Reboot();		//todo
-			}
 		}
 		break;
 
@@ -1595,14 +1589,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-
-			if(SUCCESS_CMD == cbor_req.res){
-				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-					MQTT_FlushValues();
-					GME__Reboot();		//todo
-				}
-			}
 		}
 		break;
 

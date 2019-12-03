@@ -7,6 +7,7 @@
 #include "types.h"
 #include <stdint.h>
 #include "common.h"
+#include "data_types_CAREL.h"
 
 // dim inside a model 
 #define HEADER_SIGNATURE_DIM			(8)
@@ -46,6 +47,11 @@
 
 
 #define GME_MODEL	"GME_MBT\x0"
+
+#define __DEBUG_BYNARY_MODEL
+#ifdef __DEBUG_BYNARY_MODEL
+#define DEBUG_BINARY_MODEL(a) printf("%s: %s\n", __func__, a);
+#endif
 
 
 /*
@@ -158,9 +164,9 @@ void BinaryModel__GetNum(uint8_t DeviceParamCount[MAX_POLLING][MAX_REG]);
 uint8_t* BinaryModel__GetHeaderptr(void);
 uint16_t BinaryModel_CalcModelCrc(void);
 
-
-
-
+uint8_t* BinaryModel_GetChunk(uint32_t sz);
+uint16_t BinaryModel_GetCrc(void);
+C_RES BinaryModel_CheckCrc(void);
 
 
 

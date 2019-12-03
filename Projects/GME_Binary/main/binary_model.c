@@ -23,23 +23,9 @@
 
 //#define __DEBUG_BYNARY_MODEL
 
-// local function 
-static void GetDeviceInfo(uint8_t *val);
-static void get_model_pointers(uint8_t *val);
-static unsigned int crc_fn(unsigned char *dpacket, unsigned int len);
-static uint16_t CRC16(const uint8_t *nData, uint16_t wLength);
-
 #if WANT_DUMP_MODEL
 static void dump_all_values(uint8_t* val);
 #endif
-
-FILE *pInputFile;
-FILE *pOutputFile;
-
-long sz;
-uint16_t cur;
-
-size_t  sz_read;
 
 static struct HeaderModel myHeaderModel, *ptmyHeaderModel;
 
@@ -386,9 +372,9 @@ static void get_model_pointers(uint8_t *val)
 	uint8_t* model_data_begin;
 
 
-	ptmyLowPoll   = (val + sizeof(H_HeaderModel));
-	ptmyHighPoll  = (val + sizeof(H_HeaderModel) + sizeof(myNumOfPoll));
-	ptmyAlarmPoll = (val + sizeof(H_HeaderModel) + 2 * sizeof(myNumOfPoll));
+	ptmyLowPoll   = (struct NumOfPoll*)(val + sizeof(H_HeaderModel));
+	ptmyHighPoll  = (struct NumOfPoll*)(val + sizeof(H_HeaderModel) + sizeof(myNumOfPoll));
+	ptmyAlarmPoll = (struct NumOfPoll*)(val + sizeof(H_HeaderModel) + 2 * sizeof(myNumOfPoll));
 
 
 	/* --------------------------------------------------------------------------------- */
@@ -446,9 +432,8 @@ static void dump_all_values(uint8_t* val)
 
 static void GetDeviceInfo(uint8_t *val)
 {
-	ptmyHeaderModel = val;
+	ptmyHeaderModel = (struct HeaderModel *)val;
 	myHeaderModel = *ptmyHeaderModel;
-	uint16_t ModelCrc;
 	size_t len = 0;
 
 #ifdef __DEBUG_BYNARY_MODEL
@@ -475,13 +460,13 @@ static void GetDeviceInfo(uint8_t *val)
 	// end show
 
 
-	ptmyLowPoll = (val + sizeof(myHeaderModel));
+	ptmyLowPoll = (struct NumOfPoll*)(val + sizeof(myHeaderModel));
 	myLowPoll = *ptmyLowPoll;			//point to the whole struct of NumOfPoll
 
-	ptmyHighPoll = (val + sizeof(myHeaderModel)+ sizeof(myNumOfPoll));
+	ptmyHighPoll = (struct NumOfPoll*)(val + sizeof(myHeaderModel)+ sizeof(myNumOfPoll));
 	myHighPoll = *ptmyHighPoll;			//point to the whole struct of NumOfPoll
 
-	ptmyAlarmPoll = (val + sizeof(myHeaderModel) + 2*sizeof(myNumOfPoll));
+	ptmyAlarmPoll = (struct NumOfPoll*)(val + sizeof(myHeaderModel) + 2*sizeof(myNumOfPoll));
 	myAlarmPoll = *ptmyAlarmPoll;		//point to the whole struct of NumOfPoll
 
 
@@ -503,49 +488,45 @@ static void GetDeviceInfo(uint8_t *val)
 		}
 	}
 	// end show
-
-
-	// calcolo del crc
-	Crc = CRC16(val, sz-2);
-
-	//Read crc
-	ModelCrc = ((*(val + sz - 2)) & 0x00FF)|
-               ((uint16_t)(*(val + sz - 1)))<<8;
-
-
-	if (Crc == ModelCrc)
-	{
-		printf("\nCRC OK \n\n");
-	}
-	else
-		printf("\nCRC FAIL \n\n");
-
 }
 
-uint16_t BinaryModel_CalcModelCrc(void){
+uint8_t* BinaryModel_GetChunk(uint32_t sz){
 
-	sz = filesize(MODEL_FILE);
+	FILE *input_file_ptr;
+	size_t sz_read;
 
-	if (sz > 2048)
-	{
-#ifdef __DEBUG_BYNARY_MODEL
-		printf("ERROR MODEL TOO LARGE!!! \n");
-#endif
-		return 0;
-	}
-#ifdef __DEBUG_BYNARY_MODEL
-	printf("Size model Ok \n");
-#endif
+	DEBUG_BINARY_MODEL("Size model Ok \n");
 
-	uint8_t * chunk = (uint8_t *)malloc(sz);
+	uint8_t* chunk = (uint8_t *)malloc(sz);
 	if (chunk == NULL)
 	{
-#ifdef __DEBUG_BYNARY_MODEL
-		printf("NO MEMORY FOR MODEL!!! \n");
-#endif
-		return 0;
+		DEBUG_BINARY_MODEL("NO MEMORY FOR MODEL!!! \n");
+		return NULL;
 	}
-	FS_ReadFile(MODEL_FILE, chunk);
+
+	input_file_ptr = fopen(MODEL_FILE, "rb");
+	if (input_file_ptr == NULL)
+	{
+		printf("Unable to open file! \n");
+		return NULL;
+	}
+
+	sz_read = fread(chunk, sizeof(uint8_t), sz, input_file_ptr);  // double
+//	chunk[sz+1]=0;
+	if(sz_read != sz)
+		printf("Read ERROR!!!! \n");
+
+	// close streaming
+	fclose(input_file_ptr);
+
+	return chunk;
+}
+
+uint16_t BinaryModel_GetCrc(void){
+	
+	uint32_t sz = filesize(MODEL_FILE);
+	uint8_t* chunk = BinaryModel_GetChunk(sz);
+
 	// calcolo del crc
 	Crc = CRC16(chunk, sz-2);
 
@@ -554,70 +535,38 @@ uint16_t BinaryModel_CalcModelCrc(void){
 	return Crc;
 }
 
+C_RES BinaryModel_CheckCrc(void){
+
+	uint32_t sz = filesize(MODEL_FILE);
+	uint8_t* chunk = BinaryModel_GetChunk(sz);
+
+	// calcolo del crc
+	Crc = CRC16(chunk, sz-2);
+	//Read crc
+	uint16_t ModelCrc = ((*(chunk + sz - 2)) & 0x00FF)|
+               ((uint16_t)(*(chunk + sz - 1)))<<8;
+
+	free(chunk);
+
+	if (Crc == ModelCrc) 
+		return C_SUCCESS;
+	else
+		return C_FAIL;
+}
+
 static uint8_t test = 0;
 
 int BinaryModel_Init (void)
 {
+	uint8_t* chunk;
+	uint32_t sz = 0;
 	// check the existance of the files in the FileSystem
 	FS_DisplayFiles();
 
-	char FileName[100] = MODEL_FILE;
-
-#ifdef __DEBUG_BYNARY_MODEL
-	printf("Start check GME MODEL: %s\n",FileName);
-#endif
-
-	pInputFile = fopen(FileName, "rb");
-
-	if (pInputFile == NULL)
-	{
-#ifdef __DEBUG_BYNARY_MODEL
-		printf("Unable to open file! \n");
-#endif
-		return 0;
-	}
-#ifdef __DEBUG_BYNARY_MODEL
-	printf("Read File ok \n");
-#endif
-	//calculation model dimension
-
-	//Set file position pointer at the end of the file
-	fseek(pInputFile, 0L, SEEK_END);
-	//tell me actual file position number (the number is in bytes)
-	sz = ftell(pInputFile);
-	//point the file position at the beginning of the file
-	rewind(pInputFile);
-
-
-	if (sz > 2048)
-	{
-#ifdef __DEBUG_BYNARY_MODEL
-		printf("ERROR MODEL TOO LARGE!!! \n");
-#endif
-		exit(1);
-	}
-#ifdef __DEBUG_BYNARY_MODEL
-	printf("Size model Ok \n");
-#endif
-
-	uint8_t * chunk = (uint8_t *)malloc(sz);
-	 
-
-	sz_read = fread(chunk, sizeof(uint8_t), sz, pInputFile);  // double
-
-	if(sz_read != sz)
-	{
-		return C_FAIL;
-
-#ifdef 	__DEBUG_BYNARY_MODEL
-		printf("Read ERROR!!!! \n");
-#endif
-
-	}
-
-	// close streaming
-	fclose(pInputFile);
-
+	DEBUG_BINARY_MODEL("Start check GME MODEL\n");
+	sz = filesize(MODEL_FILE);
+	chunk = BinaryModel_GetChunk(sz);
+	
 	// utility function
 	GetDeviceInfo(chunk);
 
@@ -625,7 +574,7 @@ int BinaryModel_Init (void)
 	get_model_pointers(chunk);
 
 #ifdef __DEBUG_BYNARY_MODEL
-	 dump_all_values(chunk);
+//	 dump_all_values(chunk);
 
 	printf("\n\nCREATE TABLES binary %d\n\n",test++);
 #endif
