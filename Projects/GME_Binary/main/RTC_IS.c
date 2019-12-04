@@ -23,7 +23,7 @@
 /* Functions implementation -------------------------------------------------------*/
 
 C_TIME Boot_Time = 0;
-
+C_TIME MQTTConnect_Time = 0;
 
 /**
  * @brief RTC_Init
@@ -100,10 +100,28 @@ void RTC_Set_UTC_Boot_Time(void)
 }
 
 
+/**
+ * @brief RTC_Set_UTC_MQTTConnect_Time
+ *        set MQTT connect time in UTC format
+ *
+ * @param none
+ * @return none
+ */
+void RTC_Set_UTC_MQTTConnect_Time(void)
+{
+	MQTTConnect_Time = RTC_Get_UTC_Current_Time();
+	return;
+}
 
 
-
-
-
-
-
+/**
+ * @brief RTC_Get_UTC_MQTTConnect_Time
+ *        return MQTT connect time in UTC format
+ *
+ * @param none
+ * @return C_TIME UTC Time
+ */
+C_TIME RTC_Get_UTC_MQTTConnect_Time(void)
+{
+	return MQTTConnect_Time;
+}

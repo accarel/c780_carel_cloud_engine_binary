@@ -36,6 +36,9 @@ C_TIME RTC_Get_UTC_Current_Time(void);
 C_TIME RTC_Get_UTC_Boot_Time(void);
 void RTC_Set_UTC_Boot_Time(void);
 
+C_TIME RTC_Get_UTC_MQTTConnect_Time(void);
+void RTC_Set_UTC_MQTTConnect_Time(void);
+
 #ifdef __cplusplus
 }
 #endif

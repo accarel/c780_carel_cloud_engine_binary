@@ -564,6 +564,52 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 }
 
+
+/**
+ * @brief CBOR_Connected
+ *
+ * Prepares CBOR encoded message containing iconnected payload
+ *
+ * @param Pointer to the CBOR-encoded payload
+ * @param Status of connection (1: connected, 0: disconnected)
+ * @return void
+ */
+size_t CBOR_Connected(C_CHAR* cbor_stream, C_UINT16 cbor_status)
+{
+	size_t len;
+	CborEncoder encoder, mapEncoder;
+	CborError err;
+
+	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
+	// map1
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
+	DEBUG_ENC(err, "connected payload");
+
+	// encode ver - elem1
+	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
+	err |= cbor_encode_uint(&mapEncoder, CAREL_TYPES_VERSION);
+	DEBUG_ADD(err, "ver");
+
+	// encode ts - elem2
+	err |= cbor_encode_text_stringz(&mapEncoder, "ts");
+	C_TIME t = RTC_Get_UTC_MQTTConnect_Time();
+	err |= cbor_encode_uint(&mapEncoder, t);
+	DEBUG_ADD(err, "ts");
+
+	// encode sta - elem3
+	err |= cbor_encode_text_stringz(&mapEncoder, "sta");
+	err |= cbor_encode_uint(&mapEncoder, cbor_status);
+	DEBUG_ADD(err, "sta");
+
+	err = cbor_encoder_close_container(&encoder, &mapEncoder);
+
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
+	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+
+	return len;
+}
+
 /**
  * @brief CBOR_ResHeader
  *

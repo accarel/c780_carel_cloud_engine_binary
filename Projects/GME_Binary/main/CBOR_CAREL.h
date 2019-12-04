@@ -224,6 +224,7 @@ void CBOR_SendStatus(void);
 size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16 frame);
 void CBOR_SendFragmentedValues(C_UINT16 index, C_UINT16 number);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
+size_t CBOR_Connected(C_CHAR* cbor_stream, C_UINT16 cbor_status);
 
 void CBOR_ResHeader(C_CHAR* cbor_stream, c_cborhreq* cbor_req, CborEncoder* encoder, CborEncoder* mapEncoder);
 size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req);
