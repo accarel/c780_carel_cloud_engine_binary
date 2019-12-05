@@ -1579,13 +1579,11 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
-				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-					// save cid for successive hello
-					NVM__WriteU32Value(MB_CID_NVM, download_devs_config.cid);
-					MQTT_FlushValues();
-					GME__Reboot();		//todo
-				}
+				PollEngine_StopEngine_CAREL();
+				// save cid for successive hello
+				NVM__WriteU32Value(MB_CID_NVM, download_devs_config.cid);
+				MQTT_FlushValues();
+				GME__Reboot();		//todo
 			}
 		}
 		break;
@@ -1750,7 +1748,6 @@ data_rx_len=0;
 
 			// send response with result
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
@@ -1815,7 +1812,7 @@ data_rx_len=0;
 
 
 			if (C_SUCCESS == OTA__DevFWUpdate(&update_dev_fw)){
-				GME__Reboot();
+				GME__Reboot();	// Vale this reboot is not required by cloud: remove it!
 			}else{
 				//TODO BILATO
 				//send_simple_res(ReqHeader.replyTo, UPDATE_DEV_FIRMWARE, ERROR_CMD, MQTT__GetClient());
@@ -1843,14 +1840,6 @@ data_rx_len=0;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-			if (cbor_req.res == C_SUCCESS)
-			{
-				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-					MQTT_FlushValues();
-					GME__Reboot();
-				}
-			}
 		}
 		break;
 
@@ -1867,13 +1856,6 @@ data_rx_len=0;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-			if(SUCCESS_CMD == cbor_req.res){
-				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-					MQTT_FlushValues();
-					GME__Reboot();		//todo
-				}
-			}
 		}
 		break;
 
