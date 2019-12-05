@@ -2,25 +2,17 @@
  * @file   ota_CAREL.c
  * @author carel
  * @date   30 Oct 2019
- * @brief  functions to managment the update of the FW of the attached device 
+ * @brief  functions to manage the update of the FW of the attached device
  *         via HTTPS, this is the platform independent part
  */
 
 #include "common.h"
-
-#include "nvs.h"
-#include "nvs_flash.h"
-
 #include "wifi.h"
-//#include "file_system.h"
-
 #include "polling_CAREL.h"
 #include "polling_IS.h"
- 
 #include "sys_CAREL.h"
-
 #include "https_client_IS.h"
-
+#include "nvm.h"
 #include "ota_IS.h"
 #include "ota_CAREL.h"
 
@@ -134,18 +126,14 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 
 	C_RES err, ret = C_FAIL;
-
+	uint8_t cert_num = 0;
 	c_http_client_config_t c_config;
 	http_client_handle_t client;
 
 	C_UINT16 url_len = strlen(dev_fw_config->uri) + strlen(dev_fw_config->pwd) + strlen(dev_fw_config->usr);
 	C_CHAR *url = malloc(url_len + 5);
-
 	if (url == NULL)
-	{
 		return C_FAIL;
-	}
-
 
 	memset((void*)url, 0, url_len);
 	sprintf(url,"%.*s%s:%s@%s", 8, dev_fw_config->uri, dev_fw_config->usr,dev_fw_config->pwd, dev_fw_config->uri+8);
@@ -154,15 +142,17 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	c_config.username = dev_fw_config->usr;
 	c_config.password = dev_fw_config->pwd;
 
-	client = http_client_init_IS(&c_config, CERT_1);
+	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		cert_num = 1;
 
+	client = http_client_init_IS(&c_config, cert_num);
 	if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
 		
 		#ifdef __CCL_DEBUG_MODE
 		printf("%s Failed to open HTTP connection", TAG);
 		#endif
 
-		memset((void*)client, 0, sizeof(http_client_handle_t));
+/*		memset((void*)client, 0, sizeof(http_client_handle_t));
 
 		client = http_client_init_IS(&c_config, CERT_2);
 
@@ -171,10 +161,10 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
             #ifdef __CCL_DEBUG_MODE
 			printf("%s Failed to open HTTP connection", TAG);
 			#endif
-						
+*/
 			free(url);
 			return C_FAIL;
-		}
+//		}
 	}
 
 	C_UINT16 file_number = dev_fw_config->fid;
@@ -201,7 +191,6 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
     #ifdef __CCL_DEBUG_MODE
 	printf("%s content_length = %d\n",TAG, content_length);
 	#endif
-
 
 //	mbc_master_suspend();
 	while(1){
@@ -233,7 +222,6 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 		}
 		
 		if (data_read_len > 0) {
-
             #ifdef __CCL_DEBUG_MODE 
 			for(int i=0; i<data_read_len; i++){
 				printf("%s DBUFF - %02X ",TAG, upgrade_data_buf[i]);

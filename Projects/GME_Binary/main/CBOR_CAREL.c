@@ -1796,35 +1796,23 @@ data_rx_len=0;
 		case UPDATE_DEV_FIRMWARE:
 		{
 			bool previous_poll_engine_status = false;
-
 			c_cborrequpddevfw update_dev_fw = {0};
 
 			CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 
-
-			/* TODO BILATO
-			if (PollEngine__GetEngineStatus() == RUNNING){
-				PollEngine__StopEngine();
+			if (PollEngine_GetPollingStatus_CAREL() == RUNNING){
+				PollEngine_StopEngine_CAREL();
 				MQTT_FlushValues();
 				previous_poll_engine_status = true;
 			}
-			*/
 
+			err = OTA__DevFWUpdate(&update_dev_fw);
+			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
 
-			if (C_SUCCESS == OTA__DevFWUpdate(&update_dev_fw)){
-				GME__Reboot();	// Vale this reboot is not required by cloud: remove it!
-			}else{
-				//TODO BILATO
-				//send_simple_res(ReqHeader.replyTo, UPDATE_DEV_FIRMWARE, ERROR_CMD, MQTT__GetClient());
-
-			}
-
-			/* TODO BILATO
 			if(previous_poll_engine_status == true){
-				PollEngine__StartEngine();
+				PollEngine_StartEngine_CAREL();
 			}
-			*/
-
 		}
 		break;
 
