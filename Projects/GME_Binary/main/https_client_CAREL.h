@@ -46,7 +46,7 @@ void HTTPClient__TestTask(void *pvParameters);
 #endif
 
 https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, uint8_t cert_num, const char *filename);
-https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert, C_BYTE cert_num);
+https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert);
 
 #endif /* MAIN_HTTPS_CLIENT_C_ */
 

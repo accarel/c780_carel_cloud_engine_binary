@@ -12,6 +12,7 @@
 #include "sys_CAREL.h"
 #include "MQTT_Interface_CAREL.h"
 #include "binary_model.h"
+#include "nvm.h"
 
 /**
  * @brief MAX_HTTP_RECV_BUFFER 
@@ -180,20 +181,31 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
  * @return 
  */
 
-https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert, C_BYTE cert_num)
+https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert)
 {
 	C_CHAR filename[32];
+	https_conn_err_t err;
+	C_BYTE cert_num = 0;
 	
-	
-    //check the passed certificate and update the other one
+	// get current certificate number
+	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		cert_num = 1;
+
+	//check the passed certificate and update the other one
 	if(CERT_1 == cert_num)
-	{
-	  strcpy(filename, CERT2_SPIFFS);	
-	}else if (CERT_2 == cert_num){
-	  strcpy(filename, CERT1_SPIFFS);	
+		strcpy(filename, CERT2_SPIFFS);
+	else if (CERT_2 == cert_num)
+		strcpy(filename, CERT1_SPIFFS);
+	
+	err = HttpsClient__DownloadFile(update_ca_cert, cert_num, &filename[0]);
+	if (err == CONN_OK){
+		cert_num = (cert_num == 0) ? 1 : 0;
+		if(C_SUCCESS == NVM__WriteU8Value(MB_CERT_NVM, cert_num))
+			return CONN_OK;
+		else
+			return CONN_FAIL;
 	}
-		
-	return HttpsClient__DownloadFile(update_ca_cert, cert_num, &filename[0]);
+	return err;
 }
 
 

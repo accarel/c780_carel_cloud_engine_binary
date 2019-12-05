@@ -55,7 +55,7 @@ C_RES MQTT_Start(void)
 	mqtt_config_t mqtt_cfg_nvm = {0};
 	size_t pass_len = 0, user_len = 0;
 	uint8_t gw_config_status, mqtt_url;
-
+	uint8_t cert_num;
 #if 0
 		if(ESP_OK == NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)
 			&& ESP_OK == NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)
@@ -121,8 +121,12 @@ C_RES MQTT_Start(void)
 		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
 	}
 #endif
+	// get current certificate
+	if(C_SUCCESS == NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
+	else
+		mqtt_cfg_nvm.cert_pem = Sys__GetCert(CERT_1);
 
-	mqtt_cfg_nvm.cert_pem = Sys__GetCert(CERT_1);
 	PRINTF_DEBUG("uri= %s\n",mqtt_cfg_nvm.uri);
 	PRINTF_DEBUG("username= %s\n",mqtt_cfg_nvm.username);
 	PRINTF_DEBUG("password= %s\n",mqtt_cfg_nvm.password);

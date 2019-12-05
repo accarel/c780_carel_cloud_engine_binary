@@ -1930,20 +1930,11 @@ C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
 
 	printf("execute_update_ca_cert \n");
 
-	err = HttpsClient__UpdateCertificate(update_ca_cert, CERT_1);
-
-	if(CONN_FAIL == err){
-		err = HttpsClient__UpdateCertificate(update_ca_cert, CERT_2);
-
-	}else if(FILE_NOT_SAVED == err){
+	err = HttpsClient__UpdateCertificate(update_ca_cert);
+	if(CONN_FAIL == err)
 		return C_FAIL;
-	}
 
 	printf("execute_update_ca_cert err= %d \n",err);
-
-	if(err != CONN_OK){
-		return C_FAIL;
-	}
 
 	return C_SUCCESS;
 }
@@ -1961,15 +1952,18 @@ C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector){
 C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config){
 
 	https_conn_err_t err;
+	uint8_t cert_num = 0;
 
 	printf("execute_download_devs_config \n");
 	err = NVM__WriteU32Value(MB_DEV_NVM, download_devs_config->dev);
 	if (err == C_FAIL)
 		return C_FAIL;
-	err = HttpsClient__DownloadFile(download_devs_config, CERT_1, MODEL_FILE);
-	if(CONN_FAIL == err)
-		err = HttpsClient__DownloadFile(download_devs_config, CERT_2, MODEL_FILE);
-	else if(FILE_NOT_SAVED == err)
+
+	// get current certificate number
+	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		cert_num = 1;
+	err = HttpsClient__DownloadFile(download_devs_config, cert_num, MODEL_FILE);
+	if(CONN_OK != err)
 		return C_FAIL;
 
 	printf("execute_download_devs_config err= %d \n",err);
