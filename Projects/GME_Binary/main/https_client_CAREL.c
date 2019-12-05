@@ -11,7 +11,7 @@
 #include "polling_IS.h"
 #include "sys_CAREL.h"
 #include "MQTT_Interface_CAREL.h"
-
+#include "binary_model.h"
 
 /**
  * @brief MAX_HTTP_RECV_BUFFER 
@@ -46,7 +46,7 @@ static const char *TAG = "HTTP_CLIENT_CAREL";
  * @return 
  */
 
-https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_devs_config, uint8_t cert_num, const char *filename)
+https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, uint8_t cert_num, const char *filename)
 {	
 	https_conn_err_t err = CONN_OK;	
 	c_http_client_config_t c_config;
@@ -59,7 +59,7 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 	int content_length;
 	
 	char *buffer = malloc(MAX_HTTP_RECV_BUFFER + 1);
-	uint16_t url_len = strlen(download_devs_config->uri) + strlen(download_devs_config->password) + strlen(download_devs_config->username);
+	uint16_t url_len = strlen(download_devs_config->uri) + strlen(download_devs_config->pwd) + strlen(download_devs_config->usr);
 	char *url = malloc(url_len+5);
 
     if (buffer == NULL) 
@@ -69,15 +69,15 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 		return NO_HEAP_MEMORY;
 
 	memset((void*)url, 0, url_len);    
-	sprintf(url,"%.*s%s:%s@%s",8,download_devs_config->uri,download_devs_config->username,download_devs_config->password,download_devs_config->uri+8);
+	sprintf(url,"%.*s%s:%s@%s",8,download_devs_config->uri,download_devs_config->usr,download_devs_config->pwd,download_devs_config->uri+8);
 	
 	#ifdef _DEBUG_HTTPS_CLIENT_CAREL 
 	printf("%s\n",url);
 	#endif
 
 	c_config.url = url;
-	c_config.username = download_devs_config->username;
-	c_config.password = download_devs_config->password;
+	c_config.username = download_devs_config->usr;
+	c_config.password = download_devs_config->pwd;
 	c_config.cert_num = cert_num;
 	
 	client = http_client_init_IS(&c_config, cert_num);
@@ -111,8 +111,33 @@ https_conn_err_t HttpsClient__DownloadFile(req_download_devs_config_t *download_
 		  ESP_LOG_BUFFER_HEXDUMP(__func__, buffer, MAX_HTTP_RECV_BUFFER, ESP_LOG_INFO);
           #endif
 
-		  if (C_SUCCESS != FS_SaveFile(buffer , (size_t)read_len, filename))
-			  err = FILE_NOT_SAVED;
+		  if (memcmp(filename, MODEL_FILE, sizeof(MODEL_FILE)) == 0) {
+			  // Check received model before writing to NVM
+			  // Check CRC
+			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len - 2);
+			  uint16_t ModelCrc = ((*(buffer + read_len - 2)) & 0x00FF)| ((uint16_t)(*(buffer + read_len - 1)))<<8;
+			  if (Crc != ModelCrc)
+				  err = WRONG_CRC;
+
+			  // Check header
+			  struct HeaderModel* tmpHeaderModel;
+			  tmpHeaderModel = (struct HeaderModel *)buffer;
+			  if (memcmp(tmpHeaderModel->signature, GME_MODEL, sizeof(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION))
+				  err = WRONG_FILE;
+		  }
+		  else if ((memcmp(filename, CERT1_SPIFFS, sizeof(CERT1_SPIFFS)) == 0) || (memcmp(filename, CERT2_SPIFFS, sizeof(CERT2_SPIFFS)) == 0)) {
+			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len);
+			  if (Crc != download_devs_config->crc)
+			  	err = WRONG_CRC;
+
+			  if (memcmp(buffer, "-----BEGIN", sizeof("-----BEGIN")))
+				  err = WRONG_FILE;
+
+		  }
+		  // If model controls are ok, write new model file to NVM
+		  if (err == CONN_OK)
+			  if(C_SUCCESS != FS_SaveFile(buffer , (size_t)read_len, filename))
+				  err = FILE_NOT_SAVED;
 		}
 		else
 		{

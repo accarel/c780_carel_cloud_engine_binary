@@ -308,7 +308,7 @@ static void dump_ir_alarm(void)
 /*
  CRC Function (for Modbus RTU with 16bit)
 */
-static uint16_t CRC16(const uint8_t *nData, uint16_t wLength)
+uint16_t CRC16(const uint8_t *nData, uint16_t wLength)
 {
 	static const u_int wCRCTable[] = {
 	0X0000, 0XC0C1, 0XC181, 0X0140, 0XC301, 0X03C0, 0X0280, 0XC241,

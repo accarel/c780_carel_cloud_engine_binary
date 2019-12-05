@@ -260,7 +260,7 @@ void Carel_Main_Task(void)
           }
           case GME_START_POLLING_ENGINE:
           {
-          	if(MQTT_GetFlags()){
+          	if(MQTT_GetFlags() == 1){
 
           	    retval = BinaryModel_Init();		// CAREL
           	    CAREL_CHECK(retval, "MODEL");
@@ -290,7 +290,7 @@ void Carel_Main_Task(void)
           	//TODO
               WiFi__WaitConnection();
 
-              if(MQTT_GetFlags())
+              if(MQTT_GetFlags() == 1)
               	MQTT_PeriodicTasks();			// manage the MQTT subscribes
 
 

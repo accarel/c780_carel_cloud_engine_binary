@@ -52,12 +52,13 @@ typedef struct mqtt_timing_s{
 #pragma pack()
 
 
-
+#if 0
 #pragma pack(1)
 typedef struct req_download_devs_config_s{
 	char *username;
 	char *password;
 	char *uri;
+	uint16_t crc;
 }req_download_devs_config_t;
 #pragma pack()
 
@@ -72,7 +73,7 @@ typedef struct req_update_dev_fw_s{
 	uint32_t sec_to_wait;
 }req_update_dev_fw_t;
 #pragma pack()
-
+#endif
 
 
 /* Exported constants --------------------------------------------------------*/

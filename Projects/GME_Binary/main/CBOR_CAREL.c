@@ -1962,19 +1962,13 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 
 	https_conn_err_t err;
 
-	// just a travaso of data
-	req_download_devs_config_t download_info = {0};
-	download_info.password = download_devs_config->pwd;
-	download_info.username = download_devs_config->usr;
-	download_info.uri      = download_devs_config->uri;
-
 	printf("execute_download_devs_config \n");
 	err = NVM__WriteU32Value(MB_DEV_NVM, download_devs_config->dev);
 	if (err == C_FAIL)
 		return C_FAIL;
-	err = HttpsClient__DownloadFile(&download_info, CERT_1, MODEL_FILE);
+	err = HttpsClient__DownloadFile(download_devs_config, CERT_1, MODEL_FILE);
 	if(CONN_FAIL == err)
-		err = HttpsClient__DownloadFile(&download_info, CERT_2, MODEL_FILE);
+		err = HttpsClient__DownloadFile(download_devs_config, CERT_2, MODEL_FILE);
 	else if(FILE_NOT_SAVED == err)
 		return C_FAIL;
 

@@ -128,6 +128,8 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 		C_SBYTE mac[18];
 		Get_Gateway_ID(mac);
+		C_CHAR conn_buf[25];
+		size_t conn_len = CBOR_Connected(conn_buf, 0);
 
 		esp_mqtt_client_config_t mqtt_cfg = {
 		.event_handle = EventHandler,
@@ -136,9 +138,10 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 		.password = (C_SCHAR*)mqtt_cfg_nvm->password,
 		.keepalive =  mqtt_cfg_nvm->keepalive,
 		.lwt_topic = (C_SCHAR*)MQTT_GetUuidTopic("/connected"),
-		.lwt_msg = "0",
+		.lwt_msg = conn_buf,
+		.lwt_msg_len = conn_len,
 		.lwt_qos = 0,
-		.lwt_retain = 0,
+		.lwt_retain = 1,
 		.cert_pem = mqtt_cfg_nvm->cert_pem,
 		.task_stack = 8192,
 		.client_id = mac,
@@ -148,6 +151,25 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 #endif
 	return mqtt_client;	
 }
+
+void mqtt_client_reinit(void)
+{ /* TO BE implemented */
+
+	/* The below routine must be called to reinit MQTT after an offline	with proper ts */
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+		RTC_Set_UTC_MQTTConnect_Time();
+		C_CHAR conn_buf[25];
+		size_t conn_len = CBOR_Connected(conn_buf, 0);
+
+		esp_mqtt_client_config_t mqtt_cfg = {
+		.lwt_msg = conn_buf,
+		.lwt_msg_len = conn_len,
+	};
+#endif
+	return;
+}
+
+
 
 mqtt_client_handle_t MQTT__GetClient (void)
 {

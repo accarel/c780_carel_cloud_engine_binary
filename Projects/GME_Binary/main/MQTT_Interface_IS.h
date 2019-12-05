@@ -51,7 +51,7 @@ C_RES mqtt_client_stop(void);
 void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm);
 mqtt_client_handle_t MQTT__GetClient (void);
 
-
+void mqtt_client_reinit(void);
 
 #ifdef __cplusplus
 }

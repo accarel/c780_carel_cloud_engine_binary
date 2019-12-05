@@ -47,6 +47,7 @@
 
 
 #define GME_MODEL	"GME_MBT\x0"
+#define HEADER_VERSION 	256
 
 #define __DEBUG_BYNARY_MODEL
 #ifdef __DEBUG_BYNARY_MODEL
@@ -154,8 +155,7 @@ typedef enum{
 	MAX_REG,
 }RegType_t;
 
-
-
+uint16_t CRC16(const uint8_t *nData, uint16_t wLength);
 int BinaryModel_Init (void);
 //int BinaryModel__GetNum(PollType_t polling_type, RegType_t reg_type);
 uint8_t* get_p_coil_alarm_sect (void);
