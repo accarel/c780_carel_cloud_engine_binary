@@ -1533,7 +1533,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				// save cid for successive hello
 				NVM__WriteU32Value(MB_CID_NVM, cbor_cid);
 				MQTT_FlushValues();
-				GME__Reboot();		//todo
+				GME__Reboot();
 			}
 		}
 		break;
@@ -1669,9 +1669,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 data_rx_len=0;
 				// mqtt response
 				if(data_rx_len <= 0)
-					cbor_req.res = C_FAIL;
+					cbor_req.res = ERROR_CMD;
 				else
-					cbor_req.res = C_SUCCESS;
+					cbor_req.res = SUCCESS_CMD;
 
 				len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, data_rx, data_rx_len);
 				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -1702,7 +1702,7 @@ data_rx_len=0;
 
 			cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
-			if(cbor_req.res == C_SUCCESS)
+			if(cbor_req.res == SUCCESS_CMD)
 			{
 					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rv.val);
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, cbor_rv.val);
@@ -1735,7 +1735,7 @@ data_rx_len=0;
 			cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
 
-			if(cbor_req.res == C_SUCCESS)
+			if(cbor_req.res == SUCCESS_CMD)
 			{
 					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_wv.val);
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, cbor_wv.val);
