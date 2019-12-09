@@ -185,11 +185,11 @@ https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca
 {
 	C_CHAR filename[32];
 	https_conn_err_t err;
-	C_BYTE cert_num = 0;
+	C_BYTE cert_num;
 	
 	// get current certificate number
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
-		cert_num = 1;
+		cert_num = CERT_1;
 
 	//check the passed certificate and update the other one
 	if(CERT_1 == cert_num)
@@ -199,7 +199,7 @@ https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca
 	
 	err = HttpsClient__DownloadFile(update_ca_cert, cert_num, &filename[0]);
 	if (err == CONN_OK){
-		cert_num = (cert_num == 0) ? 1 : 0;
+		cert_num = (cert_num == CERT_1) ? CERT_2 : CERT_1;
 		if(C_SUCCESS == NVM__WriteU8Value(MB_CERT_NVM, cert_num))
 			return CONN_OK;
 		else
