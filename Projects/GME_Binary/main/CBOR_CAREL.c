@@ -1922,7 +1922,7 @@ C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector){
 C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config){
 
 	https_conn_err_t err;
-	uint8_t cert_num = 0;
+	uint8_t cert_num = CERT_1;
 
 	printf("execute_download_devs_config \n");
 	err = NVM__WriteU32Value(MB_DEV_NVM, download_devs_config->dev);
@@ -1931,7 +1931,7 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 
 	// get current certificate number
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
-		cert_num = 1;
+		cert_num = CERT_1;
 	err = HttpsClient__DownloadFile(download_devs_config, cert_num, MODEL_FILE);
 	if(CONN_OK != err)
 		return C_FAIL;
