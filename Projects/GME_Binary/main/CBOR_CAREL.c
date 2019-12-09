@@ -1800,7 +1800,7 @@ data_rx_len=0;
 
 			CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 
-			if (PollEngine_GetPollingStatus_CAREL() == RUNNING){
+			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 				PollEngine_StopEngine_CAREL();
 				MQTT_FlushValues();
 				previous_poll_engine_status = true;
