@@ -16,7 +16,7 @@
 /* include                                                                    */
 /* ========================================================================== */
 #include "data_types_CAREL.h"
-
+#include "https_client_IS.h"
 /* ========================================================================== */
 /* debugging purpose                                                          */
 /* ========================================================================== */
@@ -35,6 +35,9 @@ C_INT16 uart_read_bytes_IS(C_BYTE uart_num, C_BYTE *buf, C_UINT32 length, C_UINT
 C_INT16 uart_write_bytes_IS(C_BYTE uart_num, const C_BYTE* src, C_INT16 size);
 C_RES uart_flush_IS(C_BYTE uart_num);
 C_RES uart_flush_input_IS(C_BYTE uart_num);
-
-
+C_RES https_ota(c_http_client_config_t* c_config);
+void OTA__GMEInit(c_cborrequpdgmefw update_gw_fw);
+C_RES OTA_GMEWaitCompletion(void);
+void OTA_GMEEnd(void);
+void OTAGroup (bool ota_res);
 #endif  //__OTA_IS

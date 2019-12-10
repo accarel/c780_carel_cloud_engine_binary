@@ -6,26 +6,16 @@
  *         via HTTPS, this is the platform independent part
  */
 
-#include "common.h"
-#include "wifi.h"
-#include "polling_CAREL.h"
-#include "polling_IS.h"
-#include "sys_CAREL.h"
-#include "https_client_IS.h"
 #include "nvm.h"
 #include "ota_IS.h"
 #include "ota_CAREL.h"
 
-
-
 static const char *TAG = "OTA_CAREL";
-
 
 /** @brief MODBUS_RX_BUFFER_SIZE this is the size allocated on the stack to store the incoming 
     frame DON'T CHANGE IT, is here to have a clear idea of the occupied size
 */
 #define MODBUS_RX_BUFFER_SIZE  256
-
 
 C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_UINT16 starting_reg){
 
@@ -121,12 +111,10 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 }
 
 
-
-
 C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 
 	C_RES err, ret = C_FAIL;
-	uint8_t cert_num = 0;
+	uint8_t cert_num;
 	c_http_client_config_t c_config;
 	http_client_handle_t client;
 
@@ -138,12 +126,12 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	memset((void*)url, 0, url_len);
 	sprintf(url,"%.*s%s:%s@%s", 8, dev_fw_config->uri, dev_fw_config->usr,dev_fw_config->pwd, dev_fw_config->uri+8);
 	
-	c_config.url = dev_fw_config->uri;
+	c_config.url = url;
 	c_config.username = dev_fw_config->usr;
 	c_config.password = dev_fw_config->pwd;
 
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
-		cert_num = 1;
+		cert_num = CERT_1;
 
 	client = http_client_init_IS(&c_config, cert_num);
 	if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
@@ -271,3 +259,35 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	return err;
 }
 
+
+void GME_ota_task(void * pvParameter)
+{
+	c_http_client_config_t c_config;
+	int cert_num;
+
+    ESP_LOGI(TAG, "Starting OTA ...");
+    /* Wait for the callback to set the CONNECTED_BIT in the
+       event group.
+    */
+    WiFi__WaitConnection();
+
+    c_config.url = ((c_cborrequpdgmefw*)pvParameter)->uri;
+    c_config.username = ((c_cborrequpdgmefw*)pvParameter)->usr;
+    c_config.password = ((c_cborrequpdgmefw*)pvParameter)->pwd;
+    if(C_SUCCESS == NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+    	c_config.cert_num = cert_num;
+    else
+    	c_config.cert_num = CERT_1;
+
+    C_RES ret = https_ota(&c_config);
+    if (ret == C_SUCCESS) {
+    	ESP_LOGI(TAG, "Firmware Upgrades Succeeded 1");
+    	//Send true to ota group to send the res and restart gme
+    	OTAGroup(true);
+    } else {
+    	ESP_LOGE(TAG, "Firmware Upgrades Failed");
+    	//Send false to ota group to send the res and continue working
+    	OTAGroup(false);
+    	vTaskDelete(NULL);
+    }
+}

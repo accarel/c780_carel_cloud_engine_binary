@@ -10,34 +10,19 @@
 
 #include "CAREL_GLOBAL_DEF.h"
 #include "ota_IS.h"
+#include "https_client_IS.h"
+#include "ota_CAREL.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-#include "esp_log.h"
-
-
-#include "esp_ota_ops.h"
-#include "esp_http_client.h"
 #include "esp_https_ota.h"
-#include "esp_partition.h"
-
-#include "wifi.h"
-
-//#include "file_system.h"
-
-#include "polling_CAREL.h"
-#include "polling_IS.h"
- 
-#include "sys_CAREL.h"
 #endif
 
-
-
-
-
-static const char *TAG = "OTA_IS";
-
 #ifdef INCLUDE_PLATFORM_DEPENDENT
+static const char *TAG = "OTA_IS";
 const esp_partition_t *run_part = NULL;
+EventGroupHandle_t s_ota_gme_group;
+const int OTA_GME_OK = BIT0;
+const int OTA_GME_FAIL = BIT1;
 
 static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
@@ -169,7 +154,66 @@ C_RES uart_flush_input_IS(C_BYTE uart_num)
   return retval; 	
 }
 
+C_RES https_ota(c_http_client_config_t* c_config)
+{
+	C_RES ret = C_FAIL;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	esp_http_client_config_t config = {
+		.url = c_config->url,
+		.event_handler = _http_event_handler,
+		.auth_type = HTTP_AUTH_TYPE_BASIC,
+	};
+
+	printf("url : %s\n",config.url);
+
+	//This function manage the ota operation, the checksum validation and the ota partition switch
+	ret = esp_https_ota(&config);
+#endif
+	return ret;
+}
 
 
+C_RES OTA_GMEWaitCompletion(void)
+{
+	C_RES ret = C_FAIL;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	EventBits_t bits = xEventGroupWaitBits(s_ota_gme_group, OTA_GME_OK | OTA_GME_FAIL, true, false, portMAX_DELAY);
+	if ((bits & OTA_GME_OK) != 0)
+		return C_SUCCESS;
+#endif
+	return ret;
+}
+
+void OTA_GMEEnd(void)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	vEventGroupDelete(s_ota_gme_group);
+#endif
+}
 
 
+/**
+ * @brief OTA__GMEInit Create a task for ota GME upgrade
+ * @param c_cborrequpdgmefw
+ *
+ * @return
+ *     void
+ */
+void OTA__GMEInit(c_cborrequpdgmefw update_gw_fw)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	s_ota_gme_group = xEventGroupCreate();
+    xTaskCreate(&GME_ota_task, "GME_ota_task", 8192, (void*)&update_gw_fw, 5, NULL);
+#endif
+}
+
+
+void OTAGroup (bool ota_res){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	if(true == ota_res){
+        xEventGroupSetBits(s_ota_gme_group, OTA_GME_OK);
+	}else{
+		xEventGroupSetBits(s_ota_gme_group, OTA_GME_FAIL);
+	}
+#endif
+}

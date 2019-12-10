@@ -173,6 +173,7 @@ typedef struct C_CBORREQUPDDEVFW{
 	C_URI uri;
 	C_UINT16 fid;
 	C_UINT16 wet;
+	C_UINT16 cid;
 }c_cborrequpddevfw;
 #pragma pack()
 
@@ -251,6 +252,8 @@ CborError CBOR_ExtractInt(CborValue* recursed, int64_t* read);
 #define 	CBOR_ReqChangeCredentials		CBOR_ReqSetDevsConfig
 typedef 	c_cborreqdwldevsconfig			c_cborrequpdatecacert;
 typedef		c_cborreqdwldevsconfig			c_cborreqchangecred;
+typedef 	c_cborrequpddevfw				c_cborrequpdgmefw;
+#define 	CBOR_ReqUpdateGMEFW 			CBOR_ReqUpdateDevFW
 
 C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector);
 C_RES execute_download_devs_config(c_cborreqdwldevsconfig* download_devs_config);

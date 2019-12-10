@@ -13,12 +13,6 @@
 /* ========================================================================== */
 /* include                                                                    */
 /* ========================================================================== */
-#include "data_types_CAREL.h"
-#include "CBOR_CAREL.h" 
-
-//#include "common.h"
-//#include "MQTT_Interface_CAREL.h"
-
 
 /* ========================================================================== */
 /* debugging purpose                                                          */
@@ -80,4 +74,5 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config);
 	
 C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_UINT16 starting_reg);
 
+void GME_ota_task(void * pvParameter);
 #endif /* __OTA_CAREL_ */

@@ -25,6 +25,7 @@
 #include "binary_model.h"
 #include "https_client_CAREL.h"
 #include "ota_CAREL.h"
+#include "ota_IS.h"
 #include "sys_IS.h"
 #include "wifi.h"
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -1478,6 +1479,12 @@ CborError CBOR_ReqUpdateDevFW(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborrequ
 			update_dev_fw->wet = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: wet");
 		}
+		else if (strncmp(tag, "cid", 3) == 0)
+		{
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			update_dev_fw->cid = tmp;
+			DEBUG_DEC(err, "req_set_devs_config: cid");
+		}
 		else
 		{
 			err = CBOR_DiscardElement(&recursed);
@@ -1755,40 +1762,31 @@ data_rx_len=0;
 
 		case UPDATE_GME_FIRMWARE:
 		{
-/*EGISIAN
-			s_ota_gme_group = xEventGroupCreate();
 			bool previous_poll_engine_status = false;
-			req_update_gw_fw_t update_gw_fw = {0};
-			parse_update_gw_fw(root, &update_gw_fw);
+			c_cborrequpdgmefw update_gw_fw = {0};
 
-			if(PollEngine__GetEngineStatus() == RUNNING){
-				PollEngine__StopEngine();
+			CBOR_ReqUpdateGMEFW(cbor_stream, cbor_len, &update_gw_fw);
+
+			if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+				PollEngine_StopEngine_CAREL();
 				MQTT_FlushValues();
 				previous_poll_engine_status = true;
 			}
 
-			OTA__GMEInit();
-			OTA_BITS = xEventGroupWaitBits(s_ota_gme_group, OTA_GME_OK | OTA_GME_FAIL, true, false, portMAX_DELAY);
-
-			if((OTA_BITS & OTA_GME_OK) != 0){
-
-				send_simple_res(ReqHeader.replyTo, UPDATE_GME_FIRMWARE, SUCCESS_CMD, MQTT__GetClient());
+			OTA__GMEInit(update_gw_fw);
+			cbor_req.res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			if(cbor_req.res == SUCCESS_CMD){
+				PollEngine_StopEngine_CAREL();
+				// save cid for successive hello
+				NVM__WriteU32Value(MB_CID_NVM, update_gw_fw.cid);
+				MQTT_FlushValues();
 				GME__Reboot();
-
-			}else if((OTA_BITS & OTA_GME_FAIL) != 0){
-				send_simple_res(ReqHeader.replyTo, UPDATE_GME_FIRMWARE, ERROR_CMD, MQTT__GetClient());
 			}
 
-			memmgr_free(update_gw_fw.username);
-			memmgr_free(update_gw_fw.password);
-			memmgr_free(update_gw_fw.uri);
-			vEventGroupDelete(s_ota_gme_group);
-
-			if(previous_poll_engine_status == true){
-				PollEngine__StartEngine();
-			}
-//EGISIAN*/
-
+			OTA_GMEEnd();
+			if(previous_poll_engine_status == true)
+				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
