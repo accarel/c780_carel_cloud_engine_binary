@@ -122,10 +122,14 @@ C_RES MQTT_Start(void)
 	}
 #endif
 	// get current certificate
-	if(C_SUCCESS == NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+	/*if(C_SUCCESS == NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
 		mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
 	else
 		mqtt_cfg_nvm.cert_pem = Sys__GetCert(CERT_1);
+*/
+	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		cert_num = CERT_1;
+	mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
 
 	PRINTF_DEBUG("uri= %s\n",mqtt_cfg_nvm.uri);
 	PRINTF_DEBUG("username= %s\n",mqtt_cfg_nvm.username);
@@ -144,11 +148,15 @@ C_RES MQTT_Start(void)
     if( ( MQTT_BITS & MQTT_DISCONNECTED_BIT ) != 0 ){
 
     	err = mqtt_client_stop();
-		mqtt_cfg_nvm.cert_pem = Sys__GetCert(CERT_2);
+    	// try connecting using the other certificate
+    	cert_num = (cert_num == CERT_1) ? CERT_2 : CERT_1;
+		mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
 	//	memset((void*)mqtt_client,0,sizeof(esp_mqtt_client_handle_t));
 		mqtt_client_init(&mqtt_cfg_nvm);
 		err = mqtt_client_start();
     }
+    // save in nvm the index of the last certificate we used to connect
+    NVM__WriteU8Value(MB_CERT_NVM, cert_num);
 
     return err;
 }
