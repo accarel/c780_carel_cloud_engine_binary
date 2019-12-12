@@ -1604,7 +1604,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			C_INT16 length;
 			cbor_req.res = SUCCESS_CMD;
 
-			PollEngine_MBSuspend_IS();
+			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+				vTaskDelay(100/portTICK_RATE_MS);
 
 			execute_scan_devices(&answer, &device, &length);
 
