@@ -435,6 +435,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
+
+					arr->tab[i].p_value = arr->tab[i].c_value;
+
 					value = (long double)c_read;
 					PRINTF_DEBUG("TYPE_A c_read = %f\n",c_read);
 					PRINTF_DEBUG("TYPE_A Value = %Lf\n",value);
@@ -451,6 +454,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
+
+					arr->tab[i].p_value = arr->tab->c_value;
+
 					value = (long double)c_read;
 					PRINTF_DEBUG("TYPE_B REG low = %d\n",arr->tab[i].c_value.reg.low);
 					PRINTF_DEBUG("TYPE_B REG high = %d\n",arr->tab[i].c_value.reg.high);
@@ -470,6 +476,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
+
+					arr->tab[i].p_value = arr->tab[i].c_value;
+
 					value = (long double)c_read;
 				}
 			}
@@ -484,6 +493,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
+
+					arr->tab[i].p_value = arr->tab[i].c_value;
+
 					value = (long double)c_read;
 				}
 			}
@@ -510,6 +522,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				temp = abs(c_read - p_read);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
+
+					arr->tab[i].p_value = arr->tab[i].c_value;
+
 					value = (long double)c_read;
 				}
 				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
@@ -526,6 +541,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
+
+					arr->tab[i].p_value = arr->tab[i].c_value;
+
 					value = (long double)c_read;
 				}
 			}
@@ -540,6 +558,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
+
+					arr->tab[i].p_value = arr->tab[i].c_value;
+
 					value = (long double)c_read;
 				}
 			}
@@ -726,14 +747,14 @@ static void update_current_previous_tables(RegType_t poll_type){
 		}
 		//HR
 		for(int i=0;i<low_n.hr;i++){
-			HRLowPollTab.tab[i].p_value.value = HRLowPollTab.tab[i].c_value.value;
+			//HRLowPollTab.tab[i].p_value.value = HRLowPollTab.tab[i].c_value.value;
 			HRLowPollTab.tab[i].c_value.value = 0;
 			HRLowPollTab.tab[i].p_error = HRLowPollTab.tab[i].error;
 
 		}
 		//IR
 		for(int i=0;i<high_n.ir;i++){
-			IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
+			//IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
 			IRLowPollTab.tab[i].c_value.value = 0;
 			IRLowPollTab.tab[i].p_error = IRLowPollTab.tab[i].error;
 		}
@@ -754,14 +775,14 @@ static void update_current_previous_tables(RegType_t poll_type){
 		}
 		//HR
 		for(int i=0;i<high_n.hr;i++){
-			HRHighPollTab.tab[i].p_value.value = HRHighPollTab.tab[i].c_value.value;
+			//HRHighPollTab.tab[i].p_value.value = HRHighPollTab.tab[i].c_value.value;
 			HRHighPollTab.tab[i].c_value.value = 0;
 			HRHighPollTab.tab[i].p_error = HRHighPollTab.tab[i].error;
 		}
 
 		//IR
 		for(int i=0;i<high_n.ir;i++){
-			IRHighPollTab.tab[i].p_value.value = IRHighPollTab.tab[i].c_value.value;
+			//IRHighPollTab.tab[i].p_value.value = IRHighPollTab.tab[i].c_value.value;
 			IRHighPollTab.tab[i].c_value.value = 0;
 			IRHighPollTab.tab[i].p_error = IRHighPollTab.tab[i].error;
 		}
