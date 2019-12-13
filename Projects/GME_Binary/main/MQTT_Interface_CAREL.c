@@ -211,7 +211,7 @@ void CBOR_CreateSendValues(values_buffer_t *values_buffer, values_buffer_timing_
 			else{
 
 				// TODO CHIEBAO
-				if(values_buffer[i].data_type != 16)
+				if(values_buffer[j].data_type != 16)
 					sprintf(val_array[i].vls[jj].values, "%.1Lf", values_buffer[j].value);
 				else
 				    itoa(values_buffer[j].value, (char*)val_array[i].vls[jj].values, 10);
