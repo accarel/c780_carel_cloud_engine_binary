@@ -12,6 +12,7 @@
 #include "ota_IS.h"
 #include "https_client_IS.h"
 #include "ota_CAREL.h"
+#include "sys_CAREL.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_https_ota.h"
@@ -69,13 +70,13 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
  */
 C_INT16 uart_read_bytes_IS(C_BYTE uart_num, C_BYTE *buf, C_UINT32 length, C_UINT32 ticks_to_wait)
 {
-	C_RES resval = C_FAIL;
+	C_INT16 len = -1;
 	
 	#ifdef INCLUDE_PLATFORM_DEPENDENT
-	uart_read_bytes_IS((uart_port_t)uart_num, buf, (uint32_t)length, (TickType_t)ticks_to_wait);
+	len = uart_read_bytes((uart_port_t)uart_num, buf, (uint32_t)length, (TickType_t)ticks_to_wait);
 	#endif
 	
-	return resval;
+	return len;
 }
 
 
@@ -99,13 +100,13 @@ C_INT16 uart_read_bytes_IS(C_BYTE uart_num, C_BYTE *buf, C_UINT32 length, C_UINT
  */
 C_INT16 uart_write_bytes_IS(C_BYTE uart_num, const C_BYTE* src, C_INT16 size)
 {
-	C_INT16 retval = C_FAIL;
+	C_INT16 len = -1;
 
 	#ifdef INCLUDE_PLATFORM_DEPENDENT
-	if (uart_write_bytes( (uart_port_t)uart_num, (const char*)src, (size_t)size) == ESP_OK) retval = C_SUCCESS;
+	len = uart_write_bytes( (uart_port_t)uart_num, (const char*)src, (size_t)size);
 	#endif
 
-	return retval;
+	return len;
 }
 
 
@@ -160,6 +161,7 @@ C_RES https_ota(c_http_client_config_t* c_config)
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	esp_http_client_config_t config = {
 		.url = c_config->url,
+		.cert_pem = Sys__GetCert(c_config->cert_num),
 		.event_handler = _http_event_handler,
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
 	};
