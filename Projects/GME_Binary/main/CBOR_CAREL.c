@@ -2029,15 +2029,15 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 //
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	len = usMBSlaveIDLen;
-
+	*(data_rx) = addr;
 	// get response
-	for(C_INT16 i = 0; i < len; i++)
-	  *(data_rx + i) = 	ucMBSlaveID[i];
+	for(C_INT16 i = 0; i < len + 1; i++)
+	  *(data_rx + i + 1) = 	ucMBSlaveID[i];
 
 #endif
 
 	*add = addr;
-	*lnt = len;
+	*lnt = len + 1;
 
 	return C_SUCCESS;
 }
