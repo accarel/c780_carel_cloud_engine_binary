@@ -1801,6 +1801,8 @@ data_rx_len=0;
 
 			CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 
+			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+				vTaskDelay(100/portTICK_RATE_MS);
 			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 				PollEngine_StopEngine_CAREL();
 				MQTT_FlushValues();
@@ -1810,6 +1812,8 @@ data_rx_len=0;
 			err = OTA__DevFWUpdate(&update_dev_fw);
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
 			if(previous_poll_engine_status == true){
 				PollEngine_StartEngine_CAREL();

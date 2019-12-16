@@ -34,7 +34,7 @@
 #define B_SIZE					30
 #define ENTRY_PER_PKT			VLS_NUMBER //TODO
 
-#define REPORT_SLAVE_ID_SIZE	512
+#define REPORT_SLAVE_ID_SIZE	256
 #define ADU_SIZE				512
 
 #define HEADERREQ_LEN			55			// header of request has fixed size
