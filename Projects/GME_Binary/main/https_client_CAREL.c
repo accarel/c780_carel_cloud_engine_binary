@@ -29,9 +29,9 @@
  *        global __CCL_DEBUG_MODE is defined
  */
 #define _DEBUG_HTTPS_CLIENT_CAREL 
-static const char *TAG = "HTTP_CLIENT_CAREL";
 #endif
 
+static const char *TAG = "HTTP_CLIENT_CAREL";
 
 
 
