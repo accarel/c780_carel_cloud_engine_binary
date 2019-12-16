@@ -1777,6 +1777,8 @@ data_rx_len=0;
 			OTA__GMEInit(update_gw_fw);
 			cbor_req.res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 			if(cbor_req.res == SUCCESS_CMD){
 				PollEngine_StopEngine_CAREL();
 				// save cid for successive hello
