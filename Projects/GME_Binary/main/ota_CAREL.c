@@ -9,6 +9,7 @@
 #include "nvm.h"
 #include "ota_IS.h"
 #include "ota_CAREL.h"
+#include "modbus_IS.h"
 
 static const char *TAG = "OTA_CAREL";
 
@@ -23,7 +24,7 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 	
 	C_BYTE data_rx[MODBUS_RX_BUFFER_SIZE] = {0};
 	
-	C_BYTE data_rx_len = 0;
+	C_INT16 data_rx_len = 0;
 	C_BYTE *data_tx;
 	C_BYTE packet_len;
 
@@ -61,6 +62,10 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 		data_tx[i+1] = fw_chunk[j+1];
 	}
 
+	crc = CRC16(data_tx, packet_len - 2);
+	data_tx[packet_len - 2] = (uint8_t)(crc & 0x00ff);
+	data_tx[packet_len - 1] = (uint8_t)((crc >> 8) & 0x00ff);
+
     #ifdef __CCL_DEBUG_MODE
 	printf("\nuart_transmit_bytes len = %d\n",packet_len);
 		
@@ -71,28 +76,15 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 	printf("\n\n");
     #endif
 
-
 	for(int i=0; i<packet_len; i++)
 	{
-		//TODO BILATO uart_write_bytes_IS(MB_PORTNUM, (const C_BYTE *) &data_tx[i], 1);
+		uart_write_bytes_IS(MB_PORTNUM, (const C_BYTE *) &data_tx[i], 1);
 	}
 
-	//TODO BILATO data_rx_len = uart_read_bytes_IS(MB_PORTNUM, data_rx, 256,  MB_RESPONSE_TIMEOUT(packet_len));
+	data_rx_len = uart_read_bytes_IS(MB_PORTNUM, data_rx, MODBUS_RX_BUFFER_SIZE, MB_RESPONSE_TIMEOUT(packet_len));
 
-
-    #ifdef __CCL_DEBUG_MODE
-	printf("uart_read_bytes len = %d\n",data_rx_len);
-
-	for(int i=0; i<data_rx_len; i++){
-		printf("%02X ",data_rx[i]);
-	}
-	printf("\n");
-	#endif
-
-	//TODO Check on incoming data not need but in the case is here
-
-	/*if(data_rx_len != packet_len){
-
+	// Check on incoming data (necessary to find out exceptions in answers or missing answers)
+	if(data_rx_len != packet_len){
 		printf("Received packet length doesn't match the transmitted packet length\n");
 		err = C_FAIL;
 	}else{
@@ -101,8 +93,16 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 			err = C_FAIL;
 		}else{
 			err = C_SUCCESS;
+#ifdef __CCL_DEBUG_MODE
+			printf("uart_read_bytes len = %d\n",data_rx_len);
+
+			for(int i=0; i<data_rx_len; i++){
+				printf("%02X ",data_rx[i]);
+			}
+			printf("\n");
+#endif
 		}
-	}*/
+	}
 
 	free(data_tx);
 
@@ -139,20 +139,8 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 		#ifdef __CCL_DEBUG_MODE
 		printf("%s Failed to open HTTP connection", TAG);
 		#endif
-
-/*		memset((void*)client, 0, sizeof(http_client_handle_t));
-
-		client = http_client_init_IS(&c_config, CERT_2);
-
-		if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
-
-            #ifdef __CCL_DEBUG_MODE
-			printf("%s Failed to open HTTP connection", TAG);
-			#endif
-*/
-			free(url);
-			return C_FAIL;
-//		}
+		free(url);
+		return C_FAIL;
 	}
 
 	C_UINT16 file_number = dev_fw_config->fid;
@@ -180,7 +168,7 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	printf("%s content_length = %d\n",TAG, content_length);
 	#endif
 
-//	mbc_master_suspend();
+	Modbus_Disable();
 	while(1){
 
 		//chunk_size
@@ -191,10 +179,12 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 			chunk_size = DEV_OTA_BUF_SIZE;
 		}
 
-		data_read_len = esp_http_client_read(client, (char*)upgrade_data_buf, chunk_size);
+		data_read_len = http_client_read_IS(client, (char*)upgrade_data_buf, chunk_size);
 
 		if (data_read_len == 0) {
 			err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
+			if(err != C_SUCCESS)
+				break;
 			#ifdef __CCL_DEBUG_MODE 
 			printf("%s %s\r\n", TAG, "Connection closed,all data received");
 			#endif
@@ -218,6 +208,8 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 			#endif
 
 			err = UpdateDevFirmware(upgrade_data_buf, data_read_len, file_number, starting_reg);	//, content_length - sent_data_per_file
+			if(err != C_SUCCESS)
+				break;
 
 			if(sent_data_per_file > MB_FILE_MAX_BYTES - DEV_OTA_BUF_SIZE){
 				file_number++;
@@ -231,12 +223,6 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 				sent_data_per_file = 0;
 				new_file=false;
 			}
-			/*
-			else
-			{
-				sent_data_per_file += data_read_len;
-			}
-			*/
 
             #ifdef __CCL_DEBUG_MODE
 			printf("%s Written image length %d\n", TAG, sent_data_per_file);
@@ -250,8 +236,7 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	uart_flush_input_IS(MB_PORTNUM);
 	uart_flush_IS(MB_PORTNUM);
 
-//	ClearQueueMB();
-//	mbc_master_resume();
+	Modbus_Enable();
 
 	free(url);
 	free(upgrade_data_buf);
