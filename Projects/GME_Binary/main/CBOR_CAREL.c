@@ -1598,34 +1598,31 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		case SCAN_DEVICES:
 		{
 			// scan Modbus line
-
+			bool previous_poll_engine_status = false;
 			C_UINT16 device = 0;
 			C_BYTE answer[REPORT_SLAVE_ID_SIZE];
-			C_INT16 length;
+			C_INT16 length = 0;
 			cbor_req.res = SUCCESS_CMD;
 
-			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				vTaskDelay(100/portTICK_RATE_MS);
+			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
+				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+					vTaskDelay(1/portTICK_RATE_MS);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
 
-			execute_scan_devices(&answer, &device, &length);
-
-			if(length <= 0){
-				memcpy(answer, "", 1);
-				length=1;
+				PollEngine_StopEngine_CAREL();
+				MQTT_FlushValues();
+				previous_poll_engine_status = true;
 			}
-			else
-			{   //include the 2 byte of the CRC modbus TODO
-				length += 2;
-			}
+			cbor_req.res = (execute_scan_devices(&answer, &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
-			//  // da riarrangiare
-            len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
+			if(length > 0)
+				length += 2;	//include the 2 byte of the CRC modbus
 
-            // TODO
+			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
             sprintf(topic,"%s%s", "/res/", cbor_req.rto);
             mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
-			PollEngine_MBResume_IS();
+			if(previous_poll_engine_status == true)
+				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
@@ -1801,7 +1798,7 @@ data_rx_len=0;
 
 			CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 
-			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+			while(!IsOffline() && STOPPED != PollEngine_GetPollingStatus_CAREL())
 				vTaskDelay(100/portTICK_RATE_MS);
 			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 				PollEngine_StopEngine_CAREL();
@@ -1815,9 +1812,8 @@ data_rx_len=0;
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
-			if(previous_poll_engine_status == true){
+			if(previous_poll_engine_status == true)
 				PollEngine_StartEngine_CAREL();
-			}
 		}
 		break;
 
@@ -2015,13 +2011,13 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 	C_RES err = 0;
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	// send request  ... manda la richiesta ma ritorna comunque un errore  TODO
+	// send request
 	do{
 	  err = app_report_slave_id_read(++addr);
 
-	  vTaskDelay(500 / portTICK_PERIOD_MS);
+	  vTaskDelay(100 / portTICK_PERIOD_MS);
 
-	}while(err != C_SUCCESS);
+	}while(err != C_SUCCESS && addr < MB_ADDRESS_MAX);
 
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 #endif
