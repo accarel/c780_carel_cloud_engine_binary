@@ -340,12 +340,12 @@ void FlushValues(PollType_t type);
 void ForceSending(void);
 void ResetFirst(PollType_t type);
 uint8_t IsFirst(PollType_t type);
-
+void PollEngine__RecoverBaudRate(void);
 #define	PRINTF_POLL_ENG(x)	\
 		if(PollEngine__GetPollEnginePrintMsgs() == 1)\
 		printf x;\
 
-
+bool IsOffline(void);
 
 #define MB_RESPONSE_TIMEOUT(size) pdMS_TO_TICKS(30 + (2 * ((size << 1) + 8) * 11 * 1000 / PollEngine__GetMBBaudrate()))
 

@@ -43,6 +43,7 @@ void Polling_Engine_Init_IS(void)
 	ForceSending();
 	if (BinaryModel_CheckCrc() == C_SUCCESS)
 		PollEngine_StartEngine_CAREL();	//if GME is properly configured, then start polling
+	PollEngine__RecoverBaudRate();
 
 	while(1)
 	{

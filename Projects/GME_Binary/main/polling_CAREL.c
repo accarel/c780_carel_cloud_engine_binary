@@ -28,6 +28,7 @@
 
 #include "polling_IS.h"
 #include "polling_CAREL.h"
+#include "nvm.h"
 
 
 #define RET_DIM(x,l)     (x == 16 ? (l = 1) : (l = 2))
@@ -1379,6 +1380,12 @@ void SendOffline(C_RES poll_done) {
 	}
 }
 
+bool IsOffline(void) {
+	if (start_offline != 0 && end_offline == 0)
+		return true;
+	else return false;
+}
+
 void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 {
 	C_RES poll_done = C_FAIL;
@@ -1743,4 +1750,12 @@ uint8_t PollEngine__GetPollEnginePrintMsgs(void){
 
 void PollEngine__SetPollEnginePrintMsgs(uint8_t status){
 	PollEnginePrint = status;
+}
+
+void PollEngine__RecoverBaudRate(void){
+	C_UINT32 baud_rate;
+	if(C_SUCCESS == NVM__ReadU32Value(MB_BAUDRATE_NVM, &baud_rate))
+	    MB_BaudRate = baud_rate;
+	else
+	    MB_BaudRate = 115200;
 }
