@@ -1,5 +1,5 @@
---- portserial_m.c.orig	2019-12-12 02:15:00.548319179 -0800
-+++ portserial_m.c	2019-12-12 01:53:13.080351000 -0800
+--- portserial_m.c.orig	2019-12-17 05:34:54.648813943 -0800
++++ portserial_m.c	2019-12-17 05:34:43.212813333 -0800
 @@ -65,6 +65,7 @@
  #define MB_SERIAL_TX_TOUT_MS        (100)
  #define MB_SERIAL_TX_TOUT_TICKS     pdMS_TO_TICKS(MB_SERIAL_TX_TOUT_MS) // timeout for transmission
@@ -38,3 +38,12 @@
              // The buffer is transferred into Modbus stack and is not needed here any more
              uart_flush_input(ucUartNumber);
              ESP_LOGD(TAG, "RX_T35_timeout: %d(bytes in buffer)\n", (uint32_t)usLength);
+@@ -289,3 +299,8 @@
+     uiRxBufferPos++;
+     return TRUE;
+ }
++
++// Clear Uart Queue
++void ClearQueueMB(void){
++    xQueueReset(xMbUartQueue);
++}

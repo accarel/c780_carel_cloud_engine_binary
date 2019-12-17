@@ -263,6 +263,17 @@ C_RES app_report_slave_id_read(const uint8_t addr)
     return result;
 }
 
+void Modbus_Disable(void)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	eMBMasterDisable();
+#endif
+}
 
-
-
+void Modbus_Enable(void)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	ClearQueueMB();
+	eMBMasterEnable();
+#endif
+}
