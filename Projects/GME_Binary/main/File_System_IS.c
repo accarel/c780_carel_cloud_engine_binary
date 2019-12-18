@@ -89,7 +89,7 @@ C_RES File_System_Init(void)
  *        Gets MAC address of the WiFi device or IMEI of the 2G module
  *
  * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
- * @return C_SUCCESS or C_FAIL
+ * @return C_SUCCESS
  */
 C_RES Get_Gateway_ID(C_SBYTE *s_id)
 { /* TO BE implemented */
@@ -116,5 +116,5 @@ C_RES Get_Gateway_ID(C_SBYTE *s_id)
   /* this function returns the IMEI of the GSM module*/
 
 #endif
-	return 1;
+	return C_SUCCESS;
 }
