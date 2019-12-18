@@ -23,8 +23,6 @@
 
 #include "binary_model.h"
 
-#include "esp_partition.h"
-
 
 
 //Debugging
@@ -147,7 +145,7 @@ gme_sm_t Sys__Config (config_sm_t sm)
             printf("Sys__Config .... CHECK_FOR_CONFIG\n");
             /*Check in NVM*/
 
-            if(ESP_OK == NVM__ReadU8Value("wifi_conf", &wifi_conf) && CONFIGURED == wifi_conf){
+            if(C_SUCCESS == NVM__ReadU8Value("wifi_conf", &wifi_conf) && CONFIGURED == wifi_conf){
             	WiFi__ReadCustomConfigFromNVM();
                 config_sm = CONFIGURE_GME;
             }else{
@@ -186,7 +184,7 @@ gme_sm_t Sys__Config (config_sm_t sm)
             	printf("Configuration Received");
             	WiFi__WriteCustomConfigInNVM(HTTPServer__GetCustomConfig());
 
-                if(ESP_OK == NVM__WriteU8Value("wifi_conf", (uint8_t)CONFIGURED)){
+                if(C_SUCCESS == NVM__WriteU8Value("wifi_conf", (uint8_t)CONFIGURED)){
                 	config_sm = CONFIGURE_GME;
                 }
                 if(wifi_conf == CONFIGURED){			//for future implementation
