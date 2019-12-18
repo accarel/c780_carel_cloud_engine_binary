@@ -1594,7 +1594,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-					vTaskDelay(1/portTICK_RATE_MS);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
+					Sys__Delay(1);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
 
 				PollEngine_StopEngine_CAREL();
 				MQTT_FlushValues();
@@ -1691,7 +1691,7 @@ data_rx_len=0;
 			// send modbus command to write values     //CHIEBAO
 			// wait modbus response to get result
 			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				vTaskDelay(100/portTICK_RATE_MS);
+				Sys__Delay(100);
 
 			cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
