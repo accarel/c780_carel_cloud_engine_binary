@@ -220,7 +220,7 @@ namespace MqttClientSimulatorBinary
         {
             string s_msg;
 
-            s_msg = Environment.NewLine + (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds + @" - " + msg_line_count.ToString() + @" " + msg ;
+            s_msg = Environment.NewLine + DateTime.Now.Ticks.ToString() + @" - " + msg_line_count.ToString() + @" " + msg ;
             textBox_Message.Invoke(new Action(() => textBox_Message.AppendText(s_msg)));
             msg_line_count += 1;
         }
