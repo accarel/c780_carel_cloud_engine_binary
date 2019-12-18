@@ -13,3 +13,4 @@ patch components/freemodbus/modbus/include/mb_m.h ~/esp/GME_Binary/patches/0003_
 patch components/freemodbus/modbus/include/mbconfig.h ~/esp/GME_Binary/patches/0004_enable_rep_slaveid.patch
 # collect messages longer than 120 bytes
 patch components/freemodbus/port/portserial_m.c ~/esp/GME_Binary/patches/0005_receive_mesg_longer_than_120.patch
+patch components/freemodbus/modbus/include/mbport.h ~/esp/GME_Binary/patches/0006_receive_mesg_longer_than_120.patch
