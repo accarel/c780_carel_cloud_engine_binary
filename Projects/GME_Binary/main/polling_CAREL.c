@@ -1757,5 +1757,5 @@ void PollEngine__ReadBaudRateFromNVM(void){
 	if(C_SUCCESS == NVM__ReadU32Value(MB_BAUDRATE_NVM, &baud_rate))
 	    MB_BaudRate = baud_rate;
 	else
-	    MB_BaudRate = 115200;
+	    MB_BaudRate = MB_BAUDRATE;
 }
