@@ -181,47 +181,12 @@ C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filena
 		file = fopen(filename, "w");
 		if(NULL == file){
 			printf("%s - File not found\n",filename);
-			return ESP_FAIL;
+			return C_FAIL;
 		}else{
 			printf("%s - File found\n",filename);
 			fwrite(file_to_save , 1 , file_size , file );
 			fclose(file);
-			return ESP_OK;
+			return C_SUCCESS;
 		}
 
-}
-
-/**
- * @brief Get_Gateway_ID
- *        Gets MAC address of the WiFi device or IMEI of the 2G module
- * 
- * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
- * @return C_SUCCESS or C_FAIL
- */
-C_RES Get_Gateway_ID(C_SBYTE *s_id)
-{ /* TO BE implemented */
-
-#if (NETWORK_INTERFACE == WIFI_INTERFACE)
-  /* this function returns the MAC address of the WiFi appliance */
-    
-    #ifdef INCLUDE_PLATFORM_DEPENDENT
-	uint8_t s_id_tmp[6];
-	esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
-
-    sprintf(s_id,"%X%X%X%X%X%X",
-            s_id_tmp[0],
-            s_id_tmp[1],
-            s_id_tmp[2],
-            s_id_tmp[3],
-            s_id_tmp[4],
-            s_id_tmp[5]
-           );
-   #endif
-
-
-#elif (NETWORK_INTERFACE == GSM_INTERFACE)
-  /* this function returns the IMEI of the GSM module*/
-
-#endif
-	return 1;
 }

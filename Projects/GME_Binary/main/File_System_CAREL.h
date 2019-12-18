@@ -24,7 +24,6 @@ C_RES FS_CheckFiles(void);
 void FS_DisplayFiles(void);
 long FS_ReadFile(const char* filename, uint8_t* cert_ptr);
 C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filename);
-C_RES Get_Gateway_ID(C_SBYTE *s_id);
 
 #ifdef __cplusplus
 }

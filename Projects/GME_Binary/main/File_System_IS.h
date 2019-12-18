@@ -30,7 +30,7 @@
 
 /* Function prototypes -------------------------------------------------------*/
 C_RES File_System_Init(void);
-
+C_RES Get_Gateway_ID(C_SBYTE *s_id);
 
 #ifdef __cplusplus
 }
