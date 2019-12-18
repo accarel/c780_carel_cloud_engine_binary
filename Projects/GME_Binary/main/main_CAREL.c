@@ -252,7 +252,7 @@ void Carel_Main_Task(void)
 
           case GME_SYSTEM_PREPARATION:
           {
-          	WiFi__WaitConnection();                   // RELATED TO ESP32 BOARD
+          	WiFi__WaitConnection();
 
             sm = GME_START_POLLING_ENGINE;
 
@@ -268,10 +268,10 @@ void Carel_Main_Task(void)
           	    retval = Modbus_Init(19200);        // CAREL
           	    CAREL_CHECK(retval, "UART");
 
-          	    vTaskDelay(1000 / portTICK_PERIOD_MS);
+          	    Sys__Delay(1000);
 
           	    Modbus_Task_Start();                // CAREL
-          	    vTaskDelay(1000 / portTICK_PERIOD_MS);
+          	    Sys__Delay(1000);
 
 
           	    PollEngine_MBStart_IS();
@@ -302,17 +302,9 @@ void Carel_Main_Task(void)
               break;
 
 
-          //Reboot ESP after 5 seconds
+          //Reboot GME after 5 seconds
           case GME_REBOOT:
-          	for(int i=5; i>0; i--)
-          	{
-          		printf("Rebooting after %d sec ...\n",i);
-          		vTaskDelay(1000/portTICK_RATE_MS);
-          	}
-              printf("Rebooting now ...\n");
-              fflush(stdout);
-              esp_restart();
-
+        	  GME__Reboot();
               break;
 
           default:
@@ -326,32 +318,7 @@ void Carel_Main_Task(void)
           	sm = GME_REBOOT;
           }
       }
-
-
-
-
-
-
-
-  //vTaskDelay(1000 / portTICK_PERIOD_MS);
-
-  //xTaskCreate(&Modbus_rw_test, "MODBUS_TEST", 2*1024, NULL, 4, NULL);
-
-
-
-  /*for(;;)
-  {
-	  //printf("in main loop every 5sec\n");
-	  //printf("valore letto %d, %d\n", test_value[0], test_value[1]);
-
-	  vTaskDelay(5000 / portTICK_PERIOD_MS);
-  }
-*/
-
-
-
 }
-
 
 
 //********************************************************
@@ -371,7 +338,7 @@ void GME__Reboot(void){
 	for(int i=5; i>0; i--)
 	{
 		printf("Rebooting after %d sec ...\n",i);
-		vTaskDelay(1000/portTICK_RATE_MS);
+		Sys__Delay(1000);
 	}
 	printf("Rebooting now ...\n");
 	fflush(stdout);

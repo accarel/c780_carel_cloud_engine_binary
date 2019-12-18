@@ -74,10 +74,10 @@ C_BOOL Sys__ResetCheck(void){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if (gpio_get_level(CONFIG_RESET_BUTTON) == 0) {
 		config_reset_debounce_counter++;		 
-		vTaskDelay(100 / portTICK_PERIOD_MS);
+		Sys__Delay(100);
 	}else if(gpio_get_level(CONFIG_RESET_BUTTON) == 1 && config_reset_debounce_counter > 0){
 		config_reset_debounce_counter--;
- 		vTaskDelay(100 / portTICK_PERIOD_MS);
+		Sys__Delay(100);
 	}
 	if((CONFIG_RESET_SEC * 10) == config_reset_debounce_counter){
 		//Erase configuration flag form NVM
@@ -105,11 +105,11 @@ C_BOOL Sys__FirmwareFactoryReset(void){
 	if (gpio_get_level(FACTORY_RESET_BUTTON) == 0) {
 		factory_reset_debounce_counter++;
 		 
-		vTaskDelay(100 / portTICK_PERIOD_MS);
+		Sys__Delay(100);
 	}else if(gpio_get_level(FACTORY_RESET_BUTTON) == 1 && factory_reset_debounce_counter > 0){
 		factory_reset_debounce_counter--;
 		 
-		vTaskDelay(100 / portTICK_PERIOD_MS);
+		Sys__Delay(100);
 	}
 	if((FACTORY_RESET_SEC * 10) == factory_reset_debounce_counter){
 		//Point boot partition on /factory part.
@@ -128,4 +128,10 @@ C_UINT32 Sys__GetFreeHeapSize(void){
 	freemem = esp_get_free_heap_size();
 #endif
 	return freemem;
+}
+
+void Sys__Delay(C_UINT32 delay){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	vTaskDelay(delay / portTICK_PERIOD_MS);
+#endif
 }

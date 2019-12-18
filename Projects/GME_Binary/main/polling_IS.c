@@ -21,6 +21,7 @@
 
 #include "polling_IS.h"
 #include "utilities_CAREL.h"
+#include "sys_IS.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 static xTaskHandle xPollingEngine;
@@ -49,9 +50,7 @@ void Polling_Engine_Init_IS(void)
 		// don't remove this line...main function for polling
 		DoPolling_CAREL(polling_times);
 
-        #ifdef INCLUDE_PLATFORM_DEPENDENT
-		vTaskDelay(10/portTICK_PERIOD_MS);
-        #endif
+        Sys__Delay(10);
 	}
 }
 

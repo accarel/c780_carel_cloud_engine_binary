@@ -32,6 +32,7 @@
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
 
+#include "sys_IS.h"
 
 #define  MODBUS_TIME_OUT     100
 
@@ -71,7 +72,7 @@ C_RES Modbus_Init(C_INT16 baud)  // stop /start /parity
 	 eMBErrorCode status = MB_EIO;
 
 	 eStatus = eMBMasterInit(MB_RTU, 2, 19200, MB_PAR_NONE); // ok
-	 vTaskDelay(5);
+	 Sys__Delay(50);
 
      if (0 == eStatus)
      {

@@ -38,7 +38,7 @@
 
 #include "RTC_IS.h"
 #include "Led_Manager_IS.h"
-
+#include "sys_IS.h"
 /* ================================================================================ */
 /*                        This section is for the WiFi Gateway                      */
 /* ================================================================================ */
@@ -451,9 +451,7 @@ void Led_task(void)
 		include a task delay here to leave time for other task
 		*/
 		
-        #ifdef INCLUDE_PLATFORM_DEPENDENT
-    	vTaskDelay(1000 / portTICK_PERIOD_MS);
-		#endif
+        Sys__Delay(1000);
     }
 	
 }

@@ -29,7 +29,7 @@
 #include "polling_IS.h"
 #include "polling_CAREL.h"
 #include "nvm.h"
-
+#include "sys_IS.h"
 
 #define RET_DIM(x,l)     (x == 16 ? (l = 1) : (l = 2))
 
@@ -1587,7 +1587,7 @@ uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx)
 //	ClearQueueMB();			// CHIEBAO
 //	mbc_master_resume();	// CHIEBAO
 
-	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	Sys__Delay(1000);
 
 	return data_rx_len;
 

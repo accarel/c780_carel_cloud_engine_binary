@@ -1722,7 +1722,7 @@ data_rx_len=0;
 			// send modbus command to write values     //CHIEBAO
 			// wait modbus response to get result
 			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				vTaskDelay(100/portTICK_RATE_MS);
+				Sys__Delay(100);
 
 
 			cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1787,7 +1787,7 @@ data_rx_len=0;
 			CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 
 			while(!IsOffline() && STOPPED != PollEngine_GetPollingStatus_CAREL())
-				vTaskDelay(100/portTICK_RATE_MS);
+				Sys__Delay(100);
 			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 				PollEngine_StopEngine_CAREL();
 				MQTT_FlushValues();
@@ -2003,11 +2003,11 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 	do{
 	  err = app_report_slave_id_read(++addr);
 
-	  vTaskDelay(100 / portTICK_PERIOD_MS);
+	  Sys__Delay(100);
 
 	}while(err != C_SUCCESS && addr < MB_ADDRESS_MAX);
 
-	vTaskDelay(1000 / portTICK_PERIOD_MS);
+	Sys__Delay(1000);
 #endif
 
 	if(err != 0)
