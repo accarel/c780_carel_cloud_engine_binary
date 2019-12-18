@@ -8,6 +8,8 @@
 #include "wifi.h"
 #include "nvm.h"
 #include "utilities_CAREL.h"
+#include "polling_CAREL.h"
+#include "modbus_IS.h"
 
 static req_set_gw_config_t gw_config_data = {0};
 
@@ -54,6 +56,10 @@ req_set_gw_config_t* Utilities__GetGWConfigData(void){
 void Utilities__Init(void){
 
 	Utilities_ScanGWConfigData();
+	// Recover current configured baud rate
+	PollEngine__ReadBaudRateFromNVM();
+
+	Modbus__ReadAddressFromNVM();
 
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)
 	Utilities__CalcMACAddr();

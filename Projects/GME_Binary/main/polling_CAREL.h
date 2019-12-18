@@ -340,7 +340,7 @@ void FlushValues(PollType_t type);
 void ForceSending(void);
 void ResetFirst(PollType_t type);
 uint8_t IsFirst(PollType_t type);
-void PollEngine__RecoverBaudRate(void);
+void PollEngine__ReadBaudRateFromNVM(void);
 #define	PRINTF_POLL_ENG(x)	\
 		if(PollEngine__GetPollEnginePrintMsgs() == 1)\
 		printf x;\

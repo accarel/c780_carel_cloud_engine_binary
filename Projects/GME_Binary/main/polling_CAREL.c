@@ -1063,7 +1063,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		addr = (Coil->reg[i].info.Addr);
 
 		do {
-			errorReq = app_coil_read(1, 1, addr, 1);
+			errorReq = app_coil_read(Modbus__GetAddress(), 1, addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1092,7 +1092,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		addr = (Di->reg[i].info.Addr);
 
 		do {
-			errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), 1, addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1123,7 +1123,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		  numOf = 2;
 
 		do {
-			errorReq = app_holding_register_read(1, 1, addr, numOf);
+			errorReq = app_holding_register_read(Modbus__GetAddress(), 1, addr, numOf);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1155,7 +1155,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		  numOf = 2;
 
 		do {
-			errorReq = app_input_register_read(1, 1, addr, numOf);
+			errorReq = app_input_register_read(Modbus__GetAddress(), 1, addr, numOf);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1206,7 +1206,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 		addr = (Coil[i].info.Addr);
 		do {
-			errorReq = app_coil_read(1, 1, addr, 1);
+			errorReq = app_coil_read(Modbus__GetAddress(), 1, addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1236,7 +1236,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		addr = (Di[i].info.Addr);
 
 		do {
-			errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), 1, addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1267,7 +1267,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		addr = (Hr[i].info.Addr);
 
 		do {
-			errorReq = app_holding_register_read(1, 1, addr, 1);
+			errorReq = app_holding_register_read(Modbus__GetAddress(), 1, addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 		Hr->data.error = errorReq;
@@ -1295,7 +1295,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		addr = (Ir[i].info.Addr);
 
 		do {
-			errorReq = app_input_register_read(1, 1, addr, 1);
+			errorReq = app_input_register_read(Modbus__GetAddress(), 1, addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 		Ir->data.error = errorReq;
@@ -1449,9 +1449,9 @@ C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UIN
 
 	// TODO read from nvm the device address!!!!
 	if(func == mbR_HR)
-		errorReq = app_holding_register_read(1, NULL, addr, len);
+		errorReq = app_holding_register_read(Modbus__GetAddress(), NULL, addr, len);
 	else // mbR_IR
-		errorReq = app_input_register_read(1, NULL, addr, len);
+		errorReq = app_input_register_read(Modbus__GetAddress(), NULL, addr, len);
 
 	if(errorReq == MB_MRE_NO_ERR)
 	{
@@ -1473,9 +1473,9 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
 
 	// TODO read from nvm the device address!!!!
 	if(func == mbR_COIL)
-	   errorReq = app_coil_read(1, 1, addr, 1);
+	   errorReq = app_coil_read(Modbus__GetAddress(), 1, addr, 1);
 	else // mbR_DI
-	   errorReq = app_coil_discrete_input_read(1, 1, addr, 1);
+	   errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), 1, addr, 1);
 
 	if(errorReq == MB_MRE_NO_ERR)
 	{
@@ -1512,7 +1512,7 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num)
 		val[0] =  data.reg.high;
 	}
 
-	errorReq = app_hr_write(1, addr, num, &val);
+	errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val);
 
 	if(errorReq == MB_MRE_NO_ERR)
 	{
@@ -1545,7 +1545,7 @@ C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr){
 	else
 	  value = 0x0000;
 
-	errorReq = app_coil_write(1, addr, value);
+	errorReq = app_coil_write(Modbus__GetAddress(), addr, value);
 
 	if(errorReq == MB_MRE_NO_ERR)
 	{
@@ -1752,7 +1752,7 @@ void PollEngine__SetPollEnginePrintMsgs(uint8_t status){
 	PollEnginePrint = status;
 }
 
-void PollEngine__RecoverBaudRate(void){
+void PollEngine__ReadBaudRateFromNVM(void){
 	C_UINT32 baud_rate;
 	if(C_SUCCESS == NVM__ReadU32Value(MB_BAUDRATE_NVM, &baud_rate))
 	    MB_BaudRate = baud_rate;

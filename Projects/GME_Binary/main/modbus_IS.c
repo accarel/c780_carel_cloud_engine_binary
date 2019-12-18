@@ -18,6 +18,7 @@
 #include "polling_CAREL.h"
 
 #include "gme_config.h"
+#include "nvm.h"
 
 // related to the system!!!!
 #include "port.h"
@@ -40,6 +41,7 @@ extern BOOL xMBMasterPortSerialTxPoll(void);
 
 
 static TaskHandle_t MODBUS_TASK = NULL;
+static uint32_t MB_Device = 0;
 
 /**
  * @brief Use brief, otherwise the index won't have a brief explanation.
@@ -276,4 +278,16 @@ void Modbus_Enable(void)
 	ClearQueueMB();
 	eMBMasterEnable();
 #endif
+}
+
+void Modbus__ReadAddressFromNVM(void){
+	C_UINT32 dev_addr;
+	if(C_SUCCESS == NVM__ReadU32Value(MB_DEV_NVM, &dev_addr))
+	    MB_Device = dev_addr;
+	else
+		MB_Device = 1;
+}
+
+C_UINT16 Modbus__GetAddress(void){
+	return MB_Device;
 }

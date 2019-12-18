@@ -108,9 +108,7 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 
 	// encode dev - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
-	C_UINT16 device = 0;
-	NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
-	err |= cbor_encode_int(&mapEncoder, device);
+	err |= cbor_encode_int(&mapEncoder, Modbus__GetAddress());
 	DEBUG_ADD(err, "dev");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -203,12 +201,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	// encode dev - elem8
 	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
-	C_UINT16 device_address = 0;
-	if(C_SUCCESS == NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device_address)){
-		err |= cbor_encode_uint(&mapEncoder, device_address);
-	}else{
-		err |= cbor_encode_uint(&mapEncoder, 0);
-	}
+	err |= cbor_encode_uint(&mapEncoder, Modbus__GetAddress());
 	DEBUG_ADD(err, "dev");
 
 	// encode gid - elem9
@@ -431,9 +424,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	// encode dev - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
-	C_UINT16 device = 0;
-	NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
-	err |= cbor_encode_int(&mapEncoder, device);
+	err |= cbor_encode_int(&mapEncoder, Modbus__GetAddress());
 	DEBUG_ADD(err, "dev");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -689,10 +680,9 @@ size_t CBOR_ResSetDevsConfig(C_CHAR* cbor_response, c_cborhreq* cbor_req)
 
 	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
 
-	err = NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
 	// encode dev - elem5
 	err = cbor_encode_text_stringz(&mapEncoder, "dev");
-	err |= cbor_encode_int(&mapEncoder, device);
+	err |= cbor_encode_int(&mapEncoder, Modbus__GetAddress());
 	DEBUG_ADD(err, "dev");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
@@ -815,9 +805,7 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 
 	// encode dev - elem6
 	err = cbor_encode_text_stringz(&mapEncoder, "dev");
-	C_UINT16 device;
-	NVM__ReadU32Value(MB_DEV_NVM, (C_UINT32*)&device);
-	err |= cbor_encode_int(&mapEncoder, device);
+	err |= cbor_encode_int(&mapEncoder, Modbus__GetAddress());
 
 	// encode t - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "t");
