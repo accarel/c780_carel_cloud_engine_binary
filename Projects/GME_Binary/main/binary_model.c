@@ -444,7 +444,7 @@ static void GetDeviceInfo(uint8_t *val)
 
 
 
-	if(ESP_OK != NVM__ReadBlob(MODEL_GUID, myHeaderModel.guid, &len)){
+	if(C_SUCCESS != NVM__ReadBlob(MODEL_GUID, myHeaderModel.guid, &len)){
 		NVM__WriteBlob (MODEL_GUID, myHeaderModel.guid, 16);
 	}
 
