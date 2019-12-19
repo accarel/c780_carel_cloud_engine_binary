@@ -987,6 +987,7 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set devs config request map");
 
+	C_UINT16 tmp = 0;
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1012,17 +1013,20 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 		}
 		else if (strncmp(tag, "cid", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)&download_devs_config->cid);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			download_devs_config->cid = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: cid");
 		}
 		else if (strncmp(tag, "crc", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)&download_devs_config->crc);
+			err |= CBOR_ExtractInt(&recursed, &tmp); //(int64_t*)&download_devs_config->crc);
+			download_devs_config->crc = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: crc");
 		}
 		else if (strncmp(tag, "dev", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, (int64_t*)&download_devs_config->dev);
+			err |= CBOR_ExtractInt(&recursed, &tmp); //(int64_t*)&download_devs_config->dev);
+			download_devs_config->dev = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: dev");
 		}
 		else

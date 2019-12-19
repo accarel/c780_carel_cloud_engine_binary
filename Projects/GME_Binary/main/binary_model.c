@@ -524,6 +524,7 @@ uint8_t* BinaryModel_GetChunk(uint32_t sz){
 
 uint16_t BinaryModel_GetCrc(void){
 	
+	// TODO manage sz == 0     CHIEBAO
 	uint32_t sz = filesize(MODEL_FILE);
 	uint8_t* chunk = BinaryModel_GetChunk(sz);
 
