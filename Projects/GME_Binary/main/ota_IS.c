@@ -161,6 +161,8 @@ C_RES https_ota(c_http_client_config_t* c_config)
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	esp_http_client_config_t config = {
 		.url = c_config->url,
+		.username = c_config->username,
+		.password = c_config->password,
 		.cert_pem = Sys__GetCert(c_config->cert_num),
 		.event_handler = _http_event_handler,
 		.auth_type = HTTP_AUTH_TYPE_BASIC,

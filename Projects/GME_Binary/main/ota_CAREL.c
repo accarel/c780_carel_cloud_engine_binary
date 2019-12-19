@@ -247,8 +247,9 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 
 void GME_ota_task(void * pvParameter)
 {
+	c_cborrequpdgmefw * myCborUpdate = (c_cborrequpdgmefw*)pvParameter;
 	c_http_client_config_t c_config;
-	int cert_num;
+	uint8_t cert_num;
 
     ESP_LOGI(TAG, "Starting OTA ...");
     /* Wait for the callback to set the CONNECTED_BIT in the
@@ -256,19 +257,31 @@ void GME_ota_task(void * pvParameter)
     */
     WiFi__WaitConnection();
 
-    c_config.url = ((c_cborrequpdgmefw*)pvParameter)->uri;
-    c_config.username = ((c_cborrequpdgmefw*)pvParameter)->usr;
-    c_config.password = ((c_cborrequpdgmefw*)pvParameter)->pwd;
-    if(C_SUCCESS == NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
-    	c_config.cert_num = cert_num;
-    else
-    	c_config.cert_num = CERT_1;
+    uint16_t url_len = strlen(myCborUpdate->uri) +
+    		 	       strlen(myCborUpdate->usr) +
+					   strlen(myCborUpdate->pwd);
+
+    char *url = malloc(url_len+5);
+
+	memset((void*)url, 0, url_len);
+	sprintf(url,"%.*s%s:%s@%s",8,myCborUpdate->uri, myCborUpdate->usr, myCborUpdate->pwd, myCborUpdate->uri+8);
+
+	c_config.url = url;
+	c_config.username = myCborUpdate->usr;
+	c_config.password = myCborUpdate->pwd;
+
+
+	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		cert_num = CERT_1;
+
+	c_config.cert_num = cert_num;
 
     C_RES ret = https_ota(&c_config);
     if (ret == C_SUCCESS) {
-    	ESP_LOGI(TAG, "Firmware Upgrades Succeeded 1");
+    	ESP_LOGI(TAG, "Firmware Upgrades Succeeded");
     	//Send true to ota group to send the res and restart gme
     	OTAGroup(true);
+    	vTaskDelete(NULL);
     } else {
     	ESP_LOGE(TAG, "Firmware Upgrades Failed");
     	//Send false to ota group to send the res and continue working
