@@ -59,6 +59,13 @@
 
 volatile Led_Show_Status_t led_status;
 
+void Led_Task_Start(void)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	xTaskCreate(Led_task, "Led_task", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
+#endif
+}
+
 void Led_Status_Update(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
@@ -453,5 +460,4 @@ void Led_task(void)
 		
         Sys__Delay(1000);
     }
-	
 }
