@@ -1019,13 +1019,13 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 		}
 		else if (strncmp(tag, "crc", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, &tmp); //(int64_t*)&download_devs_config->crc);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
 			download_devs_config->crc = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: crc");
 		}
 		else if (strncmp(tag, "dev", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, &tmp); //(int64_t*)&download_devs_config->dev);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
 			download_devs_config->dev = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: dev");
 		}
