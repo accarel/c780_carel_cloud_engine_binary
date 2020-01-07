@@ -20,7 +20,6 @@
 #include "utilities_CAREL.h"
 #include "polling_CAREL.h"
 #include "polling_IS.h"
-
 #include "Led_Manager_IS.h"
 
 /**
