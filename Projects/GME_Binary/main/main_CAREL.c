@@ -18,11 +18,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "main_IS.h"
+#include "main_CAREL.h"
+
+#include "gme_types.h"
 #include "data_types_CAREL.h"
-#include "File_System_IS.h"
-#include "RTC_IS.h"
 #include "modbus_IS.h"
-#include "binary_model.h"
 #include "utilities_CAREL.h"
 
 #include "sys_CAREL.h"
@@ -30,20 +31,9 @@
 
 #include "common.h"
 
-//#
-// related to the device (ESP32)
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "mb_m.h"
-#include "gme_types.h"
 #include "wifi.h"
-#include "MQTT_Interface_CAREL.h"
-#include "polling_CAREL.h"
 #include "polling_IS.h"
-//#include "file_system.h"
 #include "nvm.h"
-//#
-
 #include "Led_Manager_IS.h"
 
 #ifdef IS_A_GSM_GATEWAY
@@ -59,52 +49,22 @@
 
 /* Functions implementation -------------------------------------------------------*/
 
-uint8_t base_mac_addr[6] = { 0x00, 0x0A, 0x5C, 0x21, 0x08, 0x85 };
-
-
-
 //Variables
 static gme_sm_t sm;
-static uint8_t gw_config_status, line_config_status, devs_config_status;
-static uint32_t waiting_conf_timer = 0;
-
-
-
-//For Testing
-static uint8_t test = 0;
-static uint8_t test1 = 0;
-static uint8_t test2 = 0;
-static uint8_t test3 = 0;
-static bool once = false;
-
-static C_RES retval;
-static gme_sm_t sm;
-
-static C_BYTE force_configuration = TRUE;
-
-
-void Carel_Main_Task(void);
-
 
 void app_main(void)  // main_Carel
 {
-  //retval = Init_RTC();
-
-  /*
-  if (retval != C_SUCCESS)
-  {
-
-
-  }
-  */
-
-  xTaskCreate(Led_task, "Led_task", configMINIMAL_STACK_SIZE, NULL, 3, NULL);
-  xTaskCreate(Carel_Main_Task, "Carel_Task", 3*(CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE+512), NULL, tskIDLE_PRIORITY, NULL );
-
+  Led_Task_Start();
+  Carel_Main_Task_Start();
 }
 
 void Carel_Main_Task(void)
 {
+  C_RES retval;
+  static bool once = false;
+  static uint32_t waiting_conf_timer = 0;
+  static uint8_t gw_config_status, line_config_status, devs_config_status;
+  static uint8_t test3 = 0;
 
   while(1)
   {
@@ -113,7 +73,7 @@ void Carel_Main_Task(void)
 		  //System Initialization
 		  case GME_INIT:
 		  {
-			  retval = Sys__Init();								// RELATED TO ESP32 BOARD
+			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
 
 			  if(retval != C_SUCCESS){
@@ -184,10 +144,10 @@ void Carel_Main_Task(void)
 			//Init_RTC();
 			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr,0);		// Vale: make this call hw independent					// Carel
 			CAREL_CHECK(retval, "TIME");
-			
+
 			//Set boot time
 			RTC_Set_UTC_Boot_Time();
-			
+
 			Sys__CertAlloc();
 
 			sm = GME_CHECK_GW_CONFIG;
@@ -342,7 +302,7 @@ void GME__Reboot(void){
 	}
 	printf("Rebooting now ...\n");
 	fflush(stdout);
-	esp_restart();
+	GME_Reboot_IS();
 }
 
 
