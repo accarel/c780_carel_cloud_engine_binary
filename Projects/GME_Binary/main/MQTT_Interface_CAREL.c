@@ -22,11 +22,7 @@
 #include "polling_IS.h"
 
 #include "Led_Manager_IS.h"
-#if INCLUDE_PLATFORM_DEPENDENT
-#include "mqtt_client.h"
-#include "mqtt_config.h"
-#include "freertos/FreeRTOS.h"
-#endif
+
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
