@@ -33,7 +33,7 @@
 
 #include "wifi.h"
 #include "polling_IS.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 #include "Led_Manager_IS.h"
 
 #ifdef IS_A_GSM_GATEWAY

@@ -21,7 +21,7 @@
 #include "polling_IS.h"
 #include "MQTT_Interface_IS.h"
 #include "MQTT_Interface_CAREL.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 #include "binary_model.h"
 #include "https_client_CAREL.h"
 #include "ota_CAREL.h"

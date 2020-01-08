@@ -6,7 +6,7 @@
  *         via HTTPS, this is the platform independent part
  */
 
-#include "nvm.h"
+#include "nvm_CAREL.h"
 #include "ota_IS.h"
 #include "ota_CAREL.h"
 #include "modbus_IS.h"

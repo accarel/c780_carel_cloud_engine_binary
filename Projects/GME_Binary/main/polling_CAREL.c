@@ -28,7 +28,7 @@
 
 #include "polling_IS.h"
 #include "polling_CAREL.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 #include "sys_IS.h"
 
 #define RET_DIM(x,l)     (x == 16 ? (l = 1) : (l = 2))

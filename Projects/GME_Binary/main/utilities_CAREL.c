@@ -6,7 +6,7 @@
  */
 
 #include "wifi.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 #include "utilities_CAREL.h"
 #include "polling_CAREL.h"
 #include "modbus_IS.h"

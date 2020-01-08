@@ -11,8 +11,7 @@
 #include "sys_IS.h"
 #include "File_System_IS.h"
 #include "https_client_CAREL.h"
-
-#include "nvm.h"
+#include "nvm_CAREL.h""
 #include "wifi.h"
 #include "common.h"
 #include "cmd_custom.h"
@@ -22,7 +21,7 @@
 #include "http_server.h"
 
 #include "binary_model.h"
-
+#include "nvm_IS.h"
 
 
 //Debugging
@@ -56,14 +55,14 @@ static char certificates[CERT_MAX_NUMBRER][CERT_MAX_SIZE] = {0};
  */
 C_RES Sys__Init (void)						 
 {
-    if (C_SUCCESS != nvs_flash_init()){
-    	printf("NVS PROPBLEM\n");
+    if (C_SUCCESS != NVM_Init()){
+    	printf("NVS PROBLEM\n");
         return C_FAIL;
         }
 
 
     if (C_SUCCESS != File_System_Init()){
-    	printf("SPIFFS PROPBLEM\n");
+    	printf("SPIFFS PROBLEM\n");
         return C_FAIL;
     }
 

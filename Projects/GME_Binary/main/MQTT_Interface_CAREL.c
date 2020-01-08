@@ -14,7 +14,7 @@
 #include "MQTT_Interface_CAREL.h"
 #include "MQTT_Interface_IS.h"
 #include "File_System_CAREL.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 #include "wifi.h"
 #include "sys_CAREL.h"
 #include "utilities_CAREL.h"

@@ -13,7 +13,7 @@
 #include "File_System_CAREL.h"
 
 #include "polling_CAREL.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 
 
 #include "data_types_CAREL.h"

@@ -15,7 +15,7 @@
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
   #include "esp_partition.h"
-  #include "nvm.h"
+  #include "nvm_CAREL.h"
   #include "wifi.h"
   #include "common.h"
   #include "cmd_custom.h"

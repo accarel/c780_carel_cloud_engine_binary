@@ -18,9 +18,7 @@
 #include "polling_CAREL.h"
 
 #include "gme_config.h"
-#include "nvm.h"
-
-// related to the system!!!!
+#include "nvm_CAREL.h"
 #include "port.h"
 #include "mb_m.h"
 //#include "mbcontroller.h"

@@ -13,7 +13,7 @@
 #include "polling_CAREL.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	#include "nvm.h"
+	#include "nvm_CAREL.h"
 	#include "esp_log.h"
 	#include "driver/gpio.h"
 	#include "mb_m.h"

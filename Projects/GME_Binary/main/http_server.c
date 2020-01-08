@@ -11,7 +11,7 @@
 #include "esp_vfs.h"
 #include "esp_spiffs.h"
 #include "esp_http_server.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 #include "cJSON.h"
 #include "wifi.h"
 //#include "file_system.h"

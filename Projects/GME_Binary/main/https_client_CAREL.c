@@ -12,7 +12,7 @@
 #include "sys_CAREL.h"
 #include "MQTT_Interface_CAREL.h"
 #include "binary_model.h"
-#include "nvm.h"
+#include "nvm_CAREL.h"
 
 /**
  * @brief MAX_HTTP_RECV_BUFFER 
