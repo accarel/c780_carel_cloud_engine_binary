@@ -1,7 +1,9 @@
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_partition.h"
 #include "esp_err.h"
 #include "nvs_flash.h"
 #include "nvs.h"
+#endif
 
 #if NVM_DEBUG == ENABLED
 	#define	PRINTF_DEBUG_NVM	printf
