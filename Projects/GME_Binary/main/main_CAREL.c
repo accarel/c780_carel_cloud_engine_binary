@@ -35,7 +35,7 @@
 #include "polling_IS.h"
 #include "nvm_CAREL.h"
 #include "Led_Manager_IS.h"
-
+#include "http_server_IS.h"
 #ifdef IS_A_GSM_GATEWAY
 #include "GSM_Miscellaneous_IS.h"
 #endif

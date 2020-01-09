@@ -18,7 +18,7 @@
 
 #include "driver/gpio.h"
 
-#include "http_server.h"
+#include "http_server_IS.h"
 
 #include "binary_model.h"
 #include "nvm_IS.h"
