@@ -1,3 +1,6 @@
+#ifndef MAIN_NVM_IS_H_
+#define MAIN_NVM_IS_H_
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_partition.h"
 #include "esp_err.h"
@@ -24,3 +27,5 @@ C_RES NVM__GetBlob(const C_CHAR* var, void* vec, size_t* len);
 C_RES NVM__SetBlob(const C_CHAR* var, void* vec, size_t len);
 C_RES NVM__EraseK(const C_CHAR* var);
 C_RES NVM__Erase(void);
+
+#endif
