@@ -225,6 +225,13 @@ void Carel_Main_Task(void)
           	    retval = BinaryModel_Init();		// CAREL
           	    CAREL_CHECK(retval, "MODEL");
 
+          	    if(retval == C_FAIL) {
+          	    	// this means loaded model is not valid
+          	    	// hence, clear SET_DEVS_CONFIG_NVM flag in nvm and go waiting for a new configuration
+          	    	NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT);
+          	    	sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
+          	    	break;
+          	    }
           	    retval = Modbus_Init(19200);        // CAREL
           	    CAREL_CHECK(retval, "UART");
 
