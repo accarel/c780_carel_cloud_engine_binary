@@ -822,6 +822,8 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	return len;
 }
 
+#if 0
+/* below code was just sketched, to be checked and tested */
 /**
  * @brief CBOR_ResSendMbPassThrough
  *
@@ -853,6 +855,7 @@ size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_
 
 	return len;
 }
+#endif
 
 /**
  * @brief CBOR_ReqHeader
@@ -906,9 +909,11 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "header: discard element");
 		}
+		if (err)
+			return err;
 	}
 
 	err = cbor_value_leave_container(&it, &recursed);
@@ -954,9 +959,11 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT3
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "req_set_lines_config: discard element");
 		}
+		if (err)
+			return err;
 	}
 
 	err = cbor_value_leave_container(&it, &recursed);
@@ -1031,9 +1038,11 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "req_set_devs_config: discard element");
 		}
+		if (err)
+			return err;
 	}
 
 	err = cbor_value_leave_container(&it, &recursed);
@@ -1135,9 +1144,11 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "req_rdwr_values: discard element");
 		}
+		if (err)
+			return err;
 	}
 
 	err = cbor_value_leave_container(&it, &recursed);
@@ -1220,15 +1231,19 @@ CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqs
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "req_set_gw_config: discard element");
 		}
+		if (err)
+			return err;
 	}
 
 	err = cbor_value_leave_container(&it, &recursed);
 	return err;
 }
 
+#if 0
+/* below code was just sketched, to be checked and tested */
 /**
  * @brief CBOR_ReqSendMbAdu
  *
@@ -1270,7 +1285,7 @@ CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* se
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "req_send_mb_adu: discard element");
 		}
 	}
@@ -1312,7 +1327,7 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "send_mb_pass_through: discard element");
 		}
 	}
@@ -1321,6 +1336,7 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 
 
 }
+#endif
 
 /**
  * @brief CBOR_ReqReboot
@@ -1356,9 +1372,11 @@ CborError CBOR_ReqReboot(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cid)
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "reboot: discard element");
 		}
+		if (err)
+			return err;
 	}
 	err = cbor_value_leave_container(&it, &recursed);
 	return err;
@@ -1479,9 +1497,11 @@ CborError CBOR_ReqUpdateDevFW(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborrequ
 		}
 		else
 		{
-			err = CBOR_DiscardElement(&recursed);
+			err |= CBOR_DiscardElement(&recursed);
 			DEBUG_DEC(err, "req_: discard element");
 		}
+		if (err)
+			return err;
 	}
 
 	err = cbor_value_leave_container(&it, &recursed);
@@ -1512,6 +1532,8 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	strcpy((char*)topic,(char*)dev_id);
 
 	err = CBOR_ReqHeader(cbor_stream, cbor_len, &cbor_req);
+	if (err)
+		cbor_req.cmd = NO_COMMAND;		// request is not recognized
 
 	switch(cbor_req.cmd){
 
@@ -1549,12 +1571,14 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		case SET_GW_CONFIG:
 		{
 			c_cborreqsetgwconfig cbor_setgwconfig = {0};
+			cbor_req.res = ERROR_CMD;
+
 			err = CBOR_ReqSetGwConfig(cbor_stream, cbor_len, &cbor_setgwconfig);
-
-			// write new data to configuration file and put in res the result of operation
-			// to be implemented
-			cbor_req.res = (execute_set_gw_config(cbor_setgwconfig) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-
+			if (err == C_SUCCESS) {
+				// write new data to configuration file and put in res the result of operation
+				// to be implemented
+				cbor_req.res = (execute_set_gw_config(cbor_setgwconfig) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			}
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -1565,12 +1589,14 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		case SET_DEVS_CONFIG:
 		{
 			c_cborreqdwldevsconfig download_devs_config = {0};
+			cbor_req.res = ERROR_CMD;
+
 			err = CBOR_ReqSetDevsConfig(cbor_stream, cbor_len, &download_devs_config);
-
-			// write new data to configuration file and put in res the result of operation
-			// to be implemented
-			cbor_req.res = (execute_download_devs_config(&download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-
+			if(err == C_SUCCESS) {
+				// write new data to configuration file and put in res the result of operation
+				// to be implemented
+				cbor_req.res = (execute_download_devs_config(&download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			}
 			// mqtt response
 			//len = CBOR_ResSimple(cbor_response, &cbor_req);
 			len = CBOR_ResSetDevsConfig(cbor_response, &cbor_req);
@@ -1579,8 +1605,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if(SUCCESS_CMD == cbor_req.res){
 				PollEngine_StopEngine_CAREL();
-				// save cid for successive hello
-				NVM__WriteU32Value(MB_CID_NVM, download_devs_config.cid);
 				MQTT_FlushValues();
 				GME__Reboot();		//todo
 			}
@@ -1594,7 +1618,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			C_UINT16 device = 0;
 			C_BYTE answer[REPORT_SLAVE_ID_SIZE];
 			C_INT16 length = 0;
-			cbor_req.res = SUCCESS_CMD;
+			cbor_req.res = ERROR_CMD;
 
 			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
@@ -1623,18 +1647,22 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			C_UINT32 new_baud_rate;
 			C_BYTE new_connector;
-			err = CBOR_ReqSetLinesConfig(cbor_stream, cbor_len, &new_baud_rate, &new_connector);
+			cbor_req.res = ERROR_CMD;
 
-			// write new baud rate and connector to configuration file and put in res the result of operation
-			cbor_req.res = (execute_set_line_config(new_baud_rate, new_connector) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			err = CBOR_ReqSetLinesConfig(cbor_stream, cbor_len, &new_baud_rate, &new_connector);
+			if (err == C_SUCCESS) {
+				// write new baud rate and connector to configuration file and put in res the result of operation
+				cbor_req.res = (execute_set_line_config(new_baud_rate, new_connector) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			}
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
-
-		case SEND_MB_ADU:
+# if 0
+		/* below code was just sketched, to be checked and tested */
+		case SEND_MB_ADU:		// not tested
 		{
 			C_UINT16 seq = 0;
 			C_CHAR adu[ADU_SIZE];
@@ -1681,66 +1709,30 @@ data_rx_len=0;
 
 		}
 		break;
+#endif
 
-
-		// TODO: evaluate to collapse read values and write values code portions into a single block to optimize memory occupation
 		case READ_VALUES:
-		{
-			// which status should be polling engine?
-			// should I check it is in a specific status?
-			// what to do if it is not in that status?
-			c_cborreqrdwrvalues cbor_rv = {0};
-			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rv);
-
-			// send modbus command to write values     //CHIEBAO
-			// wait modbus response to get result
-			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				Sys__Delay(100);
-
-			cbor_req.res = (parse_read_values(&cbor_rv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-
-			if(cbor_req.res == SUCCESS_CMD)
-			{
-					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rv.val);
-					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, cbor_rv.val);
-			}
-			else
-			{
-					printf("OPERATION_FAILED\n");
-					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rv.alias, "0");
-			}
-			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
-		}
-		break;
-
-
 		case WRITE_VALUES:
 		{
-			// which status should be polling engine?
-			// should I check it is in a specific status?
-			// what to do if it is not in that status?
-			c_cborreqrdwrvalues cbor_wv = {0};
-			len = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_wv);
-
-			// send modbus command to write values     //CHIEBAO
-			// wait modbus response to get result
-			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				Sys__Delay(100);
-
-
-			cbor_req.res = (parse_write_values(cbor_wv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-
-
-			if(cbor_req.res == SUCCESS_CMD)
-			{
-					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_wv.val);
-					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, cbor_wv.val);
+			c_cborreqrdwrvalues cbor_rwv = {0};
+			cbor_req.res = ERROR_CMD;
+			err = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rwv);
+			if (err == C_SUCCESS) {
+				// send modbus command to read/write values
+				// wait modbus response to get result
+				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+					Sys__Delay(100);
+				if (cbor_req.cmd == READ_VALUES)
+					cbor_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+				else
+					cbor_req.res = (parse_write_values(cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
-			else
-			{
+			if(cbor_req.res == SUCCESS_CMD)	{
+					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rwv.val);
+					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, cbor_rwv.val);
+			} else {
 					printf("OPERATION_FAILED\n");
-					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_wv.alias, "0");
+					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, "0");
 			}
 
 			// send response with result
@@ -1754,17 +1746,19 @@ data_rx_len=0;
 		{
 			bool previous_poll_engine_status = false;
 			c_cborrequpdgmefw update_gw_fw = {0};
+			cbor_req.res = ERROR_CMD;
 
-			CBOR_ReqUpdateGMEFW(cbor_stream, cbor_len, &update_gw_fw);
-
-			if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-				PollEngine_StopEngine_CAREL();
-				MQTT_FlushValues();
-				previous_poll_engine_status = true;
+			err = CBOR_ReqUpdateGMEFW(cbor_stream, cbor_len, &update_gw_fw);
+			if (err == C_SUCCESS) {
+				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
+					MQTT_FlushValues();
+					previous_poll_engine_status = true;
+				}
+				OTA__GMEInit(update_gw_fw);
+				cbor_req.res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
+				OTA_GMEEnd();
 			}
-
-			OTA__GMEInit(update_gw_fw);
-			cbor_req.res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
@@ -1776,7 +1770,6 @@ data_rx_len=0;
 				GME__Reboot();
 			}
 
-			OTA_GMEEnd();
 			if(previous_poll_engine_status == true)
 				PollEngine_StartEngine_CAREL();
 		}
@@ -1787,18 +1780,20 @@ data_rx_len=0;
 		{
 			bool previous_poll_engine_status = false;
 			c_cborrequpddevfw update_dev_fw = {0};
+			cbor_req.res = ERROR_CMD;
 
-			CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
+			err = CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
+			if (err == C_SUCCESS) {
+				while(!IsOffline() && STOPPED != PollEngine_GetPollingStatus_CAREL())
+					Sys__Delay(100);
+				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
+					PollEngine_StopEngine_CAREL();
+					MQTT_FlushValues();
+					previous_poll_engine_status = true;
+				}
 
-			while(!IsOffline() && STOPPED != PollEngine_GetPollingStatus_CAREL())
-				Sys__Delay(100);
-			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-				PollEngine_StopEngine_CAREL();
-				MQTT_FlushValues();
-				previous_poll_engine_status = true;
+				err = OTA__DevFWUpdate(&update_dev_fw);
 			}
-
-			err = OTA__DevFWUpdate(&update_dev_fw);
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -1813,10 +1808,13 @@ data_rx_len=0;
 		case UPDATE_CA_CERTIFICATES:
 		{
 			c_cborrequpdatecacert update_ca_config = {0};
-			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &update_ca_config);
+			cbor_req.res = ERROR_CMD;
 
-			// perform a https read file from uri, using usr and pwd authentication data
-			cbor_req.res = (execute_update_ca_cert(&update_ca_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &update_ca_config);
+			if (err == C_SUCCESS) {
+				// perform a https read file from uri, using usr and pwd authentication data
+				cbor_req.res = (execute_update_ca_cert(&update_ca_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			}
 			// send a report of operation
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -1828,10 +1826,13 @@ data_rx_len=0;
 		case CHANGE_CREDENTIALS:
 		{
 			c_cborreqchangecred change_cred_config = {0};
-			err = CBOR_ReqChangeCredentials(cbor_stream, cbor_len, &change_cred_config);
+			cbor_req.res = ERROR_CMD;
 
-			// write new credentials to configuration file and put in res the result of operation
-			cbor_req.res = (execute_change_cred(change_cred_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			err = CBOR_ReqChangeCredentials(cbor_stream, cbor_len, &change_cred_config);
+			if (err == C_SUCCESS) {
+				// write new credentials to configuration file and put in res the result of operation
+				cbor_req.res = (execute_change_cred(change_cred_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			}
 			// mqtt response
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
@@ -1862,7 +1863,9 @@ data_rx_len=0;
 		}
 		break;
 
-		case SEND_MB_PASS_THROUGH:
+#if 0
+		/* below code was just sketched, to be checked and tested */
+		case SEND_MB_PASS_THROUGH:	// not tested
 		{
 			C_UINT16 cbor_pass;
 			err = CBOR_ReqSendMbPassThrough(cbor_stream, cbor_len, &cbor_pass);
@@ -1874,7 +1877,9 @@ data_rx_len=0;
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
+#endif
 
+		case NO_COMMAND:
 		default:
 			cbor_req.res = INVALID_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
@@ -1931,11 +1936,14 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 
 	printf("execute_download_devs_config err= %d \n",err);
 	if(CONN_OK == err){
-		if(C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)){
-			printf("MODEL FILE SAVED\n");
+		// model file has been saved, report it in nvm
+		// save also corresponding cid
+		if((C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)) &&
+				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid))){
+			printf("MODEL FILE AND CID SAVED\n");
 			err = C_SUCCESS;
 		}else{
-			printf("MODEL FILE NOT SAVED\n");
+			printf("MODEL FILE AND CID NOT SAVED\n");
 			err = C_FAIL;
 		}
 	}else
