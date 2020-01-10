@@ -495,8 +495,6 @@ uint8_t* BinaryModel_GetChunk(uint32_t sz){
 	FILE *input_file_ptr;
 	size_t sz_read;
 
-	DEBUG_BINARY_MODEL("Size model Ok \n");
-
 	uint8_t* chunk = (uint8_t *)malloc(sz);
 	if (chunk == NULL)
 	{
@@ -565,8 +563,27 @@ int BinaryModel_Init (void)
 	FS_DisplayFiles();
 
 	DEBUG_BINARY_MODEL("Start check GME MODEL\n");
+	// Check model size
 	sz = filesize(MODEL_FILE);
+	if (sz > GME_MODEL_MAX_SIZE) {
+		DEBUG_BINARY_MODEL("ERROR: Model too large!\n");
+		return C_FAIL;
+	}
 	chunk = BinaryModel_GetChunk(sz);
+	struct HeaderModel* tmpHeaderModel;
+	tmpHeaderModel = (struct HeaderModel *)chunk;
+	// Check model crc
+	uint16_t Crc = CRC16((uint8_t*)chunk, sz - 2);
+	uint16_t ModelCrc = ((*(chunk + sz - 2)) & 0x00FF)| ((uint16_t)(*(chunk + sz - 1)))<<8;
+	if (Crc != ModelCrc) {
+		DEBUG_BINARY_MODEL("ERROR: Wrong CRC Model!\n");
+		return C_FAIL;
+	}
+	// Check model header
+	if (memcmp(tmpHeaderModel->signature, GME_MODEL, sizeof(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION)) {
+		DEBUG_BINARY_MODEL("ERROR: Wrong signature Model!\n");
+		return C_FAIL;
+	}
 	
 	// utility function
 	GetDeviceInfo(chunk);
