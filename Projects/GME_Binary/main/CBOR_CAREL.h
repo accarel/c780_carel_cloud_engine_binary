@@ -55,6 +55,7 @@ typedef enum{
 }mb_Functions_t;
 
 typedef enum CloudtoGME_Commands_l{
+	NO_COMMAND = 0,
 	SET_GW_CONFIG = 1,
 	REBOOT,
 	SCAN_DEVICES,
