@@ -85,7 +85,6 @@ C_RES NVM__GetU8(const C_CHAR* var, C_BYTE* val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_get_u8(my_handle, var, val);
-	PRINTF_DEBUG_NVM("%d",*val);
 	switch (err) {
 	case ESP_OK:
 		PRINTF_DEBUG_NVM("Done: %s = %d\n", var, *val);
@@ -104,7 +103,6 @@ C_RES NVM__GetU32(const C_CHAR* var, C_UINT32* val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_get_u32(my_handle, var, val);
-	PRINTF_DEBUG_NVM("%d",*val);
 	switch (err) {
 		case ESP_OK:
 			PRINTF_DEBUG_NVM("Done: %s = %d\n", var, *val);
