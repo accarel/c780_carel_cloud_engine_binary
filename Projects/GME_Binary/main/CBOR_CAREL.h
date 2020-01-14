@@ -157,6 +157,7 @@ typedef struct C_CBORDWLDEVSCFG{
 	C_UINT16 cid;
 	C_UINT16 crc;
 	C_UINT16 dev;
+	C_UINT16 did;
 }c_cborreqdwldevsconfig;
 #pragma pack()
 
@@ -264,6 +265,9 @@ C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert);
 C_RES execute_scan_devices(C_BYTE* data_rx, C_UINT16 *add, C_INT16 * lnt);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
 C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv);
+
+void CBOR_ReadDidFromNVM (void);
+C_UINT16 CBOR_GetDid (void);
 
 //long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
 void Manage_Report_SlaveId_CAREL( C_CHAR * pucFrame, C_UINT16 * usLen);

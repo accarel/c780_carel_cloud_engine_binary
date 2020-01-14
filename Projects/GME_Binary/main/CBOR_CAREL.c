@@ -41,7 +41,7 @@ extern  USHORT   usMBSlaveIDLen;
 
 C_CHAR txbuff[1000];
 
-
+C_UINT16 did;
 
 /**
  * @brief CBOR_SendAlarms
@@ -106,10 +106,10 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 	err |= cbor_encode_uint(&mapEncoder, cbor_alarms.et);
 	DEBUG_ADD(err, "et");
 
-	// encode dev - elem7
-	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
-	err |= cbor_encode_int(&mapEncoder, Modbus__GetAddress());
-	DEBUG_ADD(err, "dev");
+	// encode did - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "did");
+	err |= cbor_encode_int(&mapEncoder, CBOR_GetDid());
+	DEBUG_ADD(err, "did");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
@@ -375,7 +375,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
-	err = cbor_encoder_create_map(&encoder, &mapEncoder, 7);
+	err = cbor_encoder_create_map(&encoder, &mapEncoder, CborIndefiniteLength);
 	DEBUG_ENC(err, "values create main map");
 	// encode ver - elem1
 	err |= cbor_encode_text_stringz(&mapEncoder, "ver");
@@ -422,10 +422,10 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	err |= cbor_encode_int(&mapEncoder, frame);
 	DEBUG_ADD(err, "frm");
 
-	// encode dev - elem7
-	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
-	err |= cbor_encode_int(&mapEncoder, Modbus__GetAddress());
-	DEBUG_ADD(err, "dev");
+	// encode did - elem7
+	err |= cbor_encode_text_stringz(&mapEncoder, "did");
+	err |= cbor_encode_int(&mapEncoder, CBOR_GetDid());
+	DEBUG_ADD(err, "did");
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
@@ -1035,6 +1035,12 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 			err |= CBOR_ExtractInt(&recursed, &tmp);
 			download_devs_config->dev = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: dev");
+		}
+		else if (strncmp(tag, "did", 3) == 0)
+		{
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			download_devs_config->did = tmp;
+			DEBUG_DEC(err, "req_set_devs_config: did");
 		}
 		else
 		{
@@ -1927,7 +1933,18 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 	if (err == C_FAIL)
 		return C_FAIL;
 
-	// get current certificate number
+	// empty uri means device has to be disactivated
+	// no model must be downloaded
+	// configuration flag in nvm must be cleared
+	// save cid for successive reboot
+	if (!strcmp(download_devs_config->uri,"")) {
+		if((C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT)) &&
+				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)))
+		return C_SUCCESS;
+		else return C_FAIL;
+	}
+
+	// get current certificate number and download model
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
 		cert_num = CERT_1;
 	err = HttpsClient__DownloadFile(download_devs_config, cert_num, MODEL_FILE);
@@ -1937,13 +1954,14 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 	printf("execute_download_devs_config err= %d \n",err);
 	if(CONN_OK == err){
 		// model file has been saved, report it in nvm
-		// save also corresponding cid
-		if((C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)) &&
-				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid))){
-			printf("MODEL FILE AND CID SAVED\n");
+		// save also corresponding cid and did
+		if( (C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)) &&
+				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)) &&
+				(C_SUCCESS == NVM__WriteU32Value(MB_DID_NVM, download_devs_config->did)) ){
+			printf("MODEL FILE, CID AND DID SAVED\n");
 			err = C_SUCCESS;
 		}else{
-			printf("MODEL FILE AND CID NOT SAVED\n");
+			printf("MODEL FILE, CID AND DID NOT SAVED\n");
 			err = C_FAIL;
 		}
 	}else
@@ -2267,3 +2285,13 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 }
 
 
+void CBOR_ReadDidFromNVM (void)
+{
+	if (C_SUCCESS != NVM__ReadU32Value(MB_DID_NVM, &did))
+		did = 0;
+}
+
+C_UINT16 CBOR_GetDid (void)
+{
+	return did;
+}

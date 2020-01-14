@@ -20,6 +20,7 @@
 #define SET_DEVS_CONFIG_NVM	"set_dev_conf"
 #define MB_CONNECTOR_NVM "mb_conn"
 #define MB_CID_NVM "cid"
+#define MB_DID_NVM "did"
 #define MB_DEV_NVM "dev"
 #define MB_CERT_NVM "cert"
 
