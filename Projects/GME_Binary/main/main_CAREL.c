@@ -40,6 +40,8 @@
 #include "GSM_Miscellaneous_IS.h"
 #endif
 
+#include "binary_model.h"
+
 #ifdef IS_A_WIFI_GATEWAY
 
 #endif
@@ -65,6 +67,8 @@ void Carel_Main_Task(void)
   static uint32_t waiting_conf_timer = 0;
   static uint8_t gw_config_status, line_config_status, devs_config_status;
   static uint8_t test3 = 0;
+
+  static C_UINT32 NVMBoudrate;
 
   while(1)
   {
@@ -218,6 +222,8 @@ void Carel_Main_Task(void)
 
   			break;
           }
+
+
           case GME_START_POLLING_ENGINE:
           {
           	if(MQTT_GetFlags() == 1){
@@ -232,7 +238,11 @@ void Carel_Main_Task(void)
           	    	sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
           	    	break;
           	    }
-          	    retval = Modbus_Init(19200);        // CAREL
+
+
+          	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBoudrate);
+
+          	    retval = Modbus_Init(NVMBoudrate, GME__GetHEaderInfo()->Rs485Parity, GME__GetHEaderInfo()->Rs485Stop);
           	    CAREL_CHECK(retval, "UART");
 
           	    Sys__Delay(1000);
@@ -260,12 +270,8 @@ void Carel_Main_Task(void)
               if(MQTT_GetFlags() == 1)
               	MQTT_PeriodicTasks();			// manage the MQTT subscribes
 
+      GME__CheckHTMLConfig();
 
-              //If we received a new WiFi configuration during system running (Re-Configure)
-              if(IsConfigReceived()){
-              	//sm = GME_CONFIG;
-              	Sys_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
-              }
               break;
 
 
@@ -313,6 +319,19 @@ void GME__Reboot(void){
 }
 
 
+
+static struct HeaderModel mHeaderModel;
+
+void GME__ExtractHeaderInfo(H_HeaderModel *pt)
+{
+	mHeaderModel = *pt;
+}
+
+
+H_HeaderModel * GME__GetHEaderInfo(void)
+{
+   return &mHeaderModel;
+}
 
 
 

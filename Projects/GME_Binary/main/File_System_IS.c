@@ -101,7 +101,7 @@ C_RES Get_Gateway_ID(C_SBYTE *s_id)
 	uint8_t s_id_tmp[6];
 	esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
 
-    sprintf(s_id,"%X%X%X%X%X%X",
+    sprintf(s_id,"%02X%02X%02X%02X%02X%02X",
             s_id_tmp[0],
             s_id_tmp[1],
             s_id_tmp[2],

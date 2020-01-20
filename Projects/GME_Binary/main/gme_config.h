@@ -105,12 +105,19 @@
 // Note: UART2 default pins IO16, IO17 do not work on ESP32-WROVER module
 // because these pins connected to PSRAM
 #define ECHO_TEST_TXD  (26)
-//(GPIO_NUM_26)
 #define ECHO_TEST_RXD  (25)
-//(GPIO_NUM_25)
 
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
 #define ECHO_TEST_RTS   (18)
+
+
+// for test TODO CHIEBAO
+/*
+#define ECHO_TEST_TXD  (GPIO_NUM_21)
+#define ECHO_TEST_RXD  (GPIO_NUM_22)
+// RTS for RS485 Half-Duplex Mode manages DE/~RE
+#define ECHO_TEST_RTS   (GPIO_NUM_18)
+*/
 
 
 //Time to wait after a null alarm

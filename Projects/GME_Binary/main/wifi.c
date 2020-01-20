@@ -154,7 +154,7 @@ int WiFi__SetDefaultConfig(void)
 
     SetAPConfig(AP_DEF_IP, AP_DEF_GW, AP_DEF_NETMASK);
 
-  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+    wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
 
 
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));

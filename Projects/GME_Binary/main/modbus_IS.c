@@ -34,6 +34,8 @@
 
 #define  MODBUS_TIME_OUT     100
 
+static C_SBYTE GetStopBitTable(C_SBYTE stp);
+static C_SBYTE GetParityTable(C_SBYTE prt);
 
 // TO DO...implementatiotion depend on the sistem chip in use!!!
 extern BOOL xMBMasterPortSerialTxPoll(void);
@@ -41,6 +43,8 @@ extern BOOL xMBMasterPortSerialTxPoll(void);
 
 static TaskHandle_t MODBUS_TASK = NULL;
 static uint32_t MB_Device = 0;
+
+
 
 /**
  * @brief Use brief, otherwise the index won't have a brief explanation.
@@ -59,17 +63,19 @@ static uint32_t MB_Device = 0;
  * @param none
  * @return C_SUCCESS or C_FAIL
  */
-C_RES Modbus_Init(C_INT16 baud)  // stop /start /parity
+C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit)  // TODO stop bit da capire
 {
-	 // TO DO...implementatiotion depend on the sistem chip in use!!!
+     eMBErrorCode eStatus;
 
-    // Set UART pin numbers
+     // translate into the esp constant
+     C_SBYTE mParity = GetParityTable(parity);
+
    	 esp_err_t err = uart_set_pin(MB_PORTNUM, ECHO_TEST_TXD, ECHO_TEST_RXD, ECHO_TEST_RTS, -1);
 
-     eMBErrorCode eStatus;
-	 eMBErrorCode status = MB_EIO;
+   	 if(err != 0)
+   	   printf("Setting UART pin fail\n");
 
-	 eStatus = eMBMasterInit(MB_RTU, 2, 19200, MB_PAR_NONE); // ok
+	 eStatus = eMBMasterInit(MB_RTU, MB_PORTNUM, baud, mParity);
 	 Sys__Delay(50);
 
      if (0 == eStatus)
@@ -94,6 +100,55 @@ C_RES Modbus_Init(C_INT16 baud)  // stop /start /parity
      return C_FAIL;
 }
 
+
+//
+// table translation for esp32 uart setting
+//
+
+static C_SBYTE GetStopBitTable(C_SBYTE stp)
+{
+   C_SBYTE val;
+
+   switch(stp)
+   {
+   	   default:
+   	   case 0:
+   	   case 1:
+   		   val =  UART_STOP_BITS_1;
+   		   break;
+
+   	   case 2:
+   		   val =  UART_STOP_BITS_2;
+   		break;
+
+   	   case 3:
+   		   val =  UART_STOP_BITS_1_5;
+   		break;
+   }
+   return val;
+}
+
+static C_SBYTE GetParityTable(C_SBYTE prt)
+{
+	   C_SBYTE val;
+
+	   switch(prt)
+	   {
+	   	   default:
+	   	   case 0:
+	   		   val =  UART_PARITY_DISABLE;
+	   		   break;
+
+	   	   case 1:
+	   		   val =  UART_PARITY_EVEN;
+	   		break;
+
+	   	   case 2:
+	   		   val =  UART_PARITY_ODD;
+	   		break;
+	   }
+	   return val;
+}
 
 
 /**

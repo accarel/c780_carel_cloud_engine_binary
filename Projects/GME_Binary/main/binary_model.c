@@ -14,7 +14,7 @@
 
 #include "polling_CAREL.h"
 #include "nvm_CAREL.h"
-
+#include "main_CAREL.h"
 
 #include "data_types_CAREL.h"
 
@@ -598,6 +598,8 @@ int BinaryModel_Init (void)
 #endif
 
 	PollEngine__CreateTables();
+
+	GME__ExtractHeaderInfo(tmpHeaderModel);
 
 	free(chunk);
 

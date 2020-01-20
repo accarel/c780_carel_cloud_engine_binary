@@ -1447,7 +1447,6 @@ C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UIN
 
 	RET_DIM(dim,len);
 
-	// TODO read from nvm the device address!!!!
 	if(func == mbR_HR)
 		errorReq = app_holding_register_read(Modbus__GetAddress(), NULL, addr, len);
 	else // mbR_IR
@@ -1471,7 +1470,6 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
 
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
-	// TODO read from nvm the device address!!!!
 	if(func == mbR_COIL)
 	   errorReq = app_coil_read(Modbus__GetAddress(), 1, addr, 1);
 	else // mbR_DI

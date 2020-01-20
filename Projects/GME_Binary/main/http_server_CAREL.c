@@ -329,7 +329,16 @@ html_config_param_t HTTPServer__GetCustomConfig (void){
 
 char* HTTPServer__SetAPDefSSID(const char* default_name){
 
-	sprintf(ap_ssid_def, "%s_%.6s", default_name, Utilities__GetMACAddr());
+	/*
+	 *  like the BLE devices (look at the PJ BLE) the ssid name show only the low part of the mac-addr (LSB part)
+	 *  for example, mac-addr = 30AEA4EF4738
+	 *  the name shown will be  "GME_EF4738"
+	 *
+	 */
+	sprintf(ap_ssid_def, "%s_%.2s%.2s%.2s", default_name,
+			                                Utilities__GetMACAddr()+6,
+											Utilities__GetMACAddr()+8,
+											Utilities__GetMACAddr()+10);
 
 	return ap_ssid_def;
 }
