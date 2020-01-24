@@ -52,7 +52,7 @@
 /* Functions implementation -------------------------------------------------------*/
 
 //Variables
-static gme_sm_t sm;
+static gme_sm_t sm = GME_INIT;
 
 void app_main(void)  // main_Carel
 {
