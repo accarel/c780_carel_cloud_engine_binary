@@ -671,28 +671,6 @@ size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req)
 	return len;
 }
 
-size_t CBOR_ResSetDevsConfig(C_CHAR* cbor_response, c_cborhreq* cbor_req)
-{
-	size_t len;
-	CborEncoder encoder, mapEncoder;
-	CborError err;
-	C_UINT16 device = 0;
-
-	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
-
-	// encode dev - elem5
-	err = cbor_encode_text_stringz(&mapEncoder, "dev");
-	err |= cbor_encode_int(&mapEncoder, Modbus__GetAddress());
-	DEBUG_ADD(err, "dev");
-
-	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
-	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
-
-	return len;
-}
-
 /**
  * @brief CBOR_ResScanLine
  *
@@ -1605,7 +1583,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			}
 			// mqtt response
 			//len = CBOR_ResSimple(cbor_response, &cbor_req);
-			len = CBOR_ResSetDevsConfig(cbor_response, &cbor_req);
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 
