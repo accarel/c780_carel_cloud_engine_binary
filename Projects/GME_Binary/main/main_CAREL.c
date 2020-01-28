@@ -36,16 +36,9 @@
 #include "nvm_CAREL.h"
 #include "Led_Manager_IS.h"
 #include "http_server_IS.h"
-#ifdef IS_A_GSM_GATEWAY
-#include "GSM_Miscellaneous_IS.h"
-#endif
-
+#include "mobile.h"
+#include "radio.h"
 #include "binary_model.h"
-
-#ifdef IS_A_WIFI_GATEWAY
-
-#endif
-
 
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
 
@@ -93,7 +86,7 @@ void Carel_Main_Task(void)
 	        {
 	        	if(test3 == 0){
 					if(C_SUCCESS == FS_CheckFiles()){
-						sm = GME_WIFI_CONFIG;
+						sm = GME_RADIO_CONFIG;
 					}else{
 						sm = GME_CHECK_FILES;
 						printf("Please be sure that the certificates are uploaded correctly under the following paths:\nCert1: %s\nCert2: %s\n\n",CERT1_SPIFFS,CERT2_SPIFFS);
@@ -104,13 +97,12 @@ void Carel_Main_Task(void)
 	        	break;
 	        }
 
-
-			//Start and configure WiFi interface
-			case GME_WIFI_CONFIG:
+	        //Start and configure Radio interface
+			case GME_RADIO_CONFIG:
 			{
-				printf("SM__Start .... GME_WIFI_CONFIG\n");
+				printf("SM__Start .... GME_RADIO_CONFIG\n");
 				uint8_t config_status;
-				config_status = Sys__Config(Sys_GetConfigSM());
+				config_status = Radio__Config();
 
 				if(GME_REBOOT == config_status){
 					sm = GME_REBOOT;
@@ -119,13 +111,12 @@ void Carel_Main_Task(void)
 					sm = GME_WAITING_FOR_INTERNET;
 				}
 			}
-				break;
-
+			break;
 
 
 	        case GME_WAITING_FOR_INTERNET:
 	        {
-				if(CONNECTED == WIFI__GetSTAStatus()){
+				if(CONNECTED == Radio__GetStatus()){
 					printf("SM__Start .... GME_WAITING_FOR_INTERNET\n");
 					sm = GME_STRAT_NTC;
 				}
@@ -139,14 +130,14 @@ void Carel_Main_Task(void)
 		  {
 			//Start all modules, mqtt client, https client, modbus master, ..etc
 			if(false == once){
-				printf("Sys__Config .... GME_STRAT_MQTT_NTC\n");
+				printf("Radio__Config .... GME_STRAT_MQTT_NTC\n");
 				once = true;
 			}
 
-			WiFi__WaitConnection();
+			Radio__WaitConnection();
 
-			//Init_RTC();
-			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr,0);		// Vale: make this call hw independent					// Carel
+			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr, WiFi__GetCustomConfig().ntp_server_port);
+			retval = RTC_Sync();
 			CAREL_CHECK(retval, "TIME");
 
 			//Set boot time
@@ -162,11 +153,11 @@ void Carel_Main_Task(void)
 		  }
 
 
-		  //Start and configure WiFi interface
+		  //Start and configure Radio interface
 		  case GME_CHECK_GW_CONFIG:
 		  {
 			//Look for model's file, GW config and Line config
-			printf("Sys__Config .... GME_CHECK_GW_CONFIG\n");
+			printf("Radio__Config .... GME_CHECK_GW_CONFIG\n");
 
 			NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status);
 			NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
@@ -216,7 +207,7 @@ void Carel_Main_Task(void)
 
           case GME_SYSTEM_PREPARATION:
           {
-          	WiFi__WaitConnection();
+          	Radio__WaitConnection();
 
             sm = GME_START_POLLING_ENGINE;
 
@@ -251,7 +242,7 @@ void Carel_Main_Task(void)
           	    Sys__Delay(1000);
 
 
-          	    PollEngine_MBStart_IS();
+         	    PollEngine_MBStart_IS();
 
 
   				sm = GME_IDLE_INTERNET_CONNECTED;
@@ -265,7 +256,7 @@ void Carel_Main_Task(void)
 
           case GME_IDLE_INTERNET_CONNECTED:
           	//TODO
-              WiFi__WaitConnection();
+              Radio__WaitConnection();
 
               if(MQTT_GetFlags() == 1)
               	MQTT_PeriodicTasks();			// manage the MQTT subscribes
@@ -303,7 +294,7 @@ void GME__CheckHTMLConfig(void){
 	if(IsConfigReceived()){
 		printf("IsConfigReceived\n");
 		sm = GME_WIFI_CONFIG;
-		Sys_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
+		WiFi_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
 	}
 }
 

@@ -105,6 +105,9 @@
 #define MQTT_DEFAULT_PWD    "5Qz*(3_>K&vU!PS^"
 #define MQTT_KEEP_ALIVE_DEFAULT_SEC   (600)
 
+
+#define NTP_DEFAULT_SERVER  "pool.ntp.org"
+#define NTP_DEFAULT_PORT  	123
 /* ========================================================================== */
 /* POLLING ENGINE RELATED                                                     */
 /* ========================================================================== */

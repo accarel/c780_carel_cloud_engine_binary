@@ -80,8 +80,8 @@ C_BOOL Sys__ResetCheck(void){
 		Sys__Delay(100);
 	}
 	if((CONFIG_RESET_SEC * 10) == config_reset_debounce_counter){
-		//Erase configuration flag form NVM
-		WiFi__ErasingConfig();
+		//Erase configuration flag from NVM
+		NVM__EraseAll();
 		unlink(MODEL_FILE);
 		PRINTF_DEBUG("CONFIG RESET CHECK DONE = %d\n",config_reset_debounce_counter);
 		return C_TRUE;

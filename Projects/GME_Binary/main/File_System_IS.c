@@ -16,6 +16,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "File_System_IS.h"   
+#include "gme_config.h"
+#include "mobile.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 //#include "file_system.h"
@@ -114,7 +116,7 @@ C_RES Get_Gateway_ID(C_SBYTE *s_id)
 
 #elif (NETWORK_INTERFACE == GSM_INTERFACE)
   /* this function returns the IMEI of the GSM module*/
-
+    strcpy(s_id, Mobile__GetImeiCode());
 #endif
 	return C_SUCCESS;
 }

@@ -131,7 +131,7 @@ C_RES MQTT_Start(void)
 	PRINTF_DEBUG("password= %s\n",mqtt_cfg_nvm.password);
 	PRINTF_DEBUG("keepalive= %d\n",mqtt_cfg_nvm.keepalive);
 
-    WiFi__WaitConnection();
+    Radio__WaitConnection();
     s_mqtt_event_group = xEventGroupCreate();
 
     RTC_Set_UTC_MQTTConnect_Time();

@@ -14,11 +14,11 @@
 #include"http_server_CAREL.h"
 #include "https_client_CAREL.h"
 #include "esp_wifi.h"
+#include "radio.h"
 
-typedef enum{
-	DISCONNECTED = 0,
-	CONNECTED,
-}connection_status_t;
+gme_sm_t WiFi__Config (config_sm_t sm);
+config_sm_t WiFi_GetConfigSM(void);
+void WiFi_SetConfigSM(config_sm_t config_state);
 
 int WiFi__SetDefaultConfig(void);
 int WiFi__StartWiFi(void);
@@ -29,8 +29,6 @@ void WiFi__ErasingConfig(void);
 html_config_param_t WiFi__GetCustomConfig (void);
 html_config_param_t* WiFi__GetCustomConfigPTR (void);
 void WiFi__WaitConnection(void);
-void WIFI__SetSTAConnectionTime(void);
-uint32_t WIFI__GetSTAConnectionTime(void);
 void WIFI__SetSTAStatus(connection_status_t status);
 connection_status_t WIFI__GetSTAStatus(void);
 C_RES WiFi__GetMac(uint8_t* wifi_mac_address_gw);

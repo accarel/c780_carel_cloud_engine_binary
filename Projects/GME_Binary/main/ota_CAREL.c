@@ -255,7 +255,7 @@ void GME_ota_task(void * pvParameter)
     /* Wait for the callback to set the CONNECTED_BIT in the
        event group.
     */
-    WiFi__WaitConnection();
+    Radio__WaitConnection();
 
     uint16_t url_len = strlen(myCborUpdate->uri) +
     		 	       strlen(myCborUpdate->usr) +

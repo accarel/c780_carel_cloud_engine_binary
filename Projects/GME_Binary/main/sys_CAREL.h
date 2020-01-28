@@ -14,9 +14,6 @@
 #include "common.h"
 
 C_RES Sys__Init (void);
-gme_sm_t Sys__Config (config_sm_t sm);
-config_sm_t Sys_GetConfigSM(void);
-void Sys_SetConfigSM(config_sm_t config_state);
 
 void Sys__CertAlloc(void);
 

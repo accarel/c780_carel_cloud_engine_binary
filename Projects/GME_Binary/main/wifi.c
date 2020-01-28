@@ -11,9 +11,10 @@
 #include"wifi.h"
 #include "nvm_CAREL.h"
 #include <tcpip_adapter.h>
-#include"http_server.h"
+#include"http_server_IS.h"
 #include "utilities_CAREL.h"
 #include "MQTT_Interface_CAREL.h"
+#include "sys_IS.h"
 
 static const char *TAG = "wifi";
 
@@ -24,6 +25,19 @@ EventGroupHandle_t s_wifi_event_group;
 const int CONNECTED_BIT = BIT0;
 int i=0;
 
+
+
+//Debugging
+static int test2=0;
+html_config_param_t test_config;
+
+
+//Variables
+//static TaskHandle_t CLI__CmdLine = NULL;				// if we want the console...esp32 library...?!?!
+
+static config_sm_t config_sm = CHECK_FOR_CONFIG;
+static httpd_handle_t AP_http_server = NULL;
+static uint8_t wifi_conf;
 
 static html_config_param_t WiFiConfig = {
 		.gateway_mode = 0,
@@ -42,10 +56,10 @@ static html_config_param_t WiFiConfig = {
 		.sta_gateway_ip = "",
 		.sta_primary_dns = "",
 		.sta_secondary_dns = "",
-		.ntp_server_addr = "",
-		.ntp_server_port = "",
+		.ntp_server_addr = NTP_DEFAULT_SERVER,
+		.ntp_server_port = "123",//NTP_DEFAULT_PORT,
 		.mqtt_server_addr = MQTT_DEFAULT_BROKER,
-		.mqtt_server_port = ""
+		.mqtt_server_port = "8883",//MQTT_DEFAULT_PORT,
 };
 
 static esp_err_t event_handler(void *ctx, system_event_t *event)
@@ -88,7 +102,6 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
         xEventGroupSetBits(s_wifi_event_group, CONNECTED_BIT);
 
-       WIFI__SetSTAConnectionTime();
         WIFI__SetSTAStatus(CONNECTED);
 
         break;
@@ -110,6 +123,139 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     return ESP_OK;
 }
 
+
+/**
+ * @brief WiFi_GetConfigSM
+ *       return state machine config status
+ *
+ * @param  none
+ * @return C_RES
+ */
+config_sm_t WiFi_GetConfigSM(void){
+    return config_sm;
+}
+
+/**
+ * @brief WiFi_SetConfigSM
+ *      set state machine config status
+ *
+ * @param  none
+ * @return C_RES
+ */
+void WiFi_SetConfigSM(config_sm_t config_state){
+    config_sm = config_state;
+}
+
+/**
+ * @brief WiFi__Config
+ *   Configure the WiFi interface:
+ * @Param:
+ * 		sm: state variable
+ * @return:
+ * 		gme_sm_t: SM__Start state
+ *
+ * @Description:
+ * 	Situation 1:
+ * 	Starts with checking the NVM if exists old configuration. If it finds old config, it will read them from the NVM
+ * 	and configure the system directly, starts the wifi then run the whole system in base of the configuration found.
+ *
+ *	Situation 2:
+ * 	If it finds nothing, it will start the http_server and the wifi with the default configuration (check gme_config.h),
+ * 	then attends for the html configuration. After receiving them, it writes them in NVM and does a reboot. After the reboot,
+ * 	the system will be found in situation 1.
+ *
+ * 	Note: 	1) The HTTP_Server is launched as Task, so it can be accessed after the configuration, during the system running, in case
+ * 				we wanted to re-configure the wifi.
+ * 			2) In case of the gateway is configured as AP Mode, the varies functionalities don't start and the system will attend the
+ * 				new configuration.
+ *
+ *
+ * */
+
+
+gme_sm_t WiFi__Config (config_sm_t sm)
+{
+    config_sm = sm;
+    while(1)
+    {
+        switch(config_sm)
+        {
+        case CHECK_FOR_CONFIG:
+            printf("WiFi__Config .... CHECK_FOR_CONFIG\n");
+            /*Check in NVM*/
+
+            if(C_SUCCESS == NVM__ReadU8Value("wifi_conf", &wifi_conf) && CONFIGURED == wifi_conf){
+            	WiFi__ReadCustomConfigFromNVM();
+                config_sm = CONFIGURE_GME;
+            }else{
+                config_sm = SET_DEFAULT_CONFIG;
+            }
+            break;
+
+        case SET_DEFAULT_CONFIG:
+            printf("WiFi__Config .... SET_DEFAULT_CONFIG\n");
+            if(WiFi__SetDefaultConfig()){
+                config_sm = START_WIFI;
+            }
+            printf("WiFi__Config .... SET_DEFAULT_CONFIG  END\n");
+            break;
+
+        case START_WIFI:
+            printf("WiFi__Config .... START_WIFI\n");
+            if (WiFi__StartWiFi()){
+                ESP_ERROR_CHECK(HTTPServer__StartFileServer(&AP_http_server, "/spiffs"));
+
+                if(CONFIGURED == wifi_conf && APSTA_MODE == WiFi__GetCustomConfig().gateway_mode){
+        			return GME_WAITING_FOR_INTERNET;
+                }else{
+                    config_sm = WAITING_FOR_HTML_CONF_PARAMETERS;
+                }
+            }
+            break;
+
+        case WAITING_FOR_HTML_CONF_PARAMETERS:
+            if(test2 == 0){
+            	printf("\nGateway Mode = %d, Wifi Conf has %d config\n\n",WiFi__GetCustomConfig().gateway_mode,wifi_conf);
+            	printf("WiFi__Config .... WAITING_FOR_HTML_CONF_PARAMETERS\n");
+            	test2=10;
+            }
+            if(IsConfigReceived()){
+            	printf("Configuration Received");
+            	WiFi__WriteCustomConfigInNVM(HTTPServer__GetCustomConfig());
+
+                if(C_SUCCESS == NVM__WriteU8Value("wifi_conf", (uint8_t)CONFIGURED)){
+                	config_sm = CONFIGURE_GME;
+                }
+                if(wifi_conf == CONFIGURED){			//for future implementation
+                	wifi_conf = TO_RECONFIGURE;
+                }
+            }
+            break;
+
+        case CONFIGURE_GME:
+            printf("WiFi__Config .... CONFIGURE_GME\n");
+            if(CONFIGURED == wifi_conf){
+
+            	WiFi__SetCustomConfig(WiFi__GetCustomConfig());
+                config_sm = START_WIFI;
+            }else{
+                return GME_REBOOT;
+            }
+            break;
+
+
+        default:
+            break;
+        }
+
+        //If the factory reset button has been pressed for X time (look gme_config.h)
+        if(true == Sys__ResetCheck())
+        {
+        	printf("RESET CHECK DONE SYS\n");
+        	return GME_REBOOT;
+        }
+    }
+}
 
 
 
@@ -300,9 +446,6 @@ html_config_param_t* WiFi__GetCustomConfigPTR (void){
     return &WiFiConfig;
 }
 
-#define STA_WIFI_SSID 	"esp32STA"
-#define STA_WIFI_PASS	"esp32carel"
-
 esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
     
     s_wifi_event_group = xEventGroupCreate();
@@ -396,26 +539,9 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 }
 
 
-
-void WiFi__ErasingConfig(void){
-
-	NVM__EraseAll();
-
-}
-
 void WiFi__WaitConnection(void)
 {
     xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
-}
-
-
-
-void WIFI__SetSTAConnectionTime(void){
-	STAConnectionTime = RTC_Get_UTC_Current_Time();
-}
-
-uint32_t WIFI__GetSTAConnectionTime(void){
-	return STAConnectionTime;
 }
 
 void WIFI__SetSTAStatus(connection_status_t status){

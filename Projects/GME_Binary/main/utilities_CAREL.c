@@ -6,14 +6,14 @@
  */
 
 #include "wifi.h"
+#include "mobile.h"
 #include "nvm_CAREL.h"
 #include "utilities_CAREL.h"
 #include "polling_CAREL.h"
 #include "modbus_IS.h"
+#include "gme_config.h"
 
 static req_set_gw_config_t gw_config_data = {0};
-
-#define IMEI "301960018615360"
 
 static uint8_t wifi_mac_address_gw[6] = {0};
 static char wifi_mac_address_gw_str[14] = {0};
@@ -36,8 +36,8 @@ char* Utilities__GetMACAddr(void){
 	return wifi_mac_address_gw_str;
 }
 
-void Utilities__CalcIMEICode(void){
-	sprintf(gsm_imei_gw_str, "%s", IMEI);
+char* Utilities__CalcIMEICode(void){
+	return Mobile__GetImeiCode();
 }
 
 char* Utilities__GetIMEICode(void){
