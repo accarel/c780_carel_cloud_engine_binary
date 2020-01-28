@@ -31,9 +31,10 @@
 
 
 /*-------------------------------
- * WiFi Interface
+ * Radio Interface
  *-----------------------------*/
 #define NETWORK_INTERFACE 	WIFI_INTERFACE
+//#define NETWORK_INTERFACE 	GSM_INTERFACE
 #define WIFI_INTERFACE 		1
 #define GSM_INTERFACE 		0
 
