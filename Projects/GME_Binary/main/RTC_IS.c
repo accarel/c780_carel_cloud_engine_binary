@@ -38,7 +38,7 @@ C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
 { /* TO BE Implemented */
 
   #ifdef INCLUDE_PLATFORM_DEPENDENT  
-  printf("Initializing SNTP");
+  printf("Initializing SNTP\n");
   sntp_stop();
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
   sntp_setservername(0, ntp_server);
@@ -46,10 +46,39 @@ C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
   //sntp_esp_cli_commands_init();  
   #endif
   
-  return C_TRUE;
+  return C_SUCCESS;
 }
 
+/**
+* @brief RTC_Sync
+*
+* This function waits for some time until ntp clock can be read
+* This is especially needed on GSM model, where ntp clock acquisition takes some more time (with respect to wifi model)
+*
+* @return C_SUCCESS/C_FAIL
+*/
+C_RES RTC_Sync(void)
+{
+	time_t now = 0;
+	struct tm timeinfo = { 0 };
+	int retry = 0;
+	const int retry_count = 10;
+	sntp_sync_status_t stat = sntp_get_sync_status();
 
+	while (stat == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
+		printf("Waiting for system time to be set... (%d/%d)\n", retry, retry_count);
+		vTaskDelay(2000 / portTICK_PERIOD_MS);
+		stat = sntp_get_sync_status();
+	}
+	time(&now);
+	localtime_r(&now, &timeinfo);
+
+	if(stat == SNTP_SYNC_STATUS_COMPLETED) {
+		printf("got time: year:%d, month:%d, day:%d, hour:%d. minute:%d\n", timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+		return C_SUCCESS;
+	}
+	else return C_FAIL;
+}
 
 /**
  * @brief RTC_Get_UTC_Current_Time

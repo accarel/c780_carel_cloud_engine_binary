@@ -31,6 +31,7 @@
 
 /* Function prototypes -------------------------------------------------------*/
 C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port);
+C_RES RTC_Sync(void);
 C_TIME RTC_Get_UTC_Current_Time(void);
 
 C_TIME RTC_Get_UTC_Boot_Time(void);
