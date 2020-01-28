@@ -139,15 +139,15 @@ void Led_init(void)
 
     /* only for debug on ESP32-WROVER */
     #define LED_GREEN   GPIO_NUM_2
-    #define LED_BLUE    GPIO_NUM_4
+    //#define LED_BLUE    GPIO_NUM_4
 
     gpio_pad_select_gpio(LED_GREEN);
     gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
 	gpio_set_level(LED_GREEN, LED_PHY_OFF);
 
-    gpio_pad_select_gpio(LED_BLUE);
-    gpio_set_direction(LED_BLUE, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_BLUE, LED_PHY_OFF);
+    //gpio_pad_select_gpio(LED_BLUE);
+    //gpio_set_direction(LED_BLUE, GPIO_MODE_OUTPUT);
+	//gpio_set_level(LED_BLUE, LED_PHY_OFF);
 
 
 	#endif
