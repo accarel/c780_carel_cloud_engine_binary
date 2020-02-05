@@ -3,5 +3,7 @@
         
 		"ali": "33" 					// STRING
 		"val": "1.23"                   // STRING
+		"t": 12584397					// C_TIME, current time
+		"dev": 1						// C_UINT16, address of connected device
 
 }

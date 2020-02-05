@@ -1,6 +1,7 @@
 {
     // this is in addition to response header.
                                               //TAG TYPE 
+  											                                     
     "dev": 1,                                 //DEV C_UINT16     null in case no response
     "ans": xxxxxxxxx,                         //RET C_BYTE[512]  cmd17 response encoded in hex the array is zero filled
                                               //                 in case of no address responds correctly to cmd17 the array will be empty

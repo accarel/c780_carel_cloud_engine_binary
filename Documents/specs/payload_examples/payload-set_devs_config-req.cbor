@@ -1,12 +1,12 @@
 {                                                    //TAG TYPE
     // this is in addition to request header.              
-												       
-        "usr": "username",                          //USR C_USERNAME  string, the user to be used for authenticating.
-        "pwd": "secret",                            //PWD C_PASSWORD  string, the password to be used for authenticating.
+		"dev": 12,									//dev C_UINT16 device address	       
+        "usr": "username",                          //usr C_USERNAME  string, the user to be used for authenticating.
+        "pwd": "secret",                            //pwd C_PASSWORD  string, the password to be used for authenticating.
 													       
-        "uri": "https://carel.TDB.COM/files?id=1",  //URI C_URI
+        "uri": "https://carel.TDB.COM/files?id=1",  //uri C_URI
                                                     //    the uri from which retrieve the model for the specified device.
 													
-		"tid": xxxx                                 //CID C_UINT16 transaction id
-
+		"cid": xxxx                                 //cid C_UINT16 transaction id
+		"did": 432									//did C_UINT16 device id (address+configuration)
 }

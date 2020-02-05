@@ -1,7 +1,9 @@
 {
     // this is in addition to response header.
                                     //TAG TYPE 
+	"dev": 12						//C_UINT16
 	"ali": "33" 					// STRING
 	"val": null                     // null
+	"t": 1234543654					//C_TIME, current time
 
 }

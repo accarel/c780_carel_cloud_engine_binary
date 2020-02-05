@@ -1,0 +1,4 @@
+{
+    "pas": 0                      // integer, 0: get status, 1: pass through enabled, 2: pass through disabled
+                                   // WIP: abbiamo sempre messo 0 not valid
+}
