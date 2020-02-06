@@ -13,13 +13,19 @@
     <h1 class="imgcontainer">Welcome to CAREL!</h1>
     
   <div class="container">
-    <label for="uname"><b>Username</b></label>
-    <input type="text" value="admin" name="login_usr" >
-
-    <label for="psw"><b>Password</b></label>
-    <input type="password" value="admin" name="login_pswd" >
-        
-    <button type="submit">Login</button>
+   <table style="width:350px;" >
+	 <tr id="username">
+        <td class="list_input"><label for="login_usr"><b>Username</b></label></td>
+        <td><input type="text" value="" name="login_usr" ></td>
+     </tr>
+    
+     <tr id="password">
+        <td class="list_input"><label for="login_pswd"><b>Password</b></label></td>
+        <td><input type="text" value="" name="login_pswd" ></td>
+     </tr>
+   </table>
+   
+   <button style="margin-left: 100px" class="admin-link" type="submit">Submit</button>
 
     <label for="end"></label><input type="text" name="end" value="end" style="display: none;">
 

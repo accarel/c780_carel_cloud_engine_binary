@@ -4,32 +4,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
-<body>
+<body onload="ShowHideDiv()">
   <div class="imgcontainer">
     <img src="fav.ico" alt="Avatar" class="avatar">
   </div>
-    
+  
+    <!-- BANNER -->
+<!--    <div style="background: red;width: 100%;">
+      <img src="home_banner.jpg" alt="Home Banner" >
+    </div>
+-->
+
   <h1 class="imgcontainer">Welcome to CAREL!</h1>
     
   <div class="container">
     <div>
       <form action="upload/" method="POST" >
         <div class="">
-          <table style="width:350px;">
-            <tr>
-              <td><label for="gateway_mode" ><b>Wifi Mode</b></label></td>
-              <td>
-                <select name="gateway_mode" class="select_c" id="gateway_m">
-                  <option value="apsta_mode" onclick="wifi_mode()">AP/STA mode</option>
-                  <option value="ap_mode" onclick="wifi_mode()">AP mode only</option>
-                </select> 
-              </td>
-            </tr>
-          </table>
             <table style="width:350px;" >
-            <tr><div><h2>Access Point Option</h2></div> </tr> 
+			<col width="130">
+			<col width="300">
+            <tr><h2>Access Point Option</h2></tr> 
               <tr>
-                <td><label for="ap_ssid"><b>SSID</b></label></td>
+                <td class="list_input"><label for="ap_ssid"><b>SSID</b></label></td>
                 <td><input type="text" value="" name="ap_ssid" required></td>
               </tr>
               <tr>
@@ -37,46 +34,53 @@
                 <td><input id="ap_ssid_hidden" type="checkbox" value="" name="ap_ssid_hidden">  Hide SSID</td>
               </tr>
               <tr>
-                <td><label for="ap_pswd"><b>Password</b></label></td>
-                <td><input type="password" placeholder="" value="" name="ap_pswd" required><br>
+                <td class="list_input"><label for="ap_pswd"><b>Password</b></label></td>
+                <td><input type="password" placeholder="" value="" name="ap_pswd" required pattern=".{0}|.{8,}"><br>
                   <input type="checkbox" onclick="apshowpass()">Show Password</td>
               </tr>
               <tr>
-                <td><label for="ap_ip"><b>IP</b></label></td>
+                <td class="list_input"><label for="ap_ip"><b>IP</b></label></td>
                 <td><input type="text" value="" name="ap_ip" required></td>
-              </tr>
-              <tr>
-                <td><label for="ap_dhcp_mode" id="ap_dhcp_m"><b>DHCP</b></label></td>
-                <td>
-                  <ul style=" padding-left: 0px;">
-                    <li style = "display:inline;">
-                      <input id="ap_dhcp_mode_on" type="radio" value="on" name="ap_dhcp_mode" checked="checked" onclick="ap_dhcp()" required>
-                      <label><b>ON</b></label>
-                    </li>
-                    <li style = "display:inline; padding-left: 20px;">
-                      <input id="ap_dhcp_mode_off" type="radio" value="off" name="ap_dhcp_mode" onclick="ap_dhcp()" required>
-                      <label><b>OFF</b></label>
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-              <tr id="ap_dhcp" style = "display:table-row;">
-                <td id="ap_dhcp"><label for="ap_dhcp_ip"><b>DHCP IP</b></label></td>
-                <td id="ap_dhcp"><input type="text" value="" name="ap_dhcp_ip" required></td>
               </tr>
           </table>
             
           <div id="sta_mode_only">
             <table style="width: 350px">
+			<col width="130">
+			<col width="300">
               <tr><h2>Station mode Option</h2></tr>
-
+			  <tr>
+			   <td class="list_input"><label for="sta_ssid"><b>SSID Selection</b></label></td>
+				<td>
+                  <ul style=" padding-left: 0px; width=400pt">
+                    <li selected="selected" style = "display:inline;">
+                      <input id="scan_auto_on"  type="radio" value="on" name="sta_scan_mode" checked="checked" onclick="ShowHideDiv()">
+                      <label for="sta_scan_mode"><b>Scan</b></label>
+                    </li>
+                    <li style = "display:inline; padding-left: 20px;">
+                        <input id="scan_auto_off" type="radio" value="off" name="sta_scan_mode" onclick="ShowHideDiv()">
+                        <label for="sta_scan_mode"><b>Manual</b></label>
+                      </li>
+                  </ul>
+                </td>
+				</tr>
               <tr>
-                <td><label for="sta_ssid"><b>SSID</b></label></td>
-                <td><input type="text" value="" name="sta_ssid" id="sta_ssid_id" ></td>
+              <td class="list_input"><label for="sta_ssid"><b>SSID</b></label></td>
+			  <td><input type="text" value="" id="dvtext" name="sta_static_ip" >
+		
+                
+				<select name="sta_ssid" id="dvtext1" class="select_c">
+				<option value="sta_ssid1"></option>
+				<option value="sta_ssid2"></option>
+				<option value="sta_ssid3"></option>
+				<option value="sta_ssid4"></option>
+				<option value="sta_ssid5"></option>
+				</select>
+				</td>
               </tr>
 
               <tr>
-                <td><label for="sta_encryption"><b>Encryption</b></label></td>
+                <td class="list_input"><label for="sta_encryption"><b>Encryption</b></label></td>
                 <td>
                   <select name="sta_encryption" class="select_c">
                     <option value="">WPA/WAP2</option>
@@ -85,13 +89,13 @@
               </tr>
 
               <tr>
-                <td><label for="sta_pswd"><b>Password</b></label></td>
+                <td class="list_input"><label for="sta_pswd"><b>Password</b></label></td>
                 <td><input type="password" value="" name="sta_pswd"><br>
                   <input type="checkbox" onclick="stashowpass()">Show Password</td>
               </tr>
               
               <tr>
-                <td><label for="sta_dhcp_mode"><b>DHCP</b></label></td>
+                <td class="list_input"><label for="sta_dhcp_mode"><b>DHCP</b></label></td>
                 <td>
                   <ul style=" padding-left: 0px;">
                     <li selected="selected" style = "display:inline;">
@@ -107,27 +111,27 @@
               </tr>
               
                 <tr id="sta_dhcp">
-                  <td><label for="sta_static_ip"><b>Static IP</b></label></td>
+                  <td class="list_input"><label for="sta_static_ip"><b>Static IP</b></label></td>
                   <td><input type="text" value="" name="sta_static_ip" ></td>
                 </tr>
 
                 <tr id="sta_dhcp" >
-                  <td><label for="sta_netmask"><b>Netmask</b></label></td>
+                  <td class="list_input"><label for="sta_netmask"><b>Netmask</b></label></td>
                   <td><input type="text" value="" name="sta_netmask" ></td>
                 </tr>
 
                 <tr id="sta_dhcp" >
-                  <td><label for="sta_ip"><b>Gateway</b></label></td>
+                  <td class="list_input"><label for="sta_ip"><b>Gateway</b></label></td>
                   <td><input type="text" value="" name="sta_gateway" ></td>
                 </tr>
 
                 <tr id="sta_dhcp">
-                  <td><label for="sta_ip"><b>Primary DNS</b></label></td>
+                  <td class="list_input"><label for="sta_ip"><b>Primary DNS</b></label></td>
                   <td><input type="text" value="" name="sta_pri_dns" ></td>
                 </tr>
 
                 <tr id="sta_dhcp">
-                  <td><label for="sta_ip"><b>Secondary DNS</b></label></td>
+                  <td class="list_input"><label for="sta_ip"><b>Secondary DNS</b></label></td>
                   <td><input type="text" value="" name="sta_scnd_dns" ></td>
                 </tr>
             </table> 
@@ -137,36 +141,20 @@
               <tr><h2>NTP Server</h2></tr>
 
               <tr>
-                <td><label for="ntp_addr"><b>Server Address</b></label></td>
+                <td class="list_input"><label for="ntp_addr"><b>Server Address</b></label></td>
                 <td><input type="text" value="" name="ntp_addr" ></td>
               </tr>
 
               <tr>
-                <td><label for="ntp_port"><b>Server Port</b></label></td>
+                <td class="list_input"><label for="ntp_port"><b>Server Port</b></label></td>
                 <td><input type="text" value="" name="ntp_port" ></td>
-              </tr>
-
-            </table>
-          </div>
-          <div id="MQTT">
-            <table style="width: 350px">
-              <tr><h2>MQTT</h2></tr>
-
-              <tr>
-                <td><label for="mqtt_addr"><b>Server Address</b></label></td>
-                <td><input type="text" value="" name="mqtt_addr" ></td>
-              </tr>
-
-              <tr>
-                <td><label for="mqtt_port"><b>Server Port</b></label></td>
-                <td><input type="text" value="" name="mqtt_port" ></td>
               </tr>
 
             </table>
           </div>
         </div>
         <label for="end"></label><input type="text" name="end" value="end" style="display: none;">
-        <button type="submit" onclick="myFunction()">Submit</button>
+        <button style="margin-left: 100px" class="admin-link" type="submit" onclick="myFunction()">Submit</button>
       </form>
     </div>
   </div>
@@ -258,7 +246,19 @@ var configjs;
         }
       }
 
-
+function ShowHideDiv() {
+        var chkManual = document.getElementById("scan_auto_off");
+		var chkScan = document.getElementById("scan_auto_on");
+        var dvtext = document.getElementById("dvtext");
+        dvtext.style.display = chkManual.checked ? "block" : "none";
+		var dvtext1 = document.getElementById("dvtext1");
+        dvtext1.style.display = chkScan.checked ? "block" : "none";
+    }
+function ShowScan() {
+	var chkScan = document.getElementById("scan_auto_on");
+	var dvtext1 = document.getElementById("dvtext1");
+    dvtext1.style.display = chkScan.checked ? "block" : "none";
+}
   </script>
 </body>
 </html>
