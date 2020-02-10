@@ -14,10 +14,13 @@
  extern "C" {
 #endif
 
+
+
 /* Includes ------------------------------------------------------------------*/
 #include <stdio.h>
 #include <string.h>
 #include "data_types_CAREL.h"
+#include "CAREL_GLOBAL_DEF.h"
 #include "MQTT_Interface_IS.h"
 #include "File_System_CAREL.h"
 #include "CBOR_CAREL.h"      
@@ -26,6 +29,21 @@
 /* Define --------------------------------------------------------------------*/
 #define MQTT_IS_NOT_CONNECTED 0
 #define MQTT_IS_CONNECTED     1
+
+
+/* ========================================================================== */
+/* debugging purpose                                                          */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+//this define enable the output of the command and communications errors
+#define __DEBUG_MQTT_INTERFACE_LEV_1
+
+//this define enable the output of others debug informations
+//#define __DEBUG_MQTT_INTERFACE_LEV_2
+#endif
+
+
 
    
 /* Exported types ------------------------------------------------------------*/ 

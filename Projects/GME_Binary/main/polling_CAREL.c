@@ -31,6 +31,8 @@
 #include "nvm_CAREL.h"
 #include "sys_IS.h"
 
+#include "Led_Manager_IS.h"
+
 #define RET_DIM(x,l)     (x == 16 ? (l = 1) : (l = 2))
 
 
@@ -428,20 +430,30 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 			switch(arr->tab[i].read_type){
 			case TYPE_A:
 			{
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("check_hr_ir_read_val A \n");
+                #endif
+
 				float temp, c_read, p_read= 0.0;
 				c_read = get_type_a(&arr->tab[i], CURRENT);
 				p_read = get_type_a(&arr->tab[i], PREVIOUS);
 				temp = fabs(c_read - p_read);
+
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
+                #endif
+
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
 
 					arr->tab[i].p_value = arr->tab[i].c_value;
 
 					value = (long double)c_read;
+
+                    #ifdef __DEBUG_POLLING_CAREL_LEV_2
 					PRINTF_DEBUG("TYPE_A c_read = %f\n",c_read);
 					PRINTF_DEBUG("TYPE_A Value = %Lf\n",value);
+                    #endif
 				}
 			}
 				break;
@@ -452,18 +464,24 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				c_read = get_type_b(&arr->tab[i], CURRENT);
 				p_read = get_type_b(&arr->tab[i], PREVIOUS);
 				temp = fabs(c_read - p_read);
+
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %f, p_read: %f, temp: %f\n",c_read, p_read, temp);
+                #endif
+
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
 
 					arr->tab[i].p_value = arr->tab->c_value;
 
 					value = (long double)c_read;
+                    #ifdef __DEBUG_POLLING_CAREL_LEV_2
 					PRINTF_DEBUG("TYPE_B REG low = %d\n",arr->tab[i].c_value.reg.low);
 					PRINTF_DEBUG("TYPE_B REG high = %d\n",arr->tab[i].c_value.reg.high);
 					PRINTF_DEBUG("TYPE_B REG val = %d\n",arr->tab[i].c_value.value);
 					PRINTF_DEBUG("TYPE_B c_read = %f\n",c_read);
 					PRINTF_DEBUG("TYPE_B Value = %Lf\n",value);
+                    #endif
 				}
 			}
 				break;
@@ -474,7 +492,11 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				c_read = get_type_c_signed(&arr->tab[i], CURRENT);
 				p_read = get_type_c_signed(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
+
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+                #endif
+
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
 
@@ -491,7 +513,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				c_read = get_type_c_unsigned(&arr->tab[i], CURRENT);
 				p_read = get_type_c_unsigned(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+                #endif
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
 
@@ -511,7 +535,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 					to_values_buff = true;
 					value = (long double)c_read;
 				}
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
+                #endif
 			}
 				break;
 
@@ -528,7 +554,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 
 					value = (long double)c_read;
 				}
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
+                #endif
 
 			}
 				break;
@@ -539,7 +567,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				c_read = get_type_f_signed(&arr->tab[i], CURRENT);
 				p_read = get_type_f_signed(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+                #endif
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
 
@@ -556,7 +586,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				c_read = get_type_f_unsigned(&arr->tab[i], CURRENT);
 				p_read = get_type_f_unsigned(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
+                #endif
 				if(temp > arr->tab[i].info.Hyster){
 					to_values_buff = true;
 
@@ -624,7 +656,9 @@ static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 {
 	//get current index of values buffer
 	uint16_t index_temp =  values_buffer_index;
+    #ifdef __DEBUG_POLLING_CAREL_LEV_2
 	PRINTF_DEBUG("START index_temp = %d, values_buffer_index = %d\n",index_temp,values_buffer_index);
+    #endif
 
 	switch(poll_type){
 	case LOW_POLLING:
@@ -646,7 +680,10 @@ static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 		break;
 	}
 
+
+    #ifdef __DEBUG_POLLING_CAREL_LEV_2
 	PRINTF_DEBUG("END index_temp = %d, values_buffer_index = %d\n",index_temp,values_buffer_index);
+    #endif
 
 	//Update values buffer idx
 	if (index_temp != values_buffer_index){
@@ -971,10 +1008,12 @@ static void check_alarms_change(void)
 		if (1 == COILAlarmPollTab[i].data.send_flag){
 			send_cbor_alarm(COILAlarmPollTab[i].info.Alias, &COILAlarmPollTab[i].data);
 
+            #ifdef __DEBUG_POLLING_CAREL_LEV_2
 			if(COILAlarmPollTab[i].data.value == 1)
 			   printf("Coil Alarm rise num %d \n ",i);
 			else
 			   printf("Coil Alarm fall num %d \n ",i);
+            #endif
 
 			COILAlarmPollTab[i].data.send_flag = 0;
 		}
@@ -984,8 +1023,11 @@ static void check_alarms_change(void)
 		if (1 == DIAlarmPollTab[i].data.send_flag){
 			send_cbor_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data);
 
+            //TODO BILATO non ho capito a cosa serve eliminabile ?
+            #ifdef __DEBUG_POLLING_CAREL_LEV_2
 			PRINTF_POLL_ENG(("DI Alarm changed num %d \n ",i))
-			DIAlarmPollTab[i].data.send_flag = 0;
+			  DIAlarmPollTab[i].data.send_flag = 0;
+            #endif
 		}
 	}
 
@@ -993,8 +1035,10 @@ static void check_alarms_change(void)
 		if (1 == HRAlarmPollTab[i].data.send_flag){
 			send_cbor_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data);
 
+            #ifdef __DEBUG_POLLING_CAREL_LEV_2
 			PRINTF_POLL_ENG(("HR Alarm changed num %d \n ",i))
 			HRAlarmPollTab[i].data.send_flag = 0;
+            #endif
 		}
 	}
 
@@ -1002,12 +1046,15 @@ static void check_alarms_change(void)
 		if (1 == IRAlarmPollTab[i].data.send_flag){
 			send_cbor_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data);
 
+            #ifdef __DEBUG_POLLING_CAREL_LEV_2
 			PRINTF_POLL_ENG(("IR Alarm changed num %d \n ",i))
 			IRAlarmPollTab[i].data.send_flag = 0;
+            #endif
 		}
 	}
 }
 
+#ifdef __DEBUG_POLLING_CAREL_LEV_2
 void print_ValuesTable(void){
 	int i;
 	if(PollEngine__GetPollEnginePrintMsgs() == 1){
@@ -1028,6 +1075,7 @@ void print_ValuesTable(void){
 		}
 	}
 }
+#endif
 /****************************
 * MODBUS POLLING
 *****************************/
@@ -1044,17 +1092,17 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
     uint8_t is_offline = 0;
     eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
     uint8_t ncoil, ndi, nhr, nir;
-    if (type == 0) {
+    if (type == LOW_POLLING) {
     	ncoil = low_n.coil;
     	ndi = low_n.di;
     	nhr = low_n.hr;
-    	nir = low_n.di;
+    	nir = low_n.ir;
     }
     else {
     	ncoil = high_n.coil;
     	ndi = high_n.di;
     	nhr = high_n.hr;
-    	nir = high_n.di;
+    	nir = high_n.ir;
     }
 	// Polling the Coil register
 	for (uint16_t i = 0; i < ncoil; i++)
@@ -1075,7 +1123,12 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 			save_coil_di_value(&Coil->reg[i] , param_buffer);
 		}
 		else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+            printf("DoPolling Coil i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
 
 		if(is_offline == 2)
 			return C_FAIL; //this is the start of offline
@@ -1104,7 +1157,14 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 			save_coil_di_value(&Di->reg[i] , param_buffer);
 		}
 		else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+            printf("DoPolling DI i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
+
+
 		if(is_offline == 2)
 			return C_FAIL;
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1135,7 +1195,12 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 			save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
 		}
 		else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+            printf("DoPolling HR i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
 
 		if(is_offline == 2)
 			return C_FAIL;
@@ -1167,12 +1232,18 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 			save_hr_ir_value(&Ir->tab[i], param_buffer);
 		}
 		else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+            printf("DoPolling IR i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
 
 		if(is_offline == 2)
 			return C_FAIL;
 		param_buffer[0] = param_buffer[1] = 0;
 	}
+
 	return C_SUCCESS;
 }
 
@@ -1220,10 +1291,17 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 			save_alarm_coil_di_value(&Coil[i], param_buffer);
 		}
 		else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+			printf("DoAlarmPolling Coil i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
 
 		if(is_offline == 2)
+		{
 			return C_FAIL; //this is an offline
+		}
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
@@ -1251,7 +1329,12 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 			save_alarm_coil_di_value(&Di[i], param_buffer);
 		}
 		else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+			printf("DoAlarmPolling DI i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
 
 		if(is_offline == 2)
 			return C_FAIL; //this is an offline
@@ -1279,7 +1362,12 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 			save_alarm_hr_ir_value(&Hr[i], param_buffer);
 		}else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+			printf("DoAlarmPolling HR i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
 
 		if(is_offline == 2)
 			return C_FAIL; //this is an offline
@@ -1307,7 +1395,12 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 			save_alarm_hr_ir_value(&Ir[i], param_buffer);
 		}else
+		{
 			is_offline++;
+            #ifdef __DEBUG_POLLING_CAREL_LEV_1
+			printf("DoAlarmPolling IR i=%X errorReq %X \r\n", i, errorReq);
+            #endif
+		}
 
 		if(is_offline == 2)
 			return C_FAIL; //this is an offline
@@ -1399,18 +1492,30 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 			if(timeout > (timestamp.current_alarm) && alarm_n.total > 0) {  // + ALARM_POLLING_TIME
 			   //ALARM POLLING
-				printf("ALLARMI \n");
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
+				printf("ALR %X\n", timeout);
+                #endif
 				timestamp.current_alarm = RTC_Get_UTC_Current_Time();
 
 				poll_done = DoAlarmPolling(COILAlarmPollTab, DIAlarmPollTab, HRAlarmPollTab, IRAlarmPollTab);
 				SendOffline(poll_done);
 
 				check_alarms_change();
+
+                #ifdef _DEBUG_LEDS
+                if (led_green == LED_OFF)
+	               led_green = LED_ON;
+                else
+	               led_green = LED_OFF;
+                #endif
+
 			}
 
 			if ((timeout > (timestamp.current_high + polling_times->hispeedsamplevalue)   &&   high_n.total > 0) || IsForced(HIGH_POLLING)) {
 				//HIGH POLLING
-				printf("HIGH \n");
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
+				printf("HIGH %X\n", timeout);
+                #endif
 				timestamp.current_high = RTC_Get_UTC_Current_Time();
 				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
 				SendOffline(poll_done);
@@ -1420,7 +1525,9 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			}
 			if ((timeout > (timestamp.current_low + polling_times->lowspeedsamplevalue)   &&   low_n.total > 0) || IsForced(LOW_POLLING)) {
 				//LOW POLLING
-				printf("LOW \n");
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
+				printf("LOW %X\n", timeout);
+                #endif
 				timestamp.current_low = RTC_Get_UTC_Current_Time();
 				poll_done = DoPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab, LOW_POLLING);
 				SendOffline(poll_done);
@@ -1571,12 +1678,15 @@ uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx)
 
 
 	if(PollEngine__GetPollEnginePrintMsgs() == 1){
+
+		#ifdef __DEBUG_POLLING_CAREL_LEV_2
 		printf("\nuart_read_bytes len = %d\n\n",data_rx_len);
 
 		for(int i=0; i<data_rx_len; i++){
 			printf("[%d]=%02X  ",i,data_rx[i]);
 		}
 		printf("\n");
+        #endif
 	}
 
 	uart_flush_input(MB_PORTNUM);

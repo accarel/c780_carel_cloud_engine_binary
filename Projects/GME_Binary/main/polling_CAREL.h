@@ -8,8 +8,13 @@
 #ifndef _POLLING_CAREL_H_
 #define _POLLING_CAREL_H_
 
-#include "data_types_CAREL.h"
 
+
+/* ========================================================================== */
+/* include                                                                    */
+/* ========================================================================== */
+#include "CAREL_GLOBAL_DEF.h"
+#include "data_types_CAREL.h"
 
 #include "common.h"
 #include "binary_model.h"
@@ -20,6 +25,30 @@
 
 
 //#include "mb_device_params.h"
+
+/* ========================================================================== */
+/* general purpose                                                            */
+/* ========================================================================== */
+
+
+
+/* ========================================================================== */
+/* debugging purpose                                                          */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+//this define enable the output of the communications errors
+#define __DEBUG_POLLING_CAREL_LEV_1
+
+//this define enable the output of others debug informations
+//#define __DEBUG_POLLING_CAREL_LEV_2
+
+#endif
+
+/* ========================================================================== */
+/* other                                                                      */
+/* ========================================================================== */
+
 
 #define SENSE_TRIGGER_TASK_STACK_SIZE   (1024 * 4)
 #define SENSE_TRIGGER_TASK_PRIO         (6)

@@ -45,7 +45,10 @@ static EventBits_t MQTT_BITS;
  */
 C_RES MQTT_Start(void)
 {
+
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("MQTT_Init\n");
+    #endif
 
 	mqtt_config_t mqtt_cfg_nvm = {0};
 	size_t pass_len = 0, user_len = 0;
@@ -66,13 +69,17 @@ C_RES MQTT_Start(void)
 		strcat(mqtt_cfg_nvm.uri, ":");
 		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
 
+        #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
 		PRINTF_DEBUG("mqtt_configured\n");
+        #endif
 
 	}else{
 
 		char mqtt_port_str[10] = {0};
 		sprintf(mqtt_port_str,"%d",MQTT_DEFAULT_PORT);
+        #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
 		PRINTF_DEBUG("mqtt_not_configured\n");
+        #endif
 		strcpy(mqtt_cfg_nvm.uri, MQTT_DEFAULT_BROKER);
 		strcat(mqtt_cfg_nvm.uri, ":");
 		strcat(mqtt_cfg_nvm.uri, mqtt_port_str);
@@ -95,13 +102,17 @@ C_RES MQTT_Start(void)
 
 	if(C_SUCCESS != NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)
 		|| C_SUCCESS != NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)){
+        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 		printf("mqtt user pass check default \n");
+        #endif
 		strcpy(mqtt_cfg_nvm.username, MQTT_DEFAULT_USER);
 		strcpy(mqtt_cfg_nvm.password, MQTT_DEFAULT_PWD);
 	}
 
 	if(C_SUCCESS == NVM__ReadU8Value(MQTT_URL, &mqtt_url) && CONFIGURED == mqtt_url){
+        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 		printf("mqtt url port check ok \n");
+        #endif
 		strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
 		strcat(mqtt_cfg_nvm.uri, ":");
 		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
@@ -110,7 +121,9 @@ C_RES MQTT_Start(void)
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 		size_t gw_config_len;
 		req_set_gw_config_t gw_config_nvm = {0};
+        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 		printf("mqtt keepalive val check ok \n");
+        #endif
 		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&gw_config_len);
 
 		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
@@ -126,10 +139,12 @@ C_RES MQTT_Start(void)
 		cert_num = CERT_1;
 	mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
 
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("uri= %s\n",mqtt_cfg_nvm.uri);
 	PRINTF_DEBUG("username= %s\n",mqtt_cfg_nvm.username);
 	PRINTF_DEBUG("password= %s\n",mqtt_cfg_nvm.password);
 	PRINTF_DEBUG("keepalive= %d\n",mqtt_cfg_nvm.keepalive);
+    #endif
 
     Radio__WaitConnection();
     s_mqtt_event_group = xEventGroupCreate();
@@ -170,21 +185,33 @@ void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len)
 
 void MQTT_Stop(void)
 {
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
 	printf("mqtt_stop\n");
+    #endif
 	mqtt_client_stop();
 	vEventGroupDelete(s_mqtt_event_group);
 }
 
 
 db_values val_array[10];
+
 C_TIME Get_SamplingTime(C_UINT16 index){
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("Get_SamplingTime index: %d, t:%d\n", index, val_array[index].t);
+    #endif
 	return val_array[index].t;}
+
 C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i){
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("Get_Alias index: %d, i: %d, alias:%s\n", index, i, val_array[index].vls[i].alias);
+    #endif
 	return val_array[index].vls[i].alias;}
+
+
 C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i){
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("Get_Value index: %d, i: %d, vls:%s\n", index, i, val_array[index].vls[i].values);
+    #endif
 	return val_array[index].vls[i].values;}
 
 void CBOR_CreateSendValues(values_buffer_t *values_buffer, values_buffer_timing_t *time_values_buff, uint16_t values_buffer_index, uint16_t values_buffer_read_section)
@@ -192,14 +219,19 @@ void CBOR_CreateSendValues(values_buffer_t *values_buffer, values_buffer_timing_
 	uint32_t i, j;
 	j = 0;
 
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("CBOR_CreateSendValues values_buffer_read_section: %d, values_buffer_index: %d\n", values_buffer_read_section, values_buffer_index);
+    #endif
+
 	for(i = 0; i < values_buffer_read_section - 1; i++){
 		uint32_t jj = 0;
 		val_array[i].t = time_values_buff[i].t_stop;
 
 		while(time_values_buff[i].index == values_buffer[j].index){
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 			PRINTF_DEBUG("i: %d, j: %d, alias: %d, value: %Lf, err:%d\n", i, j, values_buffer[j].alias, values_buffer[j].value, values_buffer[j].info_err);
 			PRINTF_DEBUG("time index %d, values index %d\n", time_values_buff[i].index, values_buffer[j].index);
+            #endif
 			itoa(values_buffer[j].alias, (char*)val_array[i].vls[jj].alias, 10);
 			if(0 != values_buffer[j].info_err)
 				memcpy(val_array[i].vls[jj].values, "", 1);
@@ -237,7 +269,9 @@ void MQTT_Status(void)
 {
 	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + Utilities__GetGWConfigData()->statusPeriod))
 	{
+        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 		printf("Sending STATUS CBOR \n\n");
+        #endif
 		CBOR_SendStatus();
 		mqtt_time.cbor_status = RTC_Get_UTC_Current_Time();
 	}
@@ -271,7 +305,10 @@ C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
 	
 	memset((void*)mqtt_topic,0,sizeof(mqtt_topic));
 	sprintf(mqtt_topic,"%s%s", dev_id, (C_SCHAR*)topic);
+
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	printf("topic = %s\n",mqtt_topic);
+    #endif
 
 	return (C_MQTT_TOPIC*)mqtt_topic;
 }
@@ -285,9 +322,14 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
         	xEventGroupSetBits(s_mqtt_event_group, MQTT_CONNECTED_BIT);
 
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_CONNECTED");
+            #endif
             msg_id = mqtt_client_subscribe((C_SCHAR*)MQTT_GetUuidTopic("/req"), 0);
+
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("sent subscribe successful, msg_id=%d", msg_id);
+            #endif
 
             if(2 == mqtt_init){
             	mqtt_client_reinit();
@@ -295,12 +337,19 @@ C_RES EventHandler(mqtt_event_handle_t event)
             }
             C_CHAR conn_buf[25];
             size_t conn_len = CBOR_Connected(conn_buf, 1);
+
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             for (int i=0;i<conn_len;i++){
                 printf("%02X ", conn_buf[i]);
             }
             printf("\n");
+            #endif
+
             msg_id = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/connected"), conn_buf, conn_len, 1, 1);
+
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("sent publish successful, msg_id=%d", msg_id);
+            #endif
 
             if(0 == mqtt_init)
 			{
@@ -322,26 +371,39 @@ C_RES EventHandler(mqtt_event_handle_t event)
         case MQTT_EVENT_DISCONNECTED:
         	mqtt_init = 2;
         	xEventGroupSetBits(s_mqtt_event_group, MQTT_DISCONNECTED_BIT);
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
             DEBUG_MQTT("MQTT_EVENT_DISCONNECTED");
+            #endif
             break;
 
         case MQTT_EVENT_SUBSCRIBED:
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_SUBSCRIBED, msg_id=%d", event->msg_id);
+            #endif
             break;
+
         case MQTT_EVENT_UNSUBSCRIBED:
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_UNSUBSCRIBED, msg_id=%d", event->msg_id);
+            #endif
             break;
+
         case MQTT_EVENT_PUBLISHED:
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
+            #endif
             break;
+
         case MQTT_EVENT_DATA:
         {
         	C_GATEWAY_ID dev_id;
 			Get_Gateway_ID(&dev_id);
-		
+
+			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_DATA");
             printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
             printf("DATA=%.*s\r\n", event->data_len, event->data);
+            #endif
 
             C_MQTT_TOPIC parsed_topic;
             memset((void*)parsed_topic,0,sizeof(parsed_topic));
@@ -349,20 +411,29 @@ C_RES EventHandler(mqtt_event_handle_t event)
             C_SCHAR* rec_topic = event->topic + strlen(dev_id);	//wifi_mac_address_gw_str
 
             sprintf(parsed_topic,"%.*s", rec_topic_len, rec_topic);
+
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
             printf("parsed_topic = %s\n", parsed_topic);
+            #endif
 
 			if(strcmp(parsed_topic, "/req") == 0)
 			{
+                #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
 				printf("/req found_topic\n");
+                #endif
 				CBOR_ReqTopicParser((C_CHAR*)event->data, event->data_len);
 			}
         }
             break;
         case MQTT_EVENT_ERROR:
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
             DEBUG_MQTT("MQTT_EVENT_ERROR");
+            #endif
             break;
         default:
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
             DEBUG_MQTT("Other event id:%d", event->event_id);
+            #endif
             break;
     }
     	

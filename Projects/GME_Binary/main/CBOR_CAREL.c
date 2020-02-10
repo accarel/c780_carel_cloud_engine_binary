@@ -114,13 +114,22 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("alarmspkt len %d: \n", len);
-	for (int i=0;i<len;i++){
+
+	for (int i=0;i<len;i++)
+	{
 		printf("%02X ", cbor_stream[i]);
 	}
 	printf("\n");
+    #endif
 
 	return len;
 }
@@ -230,7 +239,12 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 	//for(int i=0; i<len; i++)
 	//printf("%x\n", cbor_stream[i]);
 	return len;
@@ -305,7 +319,12 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -339,11 +358,15 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
   (byte & 0x01 ? '1' : '0')
 #endif
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("valuespkt len %d: \n", len);
 	for (int i=0;i<len;i++){
 		printf("%02X ", mybuf[i]);
 	}
 	printf("\n");
+    #endif
+
+//TODO Bilato eliminabile ?
 #if 0
 	printf("values pkt binary: \n");
 	for (int i=0;i<len;i++){
@@ -430,7 +453,12 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -550,7 +578,12 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 
@@ -597,7 +630,12 @@ size_t CBOR_Connected(C_CHAR* cbor_stream, C_UINT16 cbor_status)
 
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -666,7 +704,12 @@ size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req)
 
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -705,7 +748,12 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -744,7 +792,12 @@ size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 s
 
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -795,7 +848,12 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -829,7 +887,12 @@ size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_
 
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
-	else { printf("%s: invalid CBOR stream\n",  __func__); len = -1; }
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+        #endif
+	}
 
 	return len;
 }
@@ -1525,7 +1588,10 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		{
 			C_UINT16 cbor_cid;
 			err = CBOR_ReqReboot(cbor_stream, cbor_len, &cbor_cid);
-			printf("cid %d\n", cbor_cid);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_1
+			printf("reboot > cid %d\n", cbor_cid);
+            #endif
+
 
 			// mqtt response
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1547,7 +1613,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		{
 			//flush values
 			//answer?
+            #ifdef __DEBUG_CBOR_CAREL_LEV_1
 			printf("flush_values\n");
+            #endif
 		}
 		break;
 
@@ -1711,11 +1779,17 @@ data_rx_len=0;
 				else
 					cbor_req.res = (parse_write_values(cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
-			if(cbor_req.res == SUCCESS_CMD)	{
+
+			if (cbor_req.res == SUCCESS_CMD)	{
+                    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rwv.val);
+                    #endif
+
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, cbor_rwv.val);
 			} else {
-					printf("OPERATION_FAILED\n");
+                    #ifdef __DEBUG_CBOR_CAREL_LEV_1
+					printf("CBOR R/W VALUES OPERATION_FAILED\n");
+                    #endif
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, "0");
 			}
 
@@ -1880,13 +1954,17 @@ C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
 
 	https_conn_err_t err;
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("execute_update_ca_cert \n");
+    #endif
 
 	err = HttpsClient__UpdateCertificate(update_ca_cert);
 	if(CONN_FAIL == err)
 		return C_FAIL;
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_1
 	printf("execute_update_ca_cert err= %d \n",err);
+    #endif
 
 	return C_SUCCESS;
 }
@@ -1906,7 +1984,10 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 	https_conn_err_t err;
 	uint8_t cert_num = CERT_1;
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("execute_download_devs_config \n");
+    #endif
+
 	err = NVM__WriteU32Value(MB_DEV_NVM, download_devs_config->dev);
 	if (err == C_FAIL)
 		return C_FAIL;
@@ -1929,17 +2010,23 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 	if(CONN_OK != err)
 		return C_FAIL;
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("execute_download_devs_config err= %d \n",err);
+    #endif
 	if(CONN_OK == err){
 		// model file has been saved, report it in nvm
 		// save also corresponding cid and did
 		if( (C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)) &&
 				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)) &&
 				(C_SUCCESS == NVM__WriteU32Value(MB_DID_NVM, download_devs_config->did)) ){
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("MODEL FILE, CID AND DID SAVED\n");
+            #endif
 			err = C_SUCCESS;
 		}else{
-			printf("MODEL FILE, CID AND DID NOT SAVED\n");
+            #ifdef __DEBUG_CBOR_CAREL_LEV_1
+			printf("CBOR MODEL FILE, CID AND DID NOT SAVED\n");
+            #endif
 			err = C_FAIL;
 		}
 	}else
@@ -1951,7 +2038,9 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 {
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("Execute Set GW Config\n");
+    #endif
 	req_set_gw_config_t gw_config_nvm = {0};
 	size_t len = 0;
 	C_BYTE gw_config_status;
@@ -1980,7 +2069,9 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred){
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("Execute Change Credentials\n");
+    #endif
 	if(C_SUCCESS == NVM__WriteString(MQTT_USER, change_cred.usr)
 			&& C_SUCCESS == NVM__WriteString(MQTT_PASS, change_cred.pwd)){
 		return C_SUCCESS;
@@ -2055,7 +2146,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			float c_read= 0.0;
 			c_read = get_type_a(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_A/B c_read: %f \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 			break;
@@ -2064,7 +2157,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			float c_read= 0.0;
 			c_read = get_type_b(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_A/B c_read: %f \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 			break;
@@ -2073,7 +2168,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			int32_t c_read = 0;
 			c_read = get_type_c_signed(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_CU c_read: %d \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 			break;
@@ -2082,7 +2179,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			uint32_t c_read = 0;
 			c_read = get_type_c_unsigned(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_CS c_read: %d \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 			break;
@@ -2091,7 +2190,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			uint8_t c_read = 0;
 			c_read = get_type_d(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_D c_read: %d \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 			break;
@@ -2100,7 +2201,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			int32_t c_read = 0;
 			c_read = get_type_e(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_E c_read: %d \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 			break;
@@ -2109,7 +2212,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			int16_t c_read = 0;
 			c_read = get_type_f_signed(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_FS c_read: %d \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 				break;
@@ -2118,7 +2223,9 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 		{
 			uint16_t c_read = 0;
 			c_read = get_type_f_unsigned(hr_to_read, CURRENT);
+            #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_FU c_read: %d \n",c_read);
+            #endif
 			conv_value = (long double)c_read;
 		}
 			break;
@@ -2190,7 +2297,9 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
  */
 C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("function = %d\n", cbor_rv->func);
+    #endif
 	C_RES result = C_FAIL;
 
 	switch(cbor_rv->func){

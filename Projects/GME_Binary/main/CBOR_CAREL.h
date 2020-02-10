@@ -18,9 +18,25 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "data_types_CAREL.h"
+#include "CAREL_GLOBAL_DEF.h"
 #include "tinycbor/cbor.h"
 #include "binary_model.h"
 #include "polling_CAREL.h"
+
+/* ========================================================================== */
+/* debugging purpose                                                          */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+ //this define enable the output of the errors
+#define __DEBUG_CBOR_CAREL_LEV_1
+
+//this define enable the output of others debug informations
+//#define __DEBUG_CBOR_CAREL_LEV_2
+
+#endif
+
+
 /* Exported constants --------------------------------------------------------*/
 
 #define CBORSTREAM_SIZE			1024

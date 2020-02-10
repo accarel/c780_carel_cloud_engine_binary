@@ -18,6 +18,12 @@
 /* ========================================================================== */
 /* typedefs and defines                                                       */
 /* ========================================================================== */
+/**
+ * @brief _DEBUG_LEDS enable the RGB leds on ESP-WROVER
+ */
+#define _DEBUG_LEDS
+
+
 typedef enum{
 	LED_OFF   = 0,
 	LED_ON    = 1,
@@ -32,6 +38,12 @@ typedef enum{
 
 #ifdef IS_A_WIFI_GATEWAY
 extern volatile Led_Show_Status_t led_status;
+
+#ifdef _DEBUG_LEDS
+extern volatile Led_Show_Status_t led_green;
+extern volatile Led_Show_Status_t led_blue;
+#endif
+
 #endif
 
 #ifdef IS_A_GSM_GATEWAY
@@ -40,6 +52,7 @@ extern volatile Led_Show_Status_t led_gprs;
 extern volatile Led_Show_Status_t led_linka;
 extern volatile Led_Show_Status_t led_linkb;
 #endif
+
 
 void Led_Task_Start(void);
 void Led_task(void);
