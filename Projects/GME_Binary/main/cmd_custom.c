@@ -143,11 +143,11 @@ static int ifconfig_wifi(int argc, char **argv)
     printf("\n");
     printf("MAC ADDRESS:      %s\n",Utilities__GetMACAddr());
     printf("\n");
-    if(AP_MODE == wifi_config.gateway_mode){
+    /*if(AP_MODE == wifi_config.gateway_mode){
     	printf("GME MODE: AP Mode\n");
     }else{
     	printf("GME Mode: APSTA Mode\n");
-    }
+    }*/
     printf("\n-----------------------\n");
     printf("AP Mode Parameters\n");
     printf("-----------------------\n");
@@ -159,14 +159,8 @@ static int ifconfig_wifi(int argc, char **argv)
     }
     printf("Password:              %s\n",wifi_config.ap_pswd);
     printf("IPv4:                  %s\n",wifi_config.ap_ip);
-    if(1 == wifi_config.ap_dhcp_mode){
-    	printf("DHCP: Enabled\n");
-    	printf("DHCP IPv4:         %s\n",wifi_config.ap_dhcp_ip);
-    }else{
-    	printf("DHCP: Disabled\n");
-    }
 
-    if(APSTA_MODE == wifi_config.gateway_mode){
+  //  if(APSTA_MODE == wifi_config.gateway_mode){
     	printf("\n-----------------------\n");
     	printf("STA Mode Parameters\n");
     	printf("-----------------------\n\n");
@@ -191,7 +185,7 @@ static int ifconfig_wifi(int argc, char **argv)
 			printf("Primary DNS:   %s\n",wifi_config.sta_primary_dns);
 			printf("Secondary DNS: %s\n",wifi_config.sta_secondary_dns);
 		}
-    }
+    //}
 
     return 0;
 }
