@@ -113,9 +113,10 @@ C_RES MQTT_Start(void)
         #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 		printf("mqtt url port check ok \n");
         #endif
-		strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
+		// following code is under change by Chiebao
+		/*strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
 		strcat(mqtt_cfg_nvm.uri, ":");
-		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
+		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);*/
 	}
 
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
