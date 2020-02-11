@@ -293,7 +293,7 @@ void Carel_Main_Task(void)
 void GME__CheckHTMLConfig(void){
 	if(IsConfigReceived()){
 		printf("IsConfigReceived\n");
-		sm = GME_WIFI_CONFIG;
+		sm = GME_RADIO_CONFIG;
 		WiFi_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
 	}
 }
