@@ -28,10 +28,9 @@
               <tr>
                 <td class="list_input"><label for="ap_ssid"><b>SSID</b></label></td>
                 <td><input type="text" value="" name="ap_ssid" required></td>
-              </tr>
-              <tr>
+              
                  <td><label for="ap_ssid_hidden"></label></td>
-                <td><input id="ap_ssid_hidden" type="checkbox" value="" name="ap_ssid_hidden">  Hide SSID</td>
+                <td><input id="ap_ssid_hidden" type="checkbox" value="" name="ap_ssid_hidden">Hide SSID</td>
               </tr>
               <tr>
                 <td class="list_input"><label for="ap_pswd"><b>Password</b></label></td>
@@ -50,7 +49,7 @@
 			<col width="300">
               <tr><h2>Station mode Option</h2></tr>
 			  <tr>
-			   <td class="list_input"><label for="sta_ssid"><b>SSID Selection</b></label></td>
+			   <td class="list_input"><label><b>SSID Selection</b></label></td>
 				<td>
                   <ul style=" padding-left: 0px; width=400pt">
                     <li selected="selected" style = "display:inline;">
@@ -65,18 +64,12 @@
                 </td>
 				</tr>
               <tr>
-              <td class="list_input"><label for="sta_ssid"><b>SSID</b></label></td>
-			  <td><input type="text" value="" id="dvtext" name="sta_ssid" >
-		
-                
-				<select name="sta_ssid" id="dvtext1" class="select_c">
-				<option value="sta_ssid1"></option>
-				<option value="sta_ssid2"></option>
-				<option value="sta_ssid3"></option>
-				<option value="sta_ssid4"></option>
-				<option value="sta_ssid5"></option>
+              <td class="list_input"><label><b>SSID</b></label></td>
+			  <td>
+			    <input type="text" value="" id="dvtext" name="sta_ssid_man" >
+				<select name="sta_ssid_scan" id="dvtext1" class="select_c">
 				</select>
-				</td>
+			  </td>
               </tr>
 
               <tr>
@@ -145,12 +138,7 @@
                 <td class="list_input"><label for="ntp_addr"><b>Server Address</b></label></td>
                 <td><input type="text" value="" name="ntp_addr" ></td>
               </tr>
-
-              <tr>
-                <td class="list_input"><label for="ntp_port"><b>Server Port</b></label></td>
-                <td><input type="text" value="" name="ntp_port" ></td>
-              </tr>
-
+              
             </table>
           </div>
         </div>
@@ -178,17 +166,17 @@ var configjs;
             document.getElementsByName('ap_pswd')[0].value = configjs.ap_pswd;
             document.getElementsByName('ap_ip')[0].value = configjs.ap_ip;
 
-            document.getElementsByName('sta_ssid1')[0].value = configjs.sta_ssid1;
-			document.getElementsByName('sta_ssid2')[0].value = configjs.sta_ssid2;
-			document.getElementsByName('sta_ssid3')[0].value = configjs.sta_ssid3;
-			document.getElementsByName('sta_ssid4')[0].value = configjs.sta_ssid4;
-			document.getElementsByName('sta_ssid5')[0].value = configjs.sta_ssid5;
-
-            document.getElementsByName('sta_ssid')[0].value = configjs.sta_ssid;
-			
+			var select = document.getElementById('dvtext1');
+			select.options[0]=new Option('Choose an AP','');
+			select.options[1]=new Option(configjs.sta_ssid1,configjs.sta_ssid1);
+			select.options[2]=new Option(configjs.sta_ssid2,configjs.sta_ssid2);
+			select.options[3]=new Option(configjs.sta_ssid3,configjs.sta_ssid3);
+			select.options[4]=new Option(configjs.sta_ssid4,configjs.sta_ssid4);
+			select.options[5]=new Option(configjs.sta_ssid5,configjs.sta_ssid5);
+   
+            document.getElementsByName('sta_ssid_man')[0].value = configjs.sta_ssid;
             document.getElementsByName('sta_pswd')[0].value = configjs.sta_pswd;
-            document.getElementsByName('ap_pswd')[0].value = configjs.ap_pswd;
-
+            
             if(configjs.sta_dhcp_mode == true){
               document.getElementById('sta_dhcp_mode_on').checked = true;
               document.getElementById('sta_dhcp_mode_off').checked = false;
@@ -203,11 +191,10 @@ var configjs;
             document.getElementsByName('sta_pri_dns')[0].value = configjs.sta_pri_dns;
             document.getElementsByName('sta_scnd_dns')[0].value = configjs.sta_scnd_dns;
             document.getElementsByName('ntp_addr')[0].value = configjs.ntp_addr;
-            document.getElementsByName('ntp_port')[0].value = configjs.ntp_port;
         }
     }
-      
-      function stashowpass(){
+	
+	function stashowpass(){
         var x = document.getElementsByName("sta_pswd")[0];
         if (x.type === "password") {
           x.type = "text";
@@ -216,7 +203,7 @@ var configjs;
         }
       }
 
-      function apshowpass(){
+    function apshowpass(){
         var x = document.getElementsByName("ap_pswd")[0];
         if (x.type === "password") {
           x.type = "text";
@@ -225,7 +212,7 @@ var configjs;
         }
       }
 
-function ShowHideDiv() {
+	function ShowHideDiv() {
         var chkManual = document.getElementById("scan_auto_off");
 		var chkScan = document.getElementById("scan_auto_on");
         var dvtext = document.getElementById("dvtext");
@@ -234,29 +221,29 @@ function ShowHideDiv() {
         dvtext1.style.display = chkScan.checked ? "block" : "none";
     }
 
-function sta_dhcp() {
-	var dhcpon = document.getElementById("sta_dhcp_mode_on");
-	var dhcpoff = document.getElementById("sta_dhcp_mode_off");
-	var ip = document.getElementById("sta_static_ip");
-	var nm = document.getElementById("sta_static_netmask");
-	var gw = document.getElementById("sta_static_gateway");
-	var dns1 = document.getElementById("sta_static_dns1");
-	var dns2 = document.getElementById("sta_static_dns2");
-	if (dhcpon.checked) {
-		ip.disabled = true;
-		nm.disabled = true;
-		gw.disabled = true;
-		dns1.disabled = true;
-		dns2.disabled = true;
+	function sta_dhcp() {
+		var dhcpon = document.getElementById("sta_dhcp_mode_on");
+		var dhcpoff = document.getElementById("sta_dhcp_mode_off");
+		var ip = document.getElementById("sta_static_ip");
+		var nm = document.getElementById("sta_static_netmask");
+		var gw = document.getElementById("sta_static_gateway");
+		var dns1 = document.getElementById("sta_static_dns1");
+		var dns2 = document.getElementById("sta_static_dns2");
+		if (dhcpon.checked) {
+			ip.disabled = true;
+			nm.disabled = true;
+			gw.disabled = true;
+			dns1.disabled = true;
+			dns2.disabled = true;
+		}
+		if (dhcpoff.checked) {
+			ip.disabled = false;
+			nm.disabled = false;
+			gw.disabled = false;
+			dns1.disabled = false;
+			dns2.disabled = false;
+		}
 	}
-	if (dhcpoff.checked) {
-		ip.disabled = false;
-		nm.disabled = false;
-		gw.disabled = false;
-		dns1.disabled = false;
-		dns2.disabled = false;
-	}
-}
   </script>
 </body>
 </html>
