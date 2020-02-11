@@ -20,7 +20,7 @@
 #define HTMLLOGIN_PSWD			"login_pswd"
 
 // Config HTML responce tags
-#define HTMLCONF_GATEWAY_MODE	"gateway_mode"
+//#define HTMLCONF_GATEWAY_MODE	"gateway_mode"
 
 #define HTMLCONF_AP_SSID		"ap_ssid"
 #define HTMLCONF_AP_SSID_HIDDEN	"ap_ssid_hidden"
@@ -30,6 +30,8 @@
 #define HTMLCONF_AP_DHCP_IP		"ap_dhcp_ip"
 
 #define HTMLCONF_STA_SSID		"sta_ssid"
+#define HTMLCONF_STA_SSID_MAN	"sta_ssid_man"
+#define HTMLCONF_STA_SSID_SCAN	"sta_ssid_scan"
 #define HTMLCONF_STA_ENCRYP		"sta_encryption"
 #define HTMLCONF_STA_PSWD		"sta_pswd"
 #define HTMLCONF_STA_DHCP_MODE	"sta_dhcp_mode"
@@ -69,27 +71,22 @@ typedef enum e_html_pages{
 #pragma pack(1)
 typedef struct _html_config_param_s
 {
-    uint8_t	gateway_mode;
-    char   	ap_ssid[30];
-    uint8_t ap_ssid_hidden;
-    char   	ap_pswd[30];
-    char   	ap_ip[30];
-    uint8_t ap_dhcp_mode;
-    char  	ap_dhcp_ip[30];
-
-    char  	sta_ssid[30];
-    char  	sta_encryption[30];
-    char  	sta_pswd[30];
-    uint8_t sta_dhcp_mode;
+    char	ap_ssid[30];
+    uint8_t	ap_ssid_hidden;
+    char	ap_pswd[30];
+    char	ap_ip[30];
+    uint8_t	ap_scan_mode;
+    char	sta_ssid[30];
+    char	sta_ssid_scan[30][5];
+    char	sta_encryption[30];
+    char	sta_pswd[30];
+    uint8_t	sta_dhcp_mode;
     char	sta_static_ip[20];
     char	sta_netmask[30];
     char	sta_gateway_ip[30];
     char	sta_primary_dns[30];
     char	sta_secondary_dns[30];
     char	ntp_server_addr[30];
-	char	ntp_server_port[6];
-	char	mqtt_server_addr[60];
-	char	mqtt_server_port[6];
 }html_config_param_t;
 #pragma pack()
 

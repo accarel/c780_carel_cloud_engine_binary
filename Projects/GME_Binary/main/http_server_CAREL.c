@@ -14,13 +14,11 @@
 #include <ctype.h>
 
 static html_config_param_t HTMLConfig = {
-		.gateway_mode = 0,
 		.ap_ssid = AP_DEF_SSID,
 		.ap_pswd = AP_DEF_PSSWD,
 		.ap_ssid_hidden = AP_DEF_SSID_HIDDEN,
 		.ap_ip = AP_DEF_IP,
-		.ap_dhcp_mode = AP_DEF_DHCP,
-		.ap_dhcp_ip = AP_DEF_DHCP_BASE,
+		.ap_scan_mode = 0,
 		.sta_ssid = "",
 		.sta_encryption = "",
 		.sta_pswd= "",
@@ -31,9 +29,6 @@ static html_config_param_t HTMLConfig = {
 		.sta_primary_dns = "",
 		.sta_secondary_dns = "",
 		.ntp_server_addr = "",
-		.ntp_server_port = "",
-		.mqtt_server_addr = "",
-		.mqtt_server_port = ""
 };
 
 static html_login_cred_t HTMLLogin = {
@@ -202,20 +197,9 @@ void get_html_config_received_data(char* sent_parameters){
 
     PRINTF_DEBUG_SERVER("\nSTART PARSING\n");
 
-
     get_value_from_string(sent_parameters, HTMLCONF_AP_IP, (unsigned short)(strlen(HTMLCONF_AP_IP)), &data_value[0]);
     strcpy(HTMLConfig.ap_ip,data_value);
     PRINTF_DEBUG_SERVER("ap_ip: %s\n",HTMLConfig.ap_ip);
-
-    get_value_from_string(sent_parameters, HTMLCONF_GATEWAY_MODE, (unsigned short)(strlen(HTMLCONF_GATEWAY_MODE)), &data_value[0]);
-    if(strcmp(data_value,"ap_mode") == 0){
-        HTMLConfig.gateway_mode = AP_MODE;
-    }
-    else if(strcmp(data_value,"apsta_mode") == 0){
-        HTMLConfig.gateway_mode = APSTA_MODE;
-    }
-    PRINTF_DEBUG_SERVER("gateway_mode: %d\n",HTMLConfig.gateway_mode);
-
 
     get_value_from_string(sent_parameters, HTMLCONF_AP_SSID, (unsigned short)(strlen(HTMLCONF_AP_SSID)), &HTMLConfig.ap_ssid[0]);
     PRINTF_DEBUG_SERVER("ap_ssid: %s\n",HTMLConfig.ap_ssid);
@@ -235,20 +219,15 @@ void get_html_config_received_data(char* sent_parameters){
     strcpy(HTMLConfig.ap_pswd,data_value);
     PRINTF_DEBUG_SERVER("ap_pswd: %s\n",HTMLConfig.ap_pswd);
 
-    get_value_from_string(sent_parameters, HTMLCONF_AP_DHCP_MODE, (unsigned short)(strlen(HTMLCONF_AP_DHCP_MODE)), &data_value[0]);
+    get_value_from_string(sent_parameters, "sta_scan_mode", (unsigned short)(strlen("sta_scan_mode")), &data_value[0]);
     if(strcmp(data_value,"off") == 0){
-        HTMLConfig.ap_dhcp_mode = 0;
+    	HTMLConfig.ap_scan_mode = 0;
+    	get_value_from_string(sent_parameters, HTMLCONF_STA_SSID_MAN, (unsigned short)(strlen(HTMLCONF_STA_SSID_MAN)), &data_value[0]);
     }
     else if(strcmp(data_value,"on") == 0){
-        HTMLConfig.ap_dhcp_mode = 1;
+        HTMLConfig.ap_scan_mode = 1;
+        get_value_from_string(sent_parameters, HTMLCONF_STA_SSID_SCAN, (unsigned short)(strlen(HTMLCONF_STA_SSID_SCAN)), &data_value[0]);
     }
-    PRINTF_DEBUG_SERVER("ap_dhcp_mode: %d\n",HTMLConfig.ap_dhcp_mode);
-
-    get_value_from_string(sent_parameters, HTMLCONF_AP_DHCP_IP, (unsigned short)(strlen(HTMLCONF_AP_DHCP_IP)), &data_value[0]);
-    strcpy(HTMLConfig.ap_dhcp_ip,data_value);
-    PRINTF_DEBUG_SERVER("ap_dhcp_ip: %s\n",HTMLConfig.ap_dhcp_ip);
-
-    get_value_from_string(sent_parameters, HTMLCONF_STA_SSID, (unsigned short)(strlen(HTMLCONF_STA_SSID)), &data_value[0]);
     strcpy(HTMLConfig.sta_ssid,data_value);
     PRINTF_DEBUG_SERVER("sta_ssid: %s\n",HTMLConfig.sta_ssid);
 
@@ -290,34 +269,8 @@ void get_html_config_received_data(char* sent_parameters){
     PRINTF_DEBUG_SERVER("sta_secondary_dns: %s\n",HTMLConfig.sta_secondary_dns);
 
     get_value_from_string(sent_parameters, HTMLCONF_NTP_SRVR_ADDR, (unsigned short)(strlen(HTMLCONF_NTP_SRVR_ADDR)), &data_value[0]);
-	strcpy(HTMLConfig.ntp_server_addr,data_value);
-	PRINTF_DEBUG_SERVER("ntp_server_addr: %s\n",HTMLConfig.ntp_server_addr);
-
-	get_value_from_string(sent_parameters, HTMLCONF_NTP_SRVR_PORT, (unsigned short)(strlen(HTMLCONF_NTP_SRVR_PORT)), &data_value[0]);
-	strcpy(HTMLConfig.ntp_server_port,data_value);
-	PRINTF_DEBUG_SERVER("ntp_server_port: %s\n",HTMLConfig.ntp_server_port);
-
-	get_value_from_string(sent_parameters, HTMLCONF_MQTT_SRVR_ADDR, (unsigned short)(strlen(HTMLCONF_MQTT_SRVR_ADDR)), &data_value[0]);
-	/*int i=0, j=0;
-	for(i=0, j=0; i< strlen(data_value); j++, i++){
-		if(data_value[i] == '%' && data_value[i+1] == '3' && (data_value[i+2] == 'A' || data_value[i+2] == 'a')){
-			HTMLConfig.mqtt_server_addr[j] = ':';
-			i += 2;
-		} else if(data_value[i] == '%' && data_value[i+1] == '2' && (data_value[i+2] == 'F' || data_value[i+2] == 'f')){
-			HTMLConfig.mqtt_server_addr[j] = '/';
-			i += 2;
-		}else{
-			HTMLConfig.mqtt_server_addr[j] = data_value[i];
-		}
-	}*/
-	strcpy(HTMLConfig.mqtt_server_addr,data_value);
-	PRINTF_DEBUG_SERVER("mqtt_server_addr: %s\n",HTMLConfig.mqtt_server_addr);
-
-
-	get_value_from_string(sent_parameters, HTMLCONF_MQTT_SRVR_PORT, (unsigned short)(strlen(HTMLCONF_MQTT_SRVR_PORT)), &data_value[0]);
-	strcpy(HTMLConfig.mqtt_server_port,data_value);
-	PRINTF_DEBUG_SERVER("mqtt_server_port: %s\n",HTMLConfig.mqtt_server_port);
-
+    strcpy(HTMLConfig.ntp_server_addr,data_value);
+    PRINTF_DEBUG_SERVER("ntp_server_addr: %s\n",HTMLConfig.ntp_server_addr);
 }
 
 

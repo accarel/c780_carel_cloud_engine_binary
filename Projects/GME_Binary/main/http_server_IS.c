@@ -77,7 +77,6 @@ static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 static C_RES http_resp_config_json(httpd_req_t *req)
 {
     //Get config values into a json struct
-
 	char *out;
 	char ap_ssid_temp[30] = {0};
 	size_t len=0;
@@ -86,29 +85,23 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 	html_config = cJSON_CreateObject();
 	wifi_config = WiFi__GetCustomConfigPTR();
 
-
-
-
-	if(ESP_OK == NVM__ReadString(HTMLCONF_AP_SSID, ap_ssid_temp, &len)){
-		cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID, cJSON_CreateString(wifi_config->ap_ssid));
-	}else{
+	if(ESP_OK != NVM__ReadString(HTMLCONF_AP_SSID, ap_ssid_temp, &len)){
 		strcpy(ap_ssid_temp, HTTPServer__SetAPDefSSID(AP_DEF_SSID));
-		cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID, cJSON_CreateString(ap_ssid_temp));
 		PRINTF_DEBUG_SERVER("ap_ssid_temp : %s\n",ap_ssid_temp);
 	}
+	cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID, cJSON_CreateString(ap_ssid_temp));
 
 	cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID_HIDDEN, cJSON_CreateBool((bool)wifi_config->ap_ssid_hidden));
 	cJSON_AddItemToObject(html_config, HTMLCONF_AP_PSWD, cJSON_CreateString(wifi_config->ap_pswd));
 	cJSON_AddItemToObject(html_config, HTMLCONF_AP_IP, cJSON_CreateString(wifi_config->ap_ip));
 
-	cJSON_AddItemToObject(html_config, HTMLCONF_AP_DHCP_MODE, cJSON_CreateBool((bool)wifi_config->ap_dhcp_mode));
-	if(0 == wifi_config->ap_dhcp_mode){
-		cJSON_AddItemToObject(html_config, HTMLCONF_AP_DHCP_IP, cJSON_CreateNull());
-	}else{
-		cJSON_AddItemToObject(html_config, HTMLCONF_AP_DHCP_IP, cJSON_CreateString(wifi_config->ap_dhcp_ip));
-		}
-
 	cJSON_AddItemToObject(html_config, HTMLCONF_STA_SSID, cJSON_CreateString(wifi_config->sta_ssid));
+	// could change this to a for loop...
+	cJSON_AddItemToObject(html_config, "sta_ssid1", cJSON_CreateString(GetAvailableAPs(0)));
+	cJSON_AddItemToObject(html_config, "sta_ssid2", cJSON_CreateString(GetAvailableAPs(1)));
+	cJSON_AddItemToObject(html_config, "sta_ssid3", cJSON_CreateString(GetAvailableAPs(2)));
+	cJSON_AddItemToObject(html_config, "sta_ssid4", cJSON_CreateString(GetAvailableAPs(3)));
+	cJSON_AddItemToObject(html_config, "sta_ssid5", cJSON_CreateString(GetAvailableAPs(4)));
 	cJSON_AddItemToObject(html_config, HTMLCONF_STA_PSWD, cJSON_CreateString(wifi_config->sta_pswd));
 
 	cJSON_AddItemToObject(html_config, HTMLCONF_STA_DHCP_MODE, cJSON_CreateBool((bool)wifi_config->sta_dhcp_mode));
@@ -127,25 +120,16 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 	}
 
 	cJSON_AddItemToObject(html_config, HTMLCONF_NTP_SRVR_ADDR, cJSON_CreateString(wifi_config->ntp_server_addr));
-	cJSON_AddItemToObject(html_config, HTMLCONF_NTP_SRVR_PORT, cJSON_CreateString(wifi_config->ntp_server_port));
-
-	cJSON_AddItemToObject(html_config, HTMLCONF_MQTT_SRVR_ADDR, cJSON_CreateString(wifi_config->mqtt_server_addr));
-	cJSON_AddItemToObject(html_config, HTMLCONF_MQTT_SRVR_PORT, cJSON_CreateString(wifi_config->mqtt_server_port));
-
-
 
 	/* print everything */
 	out = cJSON_Print(html_config);
 	PRINTF_DEBUG_SERVER("html_config.json:%s\n", out);
 
-
     httpd_resp_set_type(req, "application/json");
     /* Add file upload form and script which on execution sends a POST request to /upload */
 
     httpd_resp_send_chunk(req, (const char *)out, strlen(out));
-
     httpd_resp_sendstr_chunk(req, NULL);
-
 
 	/* free all objects under root and root itself */
 	cJSON_Delete(html_config);
