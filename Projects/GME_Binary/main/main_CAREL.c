@@ -136,7 +136,7 @@ void Carel_Main_Task(void)
 
 			Radio__WaitConnection();
 
-			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr, WiFi__GetCustomConfig().ntp_server_port);
+			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr, NTP_DEFAULT_PORT);
 			retval = RTC_Sync();
 			CAREL_CHECK(retval, "TIME");
 
