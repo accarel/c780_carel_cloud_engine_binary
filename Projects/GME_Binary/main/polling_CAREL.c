@@ -1503,10 +1503,10 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				check_alarms_change();
 
                 #ifdef _DEBUG_LEDS
-                if (led_green == LED_OFF)
-	               led_green = LED_ON;
+                if (led_polling == LED_OFF)
+                	led_polling = LED_ON;
                 else
-	               led_green = LED_OFF;
+                	led_polling = LED_OFF;
                 #endif
 
 			}

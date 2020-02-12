@@ -39,11 +39,38 @@
 #include "RTC_IS.h"
 #include "Led_Manager_IS.h"
 #include "sys_IS.h"
+
+
+/**
+ * @brief LED_STATUS_IO
+ *        is platform dependent redefine it to match your I/O schema
+ */
+#ifdef __USE_ESP_WROVER_KIT
+#define LED_STATUS_IO	GPIO_NUM_0
+#define LED_GREEN       GPIO_NUM_2
+#define LED_BLUE        GPIO_NUM_4
+#endif
+
+#ifdef __USE_CAREL_BCU_HW
+#define LED_STATUS_IO	GPIO_NUM_27
+#endif
+
+#ifdef __USE_USR_WIFI_HW
+#define LED_STATUS_IO	GPIO_NUM_27
+#define LED_GREEN       GPIO_NUM_5
+#endif
+
+#ifdef __USE_USR_2G_HW
+#define LED_STATUS_IO	GPIO_NUM_27
+#endif
+
+
+
+
 /* ================================================================================ */
 /*                        This section is for the WiFi Gateway                      */
 /* ================================================================================ */
 #ifdef IS_A_WIFI_GATEWAY
-
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #define LED_PHY_ON   1
@@ -52,29 +79,11 @@
 
 
 #ifdef _DEBUG_LEDS
-/* only for debug on ESP32-WROVER */
-#define LED_GREEN   GPIO_NUM_2
-#define LED_BLUE    GPIO_NUM_4
-#endif
-
-
-
-/**
- * @brief LED_STATUS_IO 
- *        is platform dependent redefine it to match your I/O schema 
- */
-#define LED_STATUS_IO	GPIO_NUM_0
-
-
-
-
-#ifdef _DEBUG_LEDS
-volatile Led_Show_Status_t led_green;
 volatile Led_Show_Status_t led_blue;
 #endif
 
 volatile Led_Show_Status_t led_status;
-
+volatile Led_Show_Status_t led_polling;
 
 
 
@@ -144,11 +153,7 @@ void Led_Status_Update(Led_Show_Status_t status){
 }
 
 
-
-
-#ifdef _DEBUG_LEDS
-
-void Led_Status_Update_Green(Led_Show_Status_t status){
+void Led_Status_Update_Polling(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -197,11 +202,11 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
           break;
 	}
 
-
-
 }
 
 
+#ifdef _DEBUG_LEDS
+#ifdef __USE_ESP_WROVER_KIT
 void Led_Status_Update_Blue(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
@@ -250,12 +255,8 @@ void Led_Status_Update_Blue(Led_Show_Status_t status){
 
           break;
 	}
-
-
-
 }
-
-
+#endif
 #endif
 
 
@@ -289,10 +290,9 @@ void Led_init(void)
 	#endif
 
     led_status = LED_OFF;
-
+    led_polling = LED_OFF;
 
     #ifdef _DEBUG_LEDS
-    led_green = LED_OFF;
     led_blue = LED_OFF;
     #endif
 
@@ -590,10 +590,12 @@ void Led_task(void)
     {
 		#ifdef IS_A_WIFI_GATEWAY
 		Led_Status_Update(led_status);
+		Led_Status_Update_Polling(led_polling);
 
         #ifdef _DEBUG_LEDS
-		Led_Status_Update_Green(led_green);
+        #ifdef __USE_ESP_WROVER_KIT
 		Led_Status_Update_Blue(led_blue);
+        #endif
         #endif
 
 		#endif

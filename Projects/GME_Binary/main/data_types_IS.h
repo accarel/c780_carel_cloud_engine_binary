@@ -23,6 +23,8 @@
  *        to different types of communication interface
  * @warning only one of this two define must be active
  */
+
+//TODO A.Bilato rifattorizzare usando target platform
 #define IS_A_WIFI_GATEWAY
 //#define IS_A_GSM_GATEWAY
 
