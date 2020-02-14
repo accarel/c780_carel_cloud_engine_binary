@@ -1,0 +1,6 @@
+mqtts://mqtt-dev.tera.systems   // "mqtts://carelmqtt.com"    //
+8883
+admin
+5Qz*(3_>K&vU!PS^
+pool.ntp.org
+123
