@@ -117,8 +117,9 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
     #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -242,8 +243,9 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 	//for(int i=0; i<len; i++)
 	//printf("%x\n", cbor_stream[i]);
@@ -322,8 +324,9 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -456,8 +459,9 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -581,8 +585,9 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -633,8 +638,9 @@ size_t CBOR_Connected(C_CHAR* cbor_stream, C_UINT16 cbor_status)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -707,8 +713,9 @@ size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -751,8 +758,9 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -795,8 +803,9 @@ size_t CBOR_ResSendMbAdu(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 s
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -851,8 +860,9 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
@@ -890,8 +900,9 @@ size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); len = -1;
+		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
+		len = -1;
 	}
 
 	return len;
