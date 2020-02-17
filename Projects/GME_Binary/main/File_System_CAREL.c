@@ -59,6 +59,40 @@ C_RES FS_CheckFiles(void){
         	printf("Model File found in %s, size: %d \r\n", MODEL_FILE, fsize);
         }
 
+   long lung;
+	lung = filesize(CFG_DATA);
+
+	printf("lunghezza file dati %d \r\n", (int)lung);
+
+	// check if data default files is present
+	if (stat(CFG_DATA, &file_stat) == -1){
+
+		printf("Data File in %s is not found\n", CFG_DATA);
+
+	}else{
+		fsize = (int)filesize(CFG_DATA);
+
+		// reading from file system the data configuration	(non-changeble)
+		FS_GetCfgData(FILE_CFG_DATA);
+
+		printf("Data File found in %s, size: %d \r\n", CFG_DATA, fsize);
+	}
+
+	if (stat(CFG_DATA_USR, &file_stat) == -1){
+
+		printf("Data usr File in %s is not found\n", CFG_DATA_USR);
+
+	}else{
+		fsize = (int)filesize(CFG_DATA_USR);
+		// reading from file system the data configuration	(changeble)
+
+		FS_GetCfgData(FILE_CFG_DATA_USR);
+
+		printf("Data usr File found in %s, size: %d \r\n", CFG_DATA_USR, fsize);
+	}
+
+
+
     if(C_SUCCESS == err1 || C_SUCCESS == err2){
     	return C_SUCCESS;
     }else{
@@ -190,3 +224,50 @@ C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filena
 		}
 
 }
+
+
+C_RES FS_GetCfgData(C_BYTE file)
+{
+	FILE *file_ptr;
+	uint8_t* dati = (uint8_t *)malloc(sizeof(cfg_data_t));
+
+	if(!file)
+	  file_ptr = fopen(CFG_DATA, "rb");
+	else
+	  file_ptr = fopen(CFG_DATA_USR, "rb");
+
+	fread(dati, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr);
+
+	pCfgData = (struct cfg_data*)dati;
+
+	if(!file)
+	   CfgData = *pCfgData;
+	else
+	   CfgDataUsr = *pCfgData;
+
+	free(dati);
+
+	return C_SUCCESS;
+}
+
+
+C_RES FS_SaveCfgData(C_BYTE file)
+{
+	FILE * file_ptr;
+
+	if(!file)
+	{
+	  file_ptr = fopen(CFG_DATA, "w");
+	  fwrite(&CfgData, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr);
+	}
+	else
+	{
+  	  file_ptr = fopen(CFG_DATA_USR, "w");
+  	  fwrite(&CfgDataUsr, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr);
+	}
+
+	fclose(file_ptr);
+
+	return C_SUCCESS;
+}
+

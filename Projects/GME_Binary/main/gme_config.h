@@ -87,6 +87,12 @@
 #define STYLE_CSS 			"/spiffs/style.css"
 #define FAV_ICON 			"/spiffs/fav.ico"
 
+#define CFG_DATA			"/spiffs/cfg_data.bin"
+#define CFG_DATA_USR		"/spiffs/cfg_data_usr.bin"
+
+
+#define FILE_CFG_DATA		 0
+#define FILE_CFG_DATA_USR    1
 
 /*-------------------------------
  * Certificates Allocation

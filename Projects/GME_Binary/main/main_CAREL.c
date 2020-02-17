@@ -135,7 +135,7 @@ void Carel_Main_Task(void)
 			}
 
 			Radio__WaitConnection();
-
+            //NB. the esp library use always the default port 123...so the file system contain the ntp port value but is not used!!!
 			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr, NTP_DEFAULT_PORT);
 			retval = RTC_Sync();
 			CAREL_CHECK(retval, "TIME");
@@ -293,7 +293,7 @@ void Carel_Main_Task(void)
 void GME__CheckHTMLConfig(void){
 	if(IsConfigReceived()){
 		printf("IsConfigReceived\n");
-		sm = GME_RADIO_CONFIG;
+		sm = GME_RADIO_CONFIG; //GME_WIFI_CONFIG;
 		WiFi_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
 	}
 }

@@ -117,7 +117,7 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__);
+		printf("%s: invalid CBOR stream\n",  __func__); 
         #endif
 		len = -1;
 	}
@@ -324,7 +324,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__);
+		printf("%s: invalid CBOR stream\n",  __func__); 
         #endif
 		len = -1;
 	}
@@ -459,7 +459,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__);
+		printf("%s: invalid CBOR stream\n",  __func__); 
         #endif
 		len = -1;
 	}
@@ -585,7 +585,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__);
+		printf("%s: invalid CBOR stream\n",  __func__); 
         #endif
 		len = -1;
 	}
@@ -760,7 +760,7 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
 		printf("%s: invalid CBOR stream\n",  __func__);
         #endif
-		len = -1;
+	    len = -1; 	
 	}
 
 	return len;
@@ -900,7 +900,7 @@ size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_
 	else
 	{
         #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__);
+		printf("%s: invalid CBOR stream\n",  __func__); 
         #endif
 		len = -1;
 	}
@@ -2083,8 +2083,15 @@ C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred){
     #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("Execute Change Credentials\n");
     #endif
-	if(C_SUCCESS == NVM__WriteString(MQTT_USER, change_cred.usr)
-			&& C_SUCCESS == NVM__WriteString(MQTT_PASS, change_cred.pwd)){
+	//if(C_SUCCESS == NVM__WriteString(MQTT_USER, change_cred.usr)
+	//		&& C_SUCCESS == NVM__WriteString(MQTT_PASS, change_cred.pwd)){
+	//	return C_SUCCESS;
+
+	memcpy(CfgDataUsr.mqtt_user , change_cred.usr, sizeof(change_cred.usr));
+	memcpy(CfgDataUsr.mqtt_pssw , change_cred.pwd, sizeof(change_cred.pwd));
+
+	if(FS_SaveCfgData(CFG_DATA_USR))
+	{
 		return C_SUCCESS;
 	}else{
 		return C_FAIL;

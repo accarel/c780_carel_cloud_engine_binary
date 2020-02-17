@@ -17,6 +17,7 @@
 #include "data_types_CAREL.h"   
 #include "File_System_IS.h"
 #include <string.h>
+#include "data_types_CAREL.h"
 
 /* Function prototypes -------------------------------------------------------*/
 long filesize(const char *fname);
@@ -24,6 +25,9 @@ C_RES FS_CheckFiles(void);
 void FS_DisplayFiles(void);
 long FS_ReadFile(const char* filename, uint8_t* cert_ptr);
 C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filename);
+
+C_RES FS_GetCfgData(C_BYTE file);
+C_RES FS_SaveCfgData(C_BYTE file);
 
 #ifdef __cplusplus
 }

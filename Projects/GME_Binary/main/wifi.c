@@ -53,8 +53,8 @@ static html_config_param_t WiFiConfig = {
 		.sta_secondary_dns = "",
 		.ntp_server_addr = NTP_DEFAULT_SERVER,
 		//.ntp_server_port = "123",//NTP_DEFAULT_PORT,
-		//.mqtt_server_addr = MQTT_DEFAULT_BROKER,
-		//.mqtt_server_port = "8883",//MQTT_DEFAULT_PORT,
+		.mqtt_server_addr = MQTT_DEFAULT_BROKER,
+		.mqtt_server_port = "8883",					//MQTT_DEFAULT_PORT,
 };
 
 void SaveAvailableAPs(uint8_t* ssid, uint8_t index){
@@ -425,7 +425,17 @@ void WiFi__ReadCustomConfigFromNVM(void){
     NVM__ReadString(HTMLCONF_STA_PRI_DNS, WiFiConfig.sta_primary_dns, &len);
     NVM__ReadString(HTMLCONF_STA_SCND_DNS, WiFiConfig.sta_secondary_dns, &len);
 
-    NVM__ReadString(HTMLCONF_NTP_SRVR_ADDR, WiFiConfig.ntp_server_addr, &len);
+
+    // read from file system
+	memcpy(WiFiConfig.ntp_server_addr, CfgDataUsr.ntp_server, sizeof(WiFiConfig.ntp_server_addr));
+	// NB. the esp library use always the default port 123...so the file system contain the value but is not used!!!
+	//memcpy(WiFiConfig.ntp_server_port, CfgDataUsr.ntp_port, sizeof(WiFiConfig.ntp_server_port));
+
+	// read from file system
+	memcpy(WiFiConfig.mqtt_server_addr, CfgDataUsr.mqtt_broker, sizeof(WiFiConfig.mqtt_server_addr));
+	memcpy(WiFiConfig.mqtt_server_port, CfgDataUsr.mqtt_port, sizeof(WiFiConfig.mqtt_server_port));
+
+
 
 	PRINTF_DEBUG("ap_ssid: %s\n",WiFiConfig.ap_ssid);
     PRINTF_DEBUG("ap_ssid_hidden: %d\n",WiFiConfig.ap_ssid_hidden);
@@ -464,8 +474,27 @@ void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
     NVM__WriteString(HTMLCONF_STA_PRI_DNS, config.sta_primary_dns);
     NVM__WriteString(HTMLCONF_STA_SCND_DNS, config.sta_secondary_dns);
 
-    NVM__WriteString(HTMLCONF_NTP_SRVR_ADDR, config.ntp_server_addr);
-	NVM__WriteU8Value(MQTT_URL, CONFIGURED);
+    //NVM__WriteString(HTMLCONF_NTP_SRVR_ADDR, config.ntp_server_addr); // da salvare in file
+	//NVM__WriteString(HTMLCONF_NTP_SRVR_PORT, config.ntp_server_port);
+
+	memcpy(CfgDataUsr.ntp_server, config.ntp_server_addr, sizeof(config.ntp_server_addr));
+	//memcpy(CfgDataUsr.ntp_port, config.ntp_server_port, sizeof(config.ntp_server_port));
+	FS_SaveCfgData(CFG_DATA_USR);
+
+	// da salvare in file
+	if(0 != strlen(config.mqtt_server_addr) && 0 != strlen(config.mqtt_server_port)){
+
+		//NVM__WriteString(HTMLCONF_MQTT_SRVR_ADDR, config.mqtt_server_addr);
+		//NVM__WriteString(HTMLCONF_MQTT_SRVR_PORT, config.mqtt_server_port);
+
+		memcpy(CfgDataUsr.mqtt_broker , config.mqtt_server_addr, sizeof(config.mqtt_server_addr));
+		memcpy(CfgDataUsr.mqtt_port , config.mqtt_server_port, sizeof(config.mqtt_server_port));
+		FS_SaveCfgData(CFG_DATA_USR);
+
+		NVM__WriteU8Value(MQTT_URL, CONFIGURED);
+	}else{
+		NVM__EraseKey(MQTT_URL);
+	}
 
 }
 

@@ -87,14 +87,17 @@ typedef struct _html_config_param_s
     char	sta_primary_dns[30];
     char	sta_secondary_dns[30];
     char	ntp_server_addr[30];
+	char	ntp_server_port[6];
+	char	mqtt_server_addr[60];
+	char	mqtt_server_port[6];
 }html_config_param_t;
 #pragma pack()
 
 #pragma pack(1)
 typedef struct _html_login_cred_s
 {
-    char	login_usr[30];
-    char	login_pswd[30];
+    char	login_usr[34];
+    char	login_pswd[34];
 }html_login_cred_t;
 #pragma pack()
 

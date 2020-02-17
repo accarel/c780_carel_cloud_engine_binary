@@ -1025,9 +1025,9 @@ static void check_alarms_change(void)
 
             //TODO BILATO non ho capito a cosa serve eliminabile ?
             #ifdef __DEBUG_POLLING_CAREL_LEV_2
-			PRINTF_POLL_ENG(("DI Alarm changed num %d \n ",i))
-			  DIAlarmPollTab[i].data.send_flag = 0;
+				PRINTF_POLL_ENG(("DI Alarm changed num %d \n ",i))	  
             #endif
+			DIAlarmPollTab[i].data.send_flag = 0;
 		}
 	}
 
@@ -1036,9 +1036,9 @@ static void check_alarms_change(void)
 			send_cbor_alarm(HRAlarmPollTab[i].info.Alias,(alarm_read_t*) &HRAlarmPollTab[i].data);
 
             #ifdef __DEBUG_POLLING_CAREL_LEV_2
-			PRINTF_POLL_ENG(("HR Alarm changed num %d \n ",i))
-			HRAlarmPollTab[i].data.send_flag = 0;
+				PRINTF_POLL_ENG(("HR Alarm changed num %d \n ",i))		
             #endif
+			HRAlarmPollTab[i].data.send_flag = 0;
 		}
 	}
 
@@ -1047,9 +1047,9 @@ static void check_alarms_change(void)
 			send_cbor_alarm(IRAlarmPollTab[i].info.Alias,(alarm_read_t*) &IRAlarmPollTab[i].data);
 
             #ifdef __DEBUG_POLLING_CAREL_LEV_2
-			PRINTF_POLL_ENG(("IR Alarm changed num %d \n ",i))
-			IRAlarmPollTab[i].data.send_flag = 0;
+				PRINTF_POLL_ENG(("IR Alarm changed num %d \n ",i))
             #endif
+			IRAlarmPollTab[i].data.send_flag = 0;
 		}
 	}
 }

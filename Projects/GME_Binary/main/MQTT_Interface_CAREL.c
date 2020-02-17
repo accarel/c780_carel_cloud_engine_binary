@@ -91,33 +91,28 @@ C_RES MQTT_Start(void)
 
 #else
 
-	char mqtt_port_str[10] = {0};
-	sprintf(mqtt_port_str,"%d",MQTT_DEFAULT_PORT);
+	//char mqtt_port_str[10] = {0};
+	//sprintf(mqtt_port_str,"%d", MQTT_DEFAULT_PORT);
 	//PRINTF_DEBUG("mqtt_not_configured\n");
-	strcpy(mqtt_cfg_nvm.uri, MQTT_DEFAULT_BROKER);
+	strcpy(mqtt_cfg_nvm.uri, CfgDataUsr.mqtt_broker);             // MQTT_DEFAULT_BROKER
 	strcat(mqtt_cfg_nvm.uri, ":");
-	strcat(mqtt_cfg_nvm.uri, mqtt_port_str);
+	strcat(mqtt_cfg_nvm.uri, CfgDataUsr.mqtt_port);   			   // mqtt_port_str
 	mqtt_cfg_nvm.keepalive = MQTT_KEEP_ALIVE_DEFAULT_SEC;
 
 
-	if(C_SUCCESS != NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)
-		|| C_SUCCESS != NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)){
-        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-		printf("mqtt user pass check default \n");
-        #endif
-		strcpy(mqtt_cfg_nvm.username, MQTT_DEFAULT_USER);
-		strcpy(mqtt_cfg_nvm.password, MQTT_DEFAULT_PWD);
-	}
+	//if(C_SUCCESS != NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)          // non serve più!
+	//	|| C_SUCCESS != NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)){
+	//	printf("mqtt user pass check default \n");
+		strcpy(mqtt_cfg_nvm.username, CfgDataUsr.mqtt_user);    // MQTT_DEFAULT_USER
+		strcpy(mqtt_cfg_nvm.password, CfgDataUsr.mqtt_pssw);     // MQTT_DEFAULT_PWD
+	//}
 
-	if(C_SUCCESS == NVM__ReadU8Value(MQTT_URL, &mqtt_url) && CONFIGURED == mqtt_url){
-        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-		printf("mqtt url port check ok \n");
-        #endif
-		// following code is under change by Chiebao
-		/*strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
-		strcat(mqtt_cfg_nvm.uri, ":");
-		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);*/
-	}
+//	if(C_SUCCESS == NVM__ReadU8Value(MQTT_URL, &mqtt_url) && CONFIGURED == mqtt_url){        // non serve più!
+//		printf("mqtt url port check ok \n");
+//		strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
+//		strcat(mqtt_cfg_nvm.uri, ":");
+//		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
+//	}
 
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 		size_t gw_config_len;
