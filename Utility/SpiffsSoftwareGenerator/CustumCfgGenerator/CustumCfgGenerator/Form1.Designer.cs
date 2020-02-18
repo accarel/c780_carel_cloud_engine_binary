@@ -46,6 +46,7 @@
             this.label7 = new System.Windows.Forms.Label();
             this.textBetaVersion = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // button1
@@ -204,11 +205,23 @@
             this.label8.TabIndex = 16;
             this.label8.Text = "B";
             // 
+            // button2
+            // 
+            this.button2.BackColor = System.Drawing.SystemColors.GrayText;
+            this.button2.Location = new System.Drawing.Point(741, 108);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(99, 43);
+            this.button2.TabIndex = 17;
+            this.button2.Text = "Clear data";
+            this.button2.UseVisualStyleBackColor = false;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(907, 564);
+            this.Controls.Add(this.button2);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.textBetaVersion);
             this.Controls.Add(this.textVersion);
@@ -254,6 +267,7 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.TextBox textBetaVersion;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button button2;
     }
 }
 

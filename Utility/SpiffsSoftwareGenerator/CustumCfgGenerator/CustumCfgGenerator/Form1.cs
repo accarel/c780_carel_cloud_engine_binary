@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using System.Diagnostics;
+
 using System.IO;
 
 
@@ -46,22 +48,24 @@ namespace CustumCfgGenerator
         private void button1_Click(object sender, EventArgs e)
         {
             string cfg_data     = null;
-            string cfg_data_usr = null; 
+            string cfg_data_usr = null;
 
+            string batch_file = "\\spiffs_image\\go_make_spiffs.bat";
 
             // genera file .bin per esp32
             // controllo il contenuto delle textbox
             try
-            {   
-                if (mqtt_broker.Length != null && mqtt_port.Length != null && mqtt_pssw.Length != null && mqtt_user.Length != null && ntp_server.Length != null && ntp_port.Length != null)
+            {
+                if (mqtt_broker.Length != 0 && mqtt_port.Length != 0 && 
+                    mqtt_pssw.Length != 0   && mqtt_user.Length != 0 && 
+                    ntp_server.Length != 0  && ntp_port.Length != 0  && 
+                    cfg_version[0] != 0     && cfg_version[1] != 0)
                 {
                     string exeFolder = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
 
-                    // "C:\\Users\\alessandro.chiebao\\Desktop\\CHIEBAO_PROGETTI\\GATEWAY_MIDDLE_END\\Software\\CfgCreator\\
-
-                    cfg_data = exeFolder + "\\cfg_data.bin";
+                    cfg_data = exeFolder + "\\spiffs_image\\cfg_data.bin";
                     File.Delete(cfg_data);
-                    cfg_data_usr = exeFolder + "\\cfg_data_usr.bin";
+                    cfg_data_usr = exeFolder + "\\spiffs_image\\cfg_data_usr.bin";
                     File.Delete(cfg_data_usr);
 
                     using (FileStream stream = new FileStream(cfg_data, FileMode.Create))
@@ -82,6 +86,7 @@ namespace CustumCfgGenerator
 
                             var source = @cfg_data;
                             var destination = @cfg_data_usr;
+
                             try
                             {
                                 File.Copy(source, destination);
@@ -91,16 +96,43 @@ namespace CustumCfgGenerator
                                 MessageBox.Show("Rimuovere i file precedenti o rinominarli");
                             }
 
+
+                            Process proc = null;
+                            try
+                            {
+                                string targetDir = string.Format(@exeFolder + "\\spiffs_image");//this is where mybatch.bat lies
+                                proc = new Process();
+                                proc.StartInfo.WorkingDirectory = targetDir;
+                                proc.StartInfo.FileName = "go_make_spiffs.bat";
+                                proc.StartInfo.Arguments = string.Format("10");//this is argument
+                                proc.StartInfo.CreateNoWindow = false;
+                                proc.Start();
+                                proc.WaitForExit();
+                                proc.Close();
+
+                                // feedback operazione conclusa
+                                MessageBox.Show(" File Spiffs.bin generated correctly");              
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine("Exception Occurred :{0},{1}", ex.Message, ex.StackTrace.ToString());
+                            }
+
+
                             button1.BackColor = Color.Green;
 
                             mqtt_broker = null;
-                            mqtt_port = null;
-                            mqtt_pssw = null;
-                            mqtt_user = null;
-                            ntp_server = null;
-                            ntp_port = null;                        
+                            mqtt_port   = null;
+                            mqtt_pssw   = null;
+                            mqtt_user   = null;
+                            ntp_server  = null;
+                            ntp_port    = null;                        
                         }
                     }
+                }
+                else
+                {
+                    MessageBox.Show("Immettere tutti i campi");
                 }
             }
             catch (Exception)
@@ -193,24 +225,32 @@ namespace CustumCfgGenerator
 
             string newVersion = textVersion.Text;
 
-            try
+            if (newVersion != "")
             {
-                byte Majnumber = Convert.ToByte(newVersion);
+                cfg_version[0] = 0;
 
-                if (Enumerable.Range(1, 256).Contains(Majnumber))
+                try
                 {
-                    cfg_version[0] = Majnumber;
+                    byte Majnumber = Convert.ToByte(newVersion);
+
+                    if (Enumerable.Range(1, 256).Contains(Majnumber))
+                    {
+                        cfg_version[0] = Majnumber;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Valore errato (range valido da 1 - 256)");
+                    }
                 }
-                else
+                catch
                 {
                     MessageBox.Show("Valore errato (range valido da 1 - 256)");
                 }
             }
-            catch
+            else
             {
-                MessageBox.Show("Valore errato (range valido da 1 - 256)");
+                cfg_version[0] = 0;
             }
-
         }
 
         private void textBetaVersion_TextChanged(object sender, EventArgs e)
@@ -219,23 +259,44 @@ namespace CustumCfgGenerator
 
             string newVersion = textBetaVersion.Text;
         
-            try
+            if(newVersion != "")
             {
-                byte Minnumber = Convert.ToByte(newVersion);
+                cfg_version[1] = 0;
 
-                if (Enumerable.Range(0, 99).Contains(Minnumber))
+                try
                 {
-                   cfg_version[1] = Minnumber;
+                    byte Minnumber = Convert.ToByte(newVersion);
+
+                    if (Enumerable.Range(0, 99).Contains(Minnumber))
+                    {
+                        cfg_version[1] = Minnumber;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Valore errato (range valido da 0 - 99)");
+                    }
                 }
-                else
+                catch
                 {
                     MessageBox.Show("Valore errato (range valido da 0 - 99)");
                 }
             }
-            catch
+            else
             {
-                    MessageBox.Show("Valore errato (range valido da 0 - 99)");        
+                cfg_version[1] = 0;
             }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            textMqttBroker.Clear();
+            textMqttPort.Clear();
+            textMqttPassword.Clear();
+            textMqttUser.Clear();
+            textNtpAddress.Clear();
+            textNtpPort.Clear();
+            textVersion.Clear();
+            textBetaVersion.Clear();
         }
     }
 }
