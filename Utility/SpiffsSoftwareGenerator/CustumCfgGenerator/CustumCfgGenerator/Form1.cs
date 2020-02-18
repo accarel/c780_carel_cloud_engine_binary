@@ -59,13 +59,13 @@ namespace CustumCfgGenerator
                 if (mqtt_broker.Length != 0 && mqtt_port.Length != 0 && 
                     mqtt_pssw.Length != 0   && mqtt_user.Length != 0 && 
                     ntp_server.Length != 0  && ntp_port.Length != 0  && 
-                    cfg_version[0] != 0     && cfg_version[1] != 0)
+                    cfg_version[0] != 0)
                 {
                     string exeFolder = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
 
-                    cfg_data = exeFolder + "\\spiffs_image\\cfg_data.bin";
+                    cfg_data = exeFolder + "\\spiffs_image\\dir_image\\cfg_data.bin";
                     File.Delete(cfg_data);
-                    cfg_data_usr = exeFolder + "\\spiffs_image\\cfg_data_usr.bin";
+                    cfg_data_usr = exeFolder + "\\spiffs_image\\dir_image\\cfg_data_usr.bin";
                     File.Delete(cfg_data_usr);
 
                     using (FileStream stream = new FileStream(cfg_data, FileMode.Create))
