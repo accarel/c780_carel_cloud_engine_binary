@@ -30,6 +30,10 @@ struct file_server_data {
 static C_RES set_content_type_from_file(httpd_req_t *req, const char *filename);
 C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path);
 C_RES HTTPServer__StopServer(httpd_handle_t server);
+void SetConfigReceived(void);
 C_BYTE IsConfigReceived(void);
 
+void SetWpsMode(void);
+void UnSetWpsMode(void);
+C_BYTE IsWpsMode(void);
 #endif

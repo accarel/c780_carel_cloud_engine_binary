@@ -15,6 +15,7 @@
 #include "utilities_CAREL.h"
 #include "MQTT_Interface_CAREL.h"
 #include "sys_IS.h"
+#include "esp_wps.h"
 
 static const char *TAG = "wifi";
 
@@ -110,7 +111,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
 			wifi_config_t wifi_config_STA;
 			ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_config_STA));
-			if(wifi_config_STA.sta.ssid[0] != '\0') // only attempt to connect if a ssid is specified
+			if(wifi_config_STA.ap.ssid[0] != '\0') // only attempt to connect if a ssid is specified
 				ESP_ERROR_CHECK(esp_wifi_connect());
 		break;
 
@@ -178,13 +179,25 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			printf("\n\n");
 		break;
 
+		case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
+			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_WPS_ER_SUCCESS");
+			/* esp_wifi_wps_start() only gets ssid & password, so call esp_wifi_connect() here. */
+			ESP_ERROR_CHECK(esp_wifi_wps_disable());
+			wifi_config_t wifi_config_temp;
+			ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_config_temp));
+			printf("WPS AP %s PWD %s\n", wifi_config_temp.ap.ssid, wifi_config_temp.ap.password);
+
+			SetWpsParameters(wifi_config_temp);
+			SetConfigReceived();
+
+		break;
+
 		default:
 			ESP_LOGI(TAG, "event; %d\n",event->event_id);
 		break;
     }
     return ESP_OK;
 }
-
 
 /**
  * @brief WiFi_GetConfigSM
@@ -283,7 +296,7 @@ gme_sm_t WiFi__Config (config_sm_t sm)
             	test2=10;
             }
             if(IsConfigReceived()){
-            	printf("Configuration Received");
+            	printf("Configuration Received\n");
             	WiFi__WriteCustomConfigInNVM(HTTPServer__GetCustomConfig());
 
                 if(C_SUCCESS == NVM__WriteU8Value("wifi_conf", (uint8_t)CONFIGURED)){
@@ -292,6 +305,13 @@ gme_sm_t WiFi__Config (config_sm_t sm)
                 if(wifi_conf == CONFIGURED){			//for future implementation
                 	wifi_conf = TO_RECONFIGURE;
                 }
+            }
+            if(IsWpsMode()){
+            	ESP_LOGI(TAG, "start wps...");
+            	static esp_wps_config_t config = WPS_CONFIG_INIT_DEFAULT(WPS_TYPE_PBC);
+            	ESP_ERROR_CHECK(esp_wifi_wps_enable(&config));
+            	ESP_ERROR_CHECK(esp_wifi_wps_start(0));
+            	UnSetWpsMode();
             }
             break;
 

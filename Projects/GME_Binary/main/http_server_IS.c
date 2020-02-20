@@ -12,6 +12,7 @@
 
 static const char *TAG = "http_server";
 static C_BYTE ReceivedConfig = 0;
+static C_BYTE WpsMode = 0;
 static html_pages LastPageSent = 0;
 
 // Handler to respond with file requested.
@@ -276,7 +277,10 @@ static C_RES upload_post_handler(httpd_req_t *req)
     case CONFIG:
         //Parsing configuration data
         get_html_config_received_data(sent_parameters);
-        ReceivedConfig = 1;
+        if(GetSsidSelection() != 2)
+        	SetConfigReceived();
+        else
+        	SetWpsMode();
         PRINTF_DEBUG_SERVER("config case received\n");
 
         httpd_resp_set_status(req, "303 See Other");
@@ -456,6 +460,22 @@ C_RES HTTPServer__StopServer(httpd_handle_t server){
     return err;
 }
 
+void SetConfigReceived(void){
+	ReceivedConfig = 1;
+}
+
 C_BYTE IsConfigReceived(void){
     return ReceivedConfig;
+}
+
+void SetWpsMode(void){
+	WpsMode = 1;
+}
+
+void UnSetWpsMode(void){
+	WpsMode = 0;
+}
+
+C_BYTE IsWpsMode(void){
+    return WpsMode;
 }

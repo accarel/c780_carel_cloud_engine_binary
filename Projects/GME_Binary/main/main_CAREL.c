@@ -291,7 +291,7 @@ void Carel_Main_Task(void)
 
 //If we received a new WiFi configuration during system running (Re-Configure)
 void GME__CheckHTMLConfig(void){
-	if(IsConfigReceived()){
+	if(IsConfigReceived() || IsWpsMode()){
 		printf("IsConfigReceived\n");
 		sm = GME_RADIO_CONFIG; //GME_WIFI_CONFIG;
 		WiFi_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);

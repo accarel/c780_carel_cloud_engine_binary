@@ -12,6 +12,7 @@
 #include "nvm_CAREL.h"
 #include "utilities_CAREL.h"
 #include <ctype.h>
+#include "wifi.h"
 
 static html_config_param_t HTMLConfig = {
 		.ap_ssid = AP_DEF_SSID,
@@ -228,6 +229,9 @@ void get_html_config_received_data(char* sent_parameters){
         HTMLConfig.ap_scan_mode = 1;
         get_value_from_string(sent_parameters, HTMLCONF_STA_SSID_SCAN, (unsigned short)(strlen(HTMLCONF_STA_SSID_SCAN)), &data_value[0]);
     }
+    else if(strcmp(data_value,"wps") == 0){
+		HTMLConfig.ap_scan_mode = 2;
+	}
     strcpy(HTMLConfig.sta_ssid,data_value);
     PRINTF_DEBUG_SERVER("sta_ssid: %s\n",HTMLConfig.sta_ssid);
 
@@ -279,6 +283,17 @@ html_config_param_t HTTPServer__GetCustomConfig (void){
 }
 
 
+void SetWpsParameters(wifi_config_t wifi_config_temp){
+
+	// read from file system
+	memcpy(HTMLConfig.ntp_server_addr, CfgDataUsr.ntp_server, sizeof(HTMLConfig.ntp_server_addr));
+	// set wps recovered data
+	strcpy(HTMLConfig.sta_ssid, (char*)wifi_config_temp.ap.ssid);
+	strcpy(HTMLConfig.sta_pswd, (char*)wifi_config_temp.ap.password);
+	// when configuring via wps, dhcp mode is forced
+	HTMLConfig.sta_dhcp_mode = 1;
+	return;
+}
 
 char* HTTPServer__SetAPDefSSID(const char* default_name){
 
@@ -296,3 +311,6 @@ char* HTTPServer__SetAPDefSSID(const char* default_name){
 	return ap_ssid_def;
 }
 
+uint8_t GetSsidSelection(void){
+	return HTMLConfig.ap_scan_mode;
+}

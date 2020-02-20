@@ -109,7 +109,8 @@ void get_html_config_received_data(char* sent_parameters);
 void HTTPServer__ParseCredfromNVM(void);
 int get_html_change_credentials(char* sent_parameters);
 html_config_param_t HTTPServer__GetCustomConfig (void);
-
+void SetWpsParameters(wifi_config_t wifi_config_temp);
+uint8_t GetSsidSelection(void);
 char* HTTPServer__SetAPDefSSID(const char* default_name);
 
 #endif /* MAIN_HTTP_SERVER_H_ */
