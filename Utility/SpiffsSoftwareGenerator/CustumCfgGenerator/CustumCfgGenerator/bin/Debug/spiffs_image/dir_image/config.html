@@ -52,14 +52,14 @@
 			   <td class="list_input"><label><b>SSID Selection</b></label></td>
 				<td>
                   <ul style=" padding-left: 0px; width=400pt">
-                    <li selected="selected" style = "display:inline;">
-                      <input id="scan_auto_on"  type="radio" value="on" name="sta_scan_mode" checked="checked" onclick="ShowHideDiv()">
+					  <input id="scan_auto_off" type="radio" value="off" name="sta_scan_mode" checked="checked" onclick="ShowHideDiv()">
+                      <label for="sta_scan_mode"><b>Manual</b></label>
+					  <br>
+                      <input id="scan_auto_on"  type="radio" value="on" name="sta_scan_mode" onclick="ShowHideDiv()">
                       <label for="sta_scan_mode"><b>Scan</b></label>
-                    </li>
-                    <li style = "display:inline; padding-left: 20px;">
-                        <input id="scan_auto_off" type="radio" value="off" name="sta_scan_mode" onclick="ShowHideDiv()">
-                        <label for="sta_scan_mode"><b>Manual</b></label>
-                      </li>
+					  <br>
+                      <input id="wps" type="radio" value="wps" name="sta_scan_mode" onclick="ShowHideDiv()">
+                      <label for="sta_scan_mode"><b>WPS</b></label>
                   </ul>
                 </td>
 				</tr>
@@ -68,6 +68,7 @@
 			  <td>
 			    <input type="text" value="" id="dvtext" name="sta_ssid_man" >
 				<select name="sta_ssid_scan" id="dvtext1" class="select_c">
+				<input type="text" value="" id="dvtext2" name="sta_ssid_wps" >
 				</select>
 			  </td>
               </tr>
@@ -83,7 +84,7 @@
 
               <tr>
                 <td class="list_input"><label for="sta_pswd"><b>Password</b></label></td>
-                <td><input type="password" value="" name="sta_pswd"><br>
+                <td><input type="password" value="" name="sta_pswd" id="sta_pswd"><br>
                   <input type="checkbox" onclick="stashowpass()">Show Password</td>
               </tr>
               
@@ -215,10 +216,23 @@ var configjs;
 	function ShowHideDiv() {
         var chkManual = document.getElementById("scan_auto_off");
 		var chkScan = document.getElementById("scan_auto_on");
+		var chkWPS = document.getElementById("wps");
         var dvtext = document.getElementById("dvtext");
         dvtext.style.display = chkManual.checked ? "block" : "none";
 		var dvtext1 = document.getElementById("dvtext1");
         dvtext1.style.display = chkScan.checked ? "block" : "none";
+		var dvtext2 = document.getElementById("dvtext2");
+		dvtext2.style.display = chkWPS.checked ? "block" : "none";
+		var ssid = document.getElementById("sta_ssid_wps");
+		var pwd = document.getElementById("sta_pswd");
+		
+		if(chkWPS.checked) {
+			dvtext2.disabled = true;
+			pwd.disabled = true;
+		} else {
+			dvtext2.disabled = false;
+			pwd.disabled = false;
+		}
     }
 
 	function sta_dhcp() {
