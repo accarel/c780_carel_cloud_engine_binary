@@ -113,16 +113,18 @@ typedef struct req_set_gw_config_s{
 #pragma pack(1)
 typedef struct cfg_data{
 	C_SBYTE cfg_version[2];
-	C_CHAR mqtt_broker[60];
-	C_CHAR mqtt_port[30];
+	C_UINT16 enc_key;
+	C_CHAR  mqtt_broker[60];
+	C_CHAR  mqtt_port[30];
 	C_SBYTE mqtt_pssw[PASSWORD_SIZE];
 	C_SBYTE mqtt_user[USERNAME_SIZE];
-	C_CHAR ntp_server[30];
-	C_CHAR ntp_port[6];
+	C_CHAR  ntp_server[30];
+	C_CHAR  ntp_port[6];
+	C_CHAR  crc[2];
 }cfg_data_t, *ptr_cfg_data_t;
 #pragma pack()
 
-ptr_cfg_data_t pCfgData;
+ptr_cfg_data_t pCfgData, pCfgDataUsr;
 cfg_data_t    CfgData, CfgDataUsr;
 /* ======================================================= */
 /*                 GENERAL PURPOSE DEFINE                  */

@@ -29,6 +29,9 @@ C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filena
 C_RES FS_GetCfgData(C_BYTE file);
 C_RES FS_SaveCfgData(C_BYTE file);
 
+void encrypt(char data[],int key);
+void dencrypt(char data[],int key);
+
 #ifdef __cplusplus
 }
 #endif

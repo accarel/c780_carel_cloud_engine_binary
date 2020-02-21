@@ -499,7 +499,7 @@ void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
 
 	memcpy(CfgDataUsr.ntp_server, config.ntp_server_addr, sizeof(config.ntp_server_addr));
 	//memcpy(CfgDataUsr.ntp_port, config.ntp_server_port, sizeof(config.ntp_server_port));
-	FS_SaveCfgData(CFG_DATA_USR);
+	FS_SaveCfgData(CFG_USR);
 
 	// da salvare in file
 	if(0 != strlen(config.mqtt_server_addr) && 0 != strlen(config.mqtt_server_port)){
@@ -509,7 +509,7 @@ void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
 
 		memcpy(CfgDataUsr.mqtt_broker , config.mqtt_server_addr, sizeof(config.mqtt_server_addr));
 		memcpy(CfgDataUsr.mqtt_port , config.mqtt_server_port, sizeof(config.mqtt_server_port));
-		FS_SaveCfgData(CFG_DATA_USR);
+		FS_SaveCfgData(CFG_USR);
 
 		NVM__WriteU8Value(MQTT_URL, CONFIGURED);
 	}else{

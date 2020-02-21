@@ -2080,6 +2080,9 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred){
 
+	C_BYTE res = C_FAIL;
+	C_UINT16 newCrc = 0;
+
     #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("Execute Change Credentials\n");
     #endif
@@ -2087,11 +2090,27 @@ C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred){
 	//		&& C_SUCCESS == NVM__WriteString(MQTT_PASS, change_cred.pwd)){
 	//	return C_SUCCESS;
 
+	// read and save (encrypt) the new credential user/password
 	memcpy(CfgDataUsr.mqtt_user , change_cred.usr, sizeof(change_cred.usr));
 	memcpy(CfgDataUsr.mqtt_pssw , change_cred.pwd, sizeof(change_cred.pwd));
 
-	if(FS_SaveCfgData(CFG_DATA_USR))
+	encrypt(CfgDataUsr.mqtt_user, CfgDataUsr.enc_key);
+	encrypt(CfgDataUsr.mqtt_pssw, CfgDataUsr.enc_key);
+
+	//new CRC
+	newCrc = CRC16(&CfgDataUsr ,sizeof(cfg_data_t)-2);
+
+	CfgDataUsr.crc[0] = (C_SBYTE)(newCrc);
+	CfgDataUsr.crc[1] = (C_SBYTE)(newCrc>>8);
+
+	// todo check the crc in the file system...todo pure quello
+	res = FS_SaveCfgData(CFG_USR);
+	if(res == C_SUCCESS)
 	{
+		// use the decrypted credential!!!
+		memcpy(CfgDataUsr.mqtt_user , change_cred.usr, sizeof(change_cred.usr));
+		memcpy(CfgDataUsr.mqtt_pssw , change_cred.pwd, sizeof(change_cred.pwd));
+
 		return C_SUCCESS;
 	}else{
 		return C_FAIL;

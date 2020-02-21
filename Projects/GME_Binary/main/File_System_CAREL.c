@@ -11,6 +11,27 @@
 #include "data_types_CAREL.h"
 #include "File_System_CAREL.h"
 #include "gme_config.h"
+#include "binary_model.h"
+
+
+void encrypt(char data[],int key)
+{
+    unsigned int i;
+    for(i=0;i<strlen(data);++i)
+    {
+    	data[i] = data[i] - key;
+    }
+}
+
+
+void decrypt(char data[],int key)
+{
+    unsigned int i;
+    for(i=0;i<strlen(data);++i)
+    {
+    	data[i] = data[i] + key;
+    }
+}
 
 long filesize(const char *fname)
 {
@@ -60,35 +81,35 @@ C_RES FS_CheckFiles(void){
         }
 
    long lung;
-	lung = filesize(CFG_DATA);
+	lung = filesize(CFG_DEF);
 
 	printf("lunghezza file dati %d \r\n", (int)lung);
 
 	// check if data default files is present
-	if (stat(CFG_DATA, &file_stat) == -1){
+	if (stat(CFG_DEF, &file_stat) == -1){
 
-		printf("Data File in %s is not found\n", CFG_DATA);
+		printf("Data File in %s is not found\n", CFG_DEF);
 
 	}else{
-		fsize = (int)filesize(CFG_DATA);
+		fsize = (int)filesize(CFG_DEF);
 
 		// reading from file system the data configuration	(non-changeble)
-		FS_GetCfgData(FILE_CFG_DATA);
+		FS_GetCfgData(FILE_CFG_DEF);
 
-		printf("Data File found in %s, size: %d \r\n", CFG_DATA, fsize);
+		printf("Data File found in %s, size: %d \r\n", CFG_DEF, fsize);
 	}
 
-	if (stat(CFG_DATA_USR, &file_stat) == -1){
+	if (stat(CFG_USR, &file_stat) == -1){
 
-		printf("Data usr File in %s is not found\n", CFG_DATA_USR);
+		printf("Data usr File in %s is not found\n", CFG_USR);
 
 	}else{
-		fsize = (int)filesize(CFG_DATA_USR);
+		fsize = (int)filesize(CFG_USR);
 		// reading from file system the data configuration	(changeble)
 
-		FS_GetCfgData(FILE_CFG_DATA_USR);
+		FS_GetCfgData(FILE_CFG_USR);
 
-		printf("Data usr File found in %s, size: %d \r\n", CFG_DATA_USR, fsize);
+		printf("Data usr File found in %s, size: %d \r\n", CFG_USR, fsize);
 	}
 
 
@@ -228,24 +249,61 @@ C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filena
 
 C_RES FS_GetCfgData(C_BYTE file)
 {
-	FILE *file_ptr;
-	uint8_t* dati = (uint8_t *)malloc(sizeof(cfg_data_t));
+	C_UINT16 calcCrc, spiffsCrc;
 
-	if(!file)
-	  file_ptr = fopen(CFG_DATA, "rb");
-	else
-	  file_ptr = fopen(CFG_DATA_USR, "rb");
+	FILE *file_ptr_1 = NULL;
+	FILE *file_ptr_2 = NULL;
 
-	fread(dati, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr);
+	uint8_t *dati_1 = (uint8_t *)malloc(sizeof(cfg_data_t));
+	uint8_t *dati_2 = (uint8_t *)malloc(sizeof(cfg_data_t));
 
-	pCfgData = (struct cfg_data*)dati;
+	if(file == FILE_CFG_DEF)
+	{
+	   file_ptr_1 = fopen(CFG_DEF, "rb");
 
-	if(!file)
-	   CfgData = *pCfgData;
-	else
-	   CfgDataUsr = *pCfgData;
+	   fread(dati_1, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr_1);
 
-	free(dati);
+	   fclose(file_ptr_1);
+	}
+	else if(file == FILE_CFG_USR)
+	{
+	  file_ptr_2 = fopen(CFG_USR, "rb");
+
+	  fread(dati_2, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr_2);
+
+	  fclose(file_ptr_2);
+	}
+
+	if(file == FILE_CFG_DEF)
+	  pCfgData = (struct cfg_data*)dati_1;
+	else if(file == FILE_CFG_USR)
+	  pCfgDataUsr = (struct cfg_data*)dati_2;
+
+	if(file == FILE_CFG_DEF)
+	{
+		CfgData = *pCfgData;
+
+		decrypt(CfgData.mqtt_pssw , CfgData.enc_key);
+		decrypt(CfgData.mqtt_user , CfgData.enc_key);
+	}
+	else if(file == FILE_CFG_USR)
+	{
+	   CfgDataUsr = *pCfgDataUsr;
+
+	   //controllo del crc
+	   calcCrc = CRC16(&CfgDataUsr ,sizeof(cfg_data_t)-2);
+
+	   spiffsCrc = ((C_UINT16)CfgDataUsr.crc[1]<<8) | (CfgDataUsr.crc[0]);
+
+	   if(calcCrc != spiffsCrc)
+		 return C_FAIL;
+
+	   decrypt(CfgDataUsr.mqtt_pssw , CfgDataUsr.enc_key);
+	   decrypt(CfgDataUsr.mqtt_user , CfgDataUsr.enc_key);
+	}
+
+	free(dati_1);
+	free(dati_2);
 
 	return C_SUCCESS;
 }
@@ -257,12 +315,12 @@ C_RES FS_SaveCfgData(C_BYTE file)
 
 	if(!file)
 	{
-	  file_ptr = fopen(CFG_DATA, "w");
+	  file_ptr = fopen(CFG_DEF, "w");
 	  fwrite(&CfgData, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr);
 	}
 	else
 	{
-  	  file_ptr = fopen(CFG_DATA_USR, "w");
+  	  file_ptr = fopen(CFG_USR, "w");
   	  fwrite(&CfgDataUsr, sizeof(uint8_t), sizeof(cfg_data_t), file_ptr);
 	}
 
