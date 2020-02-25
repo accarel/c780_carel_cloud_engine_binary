@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Solution>
+  <Info ManifestVersion="1.1.0">
+    <Name>cpCO_Rivacold_Emulator</Name>
+    <Description>An empty project template.</Description>
+    <Version>1.4.8</Version>
+    <CreationDate>2020-02-05T09:23:01.8743604Z</CreationDate>
+    <Owner>Carel Industries S.p.a</Owner>
+    <StorageToolManaged>false</StorageToolManaged>
+    <CSuiteVersion>4.4.22</CSuiteVersion>
+  </Info>
+</Solution>

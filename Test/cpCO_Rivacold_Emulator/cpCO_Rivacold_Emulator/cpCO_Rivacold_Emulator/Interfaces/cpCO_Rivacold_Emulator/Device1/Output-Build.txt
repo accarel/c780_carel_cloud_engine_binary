@@ -1,0 +1,8 @@
+﻿------ Build started: Project: cpCO_Rivacold_Emulator.Device1, Configuration: Debug pCO ------
+	Validating Terminal 'Terminal1'
+	Compiling terminal 'Terminal1'
+	Adding binaries for target 'CAREL_PCO'
+	Binaries for target 'CAREL_PCO' added with success
+ warning 105: [Simulation] Virtual addresses for target Simulator not found. Compile project in Simulation mode in c.strategy to simulate.
+ warning 105: [Simulation] Try to simulate with virtual addresses of target CAREL_PCO
+========== Build: 1 succeeded or up-to-date, 0 failed, 0 skipped ==========

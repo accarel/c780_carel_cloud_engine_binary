@@ -1,0 +1,28 @@
+﻿
+------ Pre-build task started: 2020-02-05 11:02:07 ------
+Variables names validation: correct state - elapsed time: 40 ms 
+
+------ Pre-build task completed: 2020-02-05 11:02:07 ------
+
+------ Build started: Project : cpCO_Rivacold_Emulator ------
+Checking database...
+-------------------- Check project for resource(s) to pre-build: CPCO_RIVACOLD_EMULATOR --------------------
+CPCO_RIVACOLD_EMULATOR:    0 error(s), 0 warning(s)
+Checking database...
+-------------------- Build project: CPCO_RIVACOLD_EMULATOR --------------------
+-------------------- Build resource: RESOURCE1    Configuration: DEVICE1 --------------
+Linking for CAREL_PCO
+RESOURCE1:    0 error(s), 0 warning(s)
+CPCO_RIVACOLD_EMULATOR:    0 error(s), 0 warning(s)
+------ Build End ------
+
+
+------ Post-build task started: 2020-02-05 11:02:09 ------
+Required c.mask compilation.
+Time: 0 secs.
+Common Repository created successfully
+------ Post-build task completed: 2020-02-05 11:02:09 ------
+
+
+
+========== Build: 1 succeeded, 0 failed, 0 up-to-date, 0 skipped ==========

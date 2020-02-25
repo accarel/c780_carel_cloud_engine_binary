@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Terminal Name="Terminal1" Display="PGD1" Language="EN" BeginFromMask="Mask_1" Layout="SixKeys" Font="CAREL_TERM_STD" ZoomCode="0" LoopFunction="TIMED_LOOP" Version="1.0">
+  <ShortCuts>
+    <ShortCut Name="ALARM" Code="12" />
+    <ShortCut Name="PRG" Code="5" />
+    <ShortCut Name="ESC" Code="0" />
+    <ShortCut Name="UP" Code="14" />
+    <ShortCut Name="ENTER" Code="13" />
+    <ShortCut Name="DOWN" Code="15" />
+  </ShortCuts>
+  <KeyBindings />
+  <Worksheet Name="Worksheet_1" Version="1.0.0">
+    <Loop Name="Loop_1" Type="Normal" X="0" Y="0">
+      <Mask Name="Mask_1" Type="Normal" X="0" Y="1">
+        <Fields>
+          <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+          <Field Type="Text" Name="Text" Row="0" Column="0" Content="0" />
+          <Field Type="Text" Name="Text_2" Row="1" Column="0" Content="1" />
+          <Field Type="Variable" Name="Variable" Row="1" Column="10" Content="Alarm_07" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+          <Field Type="Text" Name="Text_3" Row="2" Column="0" Content="2" />
+          <Field Type="Variable" Name="Variable_2" Row="2" Column="10" Content="DI_Low_01" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        </Fields>
+      </Mask>
+      <Mask Name="Mask" Type="Normal" X="0" Y="2">
+        <Fields>
+          <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+          <Field Type="Variable" Name="Variable" Row="1" Column="14" Content="modbus_address" Min="1" Max="100" Class="CL_INT" Format="io3" />
+          <Field Type="Text" Name="Text" Row="1" Column="0" Content="3" />
+        </Fields>
+      </Mask>
+    </Loop>
+  </Worksheet>
+</Terminal>
