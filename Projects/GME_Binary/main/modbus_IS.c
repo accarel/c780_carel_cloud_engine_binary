@@ -43,6 +43,7 @@ extern BOOL xMBMasterPortSerialTxPoll(void);
 
 static TaskHandle_t MODBUS_TASK = NULL;
 static uint32_t MB_Device = 0;
+static uint16_t MB_Delay = 0;
 
 
 
@@ -206,7 +207,7 @@ int app_coil_read(const uint8_t addr, const int func, const int index, const int
     errorCode = eMBMasterReqReadCoils(addr, saddr, num, timeout);
     result = errorCode;
 #endif
-
+    Modbus__Delay();
     return result;
 }
 
@@ -223,7 +224,7 @@ int app_coil_discrete_input_read(const uint8_t addr, const int func, const int i
     errorCode = eMBMasterReqReadDiscreteInputs(addr, saddr, num, timeout);
     result = errorCode;
 #endif
-
+    Modbus__Delay();
     return result;
 }
 
@@ -240,7 +241,7 @@ int app_holding_register_read(const uint8_t addr, const int func, const int inde
     errorCode = eMBMasterReqReadHoldingRegister(addr, saddr, num, timeout);
     result = errorCode;
 #endif
-
+    Modbus__Delay();
     return result;
 }
 
@@ -257,7 +258,7 @@ int app_input_register_read(const uint8_t addr, const int func, const int index,
     errorCode = eMBMasterReqReadInputRegister(addr, saddr, num, timeout);
     result = errorCode;
 #endif
-
+    Modbus__Delay();
     return result;
 }
 
@@ -275,7 +276,7 @@ int app_coil_write(const uint8_t addr, const int index, short newData)
 
     result = errorCode;
 #endif
-
+    Modbus__Delay();
     return result;
 }
 
@@ -295,7 +296,7 @@ int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 *
 
     result = errorCode;
 #endif
-
+    Modbus__Delay();
     return result;
 }
 
@@ -315,7 +316,7 @@ C_RES app_report_slave_id_read(const uint8_t addr)
     errorCode = eMBMAsterReqReportSlaveId(addr, timeout);
     result = errorCode;
 #endif
-
+    Modbus__Delay();
     return result;
 }
 
@@ -342,6 +343,19 @@ void Modbus__ReadAddressFromNVM(void){
 		MB_Device = 1;
 }
 
+void Modbus__ReadDelayFromNVM(void){
+	C_UINT32 delay;
+	if(C_SUCCESS == NVM__ReadU32Value(MB_DELAY_NVM, &delay))
+	    MB_Delay = delay;
+	else
+	    MB_Delay = 0;
+	printf("MB_Delay %d\n", MB_Delay);
+}
+
 C_UINT16 Modbus__GetAddress(void){
 	return MB_Device;
+}
+
+void Modbus__Delay(void){
+	Sys__Delay(MB_Delay);
 }

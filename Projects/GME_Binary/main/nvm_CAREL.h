@@ -23,6 +23,7 @@
 #define MB_DID_NVM "did"
 #define MB_DEV_NVM "dev"
 #define MB_CERT_NVM "cert"
+#define MB_DELAY_NVM "del"
 
 #define MQTT_USER "mqtt_user"
 #define MQTT_PASS "mqtt_pass"

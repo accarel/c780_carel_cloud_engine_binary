@@ -982,7 +982,7 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
  * @param Pointer to new serial connector type
  * @return CborError
  */
-CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT32* new_baud_rate, C_BYTE* new_connector)
+CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqlinesconfig *set_line_cfg)
 {
 	CborError err = CborNoError;
 	size_t stlen;
@@ -994,6 +994,7 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT3
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set lines config request map");
 
+	C_UINT32 tmp = 0;
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1001,13 +1002,21 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT3
 
 		if (strncmp(tag, "bau", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, new_baud_rate);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			set_line_cfg->baud = tmp;
 			DEBUG_DEC(err, "req_set_lines_config: bau");
 		}
 		else if (strncmp(tag, "con", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, new_connector);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			set_line_cfg->conn = tmp;
 			DEBUG_DEC(err, "req_set_lines_config: con");
+		}
+		else if (strncmp(tag, "del", 3) == 0)
+		{
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			set_line_cfg->del = tmp;
+			DEBUG_DEC(err, "req_set_lines_config: del");
 		}
 		else
 		{
@@ -1707,15 +1716,13 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case SET_LINES_CONFIG:
 		{
-
-			C_UINT32 new_baud_rate;
-			C_BYTE new_connector;
+			c_cborreqlinesconfig set_line_cfg = {0};
 			cbor_req.res = ERROR_CMD;
 
-			err = CBOR_ReqSetLinesConfig(cbor_stream, cbor_len, &new_baud_rate, &new_connector);
+			err = CBOR_ReqSetLinesConfig(cbor_stream, cbor_len, &set_line_cfg);
 			if (err == C_SUCCESS) {
 				// write new baud rate and connector to configuration file and put in res the result of operation
-				cbor_req.res = (execute_set_line_config(new_baud_rate, new_connector) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+				cbor_req.res = (execute_set_line_config(set_line_cfg) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -1981,11 +1988,12 @@ C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
 }
 
 
-C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector){
+C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg){
 
-	C_RES err = NVM__WriteU32Value(MB_BAUDRATE_NVM, new_baud_rate);
-	err |= NVM__WriteU8Value(MB_CONNECTOR_NVM, new_connector);
+	C_RES err = NVM__WriteU32Value(MB_BAUDRATE_NVM, set_line_cfg.baud);
+	err |= NVM__WriteU8Value(MB_CONNECTOR_NVM, set_line_cfg.conn);
 	err |= NVM__WriteU8Value(SET_LINE_CONFIG_NVM, CONFIGURED);
+	err |= NVM__WriteU32Value(MB_DELAY_NVM, set_line_cfg.del);
 
 	return err;
 }

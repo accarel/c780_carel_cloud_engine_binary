@@ -60,6 +60,7 @@ void Utilities__Init(void){
 	PollEngine__ReadBaudRateFromNVM();
 
 	Modbus__ReadAddressFromNVM();
+	Modbus__ReadDelayFromNVM();
 	CBOR_ReadDidFromNVM();
 
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)

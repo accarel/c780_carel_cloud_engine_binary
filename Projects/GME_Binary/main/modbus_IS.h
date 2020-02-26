@@ -44,5 +44,7 @@ int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 *
 void Modbus_Disable(void);
 void Modbus_Enable(void);
 void Modbus__ReadAddressFromNVM(void);
+void Modbus__ReadDelayFromNVM(void);
 C_UINT16 Modbus__GetAddress(void);
+void Modbus__Delay(void);
 #endif   /* #ifndef __MODBUS_IS_H */

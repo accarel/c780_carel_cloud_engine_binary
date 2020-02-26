@@ -195,7 +195,18 @@ typedef struct C_CBORREQUPDDEVFW{
 }c_cborrequpddevfw;
 #pragma pack()
 
-
+/**
+ * @brief C_CBORREQLINESCONFIG
+ *
+ * Request set lines config
+ */
+#pragma pack(1)
+typedef struct C_CBORLINESCFG{
+	C_UINT32 baud;
+	C_BYTE conn;
+	C_UINT16 del;
+}c_cborreqlinesconfig;
+#pragma pack()
 
 #pragma pack(1)
 typedef struct C_CBORSENDMBADU{
@@ -254,7 +265,7 @@ size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_
 size_t CBOR_ResSetDevsConfig(C_CHAR* cbor_response, c_cborhreq* cbor_req);
 
 CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbor_req);
-CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT32* new_baud_rate, C_BYTE* new_connector);
+CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqlinesconfig *set_line_cfg);
 CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqdwldevsconfig* download_devs_config);
 CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrdwrvalues* cbor_wv);
 CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqsetgwconfig* cbor_setgwconfig);
@@ -273,7 +284,7 @@ typedef		c_cborreqdwldevsconfig			c_cborreqchangecred;
 typedef 	c_cborrequpddevfw				c_cborrequpdgmefw;
 #define 	CBOR_ReqUpdateGMEFW 			CBOR_ReqUpdateDevFW
 
-C_RES execute_set_line_config(C_UINT32 new_baud_rate, C_BYTE new_connector);
+C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg);
 C_RES execute_download_devs_config(c_cborreqdwldevsconfig* download_devs_config);
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
