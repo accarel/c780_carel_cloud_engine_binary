@@ -87,7 +87,7 @@
 #define STYLE_CSS 			"/spiffs/style.css"
 #define FAV_ICON 			"/spiffs/fav.ico"
 
-define CFG_DEF			     "/spiffs/cfgdef.bin"
+#define CFG_DEF			     "/spiffs/cfgdef.bin"
 #define CFG_USR		         "/spiffs/cfgusr.bin"
 
 
