@@ -1,0 +1,10 @@
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\bin\Debug\netstandard1.0\Numbers.xml
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\bin\Debug\netstandard1.0\Numbers.deps.json
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\bin\Debug\netstandard1.0\Numbers.dll
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\bin\Debug\netstandard1.0\Numbers.pdb
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\obj\Debug\netstandard1.0\Numbers.csprojAssemblyReference.cache
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\obj\Debug\netstandard1.0\Numbers.csproj.CoreCompileInputs.cache
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\obj\Debug\netstandard1.0\Numbers.AssemblyInfoInputs.cache
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\obj\Debug\netstandard1.0\Numbers.AssemblyInfo.cs
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\obj\Debug\netstandard1.0\Numbers.dll
+C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\obj\Debug\netstandard1.0\Numbers.pdb

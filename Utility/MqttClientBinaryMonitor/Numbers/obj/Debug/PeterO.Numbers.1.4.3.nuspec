@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>PeterO.Numbers</id>
+    <version>1.4.3</version>
+    <title>Arbitrary-Precision Arithmetic Library</title>
+    <authors>Peter Occil</authors>
+    <owners>Peter Occil</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">CC0-1.0</license>
+    <licenseUrl>https://licenses.nuget.org/CC0-1.0</licenseUrl>
+    <projectUrl>https://github.com/peteroupc/Numbers</projectUrl>
+    <description>A C# library that supports arbitrary-precision binary and decimal floating-point numbers and rational numbers with arbitrary-precision components, and supports arithmetic with these numbers.</description>
+    <releaseNotes>Version 1.4.3
+
+- Fix accuracy issue with Log, especially where 1 &lt; x &lt; 1.07
+- Remove StyleCop.Analyzers, which is used only in development, as dependency in .NET version
+
+Version 1.4.2
+
+- Bug fix in the EInteger.CanFitInInt64 method
+
+Version 1.4.1
+
+- Added EDecimals and EFloats classes to .NET 2.0 and .NET 4.0 versions; those classes were inadvertently omitted there
+
+Version 1.4.0
+
+- Added EDecimals and EFloats class that implements more methods for arbitrary-precision decimal and binary numbers
+- Increment and decrement operators added to EInteger, EDecimal, EFloat, and ERational classes
+- Allowed EDecimal values in (-1, 0) to EDecimal's *Checked methods, to conform to documentation.
+- Added WithNoFlagsOrTraps method and HasFlagsOrTraps property to EContext
+- Add Mod(int), Pow(int), and FromBoolean methods to EInteger
+- Add And, Not, Xor, and Or methods to EInteger.cs
+- Add Copy method to EDecimal, EFloat, and ERational
+- Add CompareToTotalMagnitude overload to EDecimal, EFloat, and ERational
+- Deprecated Odd and ZeroFiveUp rounding modes
+- Bug fixes and performance improvements</releaseNotes>
+    <copyright>Written by Peter O. in 2017-2019.  Any copyright is released to the Public Domain.</copyright>
+    <tags>numbers arithmetic decimal math</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard1.0">
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\bin\Debug\netstandard1.0\Numbers.dll" target="lib\netstandard1.0\Numbers.dll" />
+    <file src="C:\internet\Sorgenti\CBOR\C#\Numbers-master_CANCELLABILE\Numbers-master\Numbers\bin\Debug\netstandard1.0\Numbers.xml" target="lib\netstandard1.0\Numbers.xml" />
+  </files>
+</package>

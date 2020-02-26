@@ -1,0 +1,64 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\internet\\Sorgenti\\CBOR\\C#\\Numbers-master_CANCELLABILE\\Numbers-master\\Numbers\\Numbers.csproj": {}
+  },
+  "projects": {
+    "C:\\internet\\Sorgenti\\CBOR\\C#\\Numbers-master_CANCELLABILE\\Numbers-master\\Numbers\\Numbers.csproj": {
+      "version": "1.4.3",
+      "restore": {
+        "projectUniqueName": "C:\\internet\\Sorgenti\\CBOR\\C#\\Numbers-master_CANCELLABILE\\Numbers-master\\Numbers\\Numbers.csproj",
+        "projectName": "PeterO.Numbers",
+        "projectPath": "C:\\internet\\Sorgenti\\CBOR\\C#\\Numbers-master_CANCELLABILE\\Numbers-master\\Numbers\\Numbers.csproj",
+        "packagesPath": "C:\\Users\\alessandrob\\.nuget\\packages\\",
+        "outputPath": "C:\\internet\\Sorgenti\\CBOR\\C#\\Numbers-master_CANCELLABILE\\Numbers-master\\Numbers\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\alessandrob\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard1.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard1.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard1.0": {
+          "dependencies": {
+            "Microsoft.CodeAnalysis.FxCopAnalyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.9.6, )"
+            },
+            "NETStandard.Library": {
+              "target": "Package",
+              "version": "[1.6.1, )",
+              "autoReferenced": true
+            },
+            "StyleCop.Analyzers": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.1.118, )"
+            }
+          }
+        }
+      }
+    }
+  }
+}

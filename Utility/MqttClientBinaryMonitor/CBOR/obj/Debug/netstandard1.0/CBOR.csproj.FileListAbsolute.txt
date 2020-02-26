@@ -1,0 +1,10 @@
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\bin\Debug\netstandard1.0\CBOR.xml
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\bin\Debug\netstandard1.0\CBOR.deps.json
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\bin\Debug\netstandard1.0\CBOR.dll
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\bin\Debug\netstandard1.0\CBOR.pdb
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\obj\Debug\netstandard1.0\CBOR.csprojAssemblyReference.cache
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\obj\Debug\netstandard1.0\CBOR.csproj.CoreCompileInputs.cache
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\obj\Debug\netstandard1.0\CBOR.AssemblyInfoInputs.cache
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\obj\Debug\netstandard1.0\CBOR.AssemblyInfo.cs
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\obj\Debug\netstandard1.0\CBOR.dll
+C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\obj\Debug\netstandard1.0\CBOR.pdb

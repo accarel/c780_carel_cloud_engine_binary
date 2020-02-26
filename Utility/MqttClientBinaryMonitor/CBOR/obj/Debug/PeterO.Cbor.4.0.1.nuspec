@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>PeterO.Cbor</id>
+    <version>4.0.1</version>
+    <title>CBOR (Concise Binary Object Representation)</title>
+    <authors>Peter Occil</authors>
+    <owners>Peter Occil</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">CC0-1.0</license>
+    <licenseUrl>https://licenses.nuget.org/CC0-1.0</licenseUrl>
+    <projectUrl>https://github.com/peteroupc/CBOR</projectUrl>
+    <description>A C# implementation of Concise Binary Object Representation (CBOR), a general-purpose binary data format defined in RFC 7049.</description>
+    <releaseNotes>Version 4.0.1:
+
+- Fix issue with unexpected CBORObject#ToString result for True and False.</releaseNotes>
+    <copyright>Written by Peter O. in 2013-2019.  Any copyright is released to the Public Domain.</copyright>
+    <tags>cbor data serialization binary json</tags>
+    <dependencies>
+      <group targetFramework=".NETStandard1.0">
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+        <dependency id="PeterO.Numbers" version="1.4.3" exclude="Build,Analyzers" />
+        <dependency id="PeterO.URIUtility" version="1.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\bin\Debug\netstandard1.0\CBOR.dll" target="lib\netstandard1.0\CBOR.dll" />
+    <file src="C:\internet\Sorgenti\CBOR\C#\CBOR-master_CANCELLABILE\CBOR-master\CBOR\bin\Debug\netstandard1.0\CBOR.xml" target="lib\netstandard1.0\CBOR.xml" />
+  </files>
+</package>

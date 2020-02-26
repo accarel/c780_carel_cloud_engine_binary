@@ -1,0 +1,61 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\hwfwdept_proj\\c780_carel_cloud_engine_binary\\Utility\\MqttClientBinaryMonitor\\Numbers40\\Numbers40.csproj": {}
+  },
+  "projects": {
+    "C:\\hwfwdept_proj\\c780_carel_cloud_engine_binary\\Utility\\MqttClientBinaryMonitor\\Numbers40\\Numbers40.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\hwfwdept_proj\\c780_carel_cloud_engine_binary\\Utility\\MqttClientBinaryMonitor\\Numbers40\\Numbers40.csproj",
+        "projectName": "Numbers40",
+        "projectPath": "C:\\hwfwdept_proj\\c780_carel_cloud_engine_binary\\Utility\\MqttClientBinaryMonitor\\Numbers40\\Numbers40.csproj",
+        "packagesPath": "C:\\Users\\alessandrob\\.nuget\\packages\\",
+        "outputPath": "C:\\hwfwdept_proj\\c780_carel_cloud_engine_binary\\Utility\\MqttClientBinaryMonitor\\Numbers40\\obj\\",
+        "projectStyle": "PackageReference",
+        "skipContentFileWrite": true,
+        "configFilePaths": [
+          "C:\\Users\\alessandrob\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net40"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net40": {
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "net40": {
+          "dependencies": {
+            "Microsoft.CodeAnalysis.FxCopAnalyzers": {
+              "target": "Package",
+              "version": "[2.9.6, )"
+            },
+            "StyleCop.Analyzers": {
+              "target": "Package",
+              "version": "[1.1.118, )"
+            }
+          }
+        }
+      },
+      "runtimes": {
+        "win": {
+          "#import": []
+        },
+        "win-x64": {
+          "#import": []
+        },
+        "win-x86": {
+          "#import": []
+        }
+      }
+    }
+  }
+}
