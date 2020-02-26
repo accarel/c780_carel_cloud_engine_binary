@@ -213,19 +213,17 @@ namespace MqttClientSimulatorBinary
         }
 
 
-
-
-
         private void MessageBoxUpdated(string msg)
         {
-            string s_msg;
+            string s_msg, s_msg2;
 
-            s_msg = Environment.NewLine + DateTime.Now.Ticks.ToString() + @" - " + msg_line_count.ToString() + @" " + msg ;
+            TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
+            s_msg2 = ((int)t.TotalSeconds).ToString();
+            s_msg = Environment.NewLine + s_msg2 + @" - " + msg_line_count.ToString() + @" " + msg;
             textBox_Message.Invoke(new Action(() => textBox_Message.AppendText(s_msg)));
             msg_line_count += 1;
         }
 
-               
 
 
         void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
