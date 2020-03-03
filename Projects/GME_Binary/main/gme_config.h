@@ -49,11 +49,11 @@
 #define STA_DEF_DNS1		"8.8.8.8"
 #define STA_DEF_DNS2		"8.8.4.4"
 
-#define AP_DEF_IP			"192.168.100.1"
-#define AP_DEF_GW			"192.168.100.1"
+#define AP_DEF_IP			"10.10.100.254"
+#define AP_DEF_GW			"10.10.100.254"
 #define AP_DEF_NETMASK		"255.255.255.0"
-#define AP_DEF_DHCP_BASE	"192.168.100.10"
-#define AP_DEF_SSID			"GME"
+#define AP_DEF_DHCP_BASE	"10.10.100.10"
+#define AP_DEF_SSID			"cgatem"
 #define AP_DEF_PSSWD		"12345678"
 #define AP_DEF_SSID_HIDDEN	0
 #define AP_DEF_MAX_CONN		10
@@ -109,6 +109,13 @@
 #define MB_PORTNUM 2
 #define MB_PARITY UART_PARITY_DISABLE
 
+#ifdef __USE_CAREL_BCU_HW
+#define ECHO_TEST_TXD  (19)
+#define ECHO_TEST_RXD  (3)
+#define ECHO_TEST_RTS  (22)
+#endif
+
+#ifdef __USE_ESP_WROVER_KIT
 // Note: UART2 default pins IO16, IO17 do not work on ESP32-WROVER module
 // because these pins connected to PSRAM
 #define ECHO_TEST_TXD  (26)
@@ -116,6 +123,21 @@
 
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
 #define ECHO_TEST_RTS   (18)
+#endif
+
+#ifdef __USE_USR_WIFI_HW
+#define ECHO_TEST_TXD  (26)
+#define ECHO_TEST_RXD  (25)
+// RTS for RS485 Half-Duplex Mode manages DE/~RE
+#define ECHO_TEST_RTS   (18)
+#endif
+
+#ifdef __USE_USR_2G_HW
+#define ECHO_TEST_TXD  (26)
+#define ECHO_TEST_RXD  (25)
+// RTS for RS485 Half-Duplex Mode manages DE/~RE
+#define ECHO_TEST_RTS   (18)
+#endif
 
 
 // for test TODO CHIEBAO

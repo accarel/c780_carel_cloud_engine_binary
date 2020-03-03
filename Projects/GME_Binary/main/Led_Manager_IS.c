@@ -158,6 +158,8 @@ void Led_Status_Update_Polling(Led_Show_Status_t status){
   static C_INT32 blink_timer = 0;
 
 
+#ifndef __USE_CAREL_BCU_HW
+
     switch (status)
 	{
 		case LED_OFF:
@@ -202,6 +204,7 @@ void Led_Status_Update_Polling(Led_Show_Status_t status){
           break;
 	}
 
+#endif
 }
 
 
@@ -278,13 +281,18 @@ void Led_init(void)
     gpio_set_direction(LED_STATUS_IO, GPIO_MODE_OUTPUT);	
 
     #ifdef _DEBUG_LEDS
+
+    #ifndef __USE_CAREL_BCU_HW
     gpio_pad_select_gpio(LED_GREEN);
     gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
 	gpio_set_level(LED_GREEN, LED_PHY_OFF);
 
+
     gpio_pad_select_gpio(LED_BLUE);
     gpio_set_direction(LED_BLUE, GPIO_MODE_OUTPUT);
 	gpio_set_level(LED_BLUE, LED_PHY_OFF);
+    #endif
+
     #endif
 
 	#endif

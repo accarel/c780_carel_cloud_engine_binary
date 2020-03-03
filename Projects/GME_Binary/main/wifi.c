@@ -560,7 +560,7 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 	tcpip_adapter_dhcps_stop(TCPIP_ADAPTER_IF_AP);
 	dhcps_lease_t optValue;
 	optValue.enable = true;
-	optValue.start_ip.addr = "192.168.100.10";//ipaddr_addr(config.ap_dhcp_ip);// End IP Address
+	optValue.start_ip.addr = "10.10.100.254";//ipaddr_addr(config.ap_dhcp_ip);// End IP Address
 	end_ip = optValue.start_ip.addr & 0x00FFFFFF;
 	temp = optValue.start_ip.addr >> 24;
 	temp += AP_DHCP_IP_RANGE;
