@@ -498,11 +498,17 @@ namespace MqttClientSimulatorBinary
             client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
             client.MqttMsgPublished += client_MqttMsgPublished;
 
-            string clientId = Guid.NewGuid().ToString();
+            //string clientId = Guid.NewGuid().ToString();
+
+            string clientId = @"A0A1A2A3A4A5A6"; //fixed for the simulator
 
             //client.Connect(clientId);                                                              // for local Mosquitto
             //client.Connect(clientId, "alessandro_bilato", "51ed38a4a4d14de09f021ee0de2db993");     // for Iot Adafruit    
-            client.Connect(clientId, "admin", "5Qz*(3_>K&vU!PS^");
+            //client.Connect(clientId, "admin", "5Qz*(3_>K&vU!PS^");                                 // mqtt-dev.tera.systems     
+
+            //mqtts://test-mqtt.remotepro.io   user=MAC=clientId
+
+            client.Connect(clientId, clientId, "7fTU6z2dH84CYry3");
 
             if (client.IsConnected)
             {
