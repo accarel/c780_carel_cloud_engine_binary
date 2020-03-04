@@ -103,6 +103,12 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 	cJSON_AddItemToObject(html_config, "sta_ssid3", cJSON_CreateString(GetAvailableAPs(2)));
 	cJSON_AddItemToObject(html_config, "sta_ssid4", cJSON_CreateString(GetAvailableAPs(3)));
 	cJSON_AddItemToObject(html_config, "sta_ssid5", cJSON_CreateString(GetAvailableAPs(4)));
+	cJSON_AddItemToObject(html_config, "sta_ssid6", cJSON_CreateString(GetAvailableAPs(5)));
+	cJSON_AddItemToObject(html_config, "sta_ssid7", cJSON_CreateString(GetAvailableAPs(6)));
+	cJSON_AddItemToObject(html_config, "sta_ssid8", cJSON_CreateString(GetAvailableAPs(7)));
+	cJSON_AddItemToObject(html_config, "sta_ssid9", cJSON_CreateString(GetAvailableAPs(8)));
+	cJSON_AddItemToObject(html_config, "sta_ssid10", cJSON_CreateString(GetAvailableAPs(9)));
+
 	cJSON_AddItemToObject(html_config, HTMLCONF_STA_PSWD, cJSON_CreateString(wifi_config->sta_pswd));
 
 	cJSON_AddItemToObject(html_config, HTMLCONF_STA_DHCP_MODE, cJSON_CreateBool((bool)wifi_config->sta_dhcp_mode));

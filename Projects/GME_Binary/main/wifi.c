@@ -1,14 +1,11 @@
-/*
- * wifi.c
- *
- *  Created on: Jun 17, 2019
- *      Author: ataayoub
- *
- *      FW Ver 90.00.00
+/**
+ * @file wifi.h
+ * @author ataayoub, CAREL
+ * @date 9 Sep 2019
+ * @brief  functions implementations specific related to the managment of the WiFi
  */
 
-
-#include"wifi.h"
+#include "wifi.h"
 #include "nvm_CAREL.h"
 #include <tcpip_adapter.h>
 #include"http_server_IS.h"
@@ -24,7 +21,7 @@ static connection_status_t STAStatus = DISCONNECTED;
 EventGroupHandle_t s_wifi_event_group;
 const int CONNECTED_BIT = BIT0;
 
-#define AP_SHOWN_IN_PAGE	10
+#define AP_SHOWN_IN_PAGE	11
 char AAP[AP_SHOWN_IN_PAGE][33];
 
 //Debugging
@@ -61,6 +58,7 @@ static html_config_param_t WiFiConfig = {
 void SaveAvailableAPs(uint8_t* ssid, uint8_t index){
 	strcpy(AAP[index],(char*)ssid);
 }
+
 char* GetAvailableAPs(uint8_t index){
 	return AAP[index];
 }
@@ -136,7 +134,11 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 		case SYSTEM_EVENT_SCAN_DONE:
 			ESP_LOGI(TAG, "SYSTEM_EVENT_SCAN_DONE");
 			esp_wifi_scan_get_ap_num(&apCount);
-			printf("Number of access points found: %d\n",event->event_info.scan_done.number);
+
+
+
+
+
 			if (apCount == 0) {
 				return ESP_OK;
 			}
@@ -144,9 +146,14 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, list));
 			int i;
 			int l=0;
+
+            #ifdef __DEBUG_WIFI_LEV_2
+			printf("Number of access points found: %d\n",event->event_info.scan_done.number);
 			printf("======================================================================\n");
 			printf("             SSID             |    RSSI    |           AUTH           \n");
 			printf("======================================================================\n");
+            #endif
+
 			for (i=0; i<apCount; i++) {
 				 char *authmode;
 				 switch(list[i].authmode) {
@@ -169,14 +176,32 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 					   authmode = "Unknown";
 					   break;
 				 }
+
+				 #ifdef __DEBUG_WIFI_LEV_2
 				 printf("%26.26s    |    % 4d    |    %22.22s\n",list[i].ssid, list[i].rssi, authmode);
-				 if(list[i].ssid[0] != '\0' && l<AP_SHOWN_IN_PAGE){
+                 #endif
+
+				 /* only protected AP will be listed */
+				 if (  list[i].ssid[0] != '\0' &&
+					 ((list[i].authmode==WIFI_AUTH_WPA_PSK) ||
+					  (list[i].authmode==WIFI_AUTH_WPA2_PSK) ||
+					  (list[i].authmode==WIFI_AUTH_WPA_WPA2_PSK)) &&
+						 l<AP_SHOWN_IN_PAGE){
+
 					 SaveAvailableAPs(list[i].ssid, l);
 					 l++;
 				 }
 			}
-			free(list);
+
+            #ifdef __DEBUG_WIFI_LEV_2
+			for (i=0; i<AP_SHOWN_IN_PAGE; i++)
+			{
+			printf("WEB PAGE AP List[%d] %s\r\n",i, AAP[i]);
+			}
 			printf("\n\n");
+            #endif
+
+			free(list);
 		break;
 
 		case SYSTEM_EVENT_STA_WPS_ER_SUCCESS:
@@ -185,7 +210,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			ESP_ERROR_CHECK(esp_wifi_wps_disable());
 			wifi_config_t wifi_config_temp;
 			ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_config_temp));
+
+            #ifdef __DEBUG_WIFI_LEV_1
 			printf("WPS AP %s PWD %s\n", wifi_config_temp.ap.ssid, wifi_config_temp.ap.password);
+            #endif
 
 			SetWpsParameters(wifi_config_temp);
 			SetConfigReceived();
@@ -256,9 +284,11 @@ gme_sm_t WiFi__Config (config_sm_t sm)
         switch(config_sm)
         {
         case CHECK_FOR_CONFIG:
+            #ifdef __DEBUG_WIFI_LEV_1
             printf("WiFi__Config .... CHECK_FOR_CONFIG\n");
-            /*Check in NVM*/
+            #endif
 
+            /*Check in NVM*/
             if(C_SUCCESS == NVM__ReadU8Value("wifi_conf", &wifi_conf) && CONFIGURED == wifi_conf){
             	WiFi__ReadCustomConfigFromNVM();
                 config_sm = CONFIGURE_GME;
@@ -268,15 +298,23 @@ gme_sm_t WiFi__Config (config_sm_t sm)
             break;
 
         case SET_DEFAULT_CONFIG:
+            #ifdef __DEBUG_WIFI_LEV_1
             printf("WiFi__Config .... SET_DEFAULT_CONFIG\n");
+            #endif
+
             if(WiFi__SetDefaultConfig()){
                 config_sm = START_WIFI;
             }
+            #ifdef __DEBUG_WIFI_LEV_1
             printf("WiFi__Config .... SET_DEFAULT_CONFIG  END\n");
+            #endif
             break;
 
         case START_WIFI:
+            #ifdef __DEBUG_WIFI_LEV_1
             printf("WiFi__Config .... START_WIFI\n");
+            #endif
+
             if (WiFi__StartWiFi()){
                 ESP_ERROR_CHECK(HTTPServer__StartFileServer(&AP_http_server, "/spiffs"));
 
@@ -290,13 +328,18 @@ gme_sm_t WiFi__Config (config_sm_t sm)
 
         case WAITING_FOR_HTML_CONF_PARAMETERS:
             if(test2 == 0){
+                #ifdef __DEBUG_WIFI_LEV_1
             	//printf("\nGateway Mode = %d, Wifi Conf has %d config\n\n",WiFi__GetCustomConfig().gateway_mode,wifi_conf);
             	printf("\nWifi Conf has %d config\n\n",wifi_conf);
             	printf("WiFi__Config .... WAITING_FOR_HTML_CONF_PARAMETERS\n");
+                #endif
             	test2=10;
             }
             if(IsConfigReceived()){
+                #ifdef __DEBUG_WIFI_LEV_1
             	printf("Configuration Received\n");
+                #endif
+
             	WiFi__WriteCustomConfigInNVM(HTTPServer__GetCustomConfig());
 
                 if(C_SUCCESS == NVM__WriteU8Value("wifi_conf", (uint8_t)CONFIGURED)){
@@ -316,9 +359,11 @@ gme_sm_t WiFi__Config (config_sm_t sm)
             break;
 
         case CONFIGURE_GME:
+            #ifdef __DEBUG_WIFI_LEV_1
             printf("WiFi__Config .... CONFIGURE_GME\n");
-            if(CONFIGURED == wifi_conf){
+            #endif
 
+            if(CONFIGURED == wifi_conf){
             	WiFi__SetCustomConfig(WiFi__GetCustomConfig());
                 config_sm = START_WIFI;
             }else{
@@ -334,7 +379,10 @@ gme_sm_t WiFi__Config (config_sm_t sm)
         //If the factory reset button has been pressed for X time (look gme_config.h)
         if(true == Sys__ResetCheck())
         {
+            #ifdef __DEBUG_WIFI_LEV_1
         	printf("RESET CHECK DONE SYS\n");
+            #endif
+
         	return GME_REBOOT;
         }
     }
@@ -410,7 +458,9 @@ int WiFi__SetDefaultConfig(void)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config_AP));
 
+    #ifdef __DEBUG_WIFI_LEV_1
     printf("wifi_init_AP:\nSSID: %s\nPswd: Open Network\n" , ap_ssid_def);
+    #endif
 
 return 1;
 }
@@ -418,12 +468,8 @@ return 1;
 
 
 int WiFi__StartWiFi(void){
-
     ESP_ERROR_CHECK(esp_wifi_start());
-
-
-
-return 1;
+    return 1;
 }
 
 
@@ -587,7 +633,10 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 	strcpy((char*)wifi_config_STA.sta.ssid,config.sta_ssid);
 	strcpy((char*)wifi_config_STA.sta.password,config.sta_pswd);
 	//wifi_config_AP.sta.ssid_len = strlen(config.ap_ssid);
+
+    #ifdef __DEBUG_WIFI_LEV_1
 	printf("\nSTA SSID = %s  and  Password = %s\n",wifi_config_STA.sta.ssid,wifi_config_STA.sta.password);
+    #endif
 
 	if(!config.sta_dhcp_mode)
 	{
@@ -601,7 +650,9 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
 	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config_STA));
 
+    #ifdef __DEBUG_WIFI_LEV_1
 	printf("wifi_init_AP\n  SSID: %s\n  Pass: %s\n" , wifi_config_AP.ap.ssid, wifi_config_AP.ap.password);
+    #endif
 
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config_AP));
 

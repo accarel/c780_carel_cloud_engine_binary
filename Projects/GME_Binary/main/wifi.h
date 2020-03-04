@@ -1,20 +1,38 @@
-/*
- * wifi.h
- *
- *  Created on: Jun 17, 2019
- *      Author: ataayoub
- *
- *      FW Ver 90.00.00
+/**
+ * @file wifi.h
+ * @author ataayoub, CAREL
+ * @date 9 Sep 2019
+ * @brief  functions implementations specific related to the managment of the WiFi
  */
 
 #ifndef MAIN_WIFI_H_
 #define MAIN_WIFI_H_
 
+
+
+/* ========================================================================== */
+/* include                                                                    */
+/* ========================================================================== */
 #include "common.h"
 #include"http_server_CAREL.h"
 #include "https_client_CAREL.h"
 #include "esp_wifi.h"
 #include "radio.h"
+
+#include "CAREL_GLOBAL_DEF.h"
+
+/* ========================================================================== */
+/* typedefs and defines                                                       */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+ //this define enable the output of the errors
+#define __DEBUG_WIFI_LEV_1
+
+//this define enable the output of others debug informations
+//#define __DEBUG_WIFI_LEV_2
+#endif
+
 
 gme_sm_t WiFi__Config (config_sm_t sm);
 config_sm_t WiFi_GetConfigSM(void);
@@ -35,7 +53,5 @@ C_RES WiFi__GetMac(uint8_t* wifi_mac_address_gw);
 int8_t WiFi__GetRSSI(void);
 char* GetAvailableAPs(uint8_t index);
 esp_err_t test_sta(html_config_param_t config);
-
-
 
 #endif /* MAIN_WIFI_H_ */
