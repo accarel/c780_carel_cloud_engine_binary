@@ -38,7 +38,7 @@
 #ifdef __CCL_DEBUG_MODE
 
 //this define enable the output of the communications errors
-#define __DEBUG_POLLING_CAREL_LEV_1
+//#define __DEBUG_POLLING_CAREL_LEV_1
 
 //this define enable the output of others debug informations
 //#define __DEBUG_POLLING_CAREL_LEV_2
@@ -199,22 +199,20 @@ typedef struct mb_param_char_s{
 #pragma pack(1)
 typedef struct sampling_tstamp{
 	uint32_t current_alarm;
-	//uint32_t previous_alarm;
 	uint32_t current_high;
-	//uint32_t previous_high;
 	uint32_t current_low;
-	//uint32_t previous_low;
+	uint32_t current_pva;
 }sampling_tstamp_t;
 #pragma pack()
 
 
 #pragma pack(1)
 typedef struct values_buffer_s{
-	uint16_t 	index;
 	uint16_t 	alias;
 	long double value;
 	uint8_t		info_err;
 	uint8_t     data_type;
+	uint32_t 	t;
 }values_buffer_t;
 #pragma pack()
 
@@ -222,8 +220,7 @@ typedef struct values_buffer_s{
 
 #pragma pack(1)
 typedef struct values_buffer_timing_s{
-	uint32_t 	t_start;
-	uint32_t 	t_stop;
+	uint32_t 	t_current;
 	uint16_t 	index;
 }values_buffer_timing_t;
 #pragma pack()
@@ -338,9 +335,7 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num);
 
 
 values_buffer_t* PollEngine__GetValuesBuffer(void);
-values_buffer_timing_t* PollEngine__GetTimeBuffer(void);
-uint16_t PollEngine__GetValuesBufferIndex(void);
-uint16_t PollEngine__GetTimerBufferIndex(void);
+uint16_t PollEngine__GetValuesBufferCount(void);
 void PollEngine__ResetValuesBuffer(void);
 uint32_t PollEngine__GetMBBaudrate(void);
 
@@ -378,5 +373,8 @@ bool IsOffline(void);
 
 #define MB_RESPONSE_TIMEOUT(size) pdMS_TO_TICKS(30 + (2 * ((size << 1) + 8) * 11 * 1000 / PollEngine__GetMBBaudrate()))
 
+C_TIME Get_SamplingTime(C_UINT16 index);
+C_CHAR* Get_Alias(C_UINT16 index, char* alias);
+C_CHAR* Get_Value(C_UINT16 index, char* value);
 
 #endif

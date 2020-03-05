@@ -32,7 +32,7 @@
 #define __DEBUG_CBOR_CAREL_LEV_1
 
 //this define enable the output of others debug informations
-//#define __DEBUG_CBOR_CAREL_LEV_2
+#define __DEBUG_CBOR_CAREL_LEV_2
 
 #endif
 
@@ -44,8 +44,8 @@
 #define TAG_SIZE				3
 
 #define RESPONSE_SIZE			80
-#define ALIAS_SIZE				10	//TODO
-#define VAL_SIZE				30
+#define ALIAS_SIZE				5
+#define VAL_SIZE				10
 #define A_SIZE					30
 #define B_SIZE					30
 #define ENTRY_PER_PKT			VLS_NUMBER //TODO
@@ -253,6 +253,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream);
 void CBOR_SendStatus(void);
 size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16 frame);
 void CBOR_SendFragmentedValues(C_UINT16 index, C_UINT16 number);
+void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
 size_t CBOR_Connected(C_CHAR* cbor_stream, C_UINT16 cbor_status);
 

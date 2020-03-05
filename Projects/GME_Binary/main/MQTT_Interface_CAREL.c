@@ -34,7 +34,7 @@ const int MQTT_DISCONNECTED_BIT = BIT1;
 
 static C_BYTE mqtt_init = 0;
 static C_MQTT_TOPIC mqtt_topic;
-static mqtt_times_t mqtt_time;
+static uint32_t mqtt_status_time;
 static EventBits_t MQTT_BITS;
 
 /**
@@ -99,20 +99,8 @@ C_RES MQTT_Start(void)
 	strcat(mqtt_cfg_nvm.uri, CfgDataUsr.mqtt_port);   			   // mqtt_port_str
 	mqtt_cfg_nvm.keepalive = MQTT_KEEP_ALIVE_DEFAULT_SEC;
 
-
-	//if(C_SUCCESS != NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)          // non serve più!
-	//	|| C_SUCCESS != NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)){
-	//	printf("mqtt user pass check default \n");
-		strcpy(mqtt_cfg_nvm.username, CfgDataUsr.mqtt_user);    // MQTT_DEFAULT_USER
-		strcpy(mqtt_cfg_nvm.password, CfgDataUsr.mqtt_pssw);     // MQTT_DEFAULT_PWD
-	//}
-
-//	if(C_SUCCESS == NVM__ReadU8Value(MQTT_URL, &mqtt_url) && CONFIGURED == mqtt_url){        // non serve più!
-//		printf("mqtt url port check ok \n");
-//		strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
-//		strcat(mqtt_cfg_nvm.uri, ":");
-//		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
-//	}
+	strcpy(mqtt_cfg_nvm.username, CfgDataUsr.mqtt_user);    // MQTT_DEFAULT_USER
+	strcpy(mqtt_cfg_nvm.password, CfgDataUsr.mqtt_pssw);     // MQTT_DEFAULT_PWD
 
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 		size_t gw_config_len;
@@ -188,97 +176,49 @@ void MQTT_Stop(void)
 	vEventGroupDelete(s_mqtt_event_group);
 }
 
-
-db_values val_array[10];
-
-C_TIME Get_SamplingTime(C_UINT16 index){
-    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-	PRINTF_DEBUG("Get_SamplingTime index: %d, t:%d\n", index, val_array[index].t);
-    #endif
-	return val_array[index].t;}
-
-C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i){
-    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-	PRINTF_DEBUG("Get_Alias index: %d, i: %d, alias:%s\n", index, i, val_array[index].vls[i].alias);
-    #endif
-	return val_array[index].vls[i].alias;}
-
-
-C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i){
-    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-	PRINTF_DEBUG("Get_Value index: %d, i: %d, vls:%s\n", index, i, val_array[index].vls[i].values);
-    #endif
-	return val_array[index].vls[i].values;}
-
-void CBOR_CreateSendValues(values_buffer_t *values_buffer, values_buffer_timing_t *time_values_buff, uint16_t values_buffer_index, uint16_t values_buffer_read_section)
+void CBOR_CreateSendValues(values_buffer_t *values_buffer, uint16_t values_buffer_count)
 {
 	uint32_t i, j;
 	j = 0;
 
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-	PRINTF_DEBUG("CBOR_CreateSendValues values_buffer_read_section: %d, values_buffer_index: %d\n", values_buffer_read_section, values_buffer_index);
+	PRINTF_DEBUG("CBOR_CreateSendValues: values_buffer_count: %d\n", values_buffer_count);
     #endif
 
-	for(i = 0; i < values_buffer_read_section - 1; i++){
-		uint32_t jj = 0;
-		val_array[i].t = time_values_buff[i].t_stop;
+	if (values_buffer_count != 0)
+		j = 1;
 
-		while(time_values_buff[i].index == values_buffer[j].index){
-            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-			PRINTF_DEBUG("i: %d, j: %d, alias: %d, value: %Lf, err:%d\n", i, j, values_buffer[j].alias, values_buffer[j].value, values_buffer[j].info_err);
-			PRINTF_DEBUG("time index %d, values index %d\n", time_values_buff[i].index, values_buffer[j].index);
-            #endif
-			itoa(values_buffer[j].alias, (char*)val_array[i].vls[jj].alias, 10);
-			if(0 != values_buffer[j].info_err)
-				memcpy(val_array[i].vls[jj].values, "", 1);
-			else{
-				if(values_buffer[j].data_type != 16)
-					sprintf(val_array[i].vls[jj].values, "%.1Lf", values_buffer[j].value);
-				else
-				    itoa(values_buffer[j].value, (char*)val_array[i].vls[jj].values, 10);
-			}
-			j++;
-			jj++;
+	for (i = 0; i < values_buffer_count; i++)
+	{
+#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+		PRINTF_DEBUG("i: %d, alias: %d, value: %Lf, err:%d\n", i, values_buffer[i].alias, values_buffer[i].value, values_buffer[i].info_err);
+		PRINTF_DEBUG("time %d\n", values_buffer[i].t);
+#endif
+		if(values_buffer[i].t == values_buffer[i+1].t) {
+			 j++;   // j is the number of values with same t
 		}
-		if (MQTT_GetFlags() == 1)
-			CBOR_SendFragmentedValues(i, jj);
 	}
-
-	if (j == 0 && MQTT_GetFlags() == 1) // nothing to send, then send an empty packet
-		CBOR_SendFragmentedValues(0, 0);
+	// this does not manage segmentation yet, but maybe it's not needed (TODO Vale)
+	CBOR_SendValues(1, j, -1);
 }
 
 void MQTT_FlushValues(void){
 
-	CBOR_CreateSendValues(PollEngine__GetValuesBuffer(), PollEngine__GetTimeBuffer(),
-			PollEngine__GetValuesBufferIndex(),	PollEngine__GetTimerBufferIndex());
-
-
-	mqtt_time.cbor_values =  RTC_Get_UTC_Current_Time();
-
-	if(MQTT_GetFlags() == 1)
+	if (MQTT_GetFlags() == 1) {	// maybe this check is not required... TODO Vale
+		CBOR_CreateSendValues(PollEngine__GetValuesBuffer(), PollEngine__GetValuesBufferCount());
 		PollEngine__ResetValuesBuffer();
-
+	}
 }
 
 void MQTT_Status(void)
 {
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_status + Utilities__GetGWConfigData()->statusPeriod))
+	if(RTC_Get_UTC_Current_Time() > (mqtt_status_time + Utilities__GetGWConfigData()->statusPeriod))
 	{
         #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 		printf("Sending STATUS CBOR \n\n");
         #endif
 		CBOR_SendStatus();
-		mqtt_time.cbor_status = RTC_Get_UTC_Current_Time();
-	}
-}
-
-void MQTT_Values(void)
-{
-	if(RTC_Get_UTC_Current_Time() > (mqtt_time.cbor_values + Utilities__GetGWConfigData()->valuesPeriod))
-	{
-		MQTT_FlushValues();
-		mqtt_time.cbor_values = RTC_Get_UTC_Current_Time();
+		mqtt_status_time = RTC_Get_UTC_Current_Time();
 	}
 }
 
@@ -289,7 +229,6 @@ void MQTT_Alarms(c_cboralarms alarms)
 
 void MQTT_PeriodicTasks(void)
 {
-	MQTT_Values();
 	MQTT_Status();
 }
 
@@ -359,9 +298,8 @@ C_RES EventHandler(mqtt_event_handle_t event)
 				CBOR_SendHello();
 				MQTT_Status();
 				mqtt_init = 1;
-            	mqtt_time.cbor_status = RTC_Get_UTC_Current_Time();
-				mqtt_time.cbor_values = RTC_Get_UTC_Current_Time();
-    		}
+				mqtt_status_time = RTC_Get_UTC_Current_Time();
+			}
 
         	break;
         case MQTT_EVENT_DISCONNECTED:

@@ -30,6 +30,7 @@
 #include "polling_CAREL.h"
 #include "nvm_CAREL.h"
 #include "sys_IS.h"
+#include "utilities_CAREL.h"
 
 #include "Led_Manager_IS.h"
 
@@ -78,13 +79,9 @@ static hr_ir_alarm_tables_t		*IRAlarmPollTab;
 static sampling_tstamp_t timestamp = {0};
 
 //Values and time buffers
-static uint16_t values_buffer_index = 0;
-static uint16_t values_buffer_read_section = 1;
+static uint16_t values_buffer_count = 0;
 static uint16_t values_buffer_len = 0;
 static values_buffer_t *values_buffer = NULL;
-static values_buffer_timing_t *time_values_buff = NULL;
-static uint16_t time_values_buff_len = 0;
-//static uint8_t test = 0;
 
 //Engine flags
 static passing_mode_fsm_t PassMode_FSM = START_TIMER;
@@ -93,7 +90,7 @@ static uint8_t PassMode_CmdStatus = NOT_RECEIVED;
 static uint32_t MB_BaudRate = 0;
 static uint16_t NullTimerAlarm = 0;
 
-// usefull for a MODBUS READING AND QWRITING
+// useful for a MODBUS READING AND QWRITING
 
 USHORT param_buffer[2];				// max 32 bits
 eMBErrorCode retError = MB_ENOREG;
@@ -112,6 +109,36 @@ static void save_coil_di_value(coil_di_low_high_t *arr, void* instance_ptr);
 static void save_hr_ir_value(hr_ir_low_high_poll_t *arr, void* instance_ptr);
 static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* instance_ptr);
 static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_ptr);
+
+static void SetAllErrors(eMBMasterReqErrCode error){
+	int i=0;
+
+	//Coil
+	for(i=0;i<low_n.coil;i++)
+		COILLowPollTab.reg[i].error = error;
+	//DI
+	for(i=0;i<low_n.di;i++)
+		DILowPollTab.reg[i].error = error;
+	//HR
+	for(int i=0;i<low_n.hr;i++)
+		HRLowPollTab.tab[i].error = error;
+	//IR
+	for(int i=0;i<high_n.ir;i++)
+		IRLowPollTab.tab[i].error = error;
+	//Coil
+	for(i=0;i<high_n.coil;i++)
+		COILHighPollTab.reg[i].error = error;
+	//DI
+	for(i=0;i<high_n.di;i++)
+		DIHighPollTab.reg[i].error = error;
+	//HR
+	for(int i=0;i<high_n.hr;i++)
+		HRHighPollTab.tab[i].error = error;
+	//IR
+	for(int i=0;i<high_n.ir;i++)
+		IRHighPollTab.tab[i].error = error;
+}
+
 /**
  * @brief create_tables
  *        this function creates the Coil, Di, Hr and Ir buffers
@@ -120,6 +147,7 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
  * @param  none
  * @return none
  */
+
 void PollEngine__CreateTables(void){
 
 	BinaryModel__GetNum(DeviceParamCount);
@@ -266,7 +294,7 @@ void PollEngine__CreateTables(void){
 			IRAlarmPollTab[i].info =  *((r_hr_ir_alarm*)(p_ir_alarm_sect + (i * sizeof(r_hr_ir_alarm))));
 		}
 	}
-
+	SetAllErrors(MB_MRE_TIMEDOUT);
 	create_modbus_tables();
 }
 /**
@@ -305,21 +333,13 @@ void create_modbus_tables(void)
 
 
 void create_values_buffers(void){
-	//Allocate Time buffer for values buffer
-	time_values_buff_len = (uint16_t)(ceil(TSEND / T_LOW_POLL) + ceil(TSEND / T_HIGH_POLL));
-
-	time_values_buff = malloc(time_values_buff_len * sizeof(values_buffer_timing_t));           // malloc
-	memset((void*)time_values_buff, 0, time_values_buff_len * sizeof(values_buffer_timing_t));
 	//Allocate values buffer
 	uint32_t  freespace = uxTaskGetStackHighWaterMark(NULL);
-
-
 	freespace -= 1000;
 	values_buffer_len = (uint16_t)(freespace/((uint32_t)sizeof(values_buffer_t)));
 
 	values_buffer = malloc(values_buffer_len * sizeof(values_buffer_t));						// malloc
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
-
 }
 
 
@@ -418,11 +438,11 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 	bool to_values_buff = false;
 	long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
-		if(0 != arr->tab[i].error && arr->tab[i].error != arr->tab[i].p_error){
-			values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
-			values_buffer[values_buffer_index].value = 0;
-			values_buffer[values_buffer_index].info_err = arr->tab[i].error;
-			check_increment_values_buff_len(&values_buffer_index);
+		if( arr->tab[i].error != arr->tab[i].p_error && ( (arr->tab[i].error != 0) /*|| (arr->tab[i].p_error != 0)*/ )){
+			values_buffer[values_buffer_count].alias = arr->tab[i].info.Alias;
+			values_buffer[values_buffer_count].value = 0;
+			values_buffer[values_buffer_count].info_err = arr->tab[i].error;
+			check_increment_values_buff_len(&values_buffer_count);
 		}
 		else{
 			// reinit value otherwise all variables will be considered changed
@@ -603,11 +623,11 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				break;
 			}
 			if(value != 0 || (first_run)){
-				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
-				values_buffer[values_buffer_index].value = value;
-				values_buffer[values_buffer_index].info_err = 0;
-				values_buffer[values_buffer_index].data_type = arr->tab[i].info.dim;
-				check_increment_values_buff_len(&values_buffer_index);
+				values_buffer[values_buffer_count].alias = arr->tab[i].info.Alias;
+				values_buffer[values_buffer_count].value = value;
+				values_buffer[values_buffer_count].info_err = 0;
+				values_buffer[values_buffer_count].data_type = arr->tab[i].info.dim;
+				check_increment_values_buff_len(&values_buffer_count);
 			}
 		}
 	}
@@ -626,21 +646,21 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 {
 	for(uint8_t i=0; i<arr_len; i++){
 		//error?
-		if(0 != arr->reg[i].error && arr->reg[i].error != arr->reg[i].p_error){
+		if( arr->reg[i].error != arr->reg[i].p_error && ( (arr->reg[i].error != 0)) ){
 			//send values to values buffer as error
-			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
-			values_buffer[values_buffer_index].value = 0;
-			values_buffer[values_buffer_index].info_err = arr->reg[i].error;
-			check_increment_values_buff_len(&values_buffer_index);
+			values_buffer[values_buffer_count].alias = arr->reg[i].info.Alias;
+			values_buffer[values_buffer_count].value = 0;
+			values_buffer[values_buffer_count].info_err = arr->reg[i].error;
+			check_increment_values_buff_len(&values_buffer_count);
 
 		}
 		//value changed
 		else if(arr->reg[i].c_value != arr->reg[i].p_value || (first_run)){
 			//send values to values buffer
-			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
-			values_buffer[values_buffer_index].value = (long double)arr->reg[i].c_value;
-			values_buffer[values_buffer_index].info_err = 0;
-			check_increment_values_buff_len(&values_buffer_index);
+			values_buffer[values_buffer_count].alias = arr->reg[i].info.Alias;
+			values_buffer[values_buffer_count].value = (long double)arr->reg[i].c_value;
+			values_buffer[values_buffer_count].info_err = 0;
+			check_increment_values_buff_len(&values_buffer_count);
 		}
 	}
 }
@@ -655,9 +675,9 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 {
 	//get current index of values buffer
-	uint16_t index_temp =  values_buffer_index;
+	uint16_t index_temp =  values_buffer_count;
     #ifdef __DEBUG_POLLING_CAREL_LEV_2
-	PRINTF_DEBUG("START index_temp = %d, values_buffer_index = %d\n",index_temp,values_buffer_index);
+	PRINTF_DEBUG("START index_temp = %d, values_buffer_count = %d\n",index_temp,values_buffer_count);
     #endif
 
 	switch(poll_type){
@@ -666,7 +686,6 @@ static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 		check_coil_di_read_val(&DILowPollTab, low_n.di, first);
 		check_hr_ir_read_val(&HRLowPollTab,  low_n.hr, first);
 		check_hr_ir_read_val(&IRLowPollTab,  low_n.ir, first);
-
 		break;
 
 	case HIGH_POLLING:
@@ -680,53 +699,19 @@ static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 		break;
 	}
 
-
     #ifdef __DEBUG_POLLING_CAREL_LEV_2
 	PRINTF_DEBUG("END index_temp = %d, values_buffer_index = %d\n",index_temp,values_buffer_index);
     #endif
 
-	//Update values buffer idx
-	if (index_temp != values_buffer_index){
-
-
-		 //Update Values Buffer
-		 if(index_temp < values_buffer_index){
-			//assign idx to the new added values in the buffer
-			 for(uint8_t i = index_temp; i < values_buffer_index; i++){
-				 values_buffer[i].index = values_buffer_read_section;
-			 }
-		 }
-
-
-		 //Update Time Buffer
-		 switch(poll_type){
-			case LOW_POLLING:
-				//assign idx to time buffer
-			time_values_buff[values_buffer_read_section-1].index = values_buffer_read_section;
-				//assign time in time buffer
-//				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_low;
-				time_values_buff[values_buffer_read_section-1].t_stop = timestamp.current_low;
-				break;
-
-			case HIGH_POLLING:
-				//assign idx to time buffer
-	time_values_buff[values_buffer_read_section-1].index = values_buffer_read_section;
-				//assign time in time buffer
-//				time_values_buff[values_buffer_read_section-1].t_start = timestamp.previous_high;
-				time_values_buff[values_buffer_read_section-1].t_stop = timestamp.current_high;
-				break;
-
-			default:
-				break;
+	//Update values buffer timestamps
+	if (index_temp != values_buffer_count){
+		//Update Values Buffer
+		//	 if(index_temp < values_buffer_count){ // this update must be done even if the buffer was circularly populated TODO Vale
+		//assign idx to the new added values in the buffer
+		for(uint8_t i = index_temp; i < values_buffer_count; i++){
+			values_buffer[i].t = timestamp.current_high;
 		}
-
-		 //Add new section of values in buffer values and time buffer
-		 values_buffer_read_section++;
 	}
-
-
-
-
 }
 
 
@@ -830,35 +815,6 @@ static void update_current_previous_tables(RegType_t poll_type){
 		break;
 	}
 
-}
-
-static void SetAllErrors(eMBMasterReqErrCode error){
-	int i=0;
-
-	//Coil
-	for(i=0;i<low_n.coil;i++)
-		COILLowPollTab.reg[i].error = error;
-	//DI
-	for(i=0;i<low_n.di;i++)
-		DILowPollTab.reg[i].error = error;
-	//HR
-	for(int i=0;i<low_n.hr;i++)
-		HRLowPollTab.tab[i].error = error;
-	//IR
-	for(int i=0;i<high_n.ir;i++)
-		IRLowPollTab.tab[i].error = error;
-	//Coil
-	for(i=0;i<high_n.coil;i++)
-		COILHighPollTab.reg[i].error = error;
-	//DI
-	for(i=0;i<high_n.di;i++)
-		DIHighPollTab.reg[i].error = error;
-	//HR
-	for(int i=0;i<high_n.hr;i++)
-		HRHighPollTab.tab[i].error = error;
-	//IR
-	for(int i=0;i<high_n.ir;i++)
-		IRHighPollTab.tab[i].error = error;
 }
 
 /**
@@ -1059,20 +1015,12 @@ void print_ValuesTable(void){
 	int i;
 	if(PollEngine__GetPollEnginePrintMsgs() == 1){
 	printf("Values Buffer\n");
-	for(i = 0; i<values_buffer_index;	i++){
-		printf("id: %4d,  alias: %4d,  value: %4Lf,  error: %d\n" ,
-																values_buffer[i].index,
+	for(i = 0; i<values_buffer_count;	i++){
+		printf("alias: %4d,  value: %4Lf,  error: %d\n" ,
 																values_buffer[i].alias,
 																values_buffer[i].value,
 																values_buffer[i].info_err);
 	}
-	printf("TIME Values Buffer\n");
-		for(i = 0; i<values_buffer_read_section-1;	i++){
-			printf("id: %4d,  t_start: %d,  t_stop: %d\n" ,
-																	time_values_buff[i].index,
-																	time_values_buff[i].t_start,
-																	time_values_buff[i].t_stop);
-		}
 	}
 }
 #endif
@@ -1130,9 +1078,10 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
             #endif
 		}
 
-		if(is_offline == 2)
+		if(is_offline == 2){
+			SetAllErrors(MB_MRE_TIMEDOUT);
 			return C_FAIL; //this is the start of offline
-
+		}
 		param_buffer[0] = param_buffer[1] = 0;
 
 	}
@@ -1165,8 +1114,10 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		}
 
 
-		if(is_offline == 2)
+		if(is_offline == 2){
+			SetAllErrors(MB_MRE_TIMEDOUT);
 			return C_FAIL;
+		}
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
@@ -1202,8 +1153,10 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
             #endif
 		}
 
-		if(is_offline == 2)
+		if(is_offline == 2){
+			SetAllErrors(MB_MRE_TIMEDOUT);
 			return C_FAIL;
+		}
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
@@ -1239,8 +1192,10 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
             #endif
 		}
 
-		if(is_offline == 2)
+		if(is_offline == 2){
+			SetAllErrors(MB_MRE_TIMEDOUT);
 			return C_FAIL;
+		}
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
@@ -1453,14 +1408,8 @@ void SendOffline(C_RES poll_done) {
 		if (start_offline == 0) {
 			start_offline = RTC_Get_UTC_Current_Time();
 			send_cbor_offalarm("", start_offline, 0);
-			SetAllErrors(MB_MRE_TIMEDOUT);
-			timestamp.current_high = RTC_Get_UTC_Current_Time();
-			timestamp.current_low = RTC_Get_UTC_Current_Time();
-			ForceSending();
-			FlushValues(HIGH_POLLING);
-			FlushValues(LOW_POLLING);
 
-			//  TESTATA CHIEBAO
+			// avoid Modbus engine to stop
 			vMBMasterRunResRelease();
 		}
 	}else{
@@ -1482,13 +1431,18 @@ bool IsOffline(void) {
 void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 {
 	C_RES poll_done = C_FAIL;
+
+	C_BYTE low_trigger = 0;
+	C_BYTE high_trigger = 0;
+	C_BYTE pva_trigger = 0;
+	C_BYTE something_sent = 0;
+
 		if(RUNNING == PollEngine_Status.engine)
 		{
 
 			PollEngine_Status.polling = RUNNING;
 
 			timeout = RTC_Get_UTC_Current_Time();
-
 
 			if(timeout > (timestamp.current_alarm) && alarm_n.total > 0) {  // + ALARM_POLLING_TIME
 			   //ALARM POLLING
@@ -1511,28 +1465,64 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 			}
 
-			if ((timeout > (timestamp.current_high + polling_times->hispeedsamplevalue)   &&   high_n.total > 0) || IsForced(HIGH_POLLING)) {
+			timeout = RTC_Get_UTC_Current_Time();
+
+			if(timeout > (timestamp.current_high + polling_times->hispeedsamplevalue)   &&   high_n.total > 0) { high_trigger = 1; }
+			if(timeout > (timestamp.current_low + polling_times->lowspeedsamplevalue)   &&   low_n.total > 0) { low_trigger = 1; }
+			if(timeout > (timestamp.current_pva + Utilities__GetGWConfigData()->valuesPeriod)  &&  high_trigger == 1) { pva_trigger = 1; }
+
+			if((high_trigger && low_trigger)) {
+
+				timestamp.current_high = timeout;
+				timestamp.current_low = timeout;
 				//HIGH POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				printf("HIGH %X\n", timeout);
+				printf("HIGH&LOW%d\n", timeout);
                 #endif
-				timestamp.current_high = RTC_Get_UTC_Current_Time();
+				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
+				SendOffline(poll_done);
+
+				poll_done = DoPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab, LOW_POLLING);
+				SendOffline(poll_done);
+				FlushValues(LOW_POLLING);
+				FlushValues(HIGH_POLLING);
+				if (PollEngine__GetValuesBufferCount()) {
+					MQTT_FlushValues();
+					something_sent = 1;
+				}
+				high_trigger = 0;
+				low_trigger = 0;
+			}
+
+			if (high_trigger) {
+				//LOW POLLING
+                #ifdef __DEBUG_POLLING_CAREL_LEV_2
+				printf("HIGH %d\n", timeout);
+                #endif
+				timestamp.current_high = timeout;
 				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
 				SendOffline(poll_done);
 
 				FlushValues(HIGH_POLLING);
-
+				if (PollEngine__GetValuesBufferCount()) {
+					MQTT_FlushValues();
+					something_sent = 1;
+				}
+				high_trigger = 0;
 			}
-			if ((timeout > (timestamp.current_low + polling_times->lowspeedsamplevalue)   &&   low_n.total > 0) || IsForced(LOW_POLLING)) {
-				//LOW POLLING
-                #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				printf("LOW %X\n", timeout);
-                #endif
-				timestamp.current_low = RTC_Get_UTC_Current_Time();
-				poll_done = DoPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab, LOW_POLLING);
-				SendOffline(poll_done);
 
-				FlushValues(LOW_POLLING);
+			if (pva_trigger) {
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				printf("PVA %d\n", timeout);
+				#endif
+				timestamp.current_pva = timeout;
+				pva_trigger = 0;
+				if(something_sent == 0) {
+				// in previous pva seconds no values message was sent, then send an empty one now
+					MQTT_FlushValues();
+				}
+				else if(something_sent == 1)
+					something_sent = 0;
 			}
 		}
 		PollEngine_Status.polling = STOPPED;
@@ -1542,7 +1532,6 @@ void FlushValues(PollType_t type){
 	compare_prev_curr_reads(type, IsForced(type));
 	ResetForced(type);
 	update_current_previous_tables(type);
-	MQTT_FlushValues();
 }
 // CHIEBAO A.
 
@@ -1824,25 +1813,15 @@ values_buffer_t* PollEngine__GetValuesBuffer(void){
 	return values_buffer;
 }
 
-values_buffer_timing_t* PollEngine__GetTimeBuffer(void){
-	return time_values_buff;
-}
 
-uint16_t PollEngine__GetValuesBufferIndex(void){
-	return values_buffer_index;
-}
-
-uint16_t PollEngine__GetTimerBufferIndex(void){
-	return values_buffer_read_section;
+uint16_t PollEngine__GetValuesBufferCount(void){
+	return values_buffer_count;
 }
 
 void PollEngine__ResetValuesBuffer(void){
 	//Reset Values Buffer
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
-	values_buffer_index = 0;
-	//Reset Time Buffer
-	memset((void*)time_values_buff, 0, time_values_buff_len * sizeof(values_buffer_timing_t));
-	values_buffer_read_section = 1;
+	values_buffer_count = 0;
 }
 
 uint32_t PollEngine__GetMBBaudrate(void){
@@ -1866,4 +1845,35 @@ void PollEngine__ReadBaudRateFromNVM(void){
 	    MB_BaudRate = baud_rate;
 	else
 	    MB_BaudRate = MB_BAUDRATE;
+}
+
+C_TIME Get_SamplingTime(C_UINT16 index) {
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+	PRINTF_DEBUG("Get_SamplingTime index: %d, t:%d\n", index, values_buffer[index].t);
+    #endif
+	return values_buffer[index].t;
+}
+
+C_CHAR* Get_Alias(C_UINT16 index, char* alias_tmp) {
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+	PRINTF_DEBUG("Get_Alias index: %d, alias:%d\n", index, values_buffer[index].alias);
+    #endif
+	itoa(values_buffer[index].alias, (char*)alias_tmp, 10);
+
+	return alias_tmp;
+}
+
+C_CHAR* Get_Value(C_UINT16 index, char* value_tmp) {
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+	PRINTF_DEBUG("Get_Value index: %d, vls:%Lf\n", index, values_buffer[index].value);
+    #endif
+	if(0 != values_buffer[index].info_err)
+		memcpy(value_tmp, "", 1);
+	else{
+		if(values_buffer[index].data_type != 16)
+			sprintf(value_tmp, "%.1Lf", values_buffer[index].value);
+		else
+		    itoa(values_buffer[index].value, value_tmp, 10);
+	}
+	return value_tmp;
 }

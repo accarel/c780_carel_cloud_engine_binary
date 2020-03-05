@@ -39,7 +39,8 @@ extern  USHORT   usMBSlaveIDLen;
 
 /* Exported constants --------------------------------------------------------*/
 
-C_CHAR txbuff[1000];
+C_CHAR* txbuff;
+uint16_t txbuff_len = 0;
 
 C_UINT16 did;
 
@@ -145,6 +146,14 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
  */
 void CBOR_SendHello(void)
 {
+	//Allocate tx buffer
+	uint32_t  freespace = uxTaskGetStackHighWaterMark(NULL);
+	freespace -= 1000;
+	txbuff_len = (uint16_t)freespace;
+
+	txbuff = malloc(txbuff_len);						// malloc
+	memset((void*)txbuff, 0, txbuff_len);
+
 	size_t len = CBOR_Hello(txbuff);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, len, 1, 1);
 }
@@ -398,6 +407,8 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	size_t len;
 	CborError err;
 	static C_UINT32 pkt_cnt = 0;
+	char alias_tmp[ALIAS_SIZE];
+	char value_tmp[VAL_SIZE];
 
 	cbor_encoder_init(&encoder, (unsigned char*)cbor_stream, CBORSTREAM_SIZE, 0);
 	// map1
@@ -435,11 +446,11 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	err = cbor_encoder_create_map(&mapEncoder, &mapEncoder1, CborIndefiniteLength);
 	DEBUG_ENC(err, "vals create map");
 	for (C_UINT16 i = 0; i < number; i++){
-		err |= cbor_encode_text_stringz(&mapEncoder1, (char*)Get_Alias(index, i));
-		if (memcmp((char*)Get_Value(index, i), "", sizeof("")) == 0)
+		err |= cbor_encode_text_stringz(&mapEncoder1, Get_Alias(i, alias_tmp));
+		if (memcmp((char*)Get_Value(i, value_tmp), "", sizeof("")) == 0)
 			err |= cbor_encode_null(&mapEncoder1);
 		else
-			err |= cbor_encode_text_stringz(&mapEncoder1, (char*)Get_Value(index, i));
+			err |= cbor_encode_text_stringz(&mapEncoder1, (char*)Get_Value(i, value_tmp));
 	}
 	err |= cbor_encoder_close_container(&mapEncoder, &mapEncoder1);
 
@@ -470,7 +481,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 /**
  * @brief CBOR_SendFragmentedValues
  *
- * Prepares CBOR encoded message fragmented into multiple pieces
+ * Prepares CBOR encoded message fragmented into multiple pieces (DA RIFARE!!!)
  *
  * @param Index of the first entry in table containing changed values to be sent
  * @param Number of entries of the table containing changed values that must be sent
@@ -490,7 +501,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 void CBOR_SendFragmentedValues(C_UINT16 index, C_UINT16 number)
 {
 	C_INT16 framecnt = 1;
-	while(number > ENTRY_PER_PKT)
+	while(number > ENTRY_PER_PKT) // not the right condition!!! should check txbuff occupation based on number of variables
 	{
 		CBOR_SendValues(index, ENTRY_PER_PKT, framecnt);
 		index++;

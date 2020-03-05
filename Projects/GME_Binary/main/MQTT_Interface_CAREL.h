@@ -62,14 +62,6 @@ typedef struct {
 }mqtt_client_config_t;
 #pragma pack()
 
-#pragma pack(1)
-typedef struct mqtt_timing_s{
-	uint32_t cbor_status;
-	uint32_t cbor_values;
-}mqtt_times_t;
-#pragma pack()
-
-
 #if 0
 #pragma pack(1)
 typedef struct req_download_devs_config_s{
@@ -127,10 +119,6 @@ C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic);
 C_RES EventHandler(mqtt_event_handle_t event);
 void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len);
 C_BYTE MQTT_GetFlags(void);
-
-C_TIME Get_SamplingTime(C_UINT16 index);
-C_CHAR* Get_Alias(C_UINT16 index, C_UINT16 i);
-C_CHAR* Get_Value(C_UINT16 index, C_UINT16 i);
 
 #ifdef __cplusplus
 }
