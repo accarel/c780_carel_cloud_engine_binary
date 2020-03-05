@@ -288,14 +288,21 @@ namespace MqttClientSimulatorBinary
 
             }
             catch {
-                txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP START:" + Environment.NewLine)));
-                              
-                foreach (var item in e.Message)
-                {                   
-                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(item.ToString("X") + Environment.NewLine)));
+
+                if ((targer_topic_for_me == true))
+                {
+                    txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP START:" + Environment.NewLine)));
+
+
+                    foreach (var item in e.Message)
+                    {
+                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(item.ToString("X") + Environment.NewLine)));
+                    }
+
+                    txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP END " + Environment.NewLine)));
+
                 }
 
-                txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP END " + Environment.NewLine)));
             }
 
             //BILATO receive the CBOR payload
