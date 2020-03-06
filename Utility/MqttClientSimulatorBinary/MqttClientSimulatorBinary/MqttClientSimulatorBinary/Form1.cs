@@ -438,7 +438,7 @@ namespace MqttClientSimulatorBinary
 
         private void ButtonUpdate_gw_firmware_Click(object sender, EventArgs e)
         {
-            string textFilePath = @".\cbor_cloud\test-update_gw_firmware-req.json";
+            string textFilePath = @".\cbor_cloud\REQ_GW_UPDATE_FW.cbor";
             PublishTestFile(textFilePath);
         }
 
@@ -761,7 +761,7 @@ namespace MqttClientSimulatorBinary
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
             cbor.Add(@"rto", textBox_Target.Text + @"\coil_r_val");
-            value = 7;
+            value = 6;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias_Coil.Text);
 
@@ -940,7 +940,7 @@ namespace MqttClientSimulatorBinary
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
             cbor.Add(@"rto", textBox_Target.Text + @"\di_r_val");
-            value = 7;
+            value = 6;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias_DI.Text);
 
