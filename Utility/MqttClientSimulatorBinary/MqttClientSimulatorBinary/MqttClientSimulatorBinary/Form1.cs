@@ -509,6 +509,7 @@ namespace MqttClientSimulatorBinary
 
             //@"A0A1A2A3A4A5A6"; //fixed for the simulator
             string clientId = textBox_MQTT_ID.Text;
+            //string clientPwd = textBox_MQTT_PWD.Text;
 
             //client.Connect(clientId);                                                              // for local Mosquitto
             //client.Connect(clientId, "alessandro_bilato", "51ed38a4a4d14de09f021ee0de2db993");     // for Iot Adafruit    
@@ -1301,6 +1302,7 @@ namespace MqttClientSimulatorBinary
                 MyIni.Write("DBGREL", @"0");
 
             MyIni.Write("MQTT_ID", textBox_MQTT_ID.Text);
+            MyIni.Write("MQTT_PWD", textBox_MQTT_PWD.Text);
 
         }
 
@@ -1363,6 +1365,18 @@ namespace MqttClientSimulatorBinary
             else
                 textBox_MQTT_ID.Text = par_val;
 
+            
+            par_val = MyIni.Read("MQTT_PWD");
+
+            if (par_val == "")
+                textBox_MQTT_PWD.Text = @"7fTU6z2dH84CYry3";
+            else
+                textBox_MQTT_PWD.Text = par_val;
+
+
+
+            
+
         }
 
 
@@ -1403,6 +1417,16 @@ namespace MqttClientSimulatorBinary
 
             par_val = MyIni.Read("Target");
             textBox_Target.Text = par_val;
+
+            par_val = MyIni.Read("MQTT_PWD");
+
+            if (par_val == "")
+                textBox_MQTT_PWD.Text = @"7fTU6z2dH84CYry3";
+            else
+                textBox_MQTT_PWD.Text = par_val;
+
+
+
         }
 
         private void TextBox_MB_COIL_R_Func_TextChanged(object sender, EventArgs e)
