@@ -507,7 +507,8 @@ namespace MqttClientSimulatorBinary
 
             //string clientId = Guid.NewGuid().ToString();
 
-            string clientId = @"A0A1A2A3A4A5A6"; //fixed for the simulator
+            //@"A0A1A2A3A4A5A6"; //fixed for the simulator
+            string clientId = textBox_MQTT_ID.Text;
 
             //client.Connect(clientId);                                                              // for local Mosquitto
             //client.Connect(clientId, "alessandro_bilato", "51ed38a4a4d14de09f021ee0de2db993");     // for Iot Adafruit    
@@ -1299,7 +1300,7 @@ namespace MqttClientSimulatorBinary
             else
                 MyIni.Write("DBGREL", @"0");
 
-
+            MyIni.Write("MQTT_ID", textBox_MQTT_ID.Text);
 
         }
 
@@ -1355,8 +1356,12 @@ namespace MqttClientSimulatorBinary
                 checkBox_Cfg_Dbg_Rel.Checked = false;
             }
 
+            par_val = MyIni.Read("MQTT_ID");
 
-
+            if (par_val == "")
+                textBox_MQTT_ID.Text = @"A0A1A2A3A4A5A6";
+            else
+                textBox_MQTT_ID.Text = par_val;
 
         }
 
