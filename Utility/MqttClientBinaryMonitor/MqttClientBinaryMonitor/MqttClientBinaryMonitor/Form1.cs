@@ -544,11 +544,15 @@ namespace MqttClientSimulatorBinary
             client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
             client.MqttMsgPublished += client_MqttMsgPublished;
 
-            string clientId = Guid.NewGuid().ToString();
+            //string clientId = Guid.NewGuid().ToString();
+
+            //@"A0A1A2A3A4A5A6"; //fixed for the simulator
+            string clientId = textBox_MQTT_ID.Text;
+            string clientPwd = textBox_MQTT_PWD.Text;
 
             //client.Connect(clientId);                                                              // for local Mosquitto
             //client.Connect(clientId, "alessandro_bilato", "51ed38a4a4d14de09f021ee0de2db993");     // for Iot Adafruit    
-            client.Connect(clientId, "admin", "5Qz*(3_>K&vU!PS^");
+            client.Connect(clientId, clientId, clientPwd);
 
             if (client.IsConnected)
             {
@@ -1313,7 +1317,9 @@ namespace MqttClientSimulatorBinary
 
             MyIni.Write("Target", textBox_Target.Text);
             MyIni.Write("Topic", textBox_SubTopic.Text);
-                                             
+
+            MyIni.Write("MQTT_ID", textBox_MQTT_ID.Text);
+            MyIni.Write("MQTT_PWD", textBox_MQTT_PWD.Text);
 
         }
 
@@ -1324,7 +1330,7 @@ namespace MqttClientSimulatorBinary
             String val;
             string par_val;
 
-            cfg_file = @"MqttClientBinaryMonitor_CFG.ini";
+            cfg_file = @"MqttClientBinaryMonitor_Last_Set.ini";
 
             var MyIni = new IniFile(cfg_file);
 
@@ -1359,32 +1365,22 @@ namespace MqttClientSimulatorBinary
             }
 
 
-            //par_val = MyIni.Read("Target");
-            //textBox_Target.Text = par_val;
-
-            /* 
-
-            par_val = MyIni.Read("Topic");
+            par_val = MyIni.Read("MQTT_ID");
 
             if (par_val == "")
-              textBox_SubTopic.Text = "+";
+                textBox_MQTT_ID.Text = @"A0A1A2A3A4A5A6";
             else
-              textBox_SubTopic.Text = par_val;
+                textBox_MQTT_ID.Text = par_val;
 
 
-            val = MyIni.Read("DBGREL");
-
-
-            if (val == @"1")
-            {
-                checkBox_Cfg_Dbg_Rel.Checked = true;
-            }
+            par_val = MyIni.Read("MQTT_PWD");
+            if (par_val == "")
+                textBox_MQTT_PWD.Text = "7fTU6z2dH84CYry3";
             else
-            {
-                checkBox_Cfg_Dbg_Rel.Checked = false;
-            }
+                textBox_MQTT_PWD.Text = par_val;
+            
+                
 
-            */
         }
 
 
