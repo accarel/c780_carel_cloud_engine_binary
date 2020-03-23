@@ -162,7 +162,6 @@ int BinaryModel_Init (void);
 uint8_t* get_p_coil_alarm_sect (void);
 uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type);
 void BinaryModel__GetNum(uint8_t DeviceParamCount[MAX_POLLING][MAX_REG]);
-uint8_t* BinaryModel__GetHeaderptr(void);
 uint16_t BinaryModel_CalcModelCrc(void);
 
 uint8_t* BinaryModel_GetChunk(uint32_t sz);

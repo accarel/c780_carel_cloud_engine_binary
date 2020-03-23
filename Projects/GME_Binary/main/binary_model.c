@@ -704,14 +704,3 @@ uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type){
 	}
 	return temp;
 }
-
-
-
-
-uint8_t* BinaryModel__GetHeaderptr(void){
-	size_t len = 0;
-	NVM__ReadBlob(MODEL_GUID, myHeaderModel.guid, &len);
-	return &myHeaderModel.guid[0];
-}
-
-

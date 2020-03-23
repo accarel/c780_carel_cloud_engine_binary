@@ -28,6 +28,7 @@
 #include "ota_IS.h"
 #include "sys_IS.h"
 #include "wifi.h"
+#include "main_CAREL.h"
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "mb_m.h"
 #endif
@@ -225,7 +226,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	// encode gid - elem9
 	err |= cbor_encode_text_stringz(&mapEncoder, "gid");
-	err |= cbor_encode_byte_string(&mapEncoder, BinaryModel__GetHeaderptr(), 16);
+	err |= cbor_encode_byte_string(&mapEncoder, GME__GetHEaderInfo()->guid, 16);
 	DEBUG_ADD(err, "guid");
 
 	//encode crc - elem10
