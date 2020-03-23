@@ -557,9 +557,6 @@ void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
 		memcpy(CfgDataUsr.mqtt_port , config.mqtt_server_port, sizeof(config.mqtt_server_port));
 		FS_SaveCfgData(CFG_USR);
 
-		NVM__WriteU8Value(MQTT_URL, CONFIGURED);
-	}else{
-		NVM__EraseKey(MQTT_URL);
 	}
 
 }

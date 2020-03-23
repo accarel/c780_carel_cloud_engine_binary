@@ -27,7 +27,6 @@
 #define HTMLCONF_AP_PSWD		"ap_pswd"
 #define HTMLCONF_AP_IP			"ap_ip"
 #define HTMLCONF_AP_DHCP_MODE	"ap_dhcp_mode"
-#define HTMLCONF_AP_DHCP_IP		"ap_dhcp_ip"
 
 #define HTMLCONF_STA_SSID		"sta_ssid"
 #define HTMLCONF_STA_SSID_MAN	"sta_ssid_man"

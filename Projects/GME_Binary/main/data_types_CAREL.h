@@ -94,7 +94,6 @@ enum list_protocols{
 *****************/
 #pragma pack(1)
 typedef struct req_set_gw_config_s{
-	C_CHAR hostname[URI_SIZE];
 	C_UINT32 valuesPeriod;
 	C_UINT32 statusPeriod;
 	C_UINT32 mqttKeepAliveInterval;

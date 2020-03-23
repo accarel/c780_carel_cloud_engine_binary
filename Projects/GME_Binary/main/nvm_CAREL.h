@@ -26,11 +26,8 @@
 #define MB_DELAY_NVM "del"
 
 #define MQTT_USER "mqtt_user"
-#define MQTT_PASS "mqtt_pass"
-#define MQTT_URL "mqtt_url"
 
 #define MODEL_GUID "model_guid"
-#define LINE_ID "js_lindid"
 
 
 
