@@ -9,45 +9,9 @@
 #include "common.h"
 #include "data_types_CAREL.h"
 
-// dim inside a model 
-#define HEADER_SIGNATURE_DIM			(8)
-#define HEADER_VERSION_DIM				(2)
-#define HEADER_MODEL_GUID_DIM			(16)
-#define HEADER_MODEL_VERSION_DIM		(4)
-#define HEADER_RS485_STOPB				(1)
-#define HEADER_RS485_PARITY				(1)
 
-#define HEADER_NUMOF_COIL_POLL			(2)  // the same for low, hig, allarm
-#define HEADER_NUMOF_COIL_DISC			(2)  // the same for low, hig, allarm
-#define HEADER_NUMOF_COIL_HR			(2)  // the same for low, hig, allarm
-#define HEADER_NUMOF_COIL_IR			(2)  // the same for low, hig, allarm
-
-#define COIL_TABLE_LOW				(4)
-#define COIL_TABLE_HIGH				(4)
-#define COIL_TABLE_ALARM			(4)
-
-#define DI_TABLE_LOW				(4)
-#define DI_TABLE_HIGH				(4)
-#define DI_TABLE_ALARM				(4)
-
-#define HR_TABLE_LOW				(20)
-#define HR_TABLE_HIGH				(20)
-#define HR_TABLE_ALARM				(5)
-
-#define IR_TABLE_LOW				(20)
-#define IR_TABLE_HIGH				(20)
-#define IR_TABLE_ALARM				(5)
-
-
-// offset inside a model
-#define HEADER_SIGNATURE_OFFSET		(0)
-#define HEADER_VERSION_OFFSET		(8)
-#define HEADER_MODEL_GUID_OFFSET	(10)
-#define HEADER_MODEL_VERSION		(26)
-
-
-#define GME_MODEL	"GME_MBT\x0"
-#define HEADER_VERSION 	256
+#define GME_MODEL			"GME_MBT\x0"
+#define HEADER_VERSION 		256
 #define GME_MODEL_MAX_SIZE	2048
 
 #define __DEBUG_BYNARY_MODEL

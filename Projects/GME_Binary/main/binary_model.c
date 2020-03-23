@@ -434,31 +434,13 @@ static void GetDeviceInfo(uint8_t *val)
 {
 	ptmyHeaderModel = (struct HeaderModel *)val;
 	myHeaderModel = *ptmyHeaderModel;
-	size_t len = 0;
 
 #ifdef __DEBUG_BYNARY_MODEL
 	// show INFO
-	printf("Header signature:  %s %s", myHeaderModel.signature, "\n");
-	printf("Header version  :  %d %s", myHeaderModel.version  , "\n");
-	printf("Model GUID      :");
-
-
-
-	if(C_SUCCESS != NVM__ReadBlob(MODEL_GUID, myHeaderModel.guid, &len)){
-		NVM__WriteBlob (MODEL_GUID, myHeaderModel.guid, 16);
-	}
-
-	printf("Model GUID      :");
-	for (int i=0; i < sizeof(myHeaderModel.guid); i++)
-		printf(" %02x", myHeaderModel.guid[i]);
-
-
-	printf("\n");
-#endif
-
-	//printf("Model Version   :  %ul %s", myHeaderModel.modelVer , "\n\n");
+	printf("Header signature:  %s\n", myHeaderModel.signature);
+	printf("Header version  :  %d\n", myHeaderModel.version);
 	// end show
-
+#endif
 
 	ptmyLowPoll = (struct NumOfPoll*)(val + sizeof(myHeaderModel));
 	myLowPoll = *ptmyLowPoll;			//point to the whole struct of NumOfPoll
@@ -468,7 +450,6 @@ static void GetDeviceInfo(uint8_t *val)
 
 	ptmyAlarmPoll = (struct NumOfPoll*)(val + sizeof(myHeaderModel) + 2*sizeof(myNumOfPoll));
 	myAlarmPoll = *ptmyAlarmPoll;		//point to the whole struct of NumOfPoll
-
 
 	// show INFO
 	for (int d = 0; d < 3; d++)
@@ -552,8 +533,6 @@ C_RES BinaryModel_CheckCrc(void){
 	else
 		return C_FAIL;
 }
-
-static uint8_t test = 0;
 
 int BinaryModel_Init (void)
 {
