@@ -54,46 +54,7 @@ C_RES MQTT_Start(void)
 	size_t pass_len = 0, user_len = 0;
 	uint8_t gw_config_status, mqtt_url;
 	uint8_t cert_num;
-#if 0
-		if(ESP_OK == NVM__ReadString(MQTT_USER, mqtt_cfg_nvm.username, &user_len)
-			&& ESP_OK == NVM__ReadString(MQTT_PASS, mqtt_cfg_nvm.password, &pass_len)
-			&& ESP_OK == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 
-		size_t gw_config_len;
-		req_set_gw_config_t gw_config_nvm = {0};
-
-		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&gw_config_len);
-
-		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
-		strcpy(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_addr);
-		strcat(mqtt_cfg_nvm.uri, ":");
-		strcat(mqtt_cfg_nvm.uri, WiFi__GetCustomConfig().mqtt_server_port);
-
-        #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
-		PRINTF_DEBUG("mqtt_configured\n");
-        #endif
-
-	}else{
-
-		char mqtt_port_str[10] = {0};
-		sprintf(mqtt_port_str,"%d",MQTT_DEFAULT_PORT);
-        #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
-		PRINTF_DEBUG("mqtt_not_configured\n");
-        #endif
-		strcpy(mqtt_cfg_nvm.uri, MQTT_DEFAULT_BROKER);
-		strcat(mqtt_cfg_nvm.uri, ":");
-		strcat(mqtt_cfg_nvm.uri, mqtt_port_str);
-		strcpy(mqtt_cfg_nvm.username, MQTT_DEFAULT_USER);
-		strcpy(mqtt_cfg_nvm.password, MQTT_DEFAULT_PWD);
-		mqtt_cfg_nvm.keepalive = MQTT_KEEP_ALIVE_DEFAULT_SEC;
-	}
-
-
-#else
-
-	//char mqtt_port_str[10] = {0};
-	//sprintf(mqtt_port_str,"%d", MQTT_DEFAULT_PORT);
-	//PRINTF_DEBUG("mqtt_not_configured\n");
 	strcpy(mqtt_cfg_nvm.uri, CfgDataUsr.mqtt_broker);             // MQTT_DEFAULT_BROKER
 	strcat(mqtt_cfg_nvm.uri, ":");
 	strcat(mqtt_cfg_nvm.uri, CfgDataUsr.mqtt_port);   			   // mqtt_port_str
@@ -112,13 +73,7 @@ C_RES MQTT_Start(void)
 
 		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
 	}
-#endif
-	// get current certificate
-	/*if(C_SUCCESS == NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
-		mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
-	else
-		mqtt_cfg_nvm.cert_pem = Sys__GetCert(CERT_1);
-*/
+
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
 		cert_num = CERT_1;
 	mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
