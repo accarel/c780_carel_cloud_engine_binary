@@ -53,7 +53,7 @@ static  uint8_t   *p_hr_alarm_sect;
 static  uint8_t   *p_ir_alarm_sect;
 
 uint16_t Crc;
-
+bool valid_model;
 
 #if WANT_DUMP_MODEL
 
@@ -567,6 +567,7 @@ int BinaryModel_Init (void)
 	sz = filesize(MODEL_FILE);
 	if (sz > GME_MODEL_MAX_SIZE) {
 		DEBUG_BINARY_MODEL("ERROR: Model too large!\n");
+		valid_model = FALSE;
 		return C_FAIL;
 	}
 	chunk = BinaryModel_GetChunk(sz);
@@ -577,34 +578,32 @@ int BinaryModel_Init (void)
 	uint16_t ModelCrc = ((*(chunk + sz - 2)) & 0x00FF)| ((uint16_t)(*(chunk + sz - 1)))<<8;
 	if (Crc != ModelCrc) {
 		DEBUG_BINARY_MODEL("ERROR: Wrong CRC Model!\n");
+		valid_model = FALSE;
 		return C_FAIL;
 	}
 	// Check model header
 	if (memcmp(tmpHeaderModel->signature, GME_MODEL, sizeof(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION)) {
 		DEBUG_BINARY_MODEL("ERROR: Wrong signature Model!\n");
+		valid_model = FALSE;
 		return C_FAIL;
 	}
-	
+
 	// utility function
 	GetDeviceInfo(chunk);
 
-	//  retrive the usefull pointers inside the model
+	// retrieve the useful pointers inside the model
 	get_model_pointers(chunk);
-
-#ifdef __DEBUG_BYNARY_MODEL
-//	 dump_all_values(chunk);
-
-	printf("\n\nCREATE TABLES binary %d\n\n",test++);
-#endif
-
-	PollEngine__CreateTables();
 
 	GME__ExtractHeaderInfo(tmpHeaderModel);
 
 	free(chunk);
-
+	valid_model = TRUE;
 	return C_SUCCESS;
 
+}
+
+bool CheckModelValidity(void){
+	return valid_model;
 }
 
 

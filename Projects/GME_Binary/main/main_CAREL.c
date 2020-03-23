@@ -219,17 +219,16 @@ void Carel_Main_Task(void)
           {
           	if(MQTT_GetFlags() == 1){
 
-          	    retval = BinaryModel_Init();		// CAREL
-          	    CAREL_CHECK(retval, "MODEL");
+          	    //retval = BinaryModel_Init();		// CAREL
 
-          	    if(retval == C_FAIL) {
+          	    if(CheckModelValidity() == FALSE) {
           	    	// this means loaded model is not valid
           	    	// hence, clear SET_DEVS_CONFIG_NVM flag in nvm and go waiting for a new configuration
           	    	NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT);
           	    	sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
           	    	break;
           	    }
-
+          	    PollEngine__CreateTables();
 
           	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBoudrate);
 

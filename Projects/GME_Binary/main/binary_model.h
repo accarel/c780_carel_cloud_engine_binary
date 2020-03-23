@@ -169,7 +169,7 @@ uint8_t* BinaryModel_GetChunk(uint32_t sz);
 uint16_t BinaryModel_GetCrc(void);
 C_RES BinaryModel_CheckCrc(void);
 
-
+bool CheckModelValidity(void);
 
 
 

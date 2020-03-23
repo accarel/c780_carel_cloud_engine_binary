@@ -63,6 +63,8 @@ void Utilities__Init(void){
 	Modbus__ReadDelayFromNVM();
 	CBOR_ReadDidFromNVM();
 
+	BinaryModel_Init();
+
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)
 	Utilities__CalcMACAddr();
 #elif (NETWORK_INTERFACE == GSM_INTERFACE)
