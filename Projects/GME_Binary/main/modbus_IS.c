@@ -31,6 +31,7 @@
 #include "freertos/event_groups.h"
 
 #include "sys_IS.h"
+#include "SoftWDT.h"
 
 #define  MODBUS_TIME_OUT     100
 
@@ -64,19 +65,33 @@ static uint16_t MB_Delay = 0;
  * @param none
  * @return C_SUCCESS or C_FAIL
  */
-C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit)  // TODO stop bit da capire
+C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)  // TODO stop bit da capire
 {
      eMBErrorCode eStatus;
+     esp_err_t err;
 
      // translate into the esp constant
      C_SBYTE mParity = GetParityTable(parity);
 
-   	 esp_err_t err = uart_set_pin(MB_PORTNUM, ECHO_TEST_TXD, ECHO_TEST_RXD, ECHO_TEST_RTS, -1);
+     if(port == MB_PORTNUM_485)
+     {
+   	    err = uart_set_pin(port, ECHO_TEST_TXD, ECHO_TEST_RXD, ECHO_TEST_RTS, -1);   // MB_PORTNUM
+   	    //printf("\n\r");
+   	    //printf("RS485 selected\n");
+   	    //printf("\n\r");
+     }
+   	 else
+   	 {
+    	err = uart_set_pin(port, TTL_TXD, TTL_RXD, TTL_RTS, -1);   					// MB_PORTNUM
+    	//printf("\n\r");
+    	//printf("TTL selected\n");
+    	//printf("\n\r");
+   	 }
 
    	 if(err != 0)
    	   printf("Setting UART pin fail\n");
 
-	 eStatus = eMBMasterInit(MB_RTU, MB_PORTNUM, baud, mParity);
+	 eStatus = eMBMasterInit(MB_RTU, port, baud, mParity);
 	 Sys__Delay(50);
 
      if (0 == eStatus)
@@ -84,8 +99,12 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit)  // TODO stop b
     	eStatus = eMBMasterEnable();
     	if (0 == eStatus){
 
-    		 // Set driver mode to Half Duplex
-    		err = uart_set_mode(MB_PORTNUM, UART_MODE_RS485_HALF_DUPLEX);
+    		// Set driver mode to Half Duplex
+    		if(port == MB_PORTNUM_485)
+    		  err = uart_set_mode(port, UART_MODE_RS485_HALF_DUPLEX);
+    		else
+    		  err = uart_set_mode(port, UART_MODE_RS485_HALF_DUPLEX);
+
     		return C_SUCCESS;
     	}
     	else{
@@ -162,9 +181,13 @@ static C_SBYTE GetParityTable(C_SBYTE prt)
 
 void Modbus_Task(void)
 {
+	SoftWDT_Init(SWWDT_MODBUS_RTU , SWWDT_DEFAULT_TIME);
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	while(1)
 	{
+			SoftWDT_Reset(SWWDT_MODBUS_RTU );
+
 			eMBMasterPoll();
 
 			BOOL xSentState = xMBMasterPortSerialTxPoll();

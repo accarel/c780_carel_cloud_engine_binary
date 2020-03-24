@@ -23,6 +23,8 @@
 #include "utilities_CAREL.h"
 #include "sys_IS.h"
 
+#include "SoftWDT.h"
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 static xTaskHandle xPollingEngine;
 #endif
@@ -44,6 +46,8 @@ void Polling_Engine_Init_IS(void)
 	ForceSending();
 	if (BinaryModel_CheckCrc() == C_SUCCESS)
 		PollEngine_StartEngine_CAREL();	//if GME is properly configured, then start polling
+
+	SoftWDT_Init(SWWDT_POLLING, SWWDT_DEFAULT_TIME);
 
 	while(1)
 	{

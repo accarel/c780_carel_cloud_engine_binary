@@ -23,7 +23,7 @@
 
 
 /* Functions Implementation --------------------------------------------------*/
-C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit);
+C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port);
 void Modbus_Task(void);
 void Modbus_Task_Start(void);
 

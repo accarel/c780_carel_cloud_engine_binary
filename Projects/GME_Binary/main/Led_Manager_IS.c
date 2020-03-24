@@ -40,6 +40,7 @@
 #include "Led_Manager_IS.h"
 #include "sys_IS.h"
 
+#include "SoftWDT.h"
 
 /**
  * @brief LED_STATUS_IO
@@ -159,6 +160,8 @@ void Led_Status_Update_Polling(Led_Show_Status_t status){
 
 
 #ifndef __USE_CAREL_BCU_HW
+
+    SoftWDT_Reset(SWWDT_LED);
 
     switch (status)
 	{
@@ -594,6 +597,8 @@ void Led_task(void)
 	
     Led_init();
 	
+    SoftWDT_Init(SWWDT_LED, SWWDT_DEFAULT_TIME);
+
     while(1)
     {
 		#ifdef IS_A_WIFI_GATEWAY

@@ -125,6 +125,10 @@ typedef struct cfg_data{
 
 ptr_cfg_data_t pCfgData, pCfgDataUsr;
 cfg_data_t    CfgData, CfgDataUsr;
+
+
+C_BYTE modbusPort; // can be uart2 or uart0 if rs485 or TTL
+
 /* ======================================================= */
 /*                 GENERAL PURPOSE DEFINE                  */
 /* ======================================================= */

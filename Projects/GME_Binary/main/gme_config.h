@@ -107,6 +107,8 @@
 // Define port options for the master application
 #define MB_BAUDRATE 19200
 #define MB_PORTNUM 2
+#define MB_PORTNUM_485  2
+#define MB_PORTNUM_TTL  0
 #define MB_PARITY UART_PARITY_DISABLE
 
 #ifdef __USE_CAREL_BCU_HW
@@ -120,9 +122,14 @@
 // because these pins connected to PSRAM
 #define ECHO_TEST_TXD  (26)
 #define ECHO_TEST_RXD  (25)
-
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
 #define ECHO_TEST_RTS   (18)
+
+// for TTL one wire
+#define TTL_TXD         (21)
+#define TTL_RXD 		(3)
+#define TTL_RTS			(1)
+
 #endif
 
 #ifdef __USE_USR_WIFI_HW

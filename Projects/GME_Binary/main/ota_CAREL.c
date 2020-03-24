@@ -78,10 +78,10 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 
 	for(int i=0; i<packet_len; i++)
 	{
-		uart_write_bytes_IS(MB_PORTNUM, (const C_BYTE *) &data_tx[i], 1);
+		uart_write_bytes_IS(modbusPort, (const C_BYTE *) &data_tx[i], 1);  // MB_PORTNUM
 	}
 
-	data_rx_len = uart_read_bytes_IS(MB_PORTNUM, data_rx, MODBUS_RX_BUFFER_SIZE, MB_RESPONSE_TIMEOUT(packet_len));
+	data_rx_len = uart_read_bytes_IS(modbusPort, data_rx, MODBUS_RX_BUFFER_SIZE, MB_RESPONSE_TIMEOUT(packet_len));  // MB_PORTNUM
 
 	// Check on incoming data (necessary to find out exceptions in answers or missing answers)
 	if(data_rx_len != packet_len){
@@ -233,8 +233,8 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	http_client_close_IS(client);
 	http_client_cleanup_IS(client);
 
-	uart_flush_input_IS(MB_PORTNUM);
-	uart_flush_IS(MB_PORTNUM);
+	uart_flush_input_IS(modbusPort);   // MB_PORTNUM
+	uart_flush_IS(modbusPort);         // MB_PORTNUM
 
 	Modbus_Enable();
 

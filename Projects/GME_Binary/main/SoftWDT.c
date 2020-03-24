@@ -1,0 +1,79 @@
+
+
+/* decomment to enable output debug */
+//#define __SWWDT_ENABLE_DEBUG_PRINT
+
+
+#include "types.h"
+
+#include "SoftWDT.h"
+#include "data_types_CAREL.h"
+
+static C_INT32 step_count = 0;
+volatile softwdt_struct softwdt_items[MAX_SOFTWDT];
+
+
+void SoftWDT_Init(uint8_t which_one, uint16_t value){  
+  
+  if (which_one >= MAX_SOFTWDT) {
+    return; //it trigger some other error
+  }
+      
+  softwdt_items[which_one].wdt_counter_preset = value;
+  softwdt_items[which_one].wdt_counter_value = softwdt_items[which_one].wdt_counter_preset;
+  softwdt_items[which_one].is_enabled = 1;
+}
+
+void SoftWDT_DeInit(uint8_t which_one){  
+  
+  if (which_one >= MAX_SOFTWDT) {
+    return; //it trigger some other error
+  }
+      
+  softwdt_items[which_one].is_enabled = 0;
+}
+
+
+
+
+void SoftWDT_Reset(uint8_t which_one){
+  if (which_one >= MAX_SOFTWDT) 
+    return; //it trigger some other error
+  
+  if (softwdt_items[which_one].is_enabled == 1)
+    softwdt_items[which_one].wdt_counter_value = softwdt_items[which_one].wdt_counter_preset;
+}
+
+
+void SoftWDT_Manager(void){
+    uint8_t count;
+    uint8_t softwdt_fired;
+    
+    softwdt_fired = 0;
+
+#ifdef __SWWDT_ENABLE_DEBUG_PRINT
+    printf("SoftWDT Running ( %d )\r\n", step_count++);
+#endif
+
+    for (count=0; count < MAX_SOFTWDT; count++)
+    {       
+      if (softwdt_items[count].wdt_counter_value > 0)
+        softwdt_items[count].wdt_counter_value--;  
+      
+      if ((softwdt_items[count].is_enabled) && (softwdt_items[count].wdt_counter_value == 0)){
+        softwdt_fired = 1; 
+
+        #if __SWWDT_ENABLE_DEBUG_PRINT
+           printf("SoftWDT Fired!= %d\r\n",count);
+        #endif
+
+      }       
+    }  
+    
+    if (softwdt_fired == 1){
+      //TODO something like fire wd or what else?      
+      softwdt_fired = 0;      
+      // Reset del sistema in base alla piattaforma su cui si sta lavorando
+    }
+   
+  }

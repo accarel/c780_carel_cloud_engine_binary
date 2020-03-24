@@ -19,6 +19,7 @@
 #include "MQTT_Interface_CAREL.h"
 #include "data_types_CAREL.h"
 
+#include "SoftWDT.h"
 
 //#include ""binary_model_CAREL.h  // TODO
 #include "binary_model.h" 
@@ -1439,6 +1440,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 		if(RUNNING == PollEngine_Status.engine)
 		{
+		SoftWDT_Reset(SWWDT_POLLING);
 
 			PollEngine_Status.polling = RUNNING;
 
@@ -1660,10 +1662,10 @@ uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx)
 
 	for(int i=0; i<send_mb_adu->adu_len; i++)
 	{
-		uart_write_bytes(MB_PORTNUM, (const char *) &send_mb_adu->adu[i], 1);
+		uart_write_bytes(modbusPort, (const char *) &send_mb_adu->adu[i], 1);  // MB_PORTNUM
 	}
 
-	data_rx_len = uart_read_bytes(MB_PORTNUM, data_rx, 255,  MB_RESPONSE_TIMEOUT(send_mb_adu->adu_len));
+	data_rx_len = uart_read_bytes(modbusPort, data_rx, 255,  MB_RESPONSE_TIMEOUT(send_mb_adu->adu_len)); // MB_PORTNUM
 
 
 	if(PollEngine__GetPollEnginePrintMsgs() == 1){
@@ -1678,8 +1680,8 @@ uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx)
         #endif
 	}
 
-	uart_flush_input(MB_PORTNUM);
-	uart_flush(MB_PORTNUM);
+	uart_flush_input(modbusPort);    // MB_PORTNUM
+	uart_flush(modbusPort);          // MB_PORTNUM
 
 //	ClearQueueMB();			// CHIEBAO
 //	mbc_master_resume();	// CHIEBAO

@@ -1796,6 +1796,8 @@ data_rx_len=0;
 		case READ_VALUES:
 		case WRITE_VALUES:
 		{
+			bool previous_poll_engine_status = false;
+
 			c_cborreqrdwrvalues cbor_rwv = {0};
 			cbor_req.res = ERROR_CMD;
 			err = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rwv);
@@ -1804,6 +1806,10 @@ data_rx_len=0;
 				// wait modbus response to get result
 				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
 					Sys__Delay(100);
+
+				PollEngine_StopEngine_CAREL();
+				previous_poll_engine_status = true;
+
 				if (cbor_req.cmd == READ_VALUES)
 					cbor_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 				else
@@ -1826,6 +1832,10 @@ data_rx_len=0;
 			// send response with result
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+
+
+			if(previous_poll_engine_status == true)
+				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
@@ -1843,6 +1853,9 @@ data_rx_len=0;
 					MQTT_FlushValues();
 					previous_poll_engine_status = true;
 				}
+
+				Modbus_Disable();  // 12/03/2020 Chiebao
+
 				OTA__GMEInit(update_gw_fw);
 				cbor_req.res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
 				OTA_GMEEnd();
@@ -1859,7 +1872,11 @@ data_rx_len=0;
 			}
 
 			if(previous_poll_engine_status == true)
+			{
+				Modbus_Enable();
 				PollEngine_StartEngine_CAREL();
+			}
+
 		}
 		break;
 
