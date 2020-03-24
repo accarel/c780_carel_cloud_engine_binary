@@ -40,8 +40,11 @@
 #include "radio.h"
 #include "binary_model.h"
 
+#include "SoftWDT.h"
+
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
 
+#define MODBUS_PORT_SELECT(x, port)           (x == 1 ? (port = MB_PORTNUM_485) : (port = MB_PORTNUM_TTL))
 /* Functions implementation -------------------------------------------------------*/
 
 //Variables
@@ -51,6 +54,13 @@ void app_main(void)  // main_Carel
 {
   Led_Task_Start();
   Carel_Main_Task_Start();
+  //software watchdog
+  while(1)
+  {
+	SoftWDT_Manager();
+	Sys__Delay(1000);
+  }
+
 }
 
 void Carel_Main_Task(void)
@@ -61,10 +71,14 @@ void Carel_Main_Task(void)
   static uint8_t gw_config_status, line_config_status, devs_config_status;
   static uint8_t test3 = 0;
 
-  static C_UINT32 NVMBoudrate;
+  static C_UINT32 NVMBaudrate;
+  static C_BYTE   NVMConnector;
+
+  SoftWDT_Init(SWWDT_MAIN_DEVICE, SWWDT_DEFAULT_TIME);
 
   while(1)
   {
+SoftWDT_Reset(SWWDT_MAIN_DEVICE);
 	  switch (sm)
 	  {
 		  //System Initialization
@@ -73,6 +87,9 @@ void Carel_Main_Task(void)
 			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
 
+			  //printf("Version V45 \n");
+			  //printf("Version V46 \n");
+			  printf("Version V47 \n");
 			  if(retval != C_SUCCESS){
 				  sm = GME_REBOOT;
 			  }else{
@@ -226,16 +243,19 @@ void Carel_Main_Task(void)
           	    	sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
           	    	break;
           	    }
-          //	    PollEngine__CreateTables();
+          	    PollEngine__CreateTables();
 
-          	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBoudrate);
+          	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBaudrate);		// read the baudrate from nvm
+          	    NVM__ReadU8Value(MB_CONNECTOR_NVM, &NVMConnector);		// read the which uart use (for rs485 or ttl) from nvm
 
-          	    retval = Modbus_Init(NVMBoudrate, GME__GetHEaderInfo()->Rs485Parity, GME__GetHEaderInfo()->Rs485Stop);
+          	    MODBUS_PORT_SELECT(NVMConnector, modbusPort);
+
+          	    retval = Modbus_Init(NVMBaudrate, GME__GetHEaderInfo()->Rs485Parity, GME__GetHEaderInfo()->Rs485Stop, modbusPort);
           	    CAREL_CHECK(retval, "UART");
 
           	    Sys__Delay(1000);
 
-          	    Modbus_Task_Start();                // CAREL
+          	    Modbus_Task_Start();
           	    Sys__Delay(1000);
 
 
