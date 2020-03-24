@@ -437,7 +437,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	if (number == 0)
 		t = RTC_Get_UTC_Current_Time();
 	else
-		t = Get_SamplingTime(index);
+		t = Get_SamplingTime(index - 1);
 	err |= cbor_encode_uint(&mapEncoder, t);
 	DEBUG_ADD(err, "t");
 
