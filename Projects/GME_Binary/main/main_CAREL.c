@@ -243,8 +243,7 @@ SoftWDT_Reset(SWWDT_MAIN_DEVICE);
           	    	sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
           	    	break;
           	    }
-          	    PollEngine__CreateTables();
-
+          	    
           	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBaudrate);		// read the baudrate from nvm
           	    NVM__ReadU8Value(MB_CONNECTOR_NVM, &NVMConnector);		// read the which uart use (for rs485 or ttl) from nvm
 
