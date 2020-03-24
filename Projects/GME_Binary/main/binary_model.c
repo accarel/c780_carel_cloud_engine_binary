@@ -571,8 +571,10 @@ int BinaryModel_Init (void)
 	GetDeviceInfo(chunk);
 
 	// retrieve the useful pointers inside the model
+	// if below 2 functions are not called in close succession
+	// something does not work... TODO
 	get_model_pointers(chunk);
-
+    PollEngine__CreateTables();
 	GME__ExtractHeaderInfo(tmpHeaderModel);
 
 	free(chunk);

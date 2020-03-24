@@ -226,7 +226,7 @@ void Carel_Main_Task(void)
           	    	sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
           	    	break;
           	    }
-          	    PollEngine__CreateTables();
+          //	    PollEngine__CreateTables();
 
           	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBoudrate);
 
