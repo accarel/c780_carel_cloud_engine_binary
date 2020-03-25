@@ -125,6 +125,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
 		case SYSTEM_EVENT_STA_DISCONNECTED:
 			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED");
+			ESP_ERROR_CHECK(esp_wifi_connect());
 			GME__CheckHTMLConfig();
 
 			xEventGroupClearBits(s_wifi_event_group, CONNECTED_BIT);
