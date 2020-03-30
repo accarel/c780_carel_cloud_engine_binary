@@ -142,15 +142,18 @@ void MQTT_Stop(void)
 
 void CBOR_CreateSendValues(values_buffer_t *values_buffer, uint16_t values_buffer_count)
 {
-	uint32_t i, j;
-	j = 0;
+	uint32_t i, vals_for_ts, firstval_for_ts;
+	vals_for_ts = 0;
+	firstval_for_ts = 0;
 
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("CBOR_CreateSendValues: values_buffer_count: %d\n", values_buffer_count);
     #endif
 
 	if (values_buffer_count != 0)
-		j = 1;
+		vals_for_ts = 1;
+	else
+		CBOR_SendValues(0, 0, -1); // empty packet to be sent every pva seconds (if no value sent in pva seconds before)
 
 	for (i = 0; i < values_buffer_count; i++)
 	{
@@ -158,17 +161,20 @@ void CBOR_CreateSendValues(values_buffer_t *values_buffer, uint16_t values_buffe
 		PRINTF_DEBUG("i: %d, alias: %d, value: %Lf, err:%d\n", i, values_buffer[i].alias, values_buffer[i].value, values_buffer[i].info_err);
 		PRINTF_DEBUG("time %d\n", values_buffer[i].t);
 #endif
-		if(values_buffer[i].t == values_buffer[i+1].t) {
-			 j++;   // j is the number of values with same t
+		while(values_buffer[i].t == values_buffer[i+1].t) {
+			vals_for_ts++;   // j is the number of values with same t
+			i++;
 		}
+		CBOR_SendValues(n, vals_for_ts, -1);
+		firstval_for_ts += vals_for_ts;
+		vals_for_ts = 1;
+
 	}
-	// this does not manage segmentation yet, but maybe it's not needed (TODO Vale)
-	CBOR_SendValues(1, j, -1);
 }
 
 void MQTT_FlushValues(void){
 
-	if (MQTT_GetFlags() == 1) {	// maybe this check is not required... TODO Vale
+	if (MQTT_GetFlags() == 1) {
 		CBOR_CreateSendValues(PollEngine__GetValuesBuffer(), PollEngine__GetValuesBufferCount());
 		PollEngine__ResetValuesBuffer();
 	}

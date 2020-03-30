@@ -79,9 +79,16 @@ static hr_ir_alarm_tables_t		*IRAlarmPollTab;
 
 static sampling_tstamp_t timestamp = {0};
 
-//Values and time buffers
+// Values and time buffers
+// Variable storing the number of values to be sent currently in buffer
 static uint16_t values_buffer_count = 0;
+// Variable storing the index of the last inserted variable
+static uint16_t values_buffer_index = 0;
+
+
+// Size of the values buffer (calculated on free memory available)
 static uint16_t values_buffer_len = 0;
+// Pointer to the values buffer
 static values_buffer_t *values_buffer = NULL;
 
 //Engine flags
@@ -339,6 +346,9 @@ void create_values_buffers(void){
 	freespace -= 1000;
 	values_buffer_len = (uint16_t)(freespace/((uint32_t)sizeof(values_buffer_t)));
 
+	// to test buffering TEMPORARY
+	// values_buffer_len = 20;
+
 	values_buffer = malloc(values_buffer_len * sizeof(values_buffer_t));						// malloc
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
 }
@@ -440,10 +450,14 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 	long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
 		if( arr->tab[i].error != arr->tab[i].p_error && ( (arr->tab[i].error != 0) /*|| (arr->tab[i].p_error != 0)*/ )){
-			values_buffer[values_buffer_count].alias = arr->tab[i].info.Alias;
-			values_buffer[values_buffer_count].value = 0;
-			values_buffer[values_buffer_count].info_err = arr->tab[i].error;
-			check_increment_values_buff_len(&values_buffer_count);
+			values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
+			values_buffer[values_buffer_index].value = 0;
+			values_buffer[values_buffer_index].info_err = arr->tab[i].error;
+			values_buffer[values_buffer_index].t = timestamp.current_high;
+			check_increment_values_buff_len(&values_buffer_index);
+			values_buffer_count++;
+			if (values_buffer_count > values_buffer_len)
+				values_buffer_count = values_buffer_len;
 		}
 		else{
 			// reinit value otherwise all variables will be considered changed
@@ -624,11 +638,15 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				break;
 			}
 			if(value != 0 || (first_run)){
-				values_buffer[values_buffer_count].alias = arr->tab[i].info.Alias;
-				values_buffer[values_buffer_count].value = value;
-				values_buffer[values_buffer_count].info_err = 0;
-				values_buffer[values_buffer_count].data_type = arr->tab[i].info.dim;
-				check_increment_values_buff_len(&values_buffer_count);
+				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
+				values_buffer[values_buffer_index].value = value;
+				values_buffer[values_buffer_index].info_err = 0;
+				values_buffer[values_buffer_index].data_type = arr->tab[i].info.dim;
+				values_buffer[values_buffer_index].t = timestamp.current_high;
+				check_increment_values_buff_len(&values_buffer_index);
+				values_buffer_count++;
+				if (values_buffer_count > values_buffer_len)
+					values_buffer_count = values_buffer_len;
 			}
 		}
 	}
@@ -649,19 +667,27 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 		//error?
 		if( arr->reg[i].error != arr->reg[i].p_error && ( (arr->reg[i].error != 0)) ){
 			//send values to values buffer as error
-			values_buffer[values_buffer_count].alias = arr->reg[i].info.Alias;
-			values_buffer[values_buffer_count].value = 0;
-			values_buffer[values_buffer_count].info_err = arr->reg[i].error;
-			check_increment_values_buff_len(&values_buffer_count);
+			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
+			values_buffer[values_buffer_index].value = 0;
+			values_buffer[values_buffer_index].info_err = arr->reg[i].error;
+			values_buffer[values_buffer_index].t = timestamp.current_high;
+			check_increment_values_buff_len(&values_buffer_index);
+			values_buffer_count++;
+			if (values_buffer_count > values_buffer_len)
+				values_buffer_count = values_buffer_len;
 
 		}
 		//value changed
 		else if(arr->reg[i].c_value != arr->reg[i].p_value || (first_run)){
 			//send values to values buffer
-			values_buffer[values_buffer_count].alias = arr->reg[i].info.Alias;
-			values_buffer[values_buffer_count].value = (long double)arr->reg[i].c_value;
-			values_buffer[values_buffer_count].info_err = 0;
-			check_increment_values_buff_len(&values_buffer_count);
+			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
+			values_buffer[values_buffer_index].value = (long double)arr->reg[i].c_value;
+			values_buffer[values_buffer_index].info_err = 0;
+			values_buffer[values_buffer_index].t = timestamp.current_high;
+			check_increment_values_buff_len(&values_buffer_index);
+			values_buffer_count++;
+			if (values_buffer_count > values_buffer_len)
+				values_buffer_count = values_buffer_len;
 		}
 	}
 }
@@ -676,9 +702,8 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 {
 	//get current index of values buffer
-	uint16_t index_temp =  values_buffer_count;
     #ifdef __DEBUG_POLLING_CAREL_LEV_2
-	PRINTF_DEBUG("START index_temp = %d, values_buffer_count = %d\n",index_temp,values_buffer_count);
+	PRINTF_DEBUG("START index_temp = %d, values_buffer_index = %d\n", index_temp, values_buffer_index);
     #endif
 
 	switch(poll_type){
@@ -704,15 +729,6 @@ static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 	PRINTF_DEBUG("END index_temp = %d, values_buffer_index = %d\n",index_temp,values_buffer_index);
     #endif
 
-	//Update values buffer timestamps
-	if (index_temp != values_buffer_count){
-		//Update Values Buffer
-		//	 if(index_temp < values_buffer_count){ // this update must be done even if the buffer was circularly populated TODO Vale
-		//assign idx to the new added values in the buffer
-		for(uint8_t i = index_temp; i < values_buffer_count; i++){
-			values_buffer[i].t = timestamp.current_high;
-		}
-	}
 }
 
 
@@ -1016,7 +1032,7 @@ void print_ValuesTable(void){
 	int i;
 	if(PollEngine__GetPollEnginePrintMsgs() == 1){
 	printf("Values Buffer\n");
-	for(i = 0; i<values_buffer_count;	i++){
+	for(i = 0; i<values_buffer_index;	i++){
 		printf("alias: %4d,  value: %4Lf,  error: %d\n" ,
 																values_buffer[i].alias,
 																values_buffer[i].value,
@@ -1490,7 +1506,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				FlushValues(HIGH_POLLING);
 				if (PollEngine__GetValuesBufferCount()) {
 					MQTT_FlushValues();
-					something_sent = 1;
+					something_sent = 1; // forse va dentro la MQTT_FlushValues dopo aver verificato che sia su la connessione mqtt TODO
 				}
 				high_trigger = 0;
 				low_trigger = 0;
@@ -1508,7 +1524,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				FlushValues(HIGH_POLLING);
 				if (PollEngine__GetValuesBufferCount()) {
 					MQTT_FlushValues();
-					something_sent = 1;
+					something_sent = 1; // forse va dentro la MQTT_FlushValues dopo aver verificato che sia su la connessione mqtt TODO
 				}
 				high_trigger = 0;
 			}
@@ -1817,6 +1833,7 @@ values_buffer_t* PollEngine__GetValuesBuffer(void){
 
 
 uint16_t PollEngine__GetValuesBufferCount(void){
+//	printf("values_buffer_count: %d\n", values_buffer_count);
 	return values_buffer_count;
 }
 
@@ -1824,6 +1841,7 @@ void PollEngine__ResetValuesBuffer(void){
 	//Reset Values Buffer
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
 	values_buffer_count = 0;
+	values_buffer_index = 0;
 }
 
 uint32_t PollEngine__GetMBBaudrate(void){

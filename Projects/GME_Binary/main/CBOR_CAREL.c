@@ -314,7 +314,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	err |= cbor_encode_text_stringz(&mapEncoder, "fme");
 	C_UINT32 freemem = Sys__GetFreeHeapSize();
 	err |= cbor_encode_uint(&mapEncoder, freemem);
-	DEBUG_ADD(err,"upt");
+	DEBUG_ADD(err,"fme");
 
 	// encode est -elem5
 	err |= cbor_encode_text_stringz(&mapEncoder, "est");
@@ -437,7 +437,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	if (number == 0)
 		t = RTC_Get_UTC_Current_Time();
 	else
-		t = Get_SamplingTime(index - 1);
+		t = Get_SamplingTime(index);
 	err |= cbor_encode_uint(&mapEncoder, t);
 	DEBUG_ADD(err, "t");
 
@@ -446,7 +446,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	// map vals
 	err = cbor_encoder_create_map(&mapEncoder, &mapEncoder1, CborIndefiniteLength);
 	DEBUG_ENC(err, "vals create map");
-	for (C_UINT16 i = 0; i < number; i++){
+	for (C_UINT16 i = index; i < index + number; i++){
 		err |= cbor_encode_text_stringz(&mapEncoder1, Get_Alias(i, alias_tmp));
 		if (memcmp((char*)Get_Value(i, value_tmp), "", sizeof("")) == 0)
 			err |= cbor_encode_null(&mapEncoder1);
