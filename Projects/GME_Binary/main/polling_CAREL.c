@@ -702,6 +702,7 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 {
 	//get current index of values buffer
+	uint16_t index_temp =  values_buffer_count;
     #ifdef __DEBUG_POLLING_CAREL_LEV_2
 	PRINTF_DEBUG("START index_temp = %d, values_buffer_index = %d\n", index_temp, values_buffer_index);
     #endif
