@@ -12,6 +12,7 @@
 #include "polling_CAREL.h"
 #include "modbus_IS.h"
 #include "gme_config.h"
+#include "Led_Manager_IS.h"
 
 static req_set_gw_config_t gw_config_data = {0};
 
@@ -63,7 +64,10 @@ void Utilities__Init(void){
 	Modbus__ReadDelayFromNVM();
 	CBOR_ReadDidFromNVM();
 
-	BinaryModel_Init();
+	if (BinaryModel_Init() == C_SUCCESS)
+	{
+	  Update_Led_Status(LED_STAT_MODEL_CFG, LED_STAT_ON);
+	}
 
 #if (NETWORK_INTERFACE == WIFI_INTERFACE)
 	Utilities__CalcMACAddr();

@@ -63,6 +63,15 @@ C_RES MQTT_Start(void)
 	strcpy(mqtt_cfg_nvm.username, CfgDataUsr.mqtt_user);    // MQTT_DEFAULT_USER
 	strcpy(mqtt_cfg_nvm.password, CfgDataUsr.mqtt_pssw);     // MQTT_DEFAULT_PWD
 
+    #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+    PRINTF_DEBUG("mqtt_broker %s\n", CfgDataUsr.mqtt_broker);
+    PRINTF_DEBUG("mqtt user   %s\n", CfgDataUsr.mqtt_user);
+    PRINTF_DEBUG("mqtt passw  %s\n", CfgDataUsr.mqtt_pssw);
+    #endif
+
+
+
+
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 		size_t gw_config_len;
 		req_set_gw_config_t gw_config_nvm = {0};
@@ -243,12 +252,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
             if(0 == mqtt_init)
 			{
-
-                #ifdef IS_A_WIFI_GATEWAY
-            	led_status = LED_ON;
-                #endif
-
-
+            	Update_Led_Status(LED_STAT_MQTT_CONN, LED_STAT_ON);
 
 				CBOR_SendHello();
 				MQTT_Status();
@@ -257,7 +261,9 @@ C_RES EventHandler(mqtt_event_handle_t event)
 			}
 
         	break;
+
         case MQTT_EVENT_DISCONNECTED:
+        	Update_Led_Status(LED_STAT_MQTT_CONN, LED_STAT_OFF);
         	mqtt_init = 2;
         	xEventGroupSetBits(s_mqtt_event_group, MQTT_DISCONNECTED_BIT);
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_1

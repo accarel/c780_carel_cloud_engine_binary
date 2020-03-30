@@ -137,6 +137,12 @@
 #define ECHO_TEST_RXD  (25)
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
 #define ECHO_TEST_RTS   (18)
+
+
+// for TTL one wire
+#define TTL_TXD         (21)
+#define TTL_RXD 		(3)
+#define TTL_RTS			(1)
 #endif
 
 #ifdef __USE_USR_2G_HW
@@ -144,6 +150,12 @@
 #define ECHO_TEST_RXD  (25)
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
 #define ECHO_TEST_RTS   (18)
+
+// for TTL one wire
+//TODO CHIEBAO da sistemare
+#define TTL_TXD         (21)
+#define TTL_RXD 		(3)
+#define TTL_RTS			(1)
 #endif
 
 

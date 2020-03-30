@@ -22,49 +22,34 @@
  * @brief _DEBUG_LEDS enable the RGB leds on ESP-WROVER
  */
 #ifdef __CCL_DEBUG_MODE
-#define _DEBUG_LEDS
+#define _DEBUG_LED_MANAGER_IS
 #endif
 
-typedef enum{
-	LED_OFF   = 0,
-	LED_ON    = 1,
-	LED_BLINK = 2
-}Led_Show_Status_t;
+/* time in ms TAKE CARE is a busy wait time */
+#define LED_TEST_DELAY 100
 
-/**
- * @brief LED_BLINK_INTERVAL  in second no less than 2                         
- */
-#define LED_BLINK_INTERVAL 1 
+/* time in seconds */
+#define LED_BLINK_FAST_INTERVAL    1
+#define LED_BLINK_SLOW_INTERVAL    2
 
+#define LED_STAT_OFF   0
+#define LED_STAT_ON    1
 
-/* ========================================================================== */
-/*                           IS_A_WIFI_GATEWAY                                */
-/* ========================================================================== */
-#ifdef IS_A_WIFI_GATEWAY
-
-extern volatile Led_Show_Status_t led_status;
-extern volatile Led_Show_Status_t led_polling;
-
-
-#ifdef _DEBUG_LEDS
-extern volatile Led_Show_Status_t led_blue;
-#endif
-
-#endif
+/* this are the possible leds status */
+#define LED_STAT_ALL_OFF      0x0000
+#define LED_STAT_MODEL_CFG    0x0001
+#define LED_STAT_MQTT_CONN    0x0002
+#define LED_STAT_RS485        0x0004
+//#define LED_STAT_
+#define LED_STAT_TEST         0x0080 
+#define LED_STAT_FACT_DEF_A   0x0100
+#define LED_STAT_FACT_DEF_B   0x0200
 
 
-/* ========================================================================== */
-/*                           IS_A_GSM_GATEWAY                                 */
-/* ========================================================================== */
-#ifdef IS_A_GSM_GATEWAY
-extern volatile Led_Show_Status_t led_work;
-extern volatile Led_Show_Status_t led_gprs;
-extern volatile Led_Show_Status_t led_linka;
-extern volatile Led_Show_Status_t led_linkb;
-#endif
-
+void Update_Led_Status(C_UINT16 set_status, C_BYTE status);
 
 void Led_Task_Start(void);
+
 void Led_task(void);
 
 #endif
