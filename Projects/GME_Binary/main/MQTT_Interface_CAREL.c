@@ -165,7 +165,7 @@ void CBOR_CreateSendValues(values_buffer_t *values_buffer, uint16_t values_buffe
 			vals_for_ts++;   // j is the number of values with same t
 			i++;
 		}
-		CBOR_SendValues(firstval_for_ts, vals_for_ts, -1);
+		CBOR_SendFragmentedValues(firstval_for_ts, vals_for_ts);
 		firstval_for_ts += vals_for_ts;
 		vals_for_ts = 1;
 

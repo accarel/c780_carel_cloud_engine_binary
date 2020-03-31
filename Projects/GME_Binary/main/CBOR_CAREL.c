@@ -152,6 +152,9 @@ void CBOR_SendHello(void)
 	freespace -= 1000;
 	txbuff_len = (uint16_t)freespace;
 
+	// only to test fragmentation
+	//txbuff_len = 110;
+
 	txbuff = malloc(txbuff_len);						// malloc
 	memset((void*)txbuff, 0, txbuff_len);
 
@@ -482,33 +485,38 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 /**
  * @brief CBOR_SendFragmentedValues
  *
- * Prepares CBOR encoded message fragmented into multiple pieces (DA RIFARE!!!)
+ * Prepares CBOR encoded message fragmented into multiple pieces
  *
  * @param Index of the first entry in table containing changed values to be sent
  * @param Number of entries of the table containing changed values that must be sent
  * @return none
  *
- * This function assumes that all data that must be sent is stored in a table where each item of index index has the structure:
- * c_cborvals vals[], for the variables
- * C_TIME t, for the timestamp when value was sampled
- * C_UNT16 cnt, for the monotonic counter of sent packets
- * __________________________________________________
- * | index | vals[].alias  | vals[].values | t | cnt |
- * |___0___|______"2"______|_____"1.5"_____|_5_|__6__|
- * |___1___|______"7"______|_____"2.3"_____|_5_|__7__|
- * |___2___|______"5"______|_____"7.1"_____|11_|__8__|
- * |___3___|_____"11"______|_____"1.2"_____|13_|__9__|
+ * This function considers the size of the tx buff and decides to fragment messages according to that
  */
 void CBOR_SendFragmentedValues(C_UINT16 index, C_UINT16 number)
 {
 	C_INT16 framecnt = 1;
-	while(number > ENTRY_PER_PKT) // not the right condition!!! should check txbuff occupation based on number of variables
-	{
-		CBOR_SendValues(index, ENTRY_PER_PKT, framecnt);
-		index++;
-		number -= ENTRY_PER_PKT;
-		framecnt++;
+	// cbor values packet overhead is calculated based on the packet format... if it changes this number must be recalculated!!!
+	C_UINT16 cborval_overhead = 50;
+	// calculate values packet size based on maximum size of alias and values fields
+	C_UINT16 values_size = number * (ALIAS_SIZE + VAL_SIZE + 2) + cborval_overhead;
+	C_UINT16 entry_per_packet;
+
+	// if a single packet cannot contain all data...
+	if ( values_size > txbuff_len ) {
+		// calculate the number of values that can be put in a single packet (according to tx buff size)...
+		entry_per_packet = ( txbuff_len - cborval_overhead ) / (ALIAS_SIZE + VAL_SIZE + 2);
+
+		while(number > entry_per_packet)
+		{
+			// ...and send fragmented packets...
+			CBOR_SendValues(index, entry_per_packet, framecnt);
+			index += entry_per_packet;
+			number -= entry_per_packet;
+			framecnt++;
+		}
 	}
+	// ...until the last one
 	CBOR_SendValues(index, number, -framecnt);
 
 }
@@ -633,10 +641,10 @@ size_t CBOR_Connected(C_CHAR* cbor_stream, C_UINT16 cbor_status)
 	DEBUG_ADD(err, "ver");
 
 	// encode ts - elem2
-	err |= cbor_encode_text_stringz(&mapEncoder, "ts");
+	err |= cbor_encode_text_stringz(&mapEncoder, "t");
 	C_TIME t = RTC_Get_UTC_MQTTConnect_Time();
 	err |= cbor_encode_uint(&mapEncoder, t);
-	DEBUG_ADD(err, "ts");
+	DEBUG_ADD(err, "t");
 
 	// encode sta - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "sta");
