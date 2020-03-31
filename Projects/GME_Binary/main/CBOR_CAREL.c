@@ -1643,7 +1643,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				PollEngine_StopEngine_CAREL();
 				// save cid for successive hello
 				NVM__WriteU32Value(MB_CID_NVM, cbor_cid);
-				MQTT_FlushValues();
 				GME__Reboot();
 			}
 		}
@@ -1652,10 +1651,14 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		case FLUSH_VALUES:
 		{
 			//flush values
-			//answer?
             #ifdef __DEBUG_CBOR_CAREL_LEV_1
 			printf("flush_values\n");
             #endif
+			ForceSending();
+			cbor_req.res = SUCCESS_CMD;
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
 		}
 		break;
 
@@ -1697,8 +1700,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if(SUCCESS_CMD == cbor_req.res){
 				PollEngine_StopEngine_CAREL();
-				MQTT_FlushValues();
-				GME__Reboot();		//todo
+				GME__Reboot();
 			}
 		}
 		break;
@@ -1717,7 +1719,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 					Sys__Delay(1);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
 
 				PollEngine_StopEngine_CAREL();
-				MQTT_FlushValues();
 				previous_poll_engine_status = true;
 			}
 			cbor_req.res = (execute_scan_devices(&answer, &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1858,7 +1859,6 @@ data_rx_len=0;
 			if (err == C_SUCCESS) {
 				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
 					PollEngine_StopEngine_CAREL();
-					MQTT_FlushValues();
 					previous_poll_engine_status = true;
 				}
 
@@ -1875,7 +1875,6 @@ data_rx_len=0;
 				PollEngine_StopEngine_CAREL();
 				// save cid for successive hello
 				NVM__WriteU32Value(MB_CID_NVM, update_gw_fw.cid);
-				MQTT_FlushValues();
 				GME__Reboot();
 			}
 
@@ -1901,7 +1900,6 @@ data_rx_len=0;
 					Sys__Delay(100);
 				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 					PollEngine_StopEngine_CAREL();
-					MQTT_FlushValues();
 					previous_poll_engine_status = true;
 				}
 
