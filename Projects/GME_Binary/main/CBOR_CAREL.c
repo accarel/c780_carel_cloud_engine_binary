@@ -1716,7 +1716,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-					Sys__Delay(1);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
+					Sys__Delay(10);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
 
 				PollEngine_StopEngine_CAREL();
 				previous_poll_engine_status = true;
