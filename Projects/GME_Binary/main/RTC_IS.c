@@ -38,7 +38,7 @@ C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
 { /* TO BE Implemented */
 
   #ifdef INCLUDE_PLATFORM_DEPENDENT  
-  printf("Initializing SNTP\n");
+  printf("Initializing SNTP, server: %s, port: %d\n", ntp_server, ntp_port);
   sntp_stop();
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
   sntp_setservername(0, ntp_server);
