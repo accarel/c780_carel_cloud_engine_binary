@@ -56,7 +56,7 @@ C_UINT16 did;
 void CBOR_SendAlarms(c_cboralarms cbor_alarms)
 {
 	size_t len = CBOR_Alarms(txbuff, cbor_alarms);
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, len, 0, 0);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
 }
 
 /**
@@ -159,7 +159,7 @@ void CBOR_SendHello(void)
 	memset((void*)txbuff, 0, txbuff_len);
 
 	size_t len = CBOR_Hello(txbuff);
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, len, 1, 1);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
 }
 
 /**
@@ -276,7 +276,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 void CBOR_SendStatus(void)
 {
 	size_t len = CBOR_Status(txbuff);
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/status"), (C_SBYTE*)txbuff, len, 0, 0);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/status"), (C_SBYTE*)txbuff, len, QOS_0, NO_RETAIN);
 }
 
 /**
@@ -391,7 +391,7 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 	printf("\n");
 #endif
 
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)mybuf, len, 0, 0);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)mybuf, len, QOS_1, NO_RETAIN);
 }
 
 /**
@@ -1637,7 +1637,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
 				PollEngine_StopEngine_CAREL();
@@ -1658,7 +1658,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -1677,7 +1677,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -1696,7 +1696,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			//len = CBOR_ResSimple(cbor_response, &cbor_req);
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
 
 			if(SUCCESS_CMD == cbor_req.res){
 				PollEngine_StopEngine_CAREL();
@@ -1728,7 +1728,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
             sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-            mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+            mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 
 			if(previous_poll_engine_status == true)
 				PollEngine_StartEngine_CAREL();
@@ -1747,7 +1747,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			}
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -1791,7 +1791,7 @@ data_rx_len=0;
 
 				len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, data_rx, data_rx_len);
 				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
 
 				PollEngine__SetPassModeCMD(EXECUTED);
 				PollEngine_MBResume_IS();
@@ -1840,7 +1840,7 @@ data_rx_len=0;
 
 			// send response with result
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 
 
 			if(previous_poll_engine_status == true)
@@ -1870,7 +1870,7 @@ data_rx_len=0;
 			}
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 			if(cbor_req.res == SUCCESS_CMD){
 				PollEngine_StopEngine_CAREL();
 				// save cid for successive hello
@@ -1908,7 +1908,7 @@ data_rx_len=0;
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 
 			if(previous_poll_engine_status == true)
 				PollEngine_StartEngine_CAREL();
@@ -1929,7 +1929,7 @@ data_rx_len=0;
 			// send a report of operation
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -1948,7 +1948,7 @@ data_rx_len=0;
 			// to be implemented
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -1959,7 +1959,7 @@ data_rx_len=0;
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -1970,7 +1970,7 @@ data_rx_len=0;
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -1985,7 +1985,7 @@ data_rx_len=0;
 
 			len = CBOR_ResSendMbPassThrough(cbor_response, &cbor_req, cbor_pass);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
 		}
 		break;
 #endif
@@ -1995,7 +1995,7 @@ data_rx_len=0;
 			cbor_req.res = INVALID_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, RETAIN);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
 		break;
 
 	}
