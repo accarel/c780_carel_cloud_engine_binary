@@ -250,7 +250,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
             printf("\n");
             #endif
 
-            msg_id = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/connected"), conn_buf, conn_len, 1, 1);
+            msg_id = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/connected"), conn_buf, conn_len, QOS_1, RETAIN);
 
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("sent publish successful, msg_id=%d", msg_id);
