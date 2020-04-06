@@ -78,7 +78,9 @@ void Carel_Main_Task(void)
 
   while(1)
   {
-SoftWDT_Reset(SWWDT_MAIN_DEVICE);
+	  Sys__Delay(10);
+	  SoftWDT_Reset(SWWDT_MAIN_DEVICE);
+
 	  switch (sm)
 	  {
 		  //System Initialization
