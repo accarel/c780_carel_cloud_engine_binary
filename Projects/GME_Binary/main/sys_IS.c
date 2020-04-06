@@ -132,6 +132,6 @@ C_UINT32 Sys__GetFreeHeapSize(void){
 
 void Sys__Delay(C_UINT32 delay){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	vTaskDelay(delay / portTICK_PERIOD_MS);
+	vTaskDelay(delay / portTICK_PERIOD_MS); //portTICK_PERIOD_MS 10
 #endif
 }
