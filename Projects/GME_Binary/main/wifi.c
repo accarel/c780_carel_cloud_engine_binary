@@ -63,10 +63,13 @@ char* GetAvailableAPs(uint8_t index){
 	return AAP[index];
 }
 
+static C_INT32 TimerForAPConnection = 0;
+static uint16_t connect_attempt = 0;
+
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
 	uint16_t apCount;
-    switch(event->event_id) {
+	switch(event->event_id) {
 
 //AP MODE
 		case SYSTEM_EVENT_AP_START:
@@ -78,6 +81,11 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			ESP_LOGI(TAG, "station:"MACSTR" join, AID=%d",
 					MAC2STR(event->event_info.sta_connected.mac),
 					event->event_info.sta_connected.aid);
+
+			printf("wait for some time before scanning\n");
+			Sys__Delay(3000);
+			connect_attempt = 21;
+
 			// Let us test a WiFi scan ...
 			wifi_scan_config_t scanConf = {
 				.ssid = NULL,
@@ -87,6 +95,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			};
 			ESP_ERROR_CHECK(esp_wifi_scan_start(&scanConf, true));	//The true parameter cause the function to block until
 																	//the scan is done.
+
 		break;
 
 		case SYSTEM_EVENT_AP_STADISCONNECTED:
@@ -94,6 +103,11 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",
 					MAC2STR(event->event_info.sta_disconnected.mac),
 					event->event_info.sta_disconnected.aid);
+			if(WIFI__GetSTAStatus() == DISCONNECTED){
+				connect_attempt = 0;
+				StartTimerForAPConnection();
+				ESP_ERROR_CHECK(esp_wifi_connect());
+			}
 		break;
 
 		case SYSTEM_EVENT_AP_STACONNECTED:
@@ -101,9 +115,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",
 					MAC2STR(event->event_info.sta_disconnected.mac),
 					event->event_info.sta_disconnected.aid);
+		//	connect_attempt = 21;
 		break;
 
-		//STA MODE
+//STA MODE
 
 		case SYSTEM_EVENT_STA_START:
 			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_START");
@@ -113,19 +128,36 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 				ESP_ERROR_CHECK(esp_wifi_connect());
 		break;
 
+		case SYSTEM_EVENT_STA_CONNECTED:
+			connect_attempt = 0;
+			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_CONNECTED");
+		break;
+
 		case SYSTEM_EVENT_STA_GOT_IP:
 			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_GOT_IP");
 			ESP_LOGI(TAG, "Got IP: '%s'",
 			ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
 
+//			connect_attempt = 0;
 			xEventGroupSetBits(s_wifi_event_group, CONNECTED_BIT);
 
 			WIFI__SetSTAStatus(CONNECTED);
 		break;
 
 		case SYSTEM_EVENT_STA_DISCONNECTED:
-			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED");
-			ESP_ERROR_CHECK(esp_wifi_connect());
+			ESP_LOGI(TAG, "SYSTEM_EVENT_STA_DISCONNECTED %d", connect_attempt);
+
+			// try to reconnect for about one minute, then make a 2 minute break
+			if(connect_attempt < 20) {
+				connect_attempt++;
+				ESP_ERROR_CHECK(esp_wifi_connect());
+			}
+			else{
+				connect_attempt = 21;
+				//ESP_ERROR_CHECK(esp_wifi_disconnect());
+				StartTimerForAPConnection();
+			}
+
 			GME__CheckHTMLConfig();
 
 			xEventGroupClearBits(s_wifi_event_group, CONNECTED_BIT);
@@ -135,10 +167,6 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 		case SYSTEM_EVENT_SCAN_DONE:
 			ESP_LOGI(TAG, "SYSTEM_EVENT_SCAN_DONE");
 			esp_wifi_scan_get_ap_num(&apCount);
-
-
-
-
 
 			if (apCount == 0) {
 				return ESP_OK;
@@ -212,9 +240,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			wifi_config_t wifi_config_temp;
 			ESP_ERROR_CHECK(esp_wifi_get_config(ESP_IF_WIFI_STA, &wifi_config_temp));
 
-            #ifdef __DEBUG_WIFI_LEV_1
+			#ifdef __DEBUG_WIFI_LEV_1
 			printf("WPS AP %s PWD %s\n", wifi_config_temp.ap.ssid, wifi_config_temp.ap.password);
-            #endif
+			#endif
 
 			SetWpsParameters(wifi_config_temp);
 			SetConfigReceived();
@@ -226,6 +254,22 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 		break;
     }
     return ESP_OK;
+}
+
+void StartTimerForAPConnection(void){
+	printf("TimerForAPConnection Started\n");
+	TimerForAPConnection = RTC_Get_UTC_Current_Time();
+}
+
+void IsTimerForAPConnectionExpired(void){
+	if(TimerForAPConnection != 0){
+		if(RTC_Get_UTC_Current_Time() >= TimerForAPConnection + 120){
+			printf("TimerForAPConnection Expired \n");
+			TimerForAPConnection = 0;
+			connect_attempt = 0;
+			ESP_ERROR_CHECK(esp_wifi_connect());
+		}
+	}
 }
 
 /**
@@ -660,7 +704,8 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 
 void WiFi__WaitConnection(void)
 {
-    xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT, false, true, portMAX_DELAY);
+    xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT, false, true, 30000/portTICK_RATE_MS); // wait for a limited time,
+    																							 // state machine will come back here over and over
 }
 
 void WIFI__SetSTAStatus(connection_status_t status){

@@ -80,7 +80,7 @@ void Carel_Main_Task(void)
   {
 	  Sys__Delay(10);
 	  SoftWDT_Reset(SWWDT_MAIN_DEVICE);
-
+	  IsTimerForAPConnectionExpired();
 	  switch (sm)
 	  {
 		  //System Initialization
