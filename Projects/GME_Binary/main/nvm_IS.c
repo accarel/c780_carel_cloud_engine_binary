@@ -13,14 +13,14 @@ C_RES NVM_Init(void)
 
 C_RES NVM__Open(void)
 {
-	PRINTF_DEBUG("Opening Non-Volatile Storage (NVS) handle... ");
+	PRINTF_DEBUG_NVM("Opening Non-Volatile Storage (NVS) handle... ");
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_open("storage", NVS_READWRITE, &my_handle);
 	if (err != ESP_OK) {
-	    PRINTF_DEBUG("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
+		PRINTF_DEBUG_NVM("Error (%s) opening NVS handle!\n", esp_err_to_name(err));
 	} else {
-	    PRINTF_DEBUG("Done\n");
+		PRINTF_DEBUG_NVM("Done\n");
     }
 #endif
 	return err;
@@ -66,16 +66,16 @@ C_RES NVM__SetString(const C_CHAR* var, char* str){
 C_RES NVM__SetBlob(const C_CHAR* var, void* vec, size_t len){
 	C_RES err = C_FAIL;
 
-	PRINTF_DEBUG("Updating %s in NVS ... ",var);
+	PRINTF_DEBUG_NVM("Updating %s in NVS ... ",var);
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_set_blob(my_handle, var, vec, len);
-	PRINTF_DEBUG((err != ESP_OK) ? "Failed!" : "Done");
-	PRINTF_DEBUG(" ..... Value = err = 0x%X\n",err);
+	PRINTF_DEBUG_NVM((err != ESP_OK) ? "Failed!" : "Done");
+	PRINTF_DEBUG_NVM(" ..... Value = err = 0x%X\n",err);
 
 	//Commit
-	PRINTF_DEBUG("Committing updates in NVS ... ");
+	PRINTF_DEBUG_NVM("Committing updates in NVS ... ");
 	err = nvs_commit(my_handle);
-	PRINTF_DEBUG((err != ESP_OK) ? "Failed!\n" : "Done\n");
+	PRINTF_DEBUG_NVM((err != ESP_OK) ? "Failed!\n" : "Done\n");
 #endif
 
 	return err;
@@ -122,12 +122,12 @@ C_RES NVM__GetString(const C_CHAR* var, char* str, size_t* len){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_get_str(my_handle, var, NULL, len);
 	if (*len == 0){
-		PRINTF_DEBUG("Nothing to allocate\n");
+		PRINTF_DEBUG_NVM("Nothing to allocate\n");
 		return C_FAIL;
 	}
 	char* temp = malloc(*len);
 	if (temp == NULL){
-		PRINTF_DEBUG("No more space to allocate\n");
+		PRINTF_DEBUG_NVM("No more space to allocate\n");
 		return C_FAIL;
 	}
 
@@ -146,18 +146,18 @@ C_RES NVM__GetBlob(const C_CHAR* var, void* vec, size_t* len){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_get_blob(my_handle, var, NULL, len);
 	if (*len == 0){
-		PRINTF_DEBUG("Nothing to allocate\n");
+		PRINTF_DEBUG_NVM("Nothing to allocate\n");
 		return C_FAIL;
 	}
 	char* temp = malloc(*len);
 	if (temp == NULL){
-		PRINTF_DEBUG("No more space to allocate");
+		PRINTF_DEBUG_NVM("No more space to allocate");
 		return C_FAIL;
 	}
 
 	err = nvs_get_blob(my_handle, var, temp, len);
 	if (err == C_SUCCESS) {
-		PRINTF_DEBUG("Reading %s, is  ....  length = %d \n",var , (int)*len);
+		PRINTF_DEBUG_NVM("Reading %s, is  ....  length = %d \n",var , (int)*len);
 		memcpy(vec,(void*)temp,*len);
 	}
 	free(temp);

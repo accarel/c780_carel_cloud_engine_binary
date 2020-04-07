@@ -8,11 +8,29 @@
 #include "nvs.h"
 #endif
 
-#if NVM_DEBUG == ENABLED
+
+/* ========================================================================== */
+/* debugging purpose                                                          */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+ //this define enable the output of the errors
+#define __DEBUG_NVM_IS_LEV_1
+
+//this define enable the output of others debug informations
+//#define __DEBUG_NVM_IS_LEV_2
+
+#endif
+
+#ifdef __DEBUG_NVM_IS_LEV_2
 	#define	PRINTF_DEBUG_NVM	printf
 #else
 	#define	PRINTF_DEBUG_NVM(...)
 #endif
+
+
+
+
 
 C_RES NVM_Init(void);
 C_RES NVM__Open(void);

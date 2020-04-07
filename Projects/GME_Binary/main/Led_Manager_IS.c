@@ -22,8 +22,11 @@
 #endif
 
 #include "RTC_IS.h"
-#include "Led_Manager_IS.h"
 #include "sys_IS.h"
+#include "IO_Port_IS.h"
+
+#include "Led_Manager_IS.h"
+
 
 /**
  * @brief LED_STATUS_IO
@@ -40,11 +43,7 @@ duplicate & copy inside each platform
 /* ========================================================================== */
 /* development platform                                                       */
 /* ========================================================================== */
-#ifdef __USE_ESP_WROVER_KIT
-#define LED_GREEN       GPIO_NUM_2
-#define LED_RED    	    GPIO_NUM_0
-#define LED_BLU         GPIO_NUM_4
-#endif
+
 
 /* ========================================================================== */
 /*  OFFICIAL HW PLATFORM                                                      */
@@ -53,10 +52,6 @@ duplicate & copy inside each platform
 /* ========================================================================== */
 /*  __USE_USR_WIFI_HW                                                         */
 /* ========================================================================== */
-#ifdef __USE_USR_WIFI_HW
-#define LED_GREEN     GPIO_NUM_27
-#define LED_RED       GPIO_NUM_5
-
 /*
 The WiFi model use a two wire bicolor led the control of it
 follow this table
@@ -75,42 +70,33 @@ typedef enum{
 }Led_Bicolor_Status_t;
 
 volatile C_BYTE bicolor_led = LED_BOTH_OFF;
-#endif
+
 
 
 /* ========================================================================== */
 /*  __USE_USR_2G_HW                                                           */
 /* ========================================================================== */
-#ifdef __USE_USR_2G_HW
-#define LED_GREEN     GPIO_NUM_27
-#define LED_RED       GPIO_NUM_5
-#define LED_BLU       GPIO_NUM_33
-#endif
+/* used to avoid mistake in the association in the 2G model WYSIWYG */
+#define WORK_LED(a) Led_Status_Update_Green_2g(a)
+#define LINK_A(a)   Led_Status_Update_Red_2g(a)
+#define LINK_B(a)   Led_Status_Update_Blu_2g(a)
+
 
 /* ========================================================================== */
 /*  __USE_CAREL_BCU_HW                                                        */
 /* ========================================================================== */
-#ifdef __USE_CAREL_BCU_HW
-#define LED_GREEN     GPIO_NUM_27
-#endif
+
 
 
 /* ========================================================================== */
 /*  COMMON PART                                                               */
 /* ========================================================================== */
-
-
 typedef enum{
 	LED_OFF        = 0,
 	LED_ON         = 1,
 	LED_BLINK_SLOW = 2,
 	LED_BLINK_FAST = 3 
 }Led_Show_Status_t;
-
-
-//C_BYTE led_configured;
-//C_BYTE led_cloud;
-//C_BYTE led_rs_485;
 
 
 /**
@@ -131,13 +117,12 @@ static xTaskHandle xLedTask;
 /* ------------------------------------------------------------------- */
 /* function forward declaration section                                */
 /* ------------------------------------------------------------------- */
-void Update_Led_Model_Cfg(C_BYTE model_cfg_status);
-
 void Led_Status_Update_Red(Led_Show_Status_t status);
 void Led_Status_Update_Green(Led_Show_Status_t status);
+void Led_Status_Update_Blu(Led_Show_Status_t status);
 
 void Do_Led_Test_Routine(void);
-
+void Update_Led_Model_Cfg(C_BYTE model_cfg_status);
 void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status);
 void Update_Led_RS485(C_BYTE rs485_status);
 
@@ -223,7 +208,7 @@ void Task_Led_Status(void)
 /*           BEGIN OF PLATFORM DEPENDENT LED MANAGEMENT                */
 /* ------------------------------------------------------------------- */
 
-#ifdef __USE_CAREL_BCU_HW
+//#ifdef __USE_CAREL_BCU_HW
 
 /**
  * @brief Led_init
@@ -232,17 +217,17 @@ void Task_Led_Status(void)
  * @param none
  * @return none
  */
-void Led_init(void)
+void Led_init_bcu(void)
 {
 	/* put you I/O initialization here */
 	#ifdef INCLUDE_PLATFORM_DEPENDENT
-    gpio_pad_select_gpio(LED_GREEN);
-    gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN, LED_PHY_OFF);
+    gpio_pad_select_gpio(LED_GREEN_BCU);
+    gpio_set_direction(LED_GREEN_BCU, GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
 	#endif
 }
 
-void Led_Status_Update_Red(Led_Show_Status_t status){
+void Led_Status_Update_Red_bcu(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -304,7 +289,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
 
 }
 
-void Led_Status_Update_Green(Led_Show_Status_t status){
+void Led_Status_Update_Green_bcu(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -315,7 +300,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN, LED_PHY_OFF);
+		  gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
 		  #endif
 		  break;
 
@@ -323,7 +308,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
           /* to avoid conflict change immediately like a semaphore*/
-		  gpio_set_level(LED_GREEN, LED_PHY_ON);
+		  gpio_set_level(LED_GREEN_BCU, LED_PHY_ON);
 		  #endif
 		  break;
 
@@ -336,7 +321,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 		      /* put the I/O instruction here */
 		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		  gpio_set_level(LED_GREEN, LED_PHY_ON);
+      		  gpio_set_level(LED_GREEN_BCU, LED_PHY_ON);
               #endif
 
               blink_status = LED_ON;
@@ -345,7 +330,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_GREEN, LED_PHY_OFF);
+  		      gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
 			  #endif
 
               blink_status = LED_OFF;
@@ -365,7 +350,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 		     /* put the I/O instruction here */
 		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 gpio_set_level(LED_GREEN, LED_PHY_ON);
+      		 gpio_set_level(LED_GREEN_BCU, LED_PHY_ON);
              #endif
 
              blink_status = LED_ON;
@@ -374,7 +359,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 			/* put the I/O instruction here */
 			#ifdef INCLUDE_PLATFORM_DEPENDENT
-  		    gpio_set_level(LED_GREEN, LED_PHY_OFF);
+  		    gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
 			#endif
             blink_status = LED_OFF;
             }
@@ -385,7 +370,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 	}
 }
 
-void Led_Status_Update_Blu(Led_Show_Status_t status){
+void Led_Status_Update_Blu_bcu(Led_Show_Status_t status){
 	  static Led_Show_Status_t blink_status = LED_OFF;
 	  static C_INT32 blink_timer = 0;
 
@@ -459,46 +444,45 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 		}
 	}
 
-
-void Update_Led_Model_Cfg(C_BYTE model_cfg_status)
+void Update_Led_Model_Cfg_bcu(C_BYTE model_cfg_status)
 {
 
   if ((model_cfg_status==1) && (led_current_status & LED_STAT_MQTT_CONN))
   {
-   	 Led_Status_Update_Green(LED_ON);
+   	 Led_Status_Update_Green_bcu(LED_ON);
   }
 
   if ((model_cfg_status==1) && ((led_current_status & LED_STAT_MQTT_CONN)==0))
   {
-   	 Led_Status_Update_Green(LED_BLINK_SLOW);
+   	 Led_Status_Update_Green_bcu(LED_BLINK_SLOW);
   }
 
   if ((model_cfg_status==0) && ((led_current_status & LED_STAT_MQTT_CONN)==0))
   {
-   	 Led_Status_Update_Green(LED_OFF);
+   	 Led_Status_Update_Green_bcu(LED_OFF);
   }
 
 }
 
-void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status)
+void Update_Led_MQTT_Conn_bcu(C_BYTE mqtt_conn_status)
 {
 	  if ((mqtt_conn_status==1) && (led_current_status & LED_STAT_MODEL_CFG))
 	  {
-	   	 Led_Status_Update_Green(LED_ON);
+	   	 Led_Status_Update_Green_bcu(LED_ON);
 	  }
 
 	  if ((mqtt_conn_status==1) && ((led_current_status & LED_STAT_MODEL_CFG)==0))
 	  {
-	   	 Led_Status_Update_Green(LED_BLINK_SLOW);
+	   	 Led_Status_Update_Green_bcu(LED_BLINK_SLOW);
 	  }
 
 	  if ((mqtt_conn_status==0) && ((led_current_status & LED_STAT_MODEL_CFG)==0))
 	  {
-	   	 Led_Status_Update_Green(LED_OFF);
+	   	 Led_Status_Update_Green_bcu(LED_OFF);
 	  }
 }
 
-void Update_Led_RS485(C_BYTE rs485_status)
+void Update_Led_RS485_bcu(C_BYTE rs485_status)
 {
 /*
  right now for the bCU model there isn't any TTL internal
@@ -506,24 +490,24 @@ void Update_Led_RS485(C_BYTE rs485_status)
 */
 }
 
-
-void Do_Led_Test_Routine(void){
+void Do_Led_Test_Routine_bcu(void){
 	C_BYTE count;
 
 	for (count=0; count < 3; count++)
 	{
-	Led_Status_Update_Green(LED_ON);
+	Led_Status_Update_Green_bcu(LED_ON);
 	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Green(LED_OFF);
+	Led_Status_Update_Green_bcu(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 	}
 
 }
-#endif
+
+//#endif
 
 
 
-#ifdef __USE_USR_2G_HW
+//#ifdef __USE_USR_2G_HW
 
 /**
  * @brief Led_init
@@ -532,26 +516,25 @@ void Do_Led_Test_Routine(void){
  * @param none
  * @return none
  */
-void Led_init(void)
+void Led_init_2g(void)
 {
 	/* put you I/O initialization here */
 	#ifdef INCLUDE_PLATFORM_DEPENDENT
-	gpio_pad_select_gpio(LED_RED);
-    gpio_set_direction(LED_RED, GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_RED, LED_PHY_OFF);
+	gpio_pad_select_gpio(LED_RED_2G);
+    gpio_set_direction(LED_RED_2G, GPIO_MODE_OUTPUT);
+    gpio_set_level(LED_RED_2G, LED_PHY_OFF);
 
-    gpio_pad_select_gpio(LED_GREEN);
-    gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN, LED_PHY_OFF);
+    gpio_pad_select_gpio(LED_GREEN_2G);
+    gpio_set_direction(LED_GREEN_2G, GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
 
-    gpio_pad_select_gpio(LED_BLU);
-    gpio_set_direction(LED_BLU, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_BLU, LED_PHY_OFF);
-
+    gpio_pad_select_gpio(LED_BLU_2G);
+    gpio_set_direction(LED_BLU_2G, GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
 	#endif
 }
 
-void Led_Status_Update_Red(Led_Show_Status_t status){
+void Led_Status_Update_Red_2g(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -562,14 +545,14 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-    	  gpio_set_level(LED_RED,   LED_PHY_OFF);
+    	  gpio_set_level(LED_RED_2G, LED_PHY_OFF);
 		  #endif
 		  break;
 
 		case LED_ON:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_RED,   LED_PHY_ON);
+		  gpio_set_level(LED_RED_2G, LED_PHY_ON);
 		  #endif
 		  break;
 
@@ -582,7 +565,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
 		      /* put the I/O instruction here */
 		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		  gpio_set_level(LED_RED, LED_PHY_ON);
+    		  gpio_set_level(LED_RED_2G, LED_PHY_ON);
               #endif
 
               blink_status = LED_ON;
@@ -591,7 +574,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		      gpio_set_level(LED_RED, LED_PHY_OFF);
+		      gpio_set_level(LED_RED_2G, LED_PHY_OFF);
 			  #endif
 
               blink_status = LED_OFF;
@@ -612,7 +595,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
 		     /* put the I/O instruction here */
              #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		 gpio_set_level(LED_RED, LED_PHY_ON);
+    		 gpio_set_level(LED_RED_2G, LED_PHY_ON);
              #endif
              blink_status = LED_ON;
             }
@@ -620,7 +603,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
               /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_RED,   LED_PHY_OFF);
+  		      gpio_set_level(LED_RED_2G,   LED_PHY_OFF);
 			  #endif
               blink_status = LED_OFF;
             }
@@ -633,7 +616,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
 
 }
 
-void Led_Status_Update_Green(Led_Show_Status_t status){
+void Led_Status_Update_Green_2g(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -644,7 +627,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN, LED_PHY_OFF);
+		  gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
 		  #endif
 		  break;
 
@@ -652,7 +635,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
           /* to avoid conflict change immediately like a semaphore*/
-		  gpio_set_level(LED_GREEN, LED_PHY_ON);
+		  gpio_set_level(LED_GREEN_2G, LED_PHY_ON);
 		  #endif
 		  break;
 
@@ -665,7 +648,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 		      /* put the I/O instruction here */
 		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		  gpio_set_level(LED_GREEN, LED_PHY_ON);
+      		  gpio_set_level(LED_GREEN_2G, LED_PHY_ON);
               #endif
 
               blink_status = LED_ON;
@@ -674,7 +657,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_GREEN, LED_PHY_OFF);
+  		      gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
 			  #endif
 
               blink_status = LED_OFF;
@@ -694,7 +677,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 		     /* put the I/O instruction here */
 		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 gpio_set_level(LED_GREEN, LED_PHY_ON);
+      		 gpio_set_level(LED_GREEN_2G, LED_PHY_ON);
              #endif
 
              blink_status = LED_ON;
@@ -703,7 +686,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 			/* put the I/O instruction here */
 			#ifdef INCLUDE_PLATFORM_DEPENDENT
-  		    gpio_set_level(LED_GREEN, LED_PHY_OFF);
+  		    gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
 			#endif
             blink_status = LED_OFF;
             }
@@ -714,7 +697,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 	}
 }
 
-void Led_Status_Update_Blu(Led_Show_Status_t status){
+void Led_Status_Update_Blu_2g(Led_Show_Status_t status){
 	  static Led_Show_Status_t blink_status = LED_OFF;
 	  static C_INT32 blink_timer = 0;
 
@@ -725,7 +708,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 			case LED_OFF:
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-			  gpio_set_level(LED_BLU, LED_PHY_OFF);
+			  gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
 			  #endif
 			  break;
 
@@ -733,7 +716,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
 	          /* to avoid conflict change immediately like a semaphore*/
-			  gpio_set_level(LED_BLU, LED_PHY_ON);
+			  gpio_set_level(LED_BLU_2G, LED_PHY_ON);
 			  #endif
 			  break;
 
@@ -746,7 +729,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 			      /* put the I/O instruction here */
 			      #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		  gpio_set_level(LED_BLU, LED_PHY_ON);
+	      		  gpio_set_level(LED_BLU_2G, LED_PHY_ON);
 	              #endif
 
 	              blink_status = LED_ON;
@@ -755,7 +738,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 				  /* put the I/O instruction here */
 				  #ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		      gpio_set_level(LED_BLU, LED_PHY_OFF);
+	  		      gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
 				  #endif
 
 	              blink_status = LED_OFF;
@@ -775,7 +758,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 			     /* put the I/O instruction here */
 			     #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		 gpio_set_level(LED_BLU, LED_PHY_ON);
+	      		 gpio_set_level(LED_BLU_2G, LED_PHY_ON);
 	             #endif
 
 	             blink_status = LED_ON;
@@ -784,7 +767,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 				/* put the I/O instruction here */
 				#ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		    gpio_set_level(LED_BLU, LED_PHY_OFF);
+	  		    gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
 				#endif
 	            blink_status = LED_OFF;
 	            }
@@ -795,7 +778,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 		}
 	}
 
-void Update_Led_Model_Cfg(C_BYTE model_cfg_status)
+void Update_Led_Model_Cfg_2g(C_BYTE model_cfg_status)
 {
 /*
                         RED
@@ -803,15 +786,15 @@ Model configured         ON
 */
   if (model_cfg_status==1)
   {
-   	 Led_Status_Update_Red(LED_ON);
+   	 Led_Status_Update_Red_2g(LED_ON);
   }
   else
   {
-	 Led_Status_Update_Red(LED_OFF);
+	 Led_Status_Update_Red_2g(LED_OFF);
   }
 }
 
-void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status)
+void Update_Led_MQTT_Conn_2g(C_BYTE mqtt_conn_status)
 {
 /*
                         GREEN
@@ -819,16 +802,16 @@ MQTT connected          ON
 */
 	if (mqtt_conn_status == 1)
 	{
-      Led_Status_Update_Green(LED_ON);
+      Led_Status_Update_Green_2g(LED_ON);
 	}
 	else
 	{
-      Led_Status_Update_Green(LED_OFF);
+      Led_Status_Update_Green_2g(LED_OFF);
 	}
 
 }
 
-void Update_Led_RS485(C_BYTE rs485_status)
+void Update_Led_RS485_2g(C_BYTE rs485_status)
 {
 /*
  right now for the WiFi model there isn't any RS485
@@ -836,42 +819,36 @@ void Update_Led_RS485(C_BYTE rs485_status)
 */
   if (rs485_status)
   {
-	  Led_Status_Update_Blu(LED_ON);
+	  Led_Status_Update_Blu_2g(LED_ON);
   }
   else
   {
-	  Led_Status_Update_Blu(LED_OFF);
+	  Led_Status_Update_Blu_2g(LED_OFF);
   }
 }
 
+void Do_Led_Test_Routine_2g(void){
 
-void Do_Led_Test_Routine(void){
-	C_BYTE count;
-
-	for (count=0; count < 3; count++)
-	{
-
-	//TODO Bilato metterli in fila e accenderli uno dietro l'altro quando avremo HW
-	Led_Status_Update_Red(LED_ON);
+	WORK_LED(LED_ON);
     Sys__Delay(LED_TEST_DELAY);
-    Led_Status_Update_Red(LED_OFF);
+    LINK_A(LED_ON);
+	Sys__Delay(LED_TEST_DELAY);
+	LINK_B(LED_ON);
 	Sys__Delay(LED_TEST_DELAY);
 
-	Led_Status_Update_Green(LED_ON);
+	WORK_LED(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Green(LED_OFF);
+	LINK_A(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
-
-	Led_Status_Update_Blu(LED_ON);
+	LINK_B(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Blu(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
-	}
-
 }
-#endif
 
-#ifdef __USE_ESP_WROVER_KIT
+//
+//#endif
+
+
+//#ifdef __USE_ESP_WROVER_KIT
 /**
  * @brief Led_init
  *        Initialize the I/O pin related to the leds for a specific platform
@@ -880,25 +857,26 @@ void Do_Led_Test_Routine(void){
  *  @return none
  */
 
-void Led_init(void)
+void Led_init_esp_wrover_kit(void)
 {
 	/* put you I/O initialization here */
 	#ifdef INCLUDE_PLATFORM_DEPENDENT
-	gpio_pad_select_gpio(LED_RED);
-    gpio_set_direction(LED_RED, GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_RED, LED_PHY_OFF);
+	gpio_pad_select_gpio(LED_RED_ESP_WROVER_KIT );
+    gpio_set_direction(LED_RED_ESP_WROVER_KIT , GPIO_MODE_OUTPUT);
+    gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_OFF);
 
-    gpio_pad_select_gpio(LED_GREEN);
-    gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN, LED_PHY_OFF);
+    gpio_pad_select_gpio(LED_GREEN_ESP_WROVER_KIT);
+    gpio_set_direction(LED_GREEN_ESP_WROVER_KIT , GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_GREEN_ESP_WROVER_KIT , LED_PHY_OFF);
 
-    gpio_pad_select_gpio(LED_BLU);
-    gpio_set_direction(LED_BLU, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_BLU, LED_PHY_OFF);
+    gpio_pad_select_gpio(LED_BLU_ESP_WROVER_KIT );
+    gpio_set_direction(LED_BLU_ESP_WROVER_KIT , GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_BLU_ESP_WROVER_KIT , LED_PHY_OFF);
 	#endif
 }
 
-void Led_Status_Update_Red(Led_Show_Status_t status){
+void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
+#ifdef __USE_ESP_WROVER_KIT
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -909,14 +887,14 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-    	  gpio_set_level(LED_RED,   LED_PHY_OFF);
+    	  gpio_set_level(LED_RED_ESP_WROVER_KIT ,   LED_PHY_OFF);
 		  #endif
 		  break;
 
 		case LED_ON:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_RED,   LED_PHY_ON);
+		  gpio_set_level(LED_RED_ESP_WROVER_KIT ,   LED_PHY_ON);
 		  #endif
 		  break;
 
@@ -929,7 +907,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
 		      /* put the I/O instruction here */
 		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		  gpio_set_level(LED_RED, LED_PHY_ON);
+    		  gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_ON);
               #endif
 
               blink_status = LED_ON;
@@ -938,7 +916,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		      gpio_set_level(LED_RED, LED_PHY_OFF);
+		      gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_OFF);
 			  #endif
 
               blink_status = LED_OFF;
@@ -959,7 +937,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
 		     /* put the I/O instruction here */
              #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		 gpio_set_level(LED_RED, LED_PHY_ON);
+    		 gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_ON);
              #endif
              blink_status = LED_ON;
             }
@@ -967,7 +945,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
             {
               /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_RED,   LED_PHY_OFF);
+  		      gpio_set_level(LED_RED_ESP_WROVER_KIT,   LED_PHY_OFF);
 			  #endif
               blink_status = LED_OFF;
             }
@@ -977,10 +955,11 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
           break;
 	}
 
-
+#endif
 }
 
-void Led_Status_Update_Green(Led_Show_Status_t status){
+void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
+#ifdef __USE_ESP_WROVER_KIT
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -991,7 +970,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN, LED_PHY_OFF);
+		  gpio_set_level(LED_GREEN_ESP_WROVER_KIT , LED_PHY_OFF);
 		  #endif
 		  break;
 
@@ -999,7 +978,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
           /* to avoid conflict change immediately like a semaphore*/
-		  gpio_set_level(LED_GREEN, LED_PHY_ON);
+		  gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_ON);
 		  #endif
 		  break;
 
@@ -1012,7 +991,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 		      /* put the I/O instruction here */
 		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		  gpio_set_level(LED_GREEN, LED_PHY_ON);
+      		  gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_ON);
               #endif
 
               blink_status = LED_ON;
@@ -1021,7 +1000,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_GREEN, LED_PHY_OFF);
+  		      gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_OFF);
 			  #endif
 
               blink_status = LED_OFF;
@@ -1041,7 +1020,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 		     /* put the I/O instruction here */
 		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 gpio_set_level(LED_GREEN, LED_PHY_ON);
+      		 gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_ON);
              #endif
 
              blink_status = LED_ON;
@@ -1050,7 +1029,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
             {
 			/* put the I/O instruction here */
 			#ifdef INCLUDE_PLATFORM_DEPENDENT
-  		    gpio_set_level(LED_GREEN, LED_PHY_OFF);
+  		    gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_OFF);
 			#endif
             blink_status = LED_OFF;
             }
@@ -1059,9 +1038,13 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 
           break;
 	}
+#endif
 }
 
-void Led_Status_Update_Blu(Led_Show_Status_t status){
+void Led_Status_Update_Blu_esp_wrover_kit(Led_Show_Status_t status){
+
+#ifdef __USE_ESP_WROVER_KIT
+
 	  static Led_Show_Status_t blink_status = LED_OFF;
 	  static C_INT32 blink_timer = 0;
 
@@ -1072,7 +1055,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 			case LED_OFF:
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-			  gpio_set_level(LED_BLU, LED_PHY_OFF);
+			  gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_OFF);
 			  #endif
 			  break;
 
@@ -1080,7 +1063,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
 	          /* to avoid conflict change immediately like a semaphore*/
-			  gpio_set_level(LED_BLU, LED_PHY_ON);
+			  gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_ON);
 			  #endif
 			  break;
 
@@ -1093,7 +1076,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 			      /* put the I/O instruction here */
 			      #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		  gpio_set_level(LED_BLU, LED_PHY_ON);
+	      		  gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_ON);
 	              #endif
 
 	              blink_status = LED_ON;
@@ -1102,7 +1085,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 				  /* put the I/O instruction here */
 				  #ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		      gpio_set_level(LED_BLU, LED_PHY_OFF);
+	  		      gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_OFF);
 				  #endif
 
 	              blink_status = LED_OFF;
@@ -1122,7 +1105,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 			     /* put the I/O instruction here */
 			     #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		 gpio_set_level(LED_BLU, LED_PHY_ON);
+	      		 gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_ON);
 	             #endif
 
 	             blink_status = LED_ON;
@@ -1131,7 +1114,7 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 	            {
 				/* put the I/O instruction here */
 				#ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		    gpio_set_level(LED_BLU, LED_PHY_OFF);
+	  		    gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_OFF);
 				#endif
 	            blink_status = LED_OFF;
 	            }
@@ -1140,9 +1123,11 @@ void Led_Status_Update_Blu(Led_Show_Status_t status){
 
 	          break;
 		}
+
+#endif
 	}
 
-void Update_Led_Model_Cfg(C_BYTE model_cfg_status)
+void Update_Led_Model_Cfg_esp_wrover_kit(C_BYTE model_cfg_status)
 {
 /*
                         RED
@@ -1150,15 +1135,15 @@ Model configured         ON
 */
   if (model_cfg_status==1)
   {
-   	 Led_Status_Update_Red(LED_ON);
+   	 Led_Status_Update_Red_esp_wrover_kit(LED_ON);
   }
   else
   {
-	 Led_Status_Update_Red(LED_OFF);
+	 Led_Status_Update_Red_esp_wrover_kit(LED_OFF);
   }
 }
 
-void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status)
+void Update_Led_MQTT_Conn_esp_wrover_kit(C_BYTE mqtt_conn_status)
 {
 /*
                         GREEN
@@ -1166,16 +1151,16 @@ MQTT connected          ON
 */
 	if (mqtt_conn_status == 1)
 	{
-      Led_Status_Update_Green(LED_ON);
+      Led_Status_Update_Green_esp_wrover_kit(LED_ON);
 	}
 	else
 	{
-      Led_Status_Update_Green(LED_OFF);
+      Led_Status_Update_Green_esp_wrover_kit(LED_OFF);
 	}
 
 }
 
-void Update_Led_RS485(C_BYTE rs485_status)
+void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
 {
 /*
  right now for the WiFi model there isn't any RS485
@@ -1183,43 +1168,45 @@ void Update_Led_RS485(C_BYTE rs485_status)
 */
   if (rs485_status)
   {
-	  Led_Status_Update_Blu(LED_ON);
+	  Led_Status_Update_Blu_esp_wrover_kit(LED_ON);
   }
   else
   {
-	  Led_Status_Update_Blu(LED_OFF);
+	  Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
   }
 }
 
-void Do_Led_Test_Routine(void){
+void Do_Led_Test_Routine_esp_wrover_kit(void){
 	C_BYTE count;
 
 	for (count=0; count < 3; count++)
 	{
-	Led_Status_Update_Red(LED_ON);
+	Led_Status_Update_Red_esp_wrover_kit(LED_ON);
     Sys__Delay(LED_TEST_DELAY);
-    Led_Status_Update_Red(LED_OFF);
+    Led_Status_Update_Red_esp_wrover_kit(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 
-	Led_Status_Update_Green(LED_ON);
+	Led_Status_Update_Green_esp_wrover_kit(LED_ON);
 	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Green(LED_OFF);
+	Led_Status_Update_Green_esp_wrover_kit(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 
-	Led_Status_Update_Blu(LED_ON);
+	Led_Status_Update_Blu_esp_wrover_kit(LED_ON);
 	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Blu(LED_OFF);
+	Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 	}
 
 }
-#endif
+
+
+//#endif
 
 
 
 
 
-#ifdef __USE_USR_WIFI_HW
+//#ifdef __USE_USR_WIFI_HW
 /**
  * @brief Led_init
  *        Initialize the I/O pin related to the leds for a specific platform
@@ -1227,21 +1214,21 @@ void Do_Led_Test_Routine(void){
  * @param none
  * @return none
  */
-void Led_init(void)
+void Led_init_wifi(void)
 {
 	/* put you I/O initialization here */	
 	#ifdef INCLUDE_PLATFORM_DEPENDENT	
-	gpio_pad_select_gpio(LED_RED);
-    gpio_set_direction(LED_RED, GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_RED, LED_PHY_OFF);
+	gpio_pad_select_gpio(LED_RED_WIFI);
+    gpio_set_direction(LED_RED_WIFI, GPIO_MODE_OUTPUT);
+    gpio_set_level(LED_RED_WIFI, LED_PHY_OFF);
 
-    gpio_pad_select_gpio(LED_GREEN);
-    gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN, LED_PHY_OFF);
+    gpio_pad_select_gpio(LED_GREEN_WIFI);
+    gpio_set_direction(LED_GREEN_WIFI, GPIO_MODE_OUTPUT);
+	gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
 	#endif
 }
 
-void Led_Status_Update_Red(Led_Show_Status_t status){
+void Led_Status_Update_Red_wifi(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -1252,8 +1239,8 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN, LED_PHY_OFF);
-    	  gpio_set_level(LED_RED,   LED_PHY_OFF);
+		  gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+    	  gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
 
     	  /* to avoid conflict change at the end*/
     	  bicolor_led = LED_BOTH_OFF;
@@ -1269,8 +1256,8 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
 			/* to avoid conflict change immediately like a semaphore*/
 		    bicolor_led = LED_RED_ON;
 
-		    gpio_set_level(LED_GREEN, LED_PHY_OFF);
-		    gpio_set_level(LED_RED,   LED_PHY_ON);
+		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+		    gpio_set_level(LED_RED_WIFI,   LED_PHY_ON);
 		  }
 		  #endif
 		  break;
@@ -1289,8 +1276,8 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
       			/* to avoid conflict change immediately like a semaphore*/
       		    bicolor_led = LED_RED_ON;
 
-      		    gpio_set_level(LED_GREEN, LED_PHY_OFF);
-      		    gpio_set_level(LED_RED,   LED_PHY_ON);
+      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_ON);
       		  }
              #endif
 
@@ -1306,8 +1293,8 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
   			  /* to avoid conflict change immediately like a semaphore*/
   		      bicolor_led = LED_BOTH_OFF;
 
-  		      gpio_set_level(LED_GREEN, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED,   LED_PHY_OFF);
+  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
   		    }
 
 			#endif
@@ -1333,8 +1320,8 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
       			/* to avoid conflict change immediately like a semaphore*/
       		    bicolor_led = LED_RED_ON;
 
-      		    gpio_set_level(LED_GREEN, LED_PHY_OFF);
-      		    gpio_set_level(LED_RED,   LED_PHY_ON);
+      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_ON);
       		  }
              #endif
 
@@ -1350,8 +1337,8 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
   			  /* to avoid conflict change immediately like a semaphore*/
   		      bicolor_led = LED_BOTH_OFF;
 
-  		      gpio_set_level(LED_GREEN, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED,   LED_PHY_OFF);
+  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
   		    }
 
 			#endif
@@ -1366,7 +1353,7 @@ void Led_Status_Update_Red(Led_Show_Status_t status){
 
 }
 
-void Led_Status_Update_Green(Led_Show_Status_t status){
+void Led_Status_Update_Green_wifi(Led_Show_Status_t status){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
   
@@ -1377,8 +1364,8 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 		case LED_OFF:
 		  /* put the I/O instruction here */
 		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN, LED_PHY_OFF);
-    	  gpio_set_level(LED_RED,   LED_PHY_OFF);
+		  gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+    	  gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
 
     	  /* to avoid conflict change at the end*/
     	  bicolor_led = LED_BOTH_OFF;
@@ -1394,8 +1381,8 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 			/* to avoid conflict change immediately like a semaphore*/
 		    bicolor_led = LED_GREEN_ON;
 
-		    gpio_set_level(LED_GREEN, LED_PHY_ON);
-		    gpio_set_level(LED_RED,   LED_PHY_OFF);
+		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_ON);
+		    gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
 		  }
 		  #endif		  
 		  break;
@@ -1415,8 +1402,8 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
       			/* to avoid conflict change immediately like a semaphore*/
       		    bicolor_led = LED_GREEN_ON;
 
-      		    gpio_set_level(LED_GREEN, LED_PHY_ON);
-      		    gpio_set_level(LED_RED,   LED_PHY_OFF);
+      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_ON);
+      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
       		  }
              #endif
 
@@ -1427,13 +1414,13 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 			/* put the I/O instruction here */	
 			#ifdef INCLUDE_PLATFORM_DEPENDENT		
 
-  		    if (bicolor_led == LED_GREEN)
+  		    if (bicolor_led == LED_GREEN_ON)
   		    {
   			  /* to avoid conflict change immediately like a semaphore*/
   		      bicolor_led = LED_BOTH_OFF;
 
-  		      gpio_set_level(LED_GREEN, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED,   LED_PHY_OFF);
+  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
   		    }
 
 			#endif
@@ -1459,8 +1446,8 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
       			/* to avoid conflict change immediately like a semaphore*/
       		    bicolor_led = LED_GREEN_ON;
 
-      		    gpio_set_level(LED_GREEN, LED_PHY_ON);
-      		    gpio_set_level(LED_RED,   LED_PHY_OFF);
+      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_ON);
+      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
       		  }
              #endif
 
@@ -1471,13 +1458,13 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 			/* put the I/O instruction here */
 			#ifdef INCLUDE_PLATFORM_DEPENDENT
 
-  		    if (bicolor_led == LED_GREEN)
+  		    if (bicolor_led == LED_GREEN_ON)
   		    {
   			  /* to avoid conflict change immediately like a semaphore*/
   		      bicolor_led = LED_BOTH_OFF;
 
-  		      gpio_set_level(LED_GREEN, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED,   LED_PHY_OFF);
+  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
+  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
   		    }
 
 			#endif
@@ -1492,7 +1479,7 @@ void Led_Status_Update_Green(Led_Show_Status_t status){
 
 }
 
-void Update_Led_Model_Cfg(C_BYTE model_cfg_status)
+void Update_Led_Model_Cfg_wifi(C_BYTE model_cfg_status)
 {
 /*
                         RED         GREEN
@@ -1501,15 +1488,15 @@ MQTT connected           ON          ON
 */
   if ((led_current_status & LED_STAT_MQTT_CONN) && (model_cfg_status==0))
   {
-   	 Led_Status_Update_Red(LED_ON);
+   	 Led_Status_Update_Red_wifi(LED_ON);
   }		
   else
   {
-	 Led_Status_Update_Red(LED_OFF);
+	 Led_Status_Update_Red_wifi(LED_OFF);
   }		
 }
 
-void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status)
+void Update_Led_MQTT_Conn_wifi(C_BYTE mqtt_conn_status)
 {
 /*
                         RED         GREEN
@@ -1520,24 +1507,24 @@ MQTT connected           ON          ON
 	{	
        if (led_current_status & LED_STAT_MODEL_CFG)
 	   {
-		   Led_Status_Update_Green(LED_ON);
+		   Led_Status_Update_Green_wifi(LED_ON);
 	   }		
 	}
 	else
 	{
 	       if (led_current_status & LED_STAT_MODEL_CFG)
 		   {
-			   Led_Status_Update_Green(LED_BLINK_SLOW);
+			   Led_Status_Update_Green_wifi(LED_BLINK_SLOW);
 		   }
 	       else
 	       {
-		     Led_Status_Update_Green(LED_OFF);
+		     Led_Status_Update_Green_wifi(LED_OFF);
 	       }
 	}
 	
 }
 
-void Update_Led_RS485(C_BYTE rs485_status)
+void Update_Led_RS485_wifi(C_BYTE rs485_status)
 {
 /*
  right now for the WiFi model there isn't any RS485
@@ -1545,25 +1532,25 @@ void Update_Led_RS485(C_BYTE rs485_status)
 */
 }
 
-void Do_Led_Test_Routine(void){
+void Do_Led_Test_Routine_wifi(void){
 	C_BYTE count;
 
 	for (count=0; count < 3; count++)
 	{
-	Led_Status_Update_Red(LED_ON);
+	Led_Status_Update_Red_wifi(LED_ON);
     Sys__Delay(LED_TEST_DELAY);
-    Led_Status_Update_Red(LED_OFF);
+    Led_Status_Update_Red_wifi(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 
-	Led_Status_Update_Green(LED_ON);
+	Led_Status_Update_Green_wifi(LED_ON);
 	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Green(LED_OFF);
+	Led_Status_Update_Green_wifi(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 	}
 
 }
 
-#endif
+//#endif
 
 
 
@@ -1573,6 +1560,112 @@ void Do_Led_Test_Routine(void){
 /* ------------------------------------------------------------------- */
 /*                          TASK MANAGER                               */
 /* ------------------------------------------------------------------- */
+
+
+void Led_init(void)
+{
+    #ifdef INCLUDE_PLATFORM_DEPENDENT
+
+    #ifdef  __USE_CAREL_BCU_HW
+	if PLATFORM(PLATFORM_DETECTED_BCU) Led_init_bcu();
+    #else
+
+	#ifdef _ESP_WROVER_KIT
+	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Led_init_esp_wrover_kit();
+    #endif
+
+	/* pin is pull down on 2G and pull upped on WiFi*/
+	if PLATFORM(PLATFORM_DETECTED_2G) Led_init_2g();
+	if PLATFORM(PLATFORM_DETECTED_WIFI) Led_init_wifi();
+
+    #endif
+
+    #endif
+
+}
+
+void Do_Led_Test_Routine(void){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+   #ifdef  __USE_CAREL_BCU_HW
+	if PLATFORM(PLATFORM_DETECTED_BCU) Do_Led_Test_Routine_bcu();
+   #else
+
+    #ifdef _ESP_WROVER_KIT
+	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Do_Led_Test_Routine_esp_wrover_kit();
+    #endif
+
+    /* pin is pull down on 2G and pull upped on WiFi*/
+    if PLATFORM(PLATFORM_DETECTED_2G) Do_Led_Test_Routine_2g();
+    if PLATFORM(PLATFORM_DETECTED_WIFI) Do_Led_Test_Routine_wifi();
+   #endif
+
+#endif
+
+}
+
+
+void Update_Led_Model_Cfg(C_BYTE model_cfg_status){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+  #ifdef  __USE_CAREL_BCU_HW
+	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Model_Cfg_bcu(model_cfg_status);
+  #else
+
+    #ifdef _ESP_WROVER_KIT
+	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Model_Cfg_esp_wrover_kit(model_cfg_status);
+    #endif
+
+    /* pin is pull down on 2G and pull upped on WiFi*/
+    if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Model_Cfg_2g(model_cfg_status);
+    if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Model_Cfg_wifi(model_cfg_status);
+#endif
+
+#endif
+}
+
+void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+  #ifdef  __USE_CAREL_BCU_HW
+  if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_MQTT_Conn_bcu(mqtt_conn_status);
+  #else __USE_ESP_WROVER_KIT
+
+  #ifdef _ESP_WROVER_KIT
+  if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_MQTT_Conn_esp_wrover_kit(mqtt_conn_status);
+  #endif
+
+  /* pin is pull down on 2G and pull upped on WiFi*/
+  if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_MQTT_Conn_2g(mqtt_conn_status);
+  if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_MQTT_Conn_wifi(mqtt_conn_status);
+  #endif
+
+#endif
+}
+
+void Update_Led_RS485(C_BYTE rs485_status){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+    #ifdef  __USE_CAREL_BCU_HW
+	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_RS485_bcu(rs485_status);
+
+	#else
+
+	#ifdef _ESP_WROVER_KIT
+	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT)Update_Led_RS485_esp_wrover_kit(rs485_status);
+    #endif
+
+    /* pin is pull down on 2G and pull upped on WiFi*/
+    if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_RS485_2g(rs485_status);
+    if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_RS485_wifi(rs485_status);
+
+    #endif
+
+#endif
+}
+
+
+
 
 /**
  * @brief Led_task  this routine need to be associated to an OS task to update

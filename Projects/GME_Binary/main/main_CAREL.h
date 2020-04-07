@@ -5,7 +5,25 @@
  * @brief  Function implementations of main application engine
  *
  */
+#include "CAREL_GLOBAL_DEF.h"
 #include "binary_model.h"
+
+
+/* ========================================================================== */
+/* debugging purpose                                                          */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+//this define enable the output of the communications errors
+#define __DEBUG_MAIN_CAREL_LEV_1
+
+//this define enable the output of others debug informations
+#define __DEBUG_MAIN_CAREL_LEV_2
+
+#endif
+
+
+
 
 void Carel_Main_Task(void);
 

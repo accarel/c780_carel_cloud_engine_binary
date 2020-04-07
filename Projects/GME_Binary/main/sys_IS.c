@@ -5,7 +5,9 @@
  * @brief ... TODO
  *        
  */ 
- 
+#include "CAREL_GLOBAL_DEF.h"
+#include "gme_config.h"
+#include "data_types_CAREL.h"
 
 #include "sys_IS.h"
 #include "File_System_IS.h"
@@ -41,7 +43,7 @@ C_RES Sys__SetFactoryBootPartition(void){
 	
 	C_RES err;
 	
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+    #ifdef INCLUDE_PLATFORM_DEPENDENT
 	const esp_partition_t *factory = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
 
 	err = esp_ota_set_boot_partition(factory);
@@ -53,9 +55,9 @@ C_RES Sys__SetFactoryBootPartition(void){
 		 printf("SetFactoryBootPartition Succeeded!");
 		return C_SUCCESS;
 	}
-#endif
+   #endif
 
-	return C_FAIL;
+   return C_FAIL;
 }
  
  
@@ -69,9 +71,11 @@ C_RES Sys__SetFactoryBootPartition(void){
  * @return C_RES
  */ 
 C_BOOL Sys__ResetCheck(void){
-	return C_FALSE;
+
 	// Debounce check using up/down counter every 10ms
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+    #ifdef INCLUDE_PLATFORM_DEPENDENT
+
+    #ifdef CONFIG_RESET_BUTTON_EXIST
 	if (gpio_get_level(CONFIG_RESET_BUTTON) == 0) {
 		config_reset_debounce_counter++;		 
 		Sys__Delay(100);
@@ -79,6 +83,8 @@ C_BOOL Sys__ResetCheck(void){
 		config_reset_debounce_counter--;
 		Sys__Delay(100);
 	}
+
+
 	if((CONFIG_RESET_SEC * 10) == config_reset_debounce_counter){
 		//Erase configuration flag from NVM
 		NVM__EraseAll();
@@ -86,7 +92,9 @@ C_BOOL Sys__ResetCheck(void){
 		PRINTF_DEBUG("CONFIG RESET CHECK DONE = %d\n",config_reset_debounce_counter);
 		return C_TRUE;
 	}
-#endif
+    #endif
+    #endif
+
 	return C_FALSE;
 }
 
@@ -101,24 +109,28 @@ C_BOOL Sys__ResetCheck(void){
  */
 C_BOOL Sys__FirmwareFactoryReset(void){
 	// Debounce check using up/down counter every 10ms
-#ifdef INCLUDE_PLATFORM_DEPENDENT
+    #ifdef INCLUDE_PLATFORM_DEPENDENT
+
+    #if FACTORY_RESET_BUTTON_EXIST
 	if (gpio_get_level(FACTORY_RESET_BUTTON) == 0) {
 		factory_reset_debounce_counter++;
-		 
 		Sys__Delay(100);
 	}else if(gpio_get_level(FACTORY_RESET_BUTTON) == 1 && factory_reset_debounce_counter > 0){
 		factory_reset_debounce_counter--;
-		 
 		Sys__Delay(100);
 	}
-	if((FACTORY_RESET_SEC * 10) == factory_reset_debounce_counter){
+
+
+	if ((FACTORY_RESET_SEC * 10) == factory_reset_debounce_counter){
 		//Point boot partition on /factory part.
 		Sys__SetFactoryBootPartition();
-		printf("GME Configuration has bees reseted\n");
+		printf("GME FACTORY RESET done\n");
 		PRINTF_DEBUG("FIRMWARE RESET CHECK DONE = %d\n",factory_reset_debounce_counter);
 		return C_TRUE;
 	}
-#endif
+
+    #endif
+    #endif
 	return C_FALSE;
 }
 

@@ -18,7 +18,7 @@
 /**
  * @brief INCLUDE_PLATFORM_DEPENDENT 
  *        you MUST enable this define as soon you have implemented all the  
- *        platform dependente routines.
+ *        platform dependent routines.
  *        undef it to test you specific compiler and understand if all right. 
  *        WARNING! this define MUST be DEFINED in the release version of the FW
  */
@@ -127,6 +127,8 @@ ptr_cfg_data_t pCfgData, pCfgDataUsr;
 cfg_data_t    CfgData, CfgDataUsr;
 
 
+C_BYTE hw_platform_detected; //the value is the detected hw platform
+
 C_BYTE modbusPort; // can be uart2 or uart0 if rs485 or TTL
 
 /* ======================================================= */
@@ -155,5 +157,17 @@ C_BYTE modbusPort; // can be uart2 or uart0 if rs485 or TTL
 
 /* ==== Define types for CBOR ==== */
 #define C_CBOR_FLOAT_NaN 0xf97e00
+
+
+
+
+
+
+/* ========== MACROS ========== */
+
+/* to check easily the running platform */
+
+#define PLATFORM(a)  (hw_platform_detected == (a))
+
 
 #endif   /* #ifndef __CAREL_TYPES_H */

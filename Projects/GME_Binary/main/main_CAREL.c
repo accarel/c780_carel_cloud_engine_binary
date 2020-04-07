@@ -41,6 +41,15 @@
 #include "binary_model.h"
 
 #include "SoftWDT.h"
+#include "IO_Port_IS.h"
+
+#ifdef __USE_USR_2G_HW
+#include "GSM_Miscellaneous_IS.h"
+#endif
+
+
+
+
 
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
 
@@ -52,6 +61,11 @@ static gme_sm_t sm = GME_INIT;
 
 void app_main(void)  // main_Carel
 {
+
+  Configure_IO_Check_HW_Platform_IS();
+  Sys__Delay(50); //just to stabilize the I/O
+  hw_platform_detected = Check_HW_Platform_IS();
+
   Led_Task_Start();
   Carel_Main_Task_Start();
   //software watchdog
@@ -60,7 +74,6 @@ void app_main(void)  // main_Carel
 	SoftWDT_Manager();
 	Sys__Delay(1000);
   }
-
 }
 
 void Carel_Main_Task(void)
@@ -74,18 +87,34 @@ void Carel_Main_Task(void)
   static C_UINT32 NVMBaudrate;
   static C_BYTE   NVMConnector;
 
+  #ifdef __USE_USR_2G_HW
+  static C_BYTE gsm_on_1_shoot;
+  static C_BYTE gsm_start_delay;
+  #endif
+
+
   SoftWDT_Init(SWWDT_MAIN_DEVICE, SWWDT_DEFAULT_TIME);
 
   while(1)
   {
 	  Sys__Delay(10);
-	  SoftWDT_Reset(SWWDT_MAIN_DEVICE);
+      SoftWDT_Reset(SWWDT_MAIN_DEVICE);
 	  IsTimerForAPConnectionExpired();
+
 	  switch (sm)
 	  {
 		  //System Initialization
 		  case GME_INIT:
 		  {
+              #ifdef __USE_USR_2G_HW
+			  if PLATFORM(PLATFORM_DETECTED_2G)
+		      {
+			    GSM_Module_IO_Init();
+                gsm_on_1_shoot = 0;
+                gsm_start_delay = 0;
+			  }
+              #endif
+
 			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
 
@@ -103,13 +132,37 @@ void Carel_Main_Task(void)
 
 	        case GME_CHECK_FILES:
 	        {
-	        	if(test3 == 0){
+	        	if (test3 == 0){
+
 					if(C_SUCCESS == FS_CheckFiles()){
 						sm = GME_RADIO_CONFIG;
+
+                        #ifdef __USE_USR_2G_HW
+
+						if PLATFORM(PLATFORM_DETECTED_2G)
+					    {
+						  if ((gsm_on_1_shoot == 0) && (gsm_start_delay == 0))
+						  {
+						    GSM_Module_Pon_Poff(PWRKEY_ON);
+						    gsm_on_1_shoot = 1;
+						  }
+						  else
+						  {
+							//wait at least 3 second
+							if (gsm_start_delay < 3)
+							{
+							   gsm_start_delay++;
+							   Sys__Delay(1000);
+							}
+						  }
+					    }
+                        #endif
+
 					}else{
 						sm = GME_CHECK_FILES;
 						printf("Please be sure that the certificates are uploaded correctly under the following paths:\nCert1: %s\nCert2: %s\n\n",CERT1_SPIFFS,CERT2_SPIFFS);
 					}
+
 					test3 = 1;
 	        	}
 
@@ -121,6 +174,7 @@ void Carel_Main_Task(void)
 			{
 				printf("SM__Start .... GME_RADIO_CONFIG\n");
 				uint8_t config_status;
+
 				config_status = Radio__Config();
 
 				if(GME_REBOOT == config_status){

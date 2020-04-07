@@ -18,16 +18,29 @@
  *        REMEMBER Only one.
  */
 
+//TODO BILATO Work in progress
+
+/* The platform is determined by an I/O pin on 2G e WiFi model so that
+ * the same FW runs on both platforms.
+ * ONLY for the bCU the platform must be set manually and generate a
+ * dedicated FW.
+ * */
+
+#define PLATFORM_DETECTED_WIFI  1
+#define PLATFORM_DETECTED_2G    2
+#define PLATFORM_DETECTED_BCU   3
+#define PLATFORM_DETECTED_ESP_WROVER_KIT  4
+
 /* ========================================================================== */
 /* development platform                                                       */
 /* ========================================================================== */
-//#define __USE_ESP_WROVER_KIT
+#define __USE_ESP_WROVER_KIT
 
 /* ========================================================================== */
 /*  OFFICIAL HW PLATFORM                                                      */
 /* ========================================================================== */
 //#define __USE_CAREL_BCU_HW
-#define __USE_USR_WIFI_HW
+//#define __USE_USR_WIFI_HW
 //#define __USE_USR_2G_HW
 
 
@@ -78,9 +91,6 @@
 /* ========================================================================== */
 
 
-
-
-
 /* ========================================================================== */
 /* OS related                                                                 */
 /* ========================================================================== */
@@ -91,7 +101,6 @@
 */
 
 #define SYSTEM_TIME_TICK	1
-
 
 /* ========================================================================== */
 /* Enum data types MQTT                                                        */
@@ -156,8 +165,6 @@
 #define PROTOCOL_ID_MODBUS     1
 #define PROTOCOL_ID_MODBUS_TCP 2
 #define PROTOCOL_ID_BACNET     3
-
-
 
 
 /* ========================================================================== */

@@ -33,6 +33,8 @@
 #include "sys_IS.h"
 #include "SoftWDT.h"
 
+#include "IO_Port_IS.h"
+
 #define  MODBUS_TIME_OUT     100
 
 static C_SBYTE GetStopBitTable(C_SBYTE stp);
