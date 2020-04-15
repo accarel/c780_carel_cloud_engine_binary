@@ -350,12 +350,10 @@ void Carel_Main_Task(void)
               break;
           }
 
-          //If the factory reset button has been pressed for X time (look gme_config.h)
-          if(true == Sys__ResetCheck())
-          {
-          	printf("RESET CHECK DONE STATEMACHINE\n");
-          	sm = GME_REBOOT;
-          }
+          //Check reboot/factory reset button
+          if (PLATFORM(PLATFORM_DETECTED_2G) || PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT))
+              Sys__ResetCheck();
+
       }
 }
 
