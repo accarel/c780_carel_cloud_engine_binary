@@ -203,7 +203,7 @@ long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 			return NULL;
 		}
 
-		printf("Read File ok \n");
+		printf("Read File %s ok \n", filename);
 
 		//calculation model dimension
 
@@ -214,7 +214,7 @@ long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 		//point the file position at the beginning of the file
 		rewind(input_file_ptr);
 
-		printf("Size model Ok, %ld \n",size);
+		printf("Size of file %s Ok: %ld \n", filename, size);
 
 		sz_read = fread(file_ptr, sizeof(uint8_t), size, input_file_ptr);  // double
 		file_ptr[size+1]=0;
