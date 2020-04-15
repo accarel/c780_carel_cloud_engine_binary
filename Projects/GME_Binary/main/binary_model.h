@@ -128,7 +128,7 @@ uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type);
 void BinaryModel__GetNum(uint8_t DeviceParamCount[MAX_POLLING][MAX_REG]);
 uint16_t BinaryModel_CalcModelCrc(void);
 
-uint8_t* BinaryModel_GetChunk(uint32_t sz);
+uint8_t* BinaryModel_GetChunk(long sz);
 uint16_t BinaryModel_GetCrc(void);
 C_RES BinaryModel_CheckCrc(void);
 

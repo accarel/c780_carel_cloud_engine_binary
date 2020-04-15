@@ -471,7 +471,7 @@ static void GetDeviceInfo(uint8_t *val)
 	// end show
 }
 
-uint8_t* BinaryModel_GetChunk(uint32_t sz){
+uint8_t* BinaryModel_GetChunk(long sz){
 
 	FILE *input_file_ptr;
 	size_t sz_read;
@@ -503,8 +503,10 @@ uint8_t* BinaryModel_GetChunk(uint32_t sz){
 
 uint16_t BinaryModel_GetCrc(void){
 	
-	// TODO manage sz == 0     CHIEBAO
-	uint32_t sz = filesize(MODEL_FILE);
+	long sz = filesize(MODEL_FILE);
+	if(sz <= 0)
+		return 0;
+
 	uint8_t* chunk = BinaryModel_GetChunk(sz);
 
 	// calcolo del crc
@@ -517,8 +519,8 @@ uint16_t BinaryModel_GetCrc(void){
 
 C_RES BinaryModel_CheckCrc(void){
 
-	uint32_t sz = filesize(MODEL_FILE);
-	if(sz == 0)
+	long sz = filesize(MODEL_FILE);
+	if(sz <= 0)
 		return C_FAIL;
 	uint8_t* chunk = BinaryModel_GetChunk(sz);
 
@@ -539,20 +541,21 @@ C_RES BinaryModel_CheckCrc(void){
 int BinaryModel_Init (void)
 {
 	uint8_t* chunk;
-	uint32_t sz = 0;
+	long sz = 0;
 	// check the existance of the files in the FileSystem
 	FS_DisplayFiles();
 
 	DEBUG_BINARY_MODEL("Start check GME MODEL\n");
 	// Check model size
 	sz = filesize(MODEL_FILE);
-	if (sz > GME_MODEL_MAX_SIZE) {
-		DEBUG_BINARY_MODEL("ERROR: Model too large!\n");
+
+	if (sz <= 0) {
+		DEBUG_BINARY_MODEL("ERROR: No Model on board!\n");
 		valid_model = FALSE;
 		return C_FAIL;
 	}
-	if (sz == 0) {
-		DEBUG_BINARY_MODEL("ERROR: No Model on board!\n");
+	if (sz > GME_MODEL_MAX_SIZE) {
+		DEBUG_BINARY_MODEL("ERROR: Model too large!\n");
 		valid_model = FALSE;
 		return C_FAIL;
 	}
