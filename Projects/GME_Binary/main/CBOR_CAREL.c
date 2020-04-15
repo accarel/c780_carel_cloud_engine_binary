@@ -742,6 +742,44 @@ size_t CBOR_ResSimple(C_CHAR* cbor_response, c_cborhreq* cbor_req)
 }
 
 /**
+ * @brief CBOR_ResSetDevsConfig
+ *
+ * Prepares CBOR encoded message containing result of set_devs_config
+ *
+ * @param Pointer to the CBOR-encoded payload
+ * @param Pointer to the structure containing received request
+ * @param Did, corresponding to combination of address and configuration
+ * @return void
+ */
+size_t CBOR_ResSetDevsConfig(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 did)
+{
+	size_t len;
+	CborEncoder encoder, mapEncoder;
+	CborError err;
+
+	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
+
+	// encode dev - elem5
+	err = cbor_encode_text_stringz(&mapEncoder, "did");
+	err |= cbor_encode_int(&mapEncoder, did);
+	DEBUG_ADD(err, "did");
+
+	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
+
+	if(err == CborNoError)
+		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
+	else
+	{
+        #ifdef __DEBUG_CBOR_CAREL_LEV_1
+		printf("%s: invalid CBOR stream\n",  __func__);
+        #endif
+	    len = -1;
+	}
+
+	return len;
+}
+
+/**
  * @brief CBOR_ResScanLine
  *
  * Prepares CBOR encoded message containing result of serial line scan
@@ -1693,8 +1731,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				cbor_req.res = (execute_download_devs_config(&download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
 			// mqtt response
-			//len = CBOR_ResSimple(cbor_response, &cbor_req);
-			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			len = CBOR_ResSetDevsConfig(cbor_response, &cbor_req, download_devs_config.did);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
 
