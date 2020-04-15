@@ -518,6 +518,8 @@ uint16_t BinaryModel_GetCrc(void){
 C_RES BinaryModel_CheckCrc(void){
 
 	uint32_t sz = filesize(MODEL_FILE);
+	if(sz == 0)
+		return C_FAIL;
 	uint8_t* chunk = BinaryModel_GetChunk(sz);
 
 	// calcolo del crc
@@ -546,6 +548,11 @@ int BinaryModel_Init (void)
 	sz = filesize(MODEL_FILE);
 	if (sz > GME_MODEL_MAX_SIZE) {
 		DEBUG_BINARY_MODEL("ERROR: Model too large!\n");
+		valid_model = FALSE;
+		return C_FAIL;
+	}
+	if (sz == 0) {
+		DEBUG_BINARY_MODEL("ERROR: No Model on board!\n");
 		valid_model = FALSE;
 		return C_FAIL;
 	}
