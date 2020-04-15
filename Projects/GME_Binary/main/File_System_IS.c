@@ -93,6 +93,34 @@ C_RES File_System_Init(void)
  * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
  * @return C_SUCCESS
  */
+C_RES Set_Gateway_ID(void)
+{
+#if (NETWORK_INTERFACE == WIFI_INTERFACE)
+  /* this function set the MAC address of the WiFi appliance
+   * in this implementation we leave the original one coming
+   * from the chip
+   * */
+
+    #ifdef INCLUDE_PLATFORM_DEPENDENT
+	esp_err_t retval;
+	uint8_t s_id_tmp[6];
+	retval = esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
+	retval = esp_base_mac_addr_set(&s_id_tmp[0]);
+   #endif
+
+#endif
+	return C_SUCCESS;
+}
+
+
+
+/**
+ * @brief Get_Gateway_ID
+ *        Gets MAC address of the WiFi device or IMEI of the 2G module
+ *
+ * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
+ * @return C_SUCCESS
+ */
 C_RES Get_Gateway_ID(C_SBYTE *s_id)
 { /* TO BE implemented */
 
@@ -114,7 +142,9 @@ C_RES Get_Gateway_ID(C_SBYTE *s_id)
    #endif
 
 
-#elif (NETWORK_INTERFACE == GSM_INTERFACE)
+#endif
+
+#if (NETWORK_INTERFACE == GSM_INTERFACE)
   /* this function returns the IMEI of the GSM module*/
     strcpy(s_id, Mobile__GetImeiCode());
 #endif

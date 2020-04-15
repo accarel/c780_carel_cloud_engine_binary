@@ -65,6 +65,7 @@ void app_main(void)  // main_Carel
   Configure_IO_Check_HW_Platform_IS();
   Sys__Delay(50); //just to stabilize the I/O
   hw_platform_detected = Check_HW_Platform_IS();
+  Set_Gateway_ID();
 
   Led_Task_Start();
   Carel_Main_Task_Start();
