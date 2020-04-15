@@ -895,7 +895,7 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 
 	// encode val - elem5
 	err = cbor_encode_text_stringz(&mapEncoder, "val");
-	if (memcmp(val,"0",sizeof("0"))==0)
+	if (cbor_req->cmd == WRITE_VALUES)
 		err |= cbor_encode_null(&mapEncoder);
 	else
 		err |= cbor_encode_text_stringz(&mapEncoder, (char*)val);
