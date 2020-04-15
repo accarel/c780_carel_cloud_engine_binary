@@ -39,10 +39,7 @@
 
 
 /* Exported constants --------------------------------------------------------*/
- typedef enum{
- 	PWRKEY_ON   = 0,
- 	PWRKEY_OFF  = 1
- }PWRKEY_Status_t;
+
 
 
 /* Function prototypes -------------------------------------------------------*/
@@ -51,12 +48,6 @@ void GSM_Misc_SMS_Config_Received();
 void GSM_Misc_Get_Communication_Status();
 
 void GSM_Misc_Get_Gateway_ID(C_BYTE *s_id);
-
-
-void GSM_Module_IO_Init(void);
-
-void GSM_Module_Pon_Poff(C_BYTE set_status);
-
 
 #ifdef __cplusplus
 }

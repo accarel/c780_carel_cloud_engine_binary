@@ -15,9 +15,10 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "CAREL_GLOBAL_DEF.h"
 #include "data_types_CAREL.h"
 
-#if INCLUDE_PLATFORM_DEPENDENT
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "mqtt_client.h"
 #include "mqtt_config.h"
 #endif

@@ -7,7 +7,7 @@
  */
 #include "RTC_IS.h"
 #include <sys/time.h>
-#include "data_types_CAREL.h"
+#include "CAREL_GLOBAL_DEF.h"
 #include "data_types_IS.h"
 #include "sntp.h"
 

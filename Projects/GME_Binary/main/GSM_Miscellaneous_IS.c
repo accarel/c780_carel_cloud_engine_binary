@@ -23,7 +23,7 @@
 #include "sys_IS.h"
 #endif
 
-#include "nvm_CAREL.h"
+
 
 
 #include "IO_Port_IS.h"
@@ -31,20 +31,10 @@
 #include "GSM_Miscellaneous_IS.h"
 
 
-/* take a look to M95_Hardware_Design time are in ms */
-#define PWRKEY_ON_TIME		800
-#define PWRKEY_OFF_TIME		700
-
-
-
 /* ========================================================================== */
 /* DEVELOPMENT / TARGET PLATFORM CUSTOMIZATION                                */
 /* ========================================================================== */
-#define PWRKEY_OFF    1
-#define PWRKEY_ON     0
 
-
-#define GSM_INIT "gsm_init"
 
 /* Functions implementations -------------------------------------------------------*/
 /**
@@ -91,87 +81,6 @@ void GSM_Misc_Get_Gateway_ID(C_BYTE *s_id)
   /* this function return the IMEI of the GSM module*/
   	
 	
-}
-
-
-void GSM_Module_IO_Init(void)
-{
-  #ifdef __USE_USR_2G_HW
-
-
-
-  gpio_pad_select_gpio(PWRKEY_PIN);
-  gpio_set_direction(PWRKEY_PIN, GPIO_MODE_OUTPUT);
-  gpio_set_level(PWRKEY_PIN, 0);
-
-  #ifdef __DEBUG_GSM_MISCELLANEOUS_IS_LEV_2
-  printf("GSM_Module_IO_Init Done! \r\n");
-  #endif
-  #endif
-}
-
-/**
- * @brief GSM_Module_Pon_Poff
- *        logically power on/off module (see M95 manual)
- *
- * @param param1 PWRKEY_ON / PWRKEY_OFF
- *
- * @return none
- */
-
-void GSM_Module_Pon_Poff(C_BYTE set_status)
-{
-	C_BYTE gsm_init;
-
-#ifdef __USE_USR_2G_HW
-
-    #ifdef __DEBUG_GSM_MISCELLANEOUS_IS_LEV_2
-    printf("GSM_Module_Pon_Poff set_status %X \r\n", set_status);
-    #endif
-
-	switch (set_status)
-	{
-
-
-
-
-	   case PWRKEY_ON :
-		   /* pulse the pin to enable the module see M95 manual */
-           #if 1
-
-		   NVM__ReadU8Value(GSM_INIT, &gsm_init);
-
-		   printf("GSM PON >>>> %X \r\n",gsm_init);
-		   if (gsm_init == 0)
-		   {
-			 gsm_init = 1;
-			 NVM__WriteU8Value(GSM_INIT, gsm_init);
-		     Sys__Delay(PWRKEY_ON_TIME);
-		     gpio_set_level(PWRKEY_PIN, 1);
-		     Sys__Delay(PWRKEY_ON_TIME);
-		     gpio_set_level(PWRKEY_PIN, 0);
-		     Sys__Delay(PWRKEY_ON_TIME);
-		     printf("GSM PON DONE ...........\r\n");
-		   }
-		   else
-		   {
-	         gsm_init = 0;
-			 NVM__WriteU8Value(GSM_INIT, gsm_init);
-			 printf("GSM PON NOT DONE ######\r\n");
-			 Sys__Delay(PWRKEY_ON_TIME);
-		   }
-           #endif
-		   break;
-
-	   case PWRKEY_OFF:
-		   /* pulse the pin to enable the module see M95 manual */
-		   gpio_set_level(PWRKEY_PIN, 0);
-		   Sys__Delay(PWRKEY_OFF_TIME);
-		   gpio_set_level(PWRKEY_PIN, 1);
-		   break;
-	}
-
-#endif
 }
 
 

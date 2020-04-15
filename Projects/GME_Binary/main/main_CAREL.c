@@ -106,10 +106,12 @@ void Carel_Main_Task(void)
 		  //System Initialization
 		  case GME_INIT:
 		  {
+			  Init_IO_IS();
+
               #ifdef __USE_USR_2G_HW
 			  if PLATFORM(PLATFORM_DETECTED_2G)
 		      {
-			    GSM_Module_IO_Init();
+				GSM_Module_Pwr_Supply_On_Off(GSM_POWER_SUPPLY_ON);
                 gsm_on_1_shoot = 0;
                 gsm_start_delay = 0;
 			  }
@@ -143,7 +145,7 @@ void Carel_Main_Task(void)
 					    {
 						  if ((gsm_on_1_shoot == 0) && (gsm_start_delay == 0))
 						  {
-						    GSM_Module_Pon_Poff(PWRKEY_ON);
+							GSM_Module_PwrKey_On_Off(GSM_PWRKEY_ON);
 						    gsm_on_1_shoot = 1;
 						  }
 						  else

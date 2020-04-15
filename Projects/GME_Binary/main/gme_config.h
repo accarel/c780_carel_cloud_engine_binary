@@ -37,11 +37,12 @@
 /* ========================================================================== */
 /* development platform                                                       */
 /* ========================================================================== */
+#define WIFI_INTERFACE 		1
+#define GSM_INTERFACE 		0
+
 #ifdef __USE_ESP_WROVER_KIT
 #define NETWORK_INTERFACE 	WIFI_INTERFACE
 //#define NETWORK_INTERFACE 	GSM_INTERFACE
-#define WIFI_INTERFACE 		1
-#define GSM_INTERFACE 		0
 #endif
 
 /* ========================================================================== */

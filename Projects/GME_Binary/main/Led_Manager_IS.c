@@ -106,6 +106,14 @@ typedef enum{
  */
 volatile C_UINT16 led_current_status = 0;
 
+
+/* contain the current status of the led used to restore
+ * previous condition if needed */
+C_BYTE red_led_current_status;
+C_BYTE green_led_current_status;
+C_BYTE blu_led_current_status;
+
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #define LED_TASK_TASK_STACK_SIZE   (1024)
 //configMINIMAL_STACK_SIZE
@@ -125,6 +133,9 @@ void Do_Led_Test_Routine(void);
 void Update_Led_Model_Cfg(C_BYTE model_cfg_status);
 void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status);
 void Update_Led_RS485(C_BYTE rs485_status);
+void Update_Led_Fact_Def_A(C_BYTE fact_def_a_status);
+void Update_Led_Fact_Def_B(C_BYTE fact_def_b_status);
+
 
 
 /* ------------------------------------------------------------------- */
@@ -200,6 +211,26 @@ void Task_Led_Status(void)
 	{
 		Update_Led_RS485(0);
 	}
+
+
+    if (led_current_status & LED_STAT_FACT_DEF_A)
+	{
+		Update_Led_Fact_Def_A(1);
+	}
+	else
+	{
+		Update_Led_Fact_Def_A(0);
+	}
+
+    if (led_current_status & LED_STAT_FACT_DEF_B)
+	{
+		Update_Led_Fact_Def_B(1);
+	}
+	else
+	{
+		Update_Led_Fact_Def_B(0);
+	}
+
 	
 }
 
@@ -286,7 +317,7 @@ void Led_Status_Update_Red_bcu(Led_Show_Status_t status){
           break;
 	}
 
-
+    red_led_current_status = status;
 }
 
 void Led_Status_Update_Green_bcu(Led_Show_Status_t status){
@@ -368,6 +399,8 @@ void Led_Status_Update_Green_bcu(Led_Show_Status_t status){
 
           break;
 	}
+
+    green_led_current_status = status;
 }
 
 void Led_Status_Update_Blu_bcu(Led_Show_Status_t status){
@@ -442,7 +475,10 @@ void Led_Status_Update_Blu_bcu(Led_Show_Status_t status){
 
 	          break;
 		}
-	}
+
+    blu_led_current_status = status;
+
+  }
 
 void Update_Led_Model_Cfg_bcu(C_BYTE model_cfg_status)
 {
@@ -488,6 +524,16 @@ void Update_Led_RS485_bcu(C_BYTE rs485_status)
  right now for the bCU model there isn't any TTL internal
  activity indicator, so do nothing
 */
+}
+
+void Update_Led_Fact_Def_A_bcu(C_BYTE fact_def_a_status)
+{
+//do nothing no led available
+}
+
+void Update_Led_Fact_Def_B_bcu(C_BYTE fact_def_a_status)
+{
+//do nothing no led available
 }
 
 void Do_Led_Test_Routine_bcu(void){
@@ -613,7 +659,7 @@ void Led_Status_Update_Red_2g(Led_Show_Status_t status){
           break;
 	}
 
-
+    red_led_current_status = status;
 }
 
 void Led_Status_Update_Green_2g(Led_Show_Status_t status){
@@ -695,6 +741,7 @@ void Led_Status_Update_Green_2g(Led_Show_Status_t status){
 
           break;
 	}
+    green_led_current_status = status;
 }
 
 void Led_Status_Update_Blu_2g(Led_Show_Status_t status){
@@ -776,6 +823,8 @@ void Led_Status_Update_Blu_2g(Led_Show_Status_t status){
 
 	          break;
 		}
+
+	    blu_led_current_status  = status;
 	}
 
 void Update_Led_Model_Cfg_2g(C_BYTE model_cfg_status)
@@ -825,6 +874,30 @@ void Update_Led_RS485_2g(C_BYTE rs485_status)
   {
 	  Led_Status_Update_Blu_2g(LED_OFF);
   }
+}
+
+void Update_Led_Fact_Def_A_2g(C_BYTE fact_def_a_status)
+{
+	if (fact_def_a_status == 1)
+	{
+		WORK_LED(LED_BLINK_SLOW);
+	}
+	else
+	{
+		WORK_LED(green_led_current_status);
+	}
+}
+
+void Update_Led_Fact_Def_B_2g(C_BYTE fact_def_a_status)
+{
+	if (fact_def_a_status == 1)
+	{
+		WORK_LED(LED_BLINK_FAST);
+	}
+	else
+	{
+		WORK_LED(green_led_current_status);
+	}
 }
 
 void Do_Led_Test_Routine_2g(void){
@@ -954,7 +1027,7 @@ void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
 
           break;
 	}
-
+    red_led_current_status = status;
 #endif
 }
 
@@ -964,6 +1037,12 @@ void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
   static C_INT32 blink_timer = 0;
 
     //printf("Status %X\r\n", (uint16_t)status);
+
+    if ((led_current_status & LED_STAT_FACT_DEF_A) || (led_current_status & LED_STAT_FACT_DEF_B))
+    {
+    	//if factory def triggered override the configuration
+    	return;
+    }
 
     switch (status)
 	{
@@ -1038,6 +1117,8 @@ void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
 
           break;
 	}
+
+    green_led_current_status = status;
 #endif
 }
 
@@ -1124,15 +1205,18 @@ void Led_Status_Update_Blu_esp_wrover_kit(Led_Show_Status_t status){
 	          break;
 		}
 
+	    blu_led_current_status = status;
 #endif
 	}
 
 void Update_Led_Model_Cfg_esp_wrover_kit(C_BYTE model_cfg_status)
 {
+#ifdef __USE_ESP_WROVER_KIT
 /*
-                        RED
+                         RED
 Model configured         ON
 */
+
   if (model_cfg_status==1)
   {
    	 Led_Status_Update_Red_esp_wrover_kit(LED_ON);
@@ -1141,10 +1225,12 @@ Model configured         ON
   {
 	 Led_Status_Update_Red_esp_wrover_kit(LED_OFF);
   }
+#endif
 }
 
 void Update_Led_MQTT_Conn_esp_wrover_kit(C_BYTE mqtt_conn_status)
 {
+#ifdef __USE_ESP_WROVER_KIT
 /*
                         GREEN
 MQTT connected          ON
@@ -1157,11 +1243,12 @@ MQTT connected          ON
 	{
       Led_Status_Update_Green_esp_wrover_kit(LED_OFF);
 	}
-
+#endif
 }
 
 void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
 {
+#ifdef __USE_ESP_WROVER_KIT
 /*
  right now for the WiFi model there isn't any RS485
  activity indicator, so do nothing
@@ -1174,9 +1261,39 @@ void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
   {
 	  Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
   }
+#endif
+}
+
+void Update_Led_Fact_Def_A_esp_wrover_kit(C_BYTE fact_def_a_status)
+{
+#ifdef __USE_ESP_WROVER_KIT
+	if (fact_def_a_status == 1)
+	{
+		Led_Status_Update_Red_esp_wrover_kit(LED_BLINK_SLOW);
+	}
+	else
+	{
+		Led_Status_Update_Red_esp_wrover_kit(red_led_current_status);
+	}
+#endif
+}
+
+void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
+{
+#ifdef __USE_ESP_WROVER_KIT
+	if (fact_def_b_status == 1)
+	{
+		Led_Status_Update_Red_esp_wrover_kit(LED_BLINK_FAST);
+	}
+	else
+	{
+		Led_Status_Update_Red_esp_wrover_kit(red_led_current_status);
+	}
+#endif
 }
 
 void Do_Led_Test_Routine_esp_wrover_kit(void){
+#ifdef 	__USE_ESP_WROVER_KIT
 	C_BYTE count;
 
 	for (count=0; count < 3; count++)
@@ -1196,7 +1313,7 @@ void Do_Led_Test_Routine_esp_wrover_kit(void){
 	Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 	}
-
+#endif
 }
 
 
@@ -1350,7 +1467,7 @@ void Led_Status_Update_Red_wifi(Led_Show_Status_t status){
           break;
 	}
 
-
+    red_led_current_status = status;
 }
 
 void Led_Status_Update_Green_wifi(Led_Show_Status_t status){
@@ -1477,6 +1594,8 @@ void Led_Status_Update_Green_wifi(Led_Show_Status_t status){
 
 	}
 
+    green_led_current_status = status;
+
 }
 
 void Update_Led_Model_Cfg_wifi(C_BYTE model_cfg_status)
@@ -1486,6 +1605,13 @@ void Update_Led_Model_Cfg_wifi(C_BYTE model_cfg_status)
 Model configured        ---         BLINK
 MQTT connected           ON          ON
 */
+
+  if ((led_current_status & LED_STAT_FACT_DEF_A) || (led_current_status & LED_STAT_FACT_DEF_B))
+  {
+  	//if factory def triggered override the configuration
+  	return;
+   }
+
   if ((led_current_status & LED_STAT_MQTT_CONN) && (model_cfg_status==0))
   {
    	 Led_Status_Update_Red_wifi(LED_ON);
@@ -1532,6 +1658,33 @@ void Update_Led_RS485_wifi(C_BYTE rs485_status)
 */
 }
 
+void Update_Led_Fact_Def_A_wifi(C_BYTE fact_def_a_status)
+{
+
+	if (fact_def_a_status == 1)
+	{
+  	 Led_Status_Update_Red_wifi(LED_BLINK_SLOW);
+	}
+	else
+	{
+	  Led_Status_Update_Red_wifi(red_led_current_status);
+	}
+
+}
+
+void Update_Led_Fact_Def_B_wifi(C_BYTE fact_def_b_status)
+{
+	if (fact_def_b_status == 1)
+	{
+  	  Led_Status_Update_Red_wifi(LED_BLINK_FAST);
+	}
+	else
+	{
+	  Led_Status_Update_Red_wifi(red_led_current_status);
+	}
+
+}
+
 void Do_Led_Test_Routine_wifi(void){
 	C_BYTE count;
 
@@ -1551,10 +1704,6 @@ void Do_Led_Test_Routine_wifi(void){
 }
 
 //#endif
-
-
-
-
 
 
 /* ------------------------------------------------------------------- */
@@ -1664,6 +1813,49 @@ void Update_Led_RS485(C_BYTE rs485_status){
 #endif
 }
 
+
+
+void Update_Led_Fact_Def_A(C_BYTE rs485_status){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+    #ifdef  __USE_CAREL_BCU_HW
+	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Fact_Def_A_bcu(rs485_status);
+
+	#else
+
+	#ifdef _ESP_WROVER_KIT
+	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_A_esp_wrover_kit(rs485_status);
+    #endif
+
+    /* pin is pull down on 2G and pull upped on WiFi*/
+    if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Fact_Def_A_2g(rs485_status);
+    if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Fact_Def_A_wifi(rs485_status);
+
+    #endif
+
+#endif
+}
+
+void Update_Led_Fact_Def_B(C_BYTE rs485_status){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+    #ifdef  __USE_CAREL_BCU_HW
+	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Fact_Def_B_bcu(rs485_status);
+
+	#else
+
+	#ifdef _ESP_WROVER_KIT
+	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_B_esp_wrover_kit(rs485_status);
+    #endif
+
+    /* pin is pull down on 2G and pull upped on WiFi*/
+    if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Fact_Def_B_2g(rs485_status);
+    if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Fact_Def_B_wifi(rs485_status);
+
+    #endif
+
+#endif
+}
 
 
 

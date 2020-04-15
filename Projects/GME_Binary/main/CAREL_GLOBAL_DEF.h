@@ -9,6 +9,9 @@
 #define __CAREL_GLOBAL_DEF
 
 
+#include "data_types_CAREL.h"
+
+
 /* ========================================================================== */
 /* DEVELOPMENT / TARGET PLATFORM                                              */
 /* ========================================================================== */
@@ -34,15 +37,24 @@
 /* ========================================================================== */
 /* development platform                                                       */
 /* ========================================================================== */
-#define __USE_ESP_WROVER_KIT
+//#define __USE_ESP_WROVER_KIT
 
 /* ========================================================================== */
 /*  OFFICIAL HW PLATFORM                                                      */
 /* ========================================================================== */
 //#define __USE_CAREL_BCU_HW
-//#define __USE_USR_WIFI_HW
+#define __USE_USR_WIFI_HW
 //#define __USE_USR_2G_HW
 
+
+/**
+ * @brief INCLUDE_PLATFORM_DEPENDENT
+ *        you MUST enable this define as soon you have implemented all the
+ *        platform dependent routines.
+ *        undef it to test you specific compiler and understand if all right.
+ *        WARNING! this define MUST be DEFINED in the release version of the FW
+ */
+#define INCLUDE_PLATFORM_DEPENDENT 1
 
 /* ========================================================================== */
 /* include                                                                    */

@@ -1058,6 +1058,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
     uint8_t is_offline = 0;
     eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
     uint8_t ncoil, ndi, nhr, nir;
+    Update_Led_Status(LED_STAT_RS485, LED_STAT_OFF);
     if (type == LOW_POLLING) {
     	ncoil = low_n.coil;
     	ndi = low_n.di;
@@ -1217,6 +1218,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
+	Update_Led_Status(LED_STAT_RS485, LED_STAT_ON);
 	return C_SUCCESS;
 }
 
@@ -1380,6 +1382,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
+	Update_Led_Status(LED_STAT_RS485, LED_STAT_ON);
 	return C_SUCCESS;
 
 }
@@ -1474,13 +1477,6 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				SendOffline(poll_done);
 
 				check_alarms_change();
-
-                #ifdef _DEBUG_LEDS
-                if (led_polling == LED_OFF)
-                	led_polling = LED_ON;
-                else
-                	led_polling = LED_OFF;
-                #endif
 
 			}
 
