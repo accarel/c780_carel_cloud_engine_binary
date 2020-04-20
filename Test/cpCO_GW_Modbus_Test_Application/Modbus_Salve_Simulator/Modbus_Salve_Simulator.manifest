@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Solution>
+  <Info ManifestVersion="1.1.0">
+    <Name>Modbus_Salve_Simulator</Name>
+    <Description></Description>
+    <Version></Version>
+    <CreationDate>2019-02-05T11:09:52.1716978Z</CreationDate>
+    <Owner></Owner>
+    <StorageToolManaged>false</StorageToolManaged>
+    <CSuiteVersion>4.4.22</CSuiteVersion>
+  </Info>
+</Solution>

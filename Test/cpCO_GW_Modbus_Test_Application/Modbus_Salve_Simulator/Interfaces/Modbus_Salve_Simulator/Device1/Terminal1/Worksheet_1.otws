@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Worksheet Name="Worksheet_1" Version="1.0.0">
+  <Loop Name="Loop_1" Type="Normal" X="0" Y="0">
+    <Mask Name="Mask_start" Type="Normal" X="0" Y="1">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Text" Name="Text" Row="2" Column="1" Content="Gateway Modubus Test" />
+        <Field Type="Text" Name="Text_2" Row="4" Column="1" Content="PRESS  to continue" />
+        <Field Type="Text" Name="Text_3" Row="6" Column="5" Content="V.2.1 OTA1" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask" Type="Normal" X="0" Y="2">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Variable" Name="Variable" Row="2" Column="11" Content="Coil_alr" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Text" Name="Text" Row="2" Column="0" Content="Coil_alr" />
+        <Field Type="Text" Name="Text_2" Row="3" Column="0" Content="DI_alr" />
+        <Field Type="Variable" Name="Variable_2" Row="3" Column="11" Content="DI_alr" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Text" Name="Text_3" Row="4" Column="0" Content="HR_alr" />
+        <Field Type="Text" Name="Text_4" Row="5" Column="0" Content="IR_alr" />
+        <Field Type="Variable" Name="Variable_3" Row="4" Column="11" Content="HR_alr" Class="CL_INT" Format="io5" Min="0" Max="32767" />
+        <Field Type="Variable" Name="Variable_4" Row="5" Column="11" Content="IR_alr" Class="CL_INT" Format="io5" Min="0" Max="32767" />
+        <Field Type="Text" Name="Text_5" Row="0" Column="8" Content="ALARMS" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask_2" Type="Normal" X="0" Y="3">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Variable" Name="Variable" Row="2" Column="9" Content="HR1" Class="CL_INT" Format="io+5" Min="-32768" Max="32767" />
+        <Field Type="Text" Name="Text" Row="2" Column="0" Content="HR1" />
+        <Field Type="Text" Name="Text_2" Row="3" Column="0" Content="HR2" />
+        <Field Type="Text" Name="Text_3" Row="5" Column="0" Content="IR1" />
+        <Field Type="Text" Name="Text_4" Row="6" Column="0" Content="IR2" />
+        <Field Type="Variable" Name="Variable_2" Row="3" Column="9" Content="HR2" Class="CL_INT" Format="io+5" Min="-32768" Max="32767" />
+        <Field Type="Variable" Name="Variable_3" Row="5" Column="9" Content="IR1" Class="CL_INT" Format="io+5" Min="-32768" Max="32767" />
+        <Field Type="Variable" Name="Variable_4" Row="6" Column="9" Content="IR2" Class="CL_INT" Format="io+5" Min="-32768" Max="32767" />
+        <Field Type="Text" Name="Text_5" Row="0" Column="7" Content="Integer" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask_3" Type="Normal" X="0" Y="4">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Text" Name="Text" Row="0" Column="7" Content="Digital" />
+        <Field Type="Variable" Name="Variable" Row="2" Column="12" Content="Coil1" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Text" Name="Text_2" Row="2" Column="0" Content="Coil1" />
+        <Field Type="Text" Name="Text_3" Row="3" Column="0" Content="Coil2" />
+        <Field Type="Variable" Name="Variable_2" Row="3" Column="12" Content="Coil2" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_3" Row="5" Column="12" Content="DI1" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_4" Row="6" Column="12" Content="DI2" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Text" Name="Text_4" Row="5" Column="0" Content="DI1" />
+        <Field Type="Text" Name="Text_5" Row="6" Column="0" Content="DI2" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask_4" Type="Normal" X="0" Y="5">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Text" Name="Text" Row="0" Column="5" Content="Float/int32" />
+        <Field Type="Variable" Name="Variable" Row="2" Column="9" Content="Float1" Class="CL_REAL_1" Format="io+3.1" Min="-999.9" Max="999.9" />
+        <Field Type="Text" Name="Text_2" Row="2" Column="0" Content="Float1" />
+        <Field Type="Text" Name="Text_3" Row="4" Column="0" Content="Int32" />
+        <Field Type="Variable" Name="Variable_2" Row="4" Column="9" Content="Int32" Class="CL_DINT" Format="io6" Min="0" Max="999999" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask_1" Type="Normal" X="0" Y="6">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Text" Name="Text" Row="1" Column="0" Content="Temperature_1" />
+        <Field Type="Text" Name="Text_2" Row="2" Column="0" Content="Temperature_2" />
+        <Field Type="Variable" Name="Variable" Row="1" Column="14" Content="Temperature_1" Class="CL_REAL_2" Format="io+3.2" Min="-20.0" Max="100.0" />
+        <Field Type="Variable" Name="Variable_2" Row="2" Column="14" Content="Temperature_2" Class="CL_REAL_2" Format="io+5.1" Min="-32768.0" Max="32767.0" />
+        <Field Type="Text" Name="Text_3" Row="4" Column="0" Content="Digital_1" />
+        <Field Type="Text" Name="Text_4" Row="5" Column="0" Content="Digital_2" />
+        <Field Type="Variable" Name="Variable_3" Row="4" Column="15" Content="Digital_1" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_4" Row="5" Column="15" Content="Digital_2" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Text" Name="Text_5" Row="6" Column="0" Content="Rele_1" />
+        <Field Type="Text" Name="Text_6" Row="7" Column="0" Content="Rele_2" />
+        <Field Type="Variable" Name="Variable_5" Row="6" Column="15" Content="Rele_1" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_6" Row="7" Column="15" Content="rele_2" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_7" Row="3" Column="15" Content="setpoint" Class="CL_INT" Format="io+5" Min="-32768" Max="32767" />
+        <Field Type="Text" Name="Text_7" Row="3" Column="0" Content="Setpoint" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask_5" Type="Normal" X="0" Y="7">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Variable" Name="Variable" Row="1" Column="10" Content="HR_L_00" Class="CL_INT" Format="io5" Min="0" Max="32767" />
+        <Field Type="Text" Name="Text" Row="1" Column="0" Content="HR_L_00" />
+        <Field Type="Text" Name="Text_2" Row="0" Column="5" Content="Autoincrement" />
+        <Field Type="Text" Name="Text_3" Row="2" Column="0" Content="HR_L_01" />
+        <Field Type="Variable" Name="Variable_2" Row="2" Column="10" Content="HR_L_01" Class="CL_INT" Format="io5" Min="0" Max="32767" />
+      </Fields>
+    </Mask>
+  </Loop>
+</Worksheet>
