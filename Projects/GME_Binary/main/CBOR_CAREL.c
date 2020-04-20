@@ -222,9 +222,9 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	err |= cbor_encode_byte_string(&mapEncoder, MQTTver, 3);
 	DEBUG_ADD(err, "mqttversion");
 
-	// encode dev - elem8
-	err |= cbor_encode_text_stringz(&mapEncoder, "dev");
-	err |= cbor_encode_uint(&mapEncoder, Modbus__GetAddress());
+	// encode did - elem8
+	err |= cbor_encode_text_stringz(&mapEncoder, "did");
+	err |= cbor_encode_uint(&mapEncoder, CBOR_GetDid());
 	DEBUG_ADD(err, "dev");
 
 	// encode gid - elem9
