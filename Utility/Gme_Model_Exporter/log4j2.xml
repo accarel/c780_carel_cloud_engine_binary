@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="60">
+
+
+	<Properties>
+	</Properties>
+
+
+  <Loggers>
+
+  	<Root level="info">
+    	<AppenderRef ref="Console" />
+      <AppenderRef ref="File"/>
+		</Root>
+    	
+    <Logger name="org.hibernate" level="error"/>
+    <Logger name="org.springframework" level="warn"/>
+		<Logger name="com.rv.tools.modelinst.Modelimp" level="info"/>
+			
+		<!-- PACKAGE TO ACTIVATE ON DEMAND  -->
+		<!-- -->
+		<Logger name="com.rv.tools.modelinst" level="info"/>
+		<!-- -->
+
+	</Loggers>
+
+
+  <Appenders>
+
+		<Console name="Console" target="SYSTEM_OUT">
+    	<PatternLayout pattern="[%d{ISO8601}] [%-5level] %l :: %t - %msg%n" />
+		</Console>
+        
+		<RollingRandomAccessFile name="File" 
+		  filePattern="gme-model-exporter_%i.log">
+			<PatternLayout pattern="[%d{ISO8601}] [%-5level] %l :: %t - %msg%n"/>
+    		<Policies>
+        	<SizeBasedTriggeringPolicy size="10 MB"/>
+				</Policies>
+     	<DirectWriteRolloverStrategy maxFiles="10"/>
+		</RollingRandomAccessFile>
+				
+	</Appenders>
+
+
+</Configuration>
