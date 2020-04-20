@@ -1719,7 +1719,7 @@ void Led_init(void)
 	if PLATFORM(PLATFORM_DETECTED_BCU) Led_init_bcu();
     #else
 
-	#ifdef _ESP_WROVER_KIT
+	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Led_init_esp_wrover_kit();
     #endif
 
@@ -1740,7 +1740,7 @@ void Do_Led_Test_Routine(void){
 	if PLATFORM(PLATFORM_DETECTED_BCU) Do_Led_Test_Routine_bcu();
    #else
 
-    #ifdef _ESP_WROVER_KIT
+    #ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Do_Led_Test_Routine_esp_wrover_kit();
     #endif
 
