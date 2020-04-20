@@ -48,6 +48,7 @@
             this.textBoxMQTT_Server_Port = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button_flush = new System.Windows.Forms.Button();
             this.button_reboot = new System.Windows.Forms.Button();
             this.button_stop_engine = new System.Windows.Forms.Button();
             this.button_start_engine = new System.Windows.Forms.Button();
@@ -194,7 +195,7 @@
             this.textBox_MQTT_ID = new System.Windows.Forms.TextBox();
             this.textBox_MQTT_PWD = new System.Windows.Forms.TextBox();
             this.label53 = new System.Windows.Forms.Label();
-            this.button_flush = new System.Windows.Forms.Button();
+            this.buttonSet_Lines_Config_TTL = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -403,6 +404,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.buttonSet_Lines_Config_TTL);
             this.groupBox1.Controls.Add(this.button_flush);
             this.groupBox1.Controls.Add(this.button_reboot);
             this.groupBox1.Controls.Add(this.button_stop_engine);
@@ -425,6 +427,17 @@
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
+            // 
+            // button_flush
+            // 
+            this.button_flush.Location = new System.Drawing.Point(145, 182);
+            this.button_flush.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.button_flush.Name = "button_flush";
+            this.button_flush.Size = new System.Drawing.Size(131, 44);
+            this.button_flush.TabIndex = 22;
+            this.button_flush.Text = "Flush";
+            this.button_flush.UseVisualStyleBackColor = true;
+            this.button_flush.Click += new System.EventHandler(this.button_flush_Click);
             // 
             // button_reboot
             // 
@@ -2011,16 +2024,16 @@
             this.label53.TabIndex = 70;
             this.label53.Text = "PWD";
             // 
-            // button_flush
+            // buttonSet_Lines_Config_TTL
             // 
-            this.button_flush.Location = new System.Drawing.Point(145, 182);
-            this.button_flush.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.button_flush.Name = "button_flush";
-            this.button_flush.Size = new System.Drawing.Size(131, 44);
-            this.button_flush.TabIndex = 22;
-            this.button_flush.Text = "Flush";
-            this.button_flush.UseVisualStyleBackColor = true;
-            this.button_flush.Click += new System.EventHandler(this.button_flush_Click);
+            this.buttonSet_Lines_Config_TTL.Location = new System.Drawing.Point(145, 233);
+            this.buttonSet_Lines_Config_TTL.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonSet_Lines_Config_TTL.Name = "buttonSet_Lines_Config_TTL";
+            this.buttonSet_Lines_Config_TTL.Size = new System.Drawing.Size(129, 46);
+            this.buttonSet_Lines_Config_TTL.TabIndex = 23;
+            this.buttonSet_Lines_Config_TTL.Text = "set_lines_config TTL";
+            this.buttonSet_Lines_Config_TTL.UseVisualStyleBackColor = true;
+            this.buttonSet_Lines_Config_TTL.Click += new System.EventHandler(this.buttonSet_Lines_Config_TTL_Click);
             // 
             // Form1
             // 
@@ -2069,7 +2082,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.1.7";
+            this.Text = "IoT Server Simulator Binary Edition V.1.8";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2262,6 +2275,7 @@
         private System.Windows.Forms.TextBox textBox_MQTT_PWD;
         private System.Windows.Forms.Label label53;
         private System.Windows.Forms.Button button_flush;
+        private System.Windows.Forms.Button buttonSet_Lines_Config_TTL;
     }
 }
 

@@ -1451,6 +1451,12 @@ namespace MqttClientSimulatorBinary
             PublishTestFile(textFilePath);
         }
 
+        private void buttonSet_Lines_Config_TTL_Click(object sender, EventArgs e)
+        {
+            string textFilePath = @".\cbor_cloud\REQ_SET_LINES_CONFIG_TTL.cbor";
+            PublishTestFile(textFilePath);
+        }
+
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
         {
             const string template_name = @"test-send_mb_adu-req.json";
