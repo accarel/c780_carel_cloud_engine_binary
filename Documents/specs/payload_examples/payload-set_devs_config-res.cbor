@@ -1,3 +1,4 @@
 {
    // this is in addition to response header.
+   	"did": 432									//did C_UINT16 device id (address+configuration), as indicated in corresponding request
 }

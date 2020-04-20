@@ -1,0 +1,5 @@
+{                                           //TAG TYPE
+	"ver": 101,                             //VER C_UINT16   
+	"ts": 72000,		                        //T C_TIME
+	"sta": -75,				                //C_BYTE[16] 1 connected, 0 disconnected (LW&T) 
+}
