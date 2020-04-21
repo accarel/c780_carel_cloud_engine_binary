@@ -1607,7 +1607,7 @@ MQTT connected           ON          ON
 */
 #ifdef CHINESE_HW_TEST
 //do nothing
-#elif
+#else
   if ((led_current_status & LED_STAT_FACT_DEF_A) || (led_current_status & LED_STAT_FACT_DEF_B))
   {
   	//if factory def triggered override the configuration
@@ -1634,7 +1634,7 @@ MQTT connected           ON          ON
 */
 #ifdef CHINESE_HW_TEST
 //do nothing
-#elif
+#else
 
 	if (mqtt_conn_status == 1)
 	{	
