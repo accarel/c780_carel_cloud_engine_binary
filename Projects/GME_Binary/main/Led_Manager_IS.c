@@ -974,7 +974,7 @@ void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
 		case LED_BLINK_SLOW:
 		  /* put the I/O instruction here */
 
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
+		  if (RTC_Get_UTC_Current_Time() >= blink_timer + LED_BLINK_SLOW_INTERVAL)
 		  {
             if (blink_status == LED_OFF)
             {
@@ -982,7 +982,7 @@ void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
 		      #ifdef INCLUDE_PLATFORM_DEPENDENT
     		  gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_ON);
               #endif
-
+    		  PRINTF_DEBUG_LED("red led on slow\n");
               blink_status = LED_ON;
             }
             else
@@ -991,11 +991,12 @@ void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
 		      gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_OFF);
 			  #endif
+		      PRINTF_DEBUG_LED("red led off slow\n");
 
               blink_status = LED_OFF;
             }
 
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
+			blink_timer = RTC_Get_UTC_Current_Time();
 		  }
 
           break;
@@ -1003,15 +1004,15 @@ void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
          //TODO BILATO refactor to make code compact
 		case LED_BLINK_FAST:
 		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
+			// no timer here to make led blink as fast as possible...
+		    if (blink_status == LED_OFF)
             {
 		     /* put the I/O instruction here */
              #ifdef INCLUDE_PLATFORM_DEPENDENT
     		 gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_ON);
              #endif
+    		 PRINTF_DEBUG_LED("red led on fast\n");
+
              blink_status = LED_ON;
             }
             else
@@ -1020,12 +1021,12 @@ void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
   		      gpio_set_level(LED_RED_ESP_WROVER_KIT,   LED_PHY_OFF);
 			  #endif
+  	          PRINTF_DEBUG_LED("red led off fast\n");
+
               blink_status = LED_OFF;
             }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-		  }
 
-          break;
+            break;
 	}
     red_led_current_status = status;
 #endif
@@ -1064,7 +1065,7 @@ void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
 
 		case LED_BLINK_SLOW:
 		  /* put the I/O instruction here */
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
+		  if (RTC_Get_UTC_Current_Time() >= blink_timer + LED_BLINK_SLOW_INTERVAL)
 		  {
             if (blink_status == LED_OFF)
             {
@@ -1084,7 +1085,7 @@ void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
 
               blink_status = LED_OFF;
             }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
+			blink_timer = RTC_Get_UTC_Current_Time();
 		  }
 
           break;
@@ -1093,7 +1094,7 @@ void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
 		case LED_BLINK_FAST:
 		  /* put the I/O instruction here */
 
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
+		  if (RTC_Get_UTC_Current_Time() >= blink_timer + LED_BLINK_FAST_INTERVAL)
 		  {
             if (blink_status == LED_OFF)
             {
@@ -1112,7 +1113,7 @@ void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
 			#endif
             blink_status = LED_OFF;
             }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
+			blink_timer = RTC_Get_UTC_Current_Time();
 		  }
 
           break;

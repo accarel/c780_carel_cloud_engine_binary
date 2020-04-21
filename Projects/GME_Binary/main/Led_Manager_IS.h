@@ -50,6 +50,12 @@
 #define LED_STAT_FACT_DEF_B   0x0200
 
 
+#if LED_DEBUG == 1
+	#define	PRINTF_DEBUG_LED	printf
+#else
+	#define	PRINTF_DEBUG_LED(...)
+#endif
+
 void Update_Led_Status(C_UINT16 set_status, C_BYTE status);
 
 void Led_Task_Start(void);
