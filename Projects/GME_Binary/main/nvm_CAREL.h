@@ -24,6 +24,7 @@
 #define MB_DEV_NVM "dev"
 #define MB_CERT_NVM "cert"
 #define MB_DELAY_NVM "del"
+#define PE_STATUS_NVM "pe_status"
 
 #define MQTT_USER "mqtt_user"
 

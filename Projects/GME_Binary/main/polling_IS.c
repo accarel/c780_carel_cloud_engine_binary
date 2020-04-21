@@ -44,8 +44,18 @@ void Polling_Engine_Init_IS(void)
 
 	req_set_gw_config_t * polling_times = Utilities__GetGWConfigData();
 	ForceSending();
-	if (BinaryModel_CheckCrc() == C_SUCCESS)
-		PollEngine_StartEngine_CAREL();	//if GME is properly configured, then start polling
+	//if GME is properly configured...
+	if (BinaryModel_CheckCrc() == C_SUCCESS) {
+		uint8_t pe_status;
+		if (C_SUCCESS != NVM__ReadU8Value(PE_STATUS_NVM, &pe_status))
+			PollEngine_StartEngine_CAREL();	// first time here, then start polling
+		else {
+			if (pe_status == RUNNING)
+				PollEngine_StartEngine_CAREL();	// start polling
+			else
+				PollEngine_StopEngine_CAREL();	// don't start polling
+		}
+	}
 
 	SoftWDT_Init(SWWDT_POLLING, SWWDT_DEFAULT_TIME);
 

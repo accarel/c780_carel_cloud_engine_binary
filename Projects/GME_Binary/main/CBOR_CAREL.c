@@ -1992,8 +1992,13 @@ data_rx_len=0;
 
 		case START_ENGINE:
 		{
-			PollEngine_StartEngine_CAREL();
-			cbor_req.res = SUCCESS_CMD;
+			if ( C_SUCCESS == NVM__WriteU8Value(PE_STATUS_NVM, RUNNING) ) {
+				PollEngine_StartEngine_CAREL();
+				cbor_req.res = SUCCESS_CMD;
+			}
+			else
+				cbor_req.res = ERROR_CMD;
+
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
@@ -2003,8 +2008,13 @@ data_rx_len=0;
 
 		case STOP_ENGINE:
 		{
-			PollEngine_StopEngine_CAREL();
-			cbor_req.res = SUCCESS_CMD;
+			if ( C_SUCCESS == NVM__WriteU8Value(PE_STATUS_NVM, STOPPED) ) {
+				PollEngine_StopEngine_CAREL();
+				cbor_req.res = SUCCESS_CMD;
+			}
+			else
+				cbor_req.res = ERROR_CMD;
+
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
