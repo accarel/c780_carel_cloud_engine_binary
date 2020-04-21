@@ -1761,7 +1761,7 @@ void Update_Led_Model_Cfg(C_BYTE model_cfg_status){
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Model_Cfg_bcu(model_cfg_status);
   #else
 
-    #ifdef _ESP_WROVER_KIT
+    #ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Model_Cfg_esp_wrover_kit(model_cfg_status);
     #endif
 
@@ -1780,7 +1780,7 @@ void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
   if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_MQTT_Conn_bcu(mqtt_conn_status);
   #else __USE_ESP_WROVER_KIT
 
-  #ifdef _ESP_WROVER_KIT
+  #ifdef __USE_ESP_WROVER_KIT
   if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_MQTT_Conn_esp_wrover_kit(mqtt_conn_status);
   #endif
 
@@ -1800,7 +1800,7 @@ void Update_Led_RS485(C_BYTE rs485_status){
 
 	#else
 
-	#ifdef _ESP_WROVER_KIT
+	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT)Update_Led_RS485_esp_wrover_kit(rs485_status);
     #endif
 
@@ -1823,7 +1823,7 @@ void Update_Led_Fact_Def_A(C_BYTE rs485_status){
 
 	#else
 
-	#ifdef _ESP_WROVER_KIT
+	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_A_esp_wrover_kit(rs485_status);
     #endif
 
@@ -1844,7 +1844,7 @@ void Update_Led_Fact_Def_B(C_BYTE rs485_status){
 
 	#else
 
-	#ifdef _ESP_WROVER_KIT
+	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_B_esp_wrover_kit(rs485_status);
     #endif
 
