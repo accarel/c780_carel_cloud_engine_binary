@@ -170,6 +170,8 @@
 /* ========================================================================== */
 /* function prototype                                                         */
 /* ========================================================================== */
+void Init_Button_Pin(void);
+int Get_Button_Pin(void);
 void Configure_IO_Check_HW_Platform_IS(void);
 C_BYTE Check_HW_Platform_IS(void);
 void Init_IO_IS(void);

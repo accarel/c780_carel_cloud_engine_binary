@@ -38,7 +38,7 @@
 
 #define GSM_INIT "gsm_init"
 
-
+int CONFIG_RESET_BUTTON = -1;
 
 /* ========================================================================== */
 /* general purpose                                                            */
@@ -49,6 +49,22 @@
  * @return platform
  */
 
+void Init_Button_Pin(void) {
+     if (PLATFORM(PLATFORM_DETECTED_2G) || PLATFORM(PLATFORM_DETECTED_WIFI))
+    	 CONFIG_RESET_BUTTON = GPIO_NUM_0;
+     else if(PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT))
+    	 CONFIG_RESET_BUTTON = GPIO_NUM_19;
+
+     if (CONFIG_RESET_BUTTON >= 0) {
+    	 gpio_pad_select_gpio(CONFIG_RESET_BUTTON);
+    	 gpio_set_direction(CONFIG_RESET_BUTTON, GPIO_MODE_INPUT);
+    	 gpio_set_pull_mode(CONFIG_RESET_BUTTON, GPIO_PULLUP_ONLY);
+     }
+}
+
+int Get_Button_Pin(void) {
+	return CONFIG_RESET_BUTTON;
+}
 void Configure_IO_Check_HW_Platform_IS(void)
 {
   #ifdef INCLUDE_PLATFORM_DEPENDENT
