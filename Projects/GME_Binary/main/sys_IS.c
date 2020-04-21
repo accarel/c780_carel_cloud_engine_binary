@@ -14,6 +14,7 @@
 #include "https_client_CAREL.h"
 
 #include "binary_model.h"
+#include "IO_Port_IS.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
   #include "esp_partition.h"
@@ -25,7 +26,7 @@
   #include "http_server.h"
   #include "esp_ota_ops.h"
 #endif
- 
+#include "Led_Manager_IS.h"
  
 static uint32_t factory_reset_debounce_counter = 0;
 static uint32_t config_reset_debounce_counter = 0;
@@ -49,10 +50,10 @@ C_RES Sys__SetFactoryBootPartition(void){
 	err = esp_ota_set_boot_partition(factory);
 
 	if (err != C_SUCCESS) {
-		printf("SetFactoryBootPartition failed!  err=0x%d", err);
+		PRINTF_DEBUG_SYS("SetFactoryBootPartition failed!  err=0x%d", err);
 		return err;
 	}else{
-		 printf("SetFactoryBootPartition Succeeded!");
+		PRINTF_DEBUG_SYS("SetFactoryBootPartition Succeeded!");
 		return C_SUCCESS;
 	}
    #endif
@@ -70,32 +71,105 @@ C_RES Sys__SetFactoryBootPartition(void){
  * @param  none
  * @return C_RES
  */ 
-C_BOOL Sys__ResetCheck(void){
+void Sys__ResetCheck(void){
 
-	// Debounce check using up/down counter every 10ms
     #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-    #ifdef CONFIG_RESET_BUTTON_EXIST
-	if (gpio_get_level(CONFIG_RESET_BUTTON) == 0) {
-		config_reset_debounce_counter++;		 
-		Sys__Delay(100);
-	}else if(gpio_get_level(CONFIG_RESET_BUTTON) == 1 && config_reset_debounce_counter > 0){
-		config_reset_debounce_counter--;
-		Sys__Delay(100);
-	}
+	static C_TIME TimerForButton = 0;
+	C_TIME CurrentTime = 0;
+	static int button_state = BUTTON_WAIT;
 
+	switch(button_state){
+		case BUTTON_WAIT:
+			if (gpio_get_level(Get_Button_Pin()) == 0){	//pressed
+				TimerForButton = RTC_Get_UTC_Current_Time();
+				PRINTF_DEBUG_SYS("start button pressure at %d\n", RTC_Get_UTC_Current_Time());
+				button_state = BUTTON_PRESSED;
+				Sys__Delay(100);
+			}
+		break;
 
-	if((CONFIG_RESET_SEC * 10) == config_reset_debounce_counter){
-		//Erase configuration flag from NVM
-		NVM__EraseAll();
-		unlink(MODEL_FILE);
-		PRINTF_DEBUG("CONFIG RESET CHECK DONE = %d\n",config_reset_debounce_counter);
-		return C_TRUE;
-	}
-    #endif
-    #endif
+		case BUTTON_PRESSED:
+			CurrentTime = RTC_Get_UTC_Current_Time();
+			if (gpio_get_level(Get_Button_Pin()) == 1){  //released
+				if ( (CurrentTime - TimerForButton) >= 0 && (CurrentTime - TimerForButton) <= 5) {
+					PRINTF_DEBUG_SYS("button released after %d, before 5 seconds\n", CurrentTime - TimerForButton);
+					TimerForButton = 0;
+					button_state = BUTTON_WAIT;
+					return;
+				}
+				else if ( (CurrentTime - TimerForButton) > 5 && (CurrentTime - TimerForButton) <= 10) {
+					// do a reboot
+					PRINTF_DEBUG_SYS("button released after %d, between 5 and 10 seconds\n", CurrentTime - TimerForButton);
+					GME__Reboot();
+				}
+			}
+			if ( (CurrentTime - TimerForButton) > 10) {
+				PRINTF_DEBUG_SYS("button not released after %d, 10 seconds\n", CurrentTime - TimerForButton);
+				button_state = BUTTON_SLOWBLINK;
+			}
+		break;
 
-	return C_FALSE;
+		case BUTTON_SLOWBLINK:
+			//led status blink slow
+			PRINTF_DEBUG_SYS("start led blinking slowly\n");
+			Update_Led_Status(LED_STAT_FACT_DEF_A, LED_STAT_ON);
+			TimerForButton = RTC_Get_UTC_Current_Time();
+			button_state = BUTTON_WAITRELEASE;
+		break;
+
+		case BUTTON_WAITRELEASE:
+			CurrentTime = RTC_Get_UTC_Current_Time();
+			if ( (CurrentTime - TimerForButton) > 10 ) {
+				if (gpio_get_level(Get_Button_Pin()) == 1) { //released
+					PRINTF_DEBUG_SYS("button released after %d, between 0 and 5 seconds\n", CurrentTime - TimerForButton);
+					TimerForButton = CurrentTime;
+					button_state = BUTTON_FASTBLINK;
+				}
+				else {
+					PRINTF_DEBUG_SYS("factory setting procedure aborted\n");
+					Update_Led_Status(LED_STAT_FACT_DEF_A, LED_STAT_OFF);
+					button_state = BUTTON_WAIT;
+				}
+			}
+		break;
+
+		case BUTTON_FASTBLINK:
+			//led status blink fast
+			PRINTF_DEBUG_SYS("start led blinking fast\n");
+			Update_Led_Status(LED_STAT_FACT_DEF_A, LED_STAT_OFF);
+			Update_Led_Status(LED_STAT_FACT_DEF_B, LED_STAT_ON);
+			TimerForButton = RTC_Get_UTC_Current_Time();
+			button_state = BUTTON_WAITFACTORY;
+		break;
+
+		case BUTTON_WAITFACTORY:
+			CurrentTime = RTC_Get_UTC_Current_Time();
+			if ( (CurrentTime - TimerForButton) >= 0 && (CurrentTime - TimerForButton) <= 5) {
+				if (gpio_get_level(Get_Button_Pin()) == 0){  //pressed
+					PRINTF_DEBUG_SYS("button pressed again after %d, between 0 and 5 seconds: go FACTORY\n", CurrentTime - TimerForButton);
+
+					// do fact setting
+					while(STOPPED != PollEngine_GetPollingStatus_CAREL())
+						Sys__Delay(100);
+					PollEngine_StopEngine_CAREL();
+
+					NVM__EraseAll();
+					unlink(MODEL_FILE);
+					PRINTF_DEBUG_SYS("Rebooting after factory setting\n");
+					GME__Reboot();
+				}
+			}
+			else {
+				PRINTF_DEBUG_SYS("factory setting procedure aborted\n");
+				button_state = BUTTON_WAIT;
+				Update_Led_Status(LED_STAT_FACT_DEF_B, LED_STAT_OFF);
+			}
+			break;
+		}
+	#endif
+
+	return;
 }
 
 
@@ -124,8 +198,8 @@ C_BOOL Sys__FirmwareFactoryReset(void){
 	if ((FACTORY_RESET_SEC * 10) == factory_reset_debounce_counter){
 		//Point boot partition on /factory part.
 		Sys__SetFactoryBootPartition();
-		printf("GME FACTORY RESET done\n");
-		PRINTF_DEBUG("FIRMWARE RESET CHECK DONE = %d\n",factory_reset_debounce_counter);
+		PRINTF_DEBUG_SYS("GME FACTORY RESET done\n");
+		PRINTF_DEBUG_SYS("FIRMWARE RESET CHECK DONE = %d\n",factory_reset_debounce_counter);
 		return C_TRUE;
 	}
 

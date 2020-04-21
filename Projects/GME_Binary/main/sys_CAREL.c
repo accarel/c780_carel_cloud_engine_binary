@@ -8,6 +8,7 @@
  
 #include "data_types_CAREL.h" 
 #include "sys_CAREL.h"
+#include "sys_IS.h"
 #include "File_System_CAREL.h"
 #include "common.h"
 #include "cmd_custom.h"
@@ -30,13 +31,13 @@ static char certificates[CERT_MAX_NUMBRER][CERT_MAX_SIZE] = {0};
 C_RES Sys__Init (void)						 
 {
     if (C_SUCCESS != NVM_Init()){
-    	printf("NVS PROBLEM\n");
+    	PRINTF_DEBUG_SYS("NVS PROBLEM\n");
         return C_FAIL;
         }
 
 
     if (C_SUCCESS != File_System_Init()){
-    	printf("SPIFFS PROBLEM\n");
+    	PRINTF_DEBUG_SYS("SPIFFS PROBLEM\n");
         return C_FAIL;
     }
 
