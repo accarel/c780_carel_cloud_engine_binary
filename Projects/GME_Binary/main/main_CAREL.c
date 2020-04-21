@@ -69,6 +69,8 @@ void app_main(void)  // main_Carel
   Configure_IO_Check_HW_Platform_IS();
   Sys__Delay(50); //just to stabilize the I/O
   hw_platform_detected = Check_HW_Platform_IS();
+  Init_Button_Pin();
+
   Set_Gateway_ID();
 
   Led_Task_Start();
@@ -369,7 +371,7 @@ void Carel_Main_Task(void)
           }
 
           //Check reboot/factory reset button
-          if (PLATFORM(PLATFORM_DETECTED_2G) || PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT))
+          if (Get_Button_Pin() >= 0)
               Sys__ResetCheck();
 
       }
