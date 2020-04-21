@@ -12,14 +12,6 @@
 
 #include"gme_config.h"
 
-
-#if DEEP_DEBUG_PRINTF_DEFAULT == 1
-	#define	PRINTF_DEBUG	printf
-#else
-	#define	PRINTF_DEBUG(...)
-#endif
-
-
 typedef enum _gme_sm{
 	GME_INIT = 0,
 	GME_CHECK_FILES,

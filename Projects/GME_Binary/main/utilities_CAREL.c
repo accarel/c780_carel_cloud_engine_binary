@@ -29,7 +29,11 @@ void Utilities__CalcMACAddr(void){
 		  sprintf(temp, "%02X", wifi_mac_address_gw[i]);
 		  strcat(wifi_mac_address_gw_str,temp);
 		}
+
+        #ifdef __DEBUG_UTILITIES_CAREL_LEV_2
 		printf("\nmac_address = %s\n\n", wifi_mac_address_gw_str);
+        #endif
+
 	}
 }
 

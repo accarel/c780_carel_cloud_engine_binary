@@ -55,40 +55,45 @@ C_RES FS_CheckFiles(void){
     struct stat file_stat;
     C_RES err1, err2;
 
-    if (stat(CERT1_SPIFFS, &file_stat) == -1){
-    		printf("Cert1 in %s is not found\n", CERT1_SPIFFS);
-    		err1 = C_FAIL;
-		}else{
-			fsize = (int)filesize(CERT1_SPIFFS);
-			printf("Cert1 found in %s, size: %d \r\n", CERT1_SPIFFS, fsize);
-			err1 = C_SUCCESS;
-		}
+    if (stat(CERT1_SPIFFS, &file_stat) == -1)
+    {
+      PRINTF_DEBUG("Cert1 in %s is not found\n", CERT1_SPIFFS);
+      err1 = C_FAIL;
+	}
+    else
+    {
+	  fsize = (int)filesize(CERT1_SPIFFS);
+	  PRINTF_DEBUG("Cert1 found in %s, size: %d \r\n", CERT1_SPIFFS, fsize);
+	  err1 = C_SUCCESS;
+	}
 
-    if (stat(CERT2_SPIFFS, &file_stat) == -1){
-        	printf("Cert2 in %s is not found\n", CERT2_SPIFFS);
-        }else{
-        	err2 = C_FAIL;
-        	fsize = (int)filesize(CERT2_SPIFFS);
-        	printf("Cert2 found in %s, size: %d \r\n", CERT2_SPIFFS, fsize);
-        	err2 = C_SUCCESS;
-        }
+    if (stat(CERT2_SPIFFS, &file_stat) == -1)
+    {
+      PRINTF_DEBUG("Cert2 in %s is not found\n", CERT2_SPIFFS);
+    }else
+    {
+      err2 = C_FAIL;
+      fsize = (int)filesize(CERT2_SPIFFS);
+      PRINTF_DEBUG("Cert2 found in %s, size: %d \r\n", CERT2_SPIFFS, fsize);
+      err2 = C_SUCCESS;
+    }
 // check on model file sould be removed... no result is gathered
     if (stat(MODEL_FILE, &file_stat) == -1){
-        	printf("Model File in %s is not found\n", MODEL_FILE);
-        }else{
-        	fsize = (int)filesize(MODEL_FILE);
-        	printf("Model File found in %s, size: %d \r\n", MODEL_FILE, fsize);
-        }
+      PRINTF_DEBUG("Model File in %s is not found\n", MODEL_FILE);
+    }else{
+      fsize = (int)filesize(MODEL_FILE);
+      PRINTF_DEBUG("Model File found in %s, size: %d \r\n", MODEL_FILE, fsize);
+      }
 
    long lung;
 	lung = filesize(CFG_DEF);
 
-	printf("lunghezza file dati %d \r\n", (int)lung);
+	PRINTF_DEBUG("lunghezza file dati %d \r\n", (int)lung);
 
 	// check if data default files is present
 	if (stat(CFG_DEF, &file_stat) == -1){
 
-		printf("Data File in %s is not found\n", CFG_DEF);
+		PRINTF_DEBUG("Data File in %s is not found\n", CFG_DEF);
 
 	}else{
 		fsize = (int)filesize(CFG_DEF);
@@ -96,12 +101,12 @@ C_RES FS_CheckFiles(void){
 		// reading from file system the data configuration	(non-changeble)
 		FS_GetCfgData(FILE_CFG_DEF);
 
-		printf("Data File found in %s, size: %d \r\n", CFG_DEF, fsize);
+		PRINTF_DEBUG("Data File found in %s, size: %d \r\n", CFG_DEF, fsize);
 	}
 
 	if (stat(CFG_USR, &file_stat) == -1){
 
-		printf("Data usr File in %s is not found\n", CFG_USR);
+		PRINTF_DEBUG("Data usr File in %s is not found\n", CFG_USR);
 
 	}else{
 		fsize = (int)filesize(CFG_USR);
@@ -109,7 +114,7 @@ C_RES FS_CheckFiles(void){
 
 		FS_GetCfgData(FILE_CFG_USR);
 
-		printf("Data usr File found in %s, size: %d \r\n", CFG_USR, fsize);
+		PRINTF_DEBUG("Data usr File found in %s, size: %d \r\n", CFG_USR, fsize);
 	}
 
 
@@ -130,59 +135,59 @@ void FS_DisplayFiles(void){
     struct stat file_stat;
 
     if (stat(CERT1_SPIFFS, &file_stat) == -1){
-		printf("%s is not found\n",CERT1_SPIFFS);
+    	PRINTF_DEBUG("%s is not found\n",CERT1_SPIFFS);
 	}else{
 		fsize = (int)filesize(CERT1_SPIFFS);
-		printf("%s %d \r\n ", CERT1_SPIFFS, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", CERT1_SPIFFS, fsize);
 	}
 
     if (stat(CERT1_SPIFFS, &file_stat) == -1){
-		printf("%s is not found\n",CERT1_SPIFFS);
+		PRINTF_DEBUG("%s is not found\n",CERT1_SPIFFS);
 	}else{
 		fsize = (int)filesize(CERT2_SPIFFS);
-		printf("%s %d \r\n ", CERT2_SPIFFS, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", CERT2_SPIFFS, fsize);
 	}
 
     if (stat(MODEL_FILE, &file_stat) == -1){
-		printf("%s is not found\n",MODEL_FILE);
+		PRINTF_DEBUG("%s is not found\n",MODEL_FILE);
 	}else{
 		fsize = (int)filesize(MODEL_FILE);
-		printf("%s %d \r\n ", MODEL_FILE, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", MODEL_FILE, fsize);
 	}
 
     if (stat(LOGIN_HTML, &file_stat) == -1){
-		printf("%s is not found\n",LOGIN_HTML);
+		PRINTF_DEBUG("%s is not found\n",LOGIN_HTML);
 	}else{
 		fsize = (int)filesize(LOGIN_HTML);
-		printf("%s %d \r\n ", LOGIN_HTML, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", LOGIN_HTML, fsize);
 	}
 
     if (stat(CHANGE_CRED_HTML, &file_stat) == -1){
-		printf("%s is not found\n",CHANGE_CRED_HTML);
+		PRINTF_DEBUG("%s is not found\n",CHANGE_CRED_HTML);
 	}else{
 		fsize = (int)filesize(CHANGE_CRED_HTML);
-		printf("%s %d \r\n ", CHANGE_CRED_HTML, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", CHANGE_CRED_HTML, fsize);
 	}
 
     if (stat(CONFIG_HTML, &file_stat) == -1){
-		printf("%s is not found\n",CONFIG_HTML);
+		PRINTF_DEBUG("%s is not found\n",CONFIG_HTML);
 	}else{
 		fsize = (int)filesize(CONFIG_HTML);
-		printf("%s %d \r\n ", CONFIG_HTML, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", CONFIG_HTML, fsize);
 	}
 
     if (stat(STYLE_CSS, &file_stat) == -1){
-		printf("%s is not found\n",STYLE_CSS);
+		PRINTF_DEBUG("%s is not found\n",STYLE_CSS);
 	}else{
 		fsize = (int)filesize(STYLE_CSS);
-		printf("%s %d \r\n ", STYLE_CSS, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", STYLE_CSS, fsize);
 	}
 
     if (stat(FAV_ICON, &file_stat) == -1){
-		printf("%s is not found\n",FAV_ICON);
+		PRINTF_DEBUG("%s is not found\n",FAV_ICON);
 	}else{
 		fsize = (int)filesize(FAV_ICON);
-		printf("%s %d \r\n ", FAV_ICON, fsize);
+		PRINTF_DEBUG("%s %d \r\n ", FAV_ICON, fsize);
 	}
 }
 
@@ -193,17 +198,17 @@ long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 		long size;
 		//void* data = NULL;
 
-		printf("Reading from SPIFFS : %s\n",filename);
+		PRINTF_DEBUG("Reading from SPIFFS : %s\n",filename);
 
 		input_file_ptr = fopen(filename, "rb");
 
 		if (input_file_ptr == NULL)
 		{
-			printf("Unable to open file! \n");
+			PRINTF_DEBUG("Unable to open file! \n");
 			return NULL;
 		}
 
-		printf("Read File %s ok \n", filename);
+		PRINTF_DEBUG("Read File %s ok \n", filename);
 
 		//calculation model dimension
 
@@ -214,12 +219,12 @@ long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 		//point the file position at the beginning of the file
 		rewind(input_file_ptr);
 
-		printf("Size of file %s Ok: %ld \n", filename, size);
+		PRINTF_DEBUG("Size of file %s Ok: %ld \n", filename, size);
 
 		sz_read = fread(file_ptr, sizeof(uint8_t), size, input_file_ptr);  // double
 		file_ptr[size+1]=0;
 		if(sz_read != size)
-			printf("Read ERROR!!!! \n");
+			PRINTF_DEBUG("Read ERROR!!!! \n");
 
 		// close streaming
 		fclose(input_file_ptr);
@@ -235,10 +240,10 @@ C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filena
 
 		file = fopen(filename, "w");
 		if(NULL == file){
-			printf("%s - File not found\n",filename);
+			PRINTF_DEBUG("%s - File not found\n",filename);
 			return C_FAIL;
 		}else{
-			printf("%s - File found\n",filename);
+			PRINTF_DEBUG("%s - File found\n",filename);
 			fwrite(file_to_save , 1 , file_size , file );
 			fclose(file);
 			return C_SUCCESS;

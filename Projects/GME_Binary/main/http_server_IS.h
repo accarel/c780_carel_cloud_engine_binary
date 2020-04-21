@@ -27,7 +27,7 @@ struct file_server_data {
     char scratch[SCRATCH_BUFSIZE];
 };
 
-static C_RES set_content_type_from_file(httpd_req_t *req, const char *filename);
+
 C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path);
 C_RES HTTPServer__StopServer(httpd_handle_t server);
 void SetConfigReceived(void);

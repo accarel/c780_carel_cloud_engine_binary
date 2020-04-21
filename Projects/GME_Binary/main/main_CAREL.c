@@ -49,9 +49,13 @@
 
 
 
-
-
+#ifdef __DEBUG_MAIN_CAREL_LEV_2
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
+#else
+#define CAREL_CHECK(...)
+#endif
+
+
 
 #define MODBUS_PORT_SELECT(x, port)           (x == 1 ? (port = MB_PORTNUM_485) : (port = MB_PORTNUM_TTL))
 /* Functions implementation -------------------------------------------------------*/
@@ -121,9 +125,9 @@ void Carel_Main_Task(void)
 			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
 
-			  //printf("Version V45 \n");
-			  //printf("Version V46 \n");
-			  printf("Version V47 \n");
+			  PRINTF_DEBUG("Version V47 \n");
+
+
 			  if(retval != C_SUCCESS){
 				  sm = GME_REBOOT;
 			  }else{
@@ -163,7 +167,7 @@ void Carel_Main_Task(void)
 
 					}else{
 						sm = GME_CHECK_FILES;
-						printf("Please be sure that the certificates are uploaded correctly under the following paths:\nCert1: %s\nCert2: %s\n\n",CERT1_SPIFFS,CERT2_SPIFFS);
+						PRINTF_DEBUG("Please be sure that the certificates are uploaded correctly under the following paths:\nCert1: %s\nCert2: %s\n\n",CERT1_SPIFFS,CERT2_SPIFFS);
 					}
 
 					test3 = 1;
@@ -175,7 +179,7 @@ void Carel_Main_Task(void)
 	        //Start and configure Radio interface
 			case GME_RADIO_CONFIG:
 			{
-				printf("SM__Start .... GME_RADIO_CONFIG\n");
+				PRINTF_DEBUG("SM__Start .... GME_RADIO_CONFIG\n");
 				uint8_t config_status;
 
 				config_status = Radio__Config();
@@ -193,7 +197,7 @@ void Carel_Main_Task(void)
 	        case GME_WAITING_FOR_INTERNET:
 	        {
 				if(CONNECTED == Radio__GetStatus()){
-					printf("SM__Start .... GME_WAITING_FOR_INTERNET\n");
+					PRINTF_DEBUG("SM__Start .... GME_WAITING_FOR_INTERNET\n");
 					sm = GME_STRAT_NTC;
 				}
 				GME__CheckHTMLConfig();
@@ -206,7 +210,7 @@ void Carel_Main_Task(void)
 		  {
 			//Start all modules, mqtt client, https client, modbus master, ..etc
 			if(false == once){
-				printf("Radio__Config .... GME_STRAT_MQTT_NTC\n");
+				PRINTF_DEBUG("Radio__Config .... GME_STRAT_MQTT_NTC\n");
 				once = true;
 			}
 
@@ -233,11 +237,20 @@ void Carel_Main_Task(void)
 		  case GME_CHECK_GW_CONFIG:
 		  {
 			//Look for model's file, GW config and Line config
-			printf("Radio__Config .... GME_CHECK_GW_CONFIG\n");
+            PRINTF_DEBUG("Radio__Config .... GME_CHECK_GW_CONFIG\n");
 
 			NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status);
 			NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
 			NVM__ReadU8Value(SET_DEVS_CONFIG_NVM, &devs_config_status);
+
+
+            #ifdef CHINESE_HW_TEST
+			/* this row force the device to be active immediately without a
+			 * remote configuration */
+			gw_config_status = CONFIGURED;
+			line_config_status = CONFIGURED;
+			devs_config_status = CONFIGURED;
+            #endif
 
 			if(( CONFIGURED == gw_config_status &&
 				 CONFIGURED == line_config_status &&
@@ -245,7 +258,7 @@ void Carel_Main_Task(void)
 			{
 				sm = GME_SYSTEM_PREPARATION;
 			}else{
-				printf("gw_config_status = %d \nline_config_status= %d \ndevs_config_status = %d\n", gw_config_status, line_config_status, devs_config_status);
+                PRINTF_DEBUG("gw_config_status = %d \nline_config_status= %d \ndevs_config_status = %d\n", gw_config_status, line_config_status, devs_config_status);
 				sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
 			}
 
@@ -306,6 +319,11 @@ void Carel_Main_Task(void)
           	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBaudrate);		// read the baudrate from nvm
           	    NVM__ReadU8Value(MB_CONNECTOR_NVM, &NVMConnector);		// read the which uart use (for rs485 or ttl) from nvm
 
+
+                #ifdef CHINESE_HW_TEST
+          	    NVMConnector = 0;  //force MB_PORTNUM_TTL
+                #endif
+
           	    MODBUS_PORT_SELECT(NVMConnector, modbusPort);
 
           	    retval = Modbus_Init(NVMBaudrate, GME__GetHEaderInfo()->Rs485Parity, GME__GetHEaderInfo()->Rs485Stop, modbusPort);
@@ -365,7 +383,7 @@ void Carel_Main_Task(void)
 //If we received a new WiFi configuration during system running (Re-Configure)
 void GME__CheckHTMLConfig(void){
 	if(IsConfigReceived() || IsWpsMode()){
-		printf("IsConfigReceived\n");
+		PRINTF_DEBUG("IsConfigReceived\n");
 		sm = GME_RADIO_CONFIG; //GME_WIFI_CONFIG;
 		WiFi_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
 	}
@@ -374,10 +392,11 @@ void GME__CheckHTMLConfig(void){
 void GME__Reboot(void){
 	for(int i=5; i>0; i--)
 	{
-		printf("Rebooting after %d sec ...\n",i);
+		PRINTF_DEBUG("Rebooting after %d sec ...\n",i);
 		Sys__Delay(1000);
 	}
-	printf("Rebooting now ...\n");
+
+	PRINTF_DEBUG("Rebooting now ...\n");
 	fflush(stdout);
 	GME_Reboot_IS();
 }

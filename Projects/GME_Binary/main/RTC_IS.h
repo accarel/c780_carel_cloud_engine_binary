@@ -16,10 +16,29 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "CAREL_GLOBAL_DEF.h"
 #include "data_types_IS.h"
 #include "data_types_CAREL.h"
    
-   
+
+ /* ========================================================================== */
+ /* typedefs and defines                                                       */
+ /* ========================================================================== */
+ #ifdef __CCL_DEBUG_MODE
+
+ //this define enable the output of the communications errors
+ #define __DEBUG_RTC_IS_LEV_1
+
+ //this define enable the output of others debug informations
+ #define __DEBUG_RTC_IS_LEV_2
+
+ #endif
+
+
+
+
+
+
 /* Exported types ------------------------------------------------------------*/ 
 
 

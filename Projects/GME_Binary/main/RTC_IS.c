@@ -7,7 +7,6 @@
  */
 #include "RTC_IS.h"
 #include <sys/time.h>
-#include "CAREL_GLOBAL_DEF.h"
 #include "data_types_IS.h"
 #include "sntp.h"
 
@@ -38,7 +37,9 @@ C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
 { /* TO BE Implemented */
 
   #ifdef INCLUDE_PLATFORM_DEPENDENT  
+  #ifdef __DEBUG_RTC_IS_LEV_2
   printf("Initializing SNTP, server: %s, port: %d\n", ntp_server, ntp_port);
+  #endif
   sntp_stop();
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
   sntp_setservername(0, ntp_server);
@@ -66,7 +67,9 @@ C_RES RTC_Sync(void)
 	sntp_sync_status_t stat = sntp_get_sync_status();
 
 	while (stat == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
+        #ifdef __DEBUG_RTC_IS_LEV_2
 		printf("Waiting for system time to be set... (%d/%d)\n", retry, retry_count);
+        #endif
 		vTaskDelay(2000 / portTICK_PERIOD_MS);
 		stat = sntp_get_sync_status();
 	}
@@ -74,7 +77,9 @@ C_RES RTC_Sync(void)
 	localtime_r(&now, &timeinfo);
 
 	if(stat == SNTP_SYNC_STATUS_COMPLETED) {
+        #ifdef __DEBUG_RTC_IS_LEV_2
 		printf("got time: year:%d, month:%d, day:%d, hour:%d. minute:%d\n", timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+        #endif
 		return C_SUCCESS;
 	}
 	else return C_FAIL;

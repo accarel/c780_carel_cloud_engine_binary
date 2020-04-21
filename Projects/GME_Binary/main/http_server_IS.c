@@ -15,6 +15,8 @@ static C_BYTE ReceivedConfig = 0;
 static C_BYTE WpsMode = 0;
 static html_pages LastPageSent = 0;
 
+static C_RES set_content_type_from_file(httpd_req_t *req, const char *filename);
+
 // Handler to respond with file requested.
 static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 {

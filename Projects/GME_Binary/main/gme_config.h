@@ -23,12 +23,16 @@
 /*------------------------------
  * DEBUGGING DATA
  *-----------------------------*/
+//TODO BILATO da ristrutturare
 #define POLL_ENGINE_PRINTF_DEFAULT 	ENABLED
+
+#ifdef __CCL_DEBUG_MODE
+//TODO BILATO da ristrutturare
 #define MQTT_JSON_PRINTF_DEFAULT 	ENABLED
 #define HTTP_SERVER_DEBUG 			ENABLED
 #define NVM_DEBUG 					DISABLED
 #define DEEP_DEBUG_PRINTF_DEFAULT 	ENABLED
-
+#endif
 
 
 /*-------------------------------

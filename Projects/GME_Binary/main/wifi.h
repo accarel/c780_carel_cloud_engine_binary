@@ -27,7 +27,7 @@
 #ifdef __CCL_DEBUG_MODE
 
  //this define enable the output of the errors
-#define __DEBUG_WIFI_LEV_1
+//#define __DEBUG_WIFI_LEV_1
 
 //this define enable the output of others debug informations
 //#define __DEBUG_WIFI_LEV_2

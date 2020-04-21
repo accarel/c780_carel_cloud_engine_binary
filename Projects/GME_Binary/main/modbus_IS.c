@@ -78,20 +78,20 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)  /
      if(port == MB_PORTNUM_485)
      {
    	    err = uart_set_pin(port, ECHO_TEST_TXD, ECHO_TEST_RXD, ECHO_TEST_RTS, -1);   // MB_PORTNUM
-   	    //printf("\n\r");
-   	    //printf("RS485 selected\n");
-   	    //printf("\n\r");
+   	    //PRINTF_DEBUG("\n\r");
+   	    //PRINTF_DEBUG("RS485 selected\n");
+   	    //PRINTF_DEBUG("\n\r");
      }
    	 else
    	 {
     	err = uart_set_pin(port, TTL_TXD, TTL_RXD, TTL_RTS, -1);   					// MB_PORTNUM
-    	//printf("\n\r");
-    	//printf("TTL selected\n");
-    	//printf("\n\r");
+    	//PRINTF_DEBUG("\n\r");
+    	//PRINTF_DEBUG("TTL selected\n");
+    	//PRINTF_DEBUG("\n\r");
    	 }
 
    	 if(err != 0)
-   	   printf("Setting UART pin fail\n");
+   	   PRINTF_DEBUG("Setting UART pin fail\n");
 
 	 eStatus = eMBMasterInit(MB_RTU, port, baud, mParity);
 	 Sys__Delay(50);
@@ -110,12 +110,12 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)  /
     		return C_SUCCESS;
     	}
     	else{
-    		printf("MODBUS initialize fail\n");
+    		PRINTF_DEBUG("MODBUS initialize fail\n");
     		return C_FAIL;
     	}
      }
      else{
-		 printf("MODBUS initialize fail\n");
+		 PRINTF_DEBUG("MODBUS initialize fail\n");
 		 return C_FAIL;
      }
 
@@ -374,7 +374,7 @@ void Modbus__ReadDelayFromNVM(void){
 	    MB_Delay = delay;
 	else
 	    MB_Delay = 0;
-	printf("MB_Delay %d\n", MB_Delay);
+	PRINTF_DEBUG("MB_Delay %d\n", MB_Delay);
 }
 
 C_UINT16 Modbus__GetAddress(void){

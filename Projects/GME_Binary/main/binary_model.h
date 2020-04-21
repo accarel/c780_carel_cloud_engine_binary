@@ -3,20 +3,35 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
-
-#include "types.h"
+#include "CAREL_GLOBAL_DEF.h"
 #include <stdint.h>
+#include "types.h"
 #include "common.h"
 #include "data_types_CAREL.h"
+
+/* ========================================================================== */
+/* typedefs and defines                                                       */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+//this define enable the output of the communications errors
+#define __DEBUG_BINARY_MODEL_LEV_1
+
+//this define enable the output of others debug informations
+#define __DEBUG_BINARY_MODEL_LEV_2
+
+#endif
 
 
 #define GME_MODEL			"GME_MBT\x0"
 #define HEADER_VERSION 		256
 #define GME_MODEL_MAX_SIZE	2048
 
-#define __DEBUG_BYNARY_MODEL
-#ifdef __DEBUG_BYNARY_MODEL
+
+#if __DEBUG_BINARY_MODEL_LEV_1
 #define DEBUG_BINARY_MODEL(a) printf("%s: %s\n", __func__, a);
+#else
+#define	DEBUG_BINARY_MODEL(...)
 #endif
 
 

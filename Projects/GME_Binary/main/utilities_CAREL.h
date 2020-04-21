@@ -8,8 +8,25 @@
 #ifndef MAIN_UTILITIES_H_
 #define MAIN_UTILITIES_H_
 
+#include "CAREL_GLOBAL_DEF.h"
 #include "common.h"
 #include "MQTT_Interface_CAREL.h"
+
+/* ========================================================================== */
+/* typedefs and defines                                                       */
+/* ========================================================================== */
+#ifdef __CCL_DEBUG_MODE
+
+//this define enable the output of the communications errors
+//#define __DEBUG_UTILITIES_CAREL_LEV_1
+
+//this define enable the output of others debug informations
+#define __DEBUG_UTILITIES_CAREL_LEV_2
+
+#endif
+
+
+
 
 size_t getFilesize(const char* filename);
 void Utilities__CalcMACAddr(void);
