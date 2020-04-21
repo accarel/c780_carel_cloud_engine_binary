@@ -14,6 +14,7 @@
 #include "sys_IS.h"
 #include "esp_wps.h"
 #include "lwip/inet.h"
+#include "IO_Port_IS.h"
 
 static const char *TAG = "wifi";
 
@@ -428,12 +429,10 @@ gme_sm_t WiFi__Config (config_sm_t sm)
             break;
         }
 
-        //If the factory reset button has been pressed for X time (look gme_config.h)
-        if(true == Sys__ResetCheck())
-        {
-        	PRINTF_DEBUG("RESET CHECK DONE SYS\n");
-        	return GME_REBOOT;
-        }
+        //Check reboot/factory reset button
+        if (Get_Button_Pin() >= 0)
+            Sys__ResetCheck();
+
     }
 }
 
