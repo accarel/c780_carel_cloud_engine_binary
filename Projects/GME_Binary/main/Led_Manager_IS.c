@@ -949,7 +949,6 @@ void Led_init_esp_wrover_kit(void)
 }
 
 void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
-#ifdef __USE_ESP_WROVER_KIT
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -1029,11 +1028,9 @@ void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
             break;
 	}
     red_led_current_status = status;
-#endif
 }
 
 void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
-#ifdef __USE_ESP_WROVER_KIT
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
 
@@ -1120,13 +1117,9 @@ void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
 	}
 
     green_led_current_status = status;
-#endif
 }
 
 void Led_Status_Update_Blu_esp_wrover_kit(Led_Show_Status_t status){
-
-#ifdef __USE_ESP_WROVER_KIT
-
 	  static Led_Show_Status_t blink_status = LED_OFF;
 	  static C_INT32 blink_timer = 0;
 
@@ -1207,12 +1200,10 @@ void Led_Status_Update_Blu_esp_wrover_kit(Led_Show_Status_t status){
 		}
 
 	    blu_led_current_status = status;
-#endif
 	}
 
 void Update_Led_Model_Cfg_esp_wrover_kit(C_BYTE model_cfg_status)
 {
-#ifdef __USE_ESP_WROVER_KIT
 /*
                          RED
 Model configured         ON
@@ -1226,12 +1217,10 @@ Model configured         ON
   {
 	 Led_Status_Update_Red_esp_wrover_kit(LED_OFF);
   }
-#endif
 }
 
 void Update_Led_MQTT_Conn_esp_wrover_kit(C_BYTE mqtt_conn_status)
 {
-#ifdef __USE_ESP_WROVER_KIT
 /*
                         GREEN
 MQTT connected          ON
@@ -1244,12 +1233,10 @@ MQTT connected          ON
 	{
       Led_Status_Update_Green_esp_wrover_kit(LED_OFF);
 	}
-#endif
 }
 
 void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
 {
-#ifdef __USE_ESP_WROVER_KIT
 /*
  right now for the WiFi model there isn't any RS485
  activity indicator, so do nothing
@@ -1262,12 +1249,10 @@ void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
   {
 	  Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
   }
-#endif
 }
 
 void Update_Led_Fact_Def_A_esp_wrover_kit(C_BYTE fact_def_a_status)
 {
-#ifdef __USE_ESP_WROVER_KIT
 	if (fact_def_a_status == 1)
 	{
 		Led_Status_Update_Red_esp_wrover_kit(LED_BLINK_SLOW);
@@ -1276,12 +1261,10 @@ void Update_Led_Fact_Def_A_esp_wrover_kit(C_BYTE fact_def_a_status)
 	{
 		Led_Status_Update_Red_esp_wrover_kit(red_led_current_status);
 	}
-#endif
 }
 
 void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
 {
-#ifdef __USE_ESP_WROVER_KIT
 	if (fact_def_b_status == 1)
 	{
 		Led_Status_Update_Red_esp_wrover_kit(LED_BLINK_FAST);
@@ -1290,11 +1273,9 @@ void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
 	{
 		Led_Status_Update_Red_esp_wrover_kit(red_led_current_status);
 	}
-#endif
 }
 
 void Do_Led_Test_Routine_esp_wrover_kit(void){
-#ifdef 	__USE_ESP_WROVER_KIT
 	C_BYTE count;
 
 	for (count=0; count < 3; count++)
@@ -1314,7 +1295,6 @@ void Do_Led_Test_Routine_esp_wrover_kit(void){
 	Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
 	Sys__Delay(LED_TEST_DELAY);
 	}
-#endif
 }
 
 
@@ -1324,7 +1304,6 @@ void Do_Led_Test_Routine_esp_wrover_kit(void){
 
 
 
-//#ifdef __USE_USR_WIFI_HW
 /**
  * @brief Led_init
  *        Initialize the I/O pin related to the leds for a specific platform
