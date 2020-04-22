@@ -31,24 +31,6 @@
 /* ========================================================================== */
 #define HW_PLATFORM_DETECT_PIN GPIO_NUM_34
 
-
-/*------------------------------
- * RESET DATA
- *-----------------------------*/
-#ifdef  CONFIG_RESET_BUTTON_EXIST
-//Reset Buttons
-#define CONFIG_RESET_BUTTON		GPIO_NUM_0
-//Time to keep Reset buttonS pressed to execute a config reset
-#define CONFIG_RESET_SEC		(10)	//Write the value in seconds
-#endif
-
-#ifdef FACTORY_RESET_BUTTON_EXIST
-//Return to Factory Preset button
-#define FACTORY_RESET_BUTTON	GPIO_NUM_0
-//Time to keep Reset buttonS pressed to execute a factory reset
-#define FACTORY_RESET_SEC		(30)	//Write the value in seconds
-#endif
-
 /* ========================================================================== */
 /* bCU only related I/O                                                       */
 /* ========================================================================== */
@@ -59,7 +41,6 @@
 #endif
 
 #define LED_GREEN_BCU     GPIO_NUM_27
-
 
 /* ========================================================================== */
 /* WiFi only related I/O                                                      */
