@@ -2059,7 +2059,7 @@ C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
     #endif
 
 	err = HttpsClient__UpdateCertificate(update_ca_cert);
-	if(CONN_FAIL == err)
+	if(CONN_OK != err)
 		return C_FAIL;
 
     #ifdef __DEBUG_CBOR_CAREL_LEV_1
