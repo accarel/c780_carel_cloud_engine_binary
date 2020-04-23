@@ -110,7 +110,6 @@ typedef struct req_update_dev_fw_s{
 C_RES MQTT_Subscribe_Default_Topics(void);
 C_RES MQTT_Start(void);
 void MQTT_Stop(void);
-void MQTT_Status(void);
 void MQTT_Values(void);
 void MQTT_Alarms(c_cboralarms alarms);
 void MQTT_PeriodicTasks(void);

@@ -34,7 +34,7 @@ const int MQTT_DISCONNECTED_BIT = BIT1;
 
 static C_BYTE mqtt_init = 0;
 static C_MQTT_TOPIC mqtt_topic;
-static uint32_t mqtt_status_time;
+static uint32_t mqtt_periodic_time;
 static EventBits_t MQTT_BITS;
 
 /**
@@ -213,18 +213,6 @@ void MQTT_FlushValues(void){
 	}
 }
 
-void MQTT_Status(void)
-{
-	if(RTC_Get_UTC_Current_Time() > (mqtt_status_time + Utilities__GetGWConfigData()->statusPeriod))
-	{
-        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-		PRINTF_DEBUG("Sending STATUS CBOR \n\n");
-        #endif
-		CBOR_SendStatus();
-		mqtt_status_time = RTC_Get_UTC_Current_Time();
-	}
-}
-
 void MQTT_Alarms(c_cboralarms alarms)
 {
 	CBOR_SendAlarms(alarms);
@@ -232,7 +220,24 @@ void MQTT_Alarms(c_cboralarms alarms)
 
 void MQTT_PeriodicTasks(void)
 {
-	MQTT_Status();
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU)) {
+		if(RTC_Get_UTC_Current_Time() > (mqtt_periodic_time + Utilities__GetGWConfigData()->statusPeriod)) {
+			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+			printf("Sending STATUS CBOR \n\n");
+			#endif
+			CBOR_SendStatus();
+			mqtt_periodic_time = RTC_Get_UTC_Current_Time();
+		}
+	}
+	else if(PLATFORM(PLATFORM_DETECTED_2G)) {
+		if(RTC_Get_UTC_Current_Time() > (mqtt_periodic_time + GW_MOBILE_TIME)) {
+			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+			printf("Sending MOBILE CBOR \n\n");
+			#endif
+			CBOR_SendMobile();
+			mqtt_periodic_time = RTC_Get_UTC_Current_Time();
+		}
+	}
 }
 
 C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
@@ -294,9 +299,9 @@ C_RES EventHandler(mqtt_event_handle_t event)
             	Update_Led_Status(LED_STAT_MQTT_CONN, LED_STAT_ON);
 
 				CBOR_SendHello();
-				MQTT_Status();
+				MQTT_PeriodicTasks();
 				mqtt_init = 1;
-				mqtt_status_time = RTC_Get_UTC_Current_Time();
+				mqtt_periodic_time = RTC_Get_UTC_Current_Time();
 			}
 
         	break;

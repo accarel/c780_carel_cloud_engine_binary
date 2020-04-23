@@ -254,6 +254,7 @@ void CBOR_SendStatus(void);
 size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16 frame);
 void CBOR_SendFragmentedValues(C_UINT16 index, C_UINT16 number);
 void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame);
+void CBOR_SendMobile(void);
 size_t CBOR_Mobile(C_CHAR* cbor_stream);
 size_t CBOR_Connected(C_CHAR* cbor_stream, C_UINT16 cbor_status);
 

@@ -29,6 +29,7 @@
 #include "sys_IS.h"
 #include "wifi.h"
 #include "main_CAREL.h"
+#include "mobile.h"
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "mb_m.h"
 #endif
@@ -519,6 +520,20 @@ void CBOR_SendFragmentedValues(C_UINT16 index, C_UINT16 number)
 	// ...until the last one
 	CBOR_SendValues(index, number, -framecnt);
 
+}
+
+/**
+ * @brief CBOR_SendMobile
+ *
+ * Prepares and sends an MQTT message containing the mobile message
+ *
+ * @param none
+ * @return void
+ */
+void CBOR_SendMobile(void)
+{
+	size_t len = CBOR_Mobile(txbuff);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/mobile"), (C_SBYTE*)txbuff, len, QOS_0, NO_RETAIN);
 }
 
 /**
