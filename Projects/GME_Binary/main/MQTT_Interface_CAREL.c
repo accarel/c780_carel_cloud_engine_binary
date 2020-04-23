@@ -76,7 +76,7 @@ C_RES MQTT_Start(void)
 		size_t gw_config_len;
 		req_set_gw_config_t gw_config_nvm = {0};
         #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-		printf("mqtt keepalive val check ok \n");
+		PRINTF_DEBUG("mqtt keepalive val check ok \n");
         #endif
 		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&gw_config_len);
 
@@ -86,6 +86,13 @@ C_RES MQTT_Start(void)
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
 		cert_num = CERT_1;
 	mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
+    #ifdef CHINESE_HW_TEST
+	//check if username == '?' > use mac
+	if (mqtt_cfg_nvm.username[0] == 0x3F)
+	{
+       strcpy(mqtt_cfg_nvm.username, Utilities__GetMACAddr());
+	}
+    #endif
 
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("uri= %s\n",mqtt_cfg_nvm.uri);
@@ -98,8 +105,34 @@ C_RES MQTT_Start(void)
     s_mqtt_event_group = xEventGroupCreate();
 
     RTC_Set_UTC_MQTTConnect_Time();
+
     mqtt_client_init(&mqtt_cfg_nvm);
-    C_RES err = mqtt_client_start();
+
+    C_RES err;
+
+    err = mqtt_client_start();
+
+    //TODO Bilato da gestire
+    switch (err)
+    {
+       case	ESP_OK:
+    	   PRINTF_DEBUG("mqtt_client_start OK\n");
+    	   break;
+
+       case ESP_ERR_INVALID_ARG:
+    	   PRINTF_DEBUG("ESP_ERR_INVALID_ARG \n");
+    	   break;
+
+       case ESP_FAIL:
+    	   PRINTF_DEBUG("ESP_FAIL \n");
+    	   break;
+
+       default:
+    	   PRINTF_DEBUG("mqtt_client_start unknow code\n");
+    	   break;
+
+    }
+
 
     MQTT_BITS = xEventGroupWaitBits(s_mqtt_event_group, MQTT_CONNECTED_BIT | MQTT_DISCONNECTED_BIT, true, false, 30000/portTICK_RATE_MS);
 
@@ -134,7 +167,7 @@ void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len)
 void MQTT_Stop(void)
 {
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
-	printf("mqtt_stop\n");
+	PRINTF_DEBUG("mqtt_stop\n");
     #endif
 	mqtt_client_stop();
 	vEventGroupDelete(s_mqtt_event_group);
@@ -185,7 +218,7 @@ void MQTT_Status(void)
 	if(RTC_Get_UTC_Current_Time() > (mqtt_status_time + Utilities__GetGWConfigData()->statusPeriod))
 	{
         #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-		printf("Sending STATUS CBOR \n\n");
+		PRINTF_DEBUG("Sending STATUS CBOR \n\n");
         #endif
 		CBOR_SendStatus();
 		mqtt_status_time = RTC_Get_UTC_Current_Time();
@@ -212,7 +245,7 @@ C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
 	sprintf(mqtt_topic,"%s%s", dev_id, (C_SCHAR*)topic);
 
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-	printf("topic = %s\n",mqtt_topic);
+	PRINTF_DEBUG("topic = %s\n",mqtt_topic);
     #endif
 
 	return (C_MQTT_TOPIC*)mqtt_topic;
@@ -245,9 +278,9 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             for (int i=0;i<conn_len;i++){
-                printf("%02X ", conn_buf[i]);
+                PRINTF_DEBUG("%02X ", conn_buf[i]);
             }
-            printf("\n");
+            PRINTF_DEBUG("\n");
             #endif
 
             msg_id = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/connected"), conn_buf, conn_len, QOS_1, RETAIN);
@@ -302,8 +335,8 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
 			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_DATA");
-            printf("TOPIC=%.*s\r\n", event->topic_len, event->topic);
-            printf("DATA=%.*s\r\n", event->data_len, event->data);
+            PRINTF_DEBUG("TOPIC=%.*s\r\n", event->topic_len, event->topic);
+            PRINTF_DEBUG("DATA=%.*s\r\n", event->data_len, event->data);
             #endif
 
             C_MQTT_TOPIC parsed_topic;
@@ -314,13 +347,13 @@ C_RES EventHandler(mqtt_event_handle_t event)
             sprintf(parsed_topic,"%.*s", rec_topic_len, rec_topic);
 
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
-            printf("parsed_topic = %s\n", parsed_topic);
+            PRINTF_DEBUG("parsed_topic = %s\n", parsed_topic);
             #endif
 
 			if(strcmp(parsed_topic, "/req") == 0)
 			{
                 #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
-				printf("/req found_topic\n");
+				PRINTF_DEBUG("/req found_topic\n");
                 #endif
 				CBOR_ReqTopicParser((C_CHAR*)event->data, event->data_len);
 			}
@@ -331,6 +364,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
             DEBUG_MQTT("MQTT_EVENT_ERROR");
             #endif
             break;
+
         default:
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
             DEBUG_MQTT("Other event id:%d", event->event_id);

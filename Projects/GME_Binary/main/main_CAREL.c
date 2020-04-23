@@ -70,6 +70,9 @@ void app_main(void)  // main_Carel
   Sys__Delay(50); //just to stabilize the I/O
   hw_platform_detected = Check_HW_Platform_IS();
   Init_Button_Pin();
+  #ifdef CHINESE_HW_TEST
+  hw_platform_detected = PLATFORM_DETECTED_WIFI;
+  #endif
 
   Set_Gateway_ID();
 
@@ -247,11 +250,14 @@ void Carel_Main_Task(void)
 
 
             #ifdef CHINESE_HW_TEST
-			/* this row force the device to be active immediately without a
-			 * remote configuration */
-			gw_config_status = CONFIGURED;
-			line_config_status = CONFIGURED;
-			devs_config_status = CONFIGURED;
+				/* this row force the device to be active immediately without a
+				 * remote configuration */
+				NVM__WriteU8Value(SET_GW_CONFIG_NVM, CONFIGURED);
+				NVM__WriteU8Value(SET_LINE_CONFIG_NVM, CONFIGURED);
+				NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED);
+				NVM__WriteU32Value(MB_BAUDRATE_NVM, 19200);
+				NVM__WriteU8Value(MB_CONNECTOR_NVM, 2);   //write "1" for rs485/ "2" for ttl
+				NVM__WriteU32Value(MB_DELAY_NVM, 0);      // no polling delay
             #endif
 
 			if(( CONFIGURED == gw_config_status &&
@@ -321,14 +327,11 @@ void Carel_Main_Task(void)
           	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBaudrate);		// read the baudrate from nvm
           	    NVM__ReadU8Value(MB_CONNECTOR_NVM, &NVMConnector);		// read the which uart use (for rs485 or ttl) from nvm
 
-
-                #ifdef CHINESE_HW_TEST
-          	    NVMConnector = 0;  //force MB_PORTNUM_TTL
-                #endif
-
           	    MODBUS_PORT_SELECT(NVMConnector, modbusPort);
 
           	    retval = Modbus_Init(NVMBaudrate, GME__GetHEaderInfo()->Rs485Parity, GME__GetHEaderInfo()->Rs485Stop, modbusPort);
+
+
           	    CAREL_CHECK(retval, "UART");
 
           	    Sys__Delay(1000);
@@ -356,7 +359,7 @@ void Carel_Main_Task(void)
               if(MQTT_GetFlags() == 1)
               	MQTT_PeriodicTasks();			// manage the MQTT subscribes
 
-      GME__CheckHTMLConfig();
+              GME__CheckHTMLConfig();
 
               break;
 

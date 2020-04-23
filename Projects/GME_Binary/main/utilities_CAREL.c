@@ -5,6 +5,7 @@
  *      Author: ataayoub
  */
 
+#include "CAREL_GLOBAL_DEF.h"
 #include "wifi.h"
 #include "mobile.h"
 #include "nvm_CAREL.h"
@@ -13,6 +14,7 @@
 #include "modbus_IS.h"
 #include "gme_config.h"
 #include "Led_Manager_IS.h"
+
 
 static req_set_gw_config_t gw_config_data = {0};
 
@@ -55,6 +57,17 @@ static void Utilities_ScanGWConfigData(void){
 }
 
 req_set_gw_config_t* Utilities__GetGWConfigData(void){
+
+    #ifdef CHINESE_HW_TEST
+	//TODO Bilato che sia il caso che se gw_config_data contiene dati non corretti questi vengano forzati
+	//a questi ad esempio ?
+	gw_config_data.statusPeriod = 300;
+	gw_config_data.lowspeedsamplevalue = 600;
+	gw_config_data.hispeedsamplevalue = 300;
+	gw_config_data.mqttKeepAliveInterval = 60;
+	gw_config_data.valuesPeriod = 600;
+    #endif
+
 	return &gw_config_data;
 }
 

@@ -407,7 +407,7 @@ int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	int16_t temp, read= 0;
 
 	read_kind == CURRENT ? (temp = *((int16_t*)(&arr->c_value.value))) : (temp = *((int16_t*)(&arr->p_value.value)));
-	//printf("get_type_f_signed\n");
+	//PRINTF_DEBUG("get_type_f_signed\n");
 	read = (temp * arr->info.linA) + arr->info.linB;
 	return read;
 }
@@ -416,7 +416,7 @@ int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
-	//printf("get_type_f_unsigned\n");
+	//PRINTF_DEBUG("get_type_f_unsigned\n");
 	read = (temp * arr->info.linA) + arr->info.linB;
 	return read;
 }
@@ -1032,9 +1032,9 @@ static void check_alarms_change(void)
 void print_ValuesTable(void){
 	int i;
 	if(PollEngine__GetPollEnginePrintMsgs() == 1){
-	printf("Values Buffer\n");
+	PRINTF_DEBUG("Values Buffer\n");
 	for(i = 0; i<values_buffer_index;	i++){
-		printf("alias: %4d,  value: %4Lf,  error: %d\n" ,
+		PRINTF_DEBUG("alias: %4d,  value: %4Lf,  error: %d\n" ,
 																values_buffer[i].alias,
 																values_buffer[i].value,
 																values_buffer[i].info_err);
@@ -1093,7 +1093,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-            printf("DoPolling Coil i=%X errorReq %X \r\n", i, errorReq);
+            PRINTF_DEBUG("DoPolling Coil i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1128,7 +1128,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-            printf("DoPolling DI i=%X errorReq %X \r\n", i, errorReq);
+            PRINTF_DEBUG("DoPolling DI i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1168,7 +1168,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-            printf("DoPolling HR i=%X errorReq %X \r\n", i, errorReq);
+            PRINTF_DEBUG("DoPolling HR i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1207,7 +1207,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-            printf("DoPolling IR i=%X errorReq %X \r\n", i, errorReq);
+            PRINTF_DEBUG("DoPolling IR i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1269,7 +1269,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-			printf("DoAlarmPolling Coil i=%X errorReq %X \r\n", i, errorReq);
+			PRINTF_DEBUG("DoAlarmPolling Coil i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1307,7 +1307,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-			printf("DoAlarmPolling DI i=%X errorReq %X \r\n", i, errorReq);
+			PRINTF_DEBUG("DoAlarmPolling DI i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1340,7 +1340,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-			printf("DoAlarmPolling HR i=%X errorReq %X \r\n", i, errorReq);
+			PRINTF_DEBUG("DoAlarmPolling HR i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1373,7 +1373,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		{
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
-			printf("DoAlarmPolling IR i=%X errorReq %X \r\n", i, errorReq);
+			PRINTF_DEBUG("DoAlarmPolling IR i=%X errorReq %X \r\n", i, errorReq);
             #endif
 		}
 
@@ -1469,7 +1469,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			if(timeout > (timestamp.current_alarm) && alarm_n.total > 0) {  // + ALARM_POLLING_TIME
 			   //ALARM POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				printf("ALR %X\n", timeout);
+				PRINTF_DEBUG("ALR %X\n", timeout);
                 #endif
 				timestamp.current_alarm = RTC_Get_UTC_Current_Time();
 
@@ -1492,7 +1492,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				timestamp.current_low = timeout;
 				//HIGH POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				printf("HIGH&LOW%d\n", timeout);
+				PRINTF_DEBUG("HIGH&LOW%d\n", timeout);
                 #endif
 				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
 				SendOffline(poll_done);
@@ -1512,7 +1512,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			if (high_trigger) {
 				//LOW POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				printf("HIGH %d\n", timeout);
+				PRINTF_DEBUG("HIGH %d\n", timeout);
                 #endif
 				timestamp.current_high = timeout;
 				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
@@ -1528,7 +1528,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 			if (pva_trigger) {
 				#ifdef __DEBUG_POLLING_CAREL_LEV_2
-				printf("PVA %d\n", timeout);
+				PRINTF_DEBUG("PVA %d\n", timeout);
 				#endif
 				timestamp.current_pva = timeout;
 				pva_trigger = 0;
@@ -1684,12 +1684,12 @@ uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx)
 	if(PollEngine__GetPollEnginePrintMsgs() == 1){
 
 		#ifdef __DEBUG_POLLING_CAREL_LEV_2
-		printf("\nuart_read_bytes len = %d\n\n",data_rx_len);
+		PRINTF_DEBUG("\nuart_read_bytes len = %d\n\n",data_rx_len);
 
 		for(int i=0; i<data_rx_len; i++){
-			printf("[%d]=%02X  ",i,data_rx[i]);
+			PRINTF_DEBUG("[%d]=%02X  ",i,data_rx[i]);
 		}
-		printf("\n");
+		PRINTF_DEBUG("\n");
         #endif
 	}
 
@@ -1830,7 +1830,7 @@ values_buffer_t* PollEngine__GetValuesBuffer(void){
 
 
 uint16_t PollEngine__GetValuesBufferCount(void){
-//	printf("values_buffer_count: %d\n", values_buffer_count);
+//	PRINTF_DEBUG("values_buffer_count: %d\n", values_buffer_count);
 	return values_buffer_count;
 }
 

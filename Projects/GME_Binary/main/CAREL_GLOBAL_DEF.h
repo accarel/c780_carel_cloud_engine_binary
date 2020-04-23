@@ -77,7 +77,7 @@
  */
 //#define __CCL_DEBUG_MODE
 
-#if __CCL_DEBUG_MODE == 1
+#ifdef __CCL_DEBUG_MODE
 	#define	PRINTF_DEBUG	printf
 #else
 	#define	PRINTF_DEBUG(...)

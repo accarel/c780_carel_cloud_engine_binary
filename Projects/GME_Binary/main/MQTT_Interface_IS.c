@@ -14,6 +14,7 @@
 #include "MQTT_Interface_IS.h"
 #include "data_types_CAREL.h"
 #include "MQTT_Interface_CAREL.h"
+#include "utilities_CAREL.h"
 
 
 static mqtt_client_handle_t mqtt_client;

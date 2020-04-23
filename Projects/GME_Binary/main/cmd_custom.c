@@ -4,6 +4,7 @@
 
 
 //#include "file_system.h"
+#include "CAREL_GLOBAL_DEF.h"
 #include "cmd_custom.h"
 #include "wifi.h"
 #include <tcpip_adapter.h>
@@ -71,8 +72,8 @@ static int say_hello(int argc, char **argv)
         return 1;
     }
 
-    printf("	This is Carel Gateway Project\r\n");
-    printf("The following files are available in /spiffs directory");
+    PRINTF_DEBUG("	This is Carel Gateway Project\r\n");
+    PRINTF_DEBUG("The following files are available in /spiffs directory");
     FS_DisplayFiles();
     return 0;
 }
@@ -89,16 +90,16 @@ static int printf_poll_engine_func(int argc, char **argv)
 
     if (printf_poll_engine_args.index->ival[0] == 1){
  //   	PollEngine__SetPollEnginePrintMsgs(1);
-		printf("	Printing Polling Engine data is ENABLED\r\n");
+		PRINTF_DEBUG("	Printing Polling Engine data is ENABLED\r\n");
 	}
 
 	else if (printf_poll_engine_args.index->ival[0] == 0){
 //		PollEngine__SetPollEnginePrintMsgs(0);
-		printf("	Printing Polling Engine data is DISABLED\r\n");
+		PRINTF_DEBUG("	Printing Polling Engine data is DISABLED\r\n");
 	}
 
 	else{
-		printf("	Enter 1 to print Polling Engine data or 0 to hide them\r\n");
+		PRINTF_DEBUG("	Enter 1 to print Polling Engine data or 0 to hide them\r\n");
 	}
 
     return 0;
@@ -114,16 +115,16 @@ static int printf_mqtt_json_func(int argc, char **argv)
 
     if (printf_mqtt_json_args.index->ival[0] == 1){
 //    	JSON__SetJsonMqttPrintMsgs(1);
-        printf("	Printing MQTT and JSON msgs is ENABLED\r\n");
+        PRINTF_DEBUG("	Printing MQTT and JSON msgs is ENABLED\r\n");
     }
 
     else if (printf_mqtt_json_args.index->ival[0] == 0){
 //    	JSON__SetJsonMqttPrintMsgs(0);
-    	printf("	Printing MQTT and JSON msgs is DISABLED\r\n");
+    	PRINTF_DEBUG("	Printing MQTT and JSON msgs is DISABLED\r\n");
     }
 
     else{
-        printf("	Enter 1 to print MQTT and JSON msgs or 0 to hide them\r\n");
+        PRINTF_DEBUG("	Enter 1 to print MQTT and JSON msgs or 0 to hide them\r\n");
     }
 
     return 0;
@@ -140,50 +141,50 @@ static int ifconfig_wifi(int argc, char **argv)
 
     html_config_param_t wifi_config = WiFi__GetCustomConfig();
 
-    printf("\n");
-    printf("MAC ADDRESS:      %s\n",Utilities__GetMACAddr());
-    printf("\n");
+    PRINTF_DEBUG("\n");
+    PRINTF_DEBUG("MAC ADDRESS:      %s\n",Utilities__GetMACAddr());
+    PRINTF_DEBUG("\n");
     /*if(AP_MODE == wifi_config.gateway_mode){
-    	printf("GME MODE: AP Mode\n");
+    	PRINTF_DEBUG("GME MODE: AP Mode\n");
     }else{
-    	printf("GME Mode: APSTA Mode\n");
+    	PRINTF_DEBUG("GME Mode: APSTA Mode\n");
     }*/
-    printf("\n-----------------------\n");
-    printf("AP Mode Parameters\n");
-    printf("-----------------------\n");
-    printf("SSID:                  %s",wifi_config.ap_ssid);
+    PRINTF_DEBUG("\n-----------------------\n");
+    PRINTF_DEBUG("AP Mode Parameters\n");
+    PRINTF_DEBUG("-----------------------\n");
+    PRINTF_DEBUG("SSID:                  %s",wifi_config.ap_ssid);
     if(1 == wifi_config.ap_ssid_hidden){
-    	printf(" ... Hidden\n");
+    	PRINTF_DEBUG(" ... Hidden\n");
     }else{
-    	printf(" ... Visible\n");
+    	PRINTF_DEBUG(" ... Visible\n");
     }
-    printf("Password:              %s\n",wifi_config.ap_pswd);
-    printf("IPv4:                  %s\n",wifi_config.ap_ip);
+    PRINTF_DEBUG("Password:              %s\n",wifi_config.ap_pswd);
+    PRINTF_DEBUG("IPv4:                  %s\n",wifi_config.ap_ip);
 
   //  if(APSTA_MODE == wifi_config.gateway_mode){
-    	printf("\n-----------------------\n");
-    	printf("STA Mode Parameters\n");
-    	printf("-----------------------\n\n");
-		printf("SSID:              %s\n",wifi_config.sta_ssid);
-		printf("Encryption:        %s\n",wifi_config.sta_encryption);
-		printf("Password:          %s\n",wifi_config.sta_pswd);
+    	PRINTF_DEBUG("\n-----------------------\n");
+    	PRINTF_DEBUG("STA Mode Parameters\n");
+    	PRINTF_DEBUG("-----------------------\n\n");
+		PRINTF_DEBUG("SSID:              %s\n",wifi_config.sta_ssid);
+		PRINTF_DEBUG("Encryption:        %s\n",wifi_config.sta_encryption);
+		PRINTF_DEBUG("Password:          %s\n",wifi_config.sta_pswd);
 
     tcpip_adapter_ip_info_t sta_ip;
     tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_STA, &sta_ip);
 
 		if(1 == wifi_config.sta_dhcp_mode){
-			printf("DHCP: Enabled\n");
-			printf("IPv4:          %s\n", ip4addr_ntoa(&sta_ip.ip));
-			printf("Gateway IPv4:  %s\n", ip4addr_ntoa(&sta_ip.gw));
-			printf("Netmask:       %s\n", ip4addr_ntoa(&sta_ip.netmask));
+			PRINTF_DEBUG("DHCP: Enabled\n");
+			PRINTF_DEBUG("IPv4:          %s\n", ip4addr_ntoa(&sta_ip.ip));
+			PRINTF_DEBUG("Gateway IPv4:  %s\n", ip4addr_ntoa(&sta_ip.gw));
+			PRINTF_DEBUG("Netmask:       %s\n", ip4addr_ntoa(&sta_ip.netmask));
 
 		}else{
-			printf("DHCP: Disabled\n");
-			printf("Static IP:     %s\n",wifi_config.sta_static_ip);
-			printf("Netmask:       %s\n",wifi_config.sta_netmask);
-			printf("Gateway IPv4:  %s\n",wifi_config.sta_gateway_ip);
-			printf("Primary DNS:   %s\n",wifi_config.sta_primary_dns);
-			printf("Secondary DNS: %s\n",wifi_config.sta_secondary_dns);
+			PRINTF_DEBUG("DHCP: Disabled\n");
+			PRINTF_DEBUG("Static IP:     %s\n",wifi_config.sta_static_ip);
+			PRINTF_DEBUG("Netmask:       %s\n",wifi_config.sta_netmask);
+			PRINTF_DEBUG("Gateway IPv4:  %s\n",wifi_config.sta_gateway_ip);
+			PRINTF_DEBUG("Primary DNS:   %s\n",wifi_config.sta_primary_dns);
+			PRINTF_DEBUG("Secondary DNS: %s\n",wifi_config.sta_secondary_dns);
 		}
     //}
 
@@ -325,13 +326,13 @@ void  cmdline_handler(void *arg)
 		int ret;
 		esp_err_t err = esp_console_run(line, &ret);
 		if (err == ESP_ERR_NOT_FOUND) {
-			printf("Unrecognized command\n");
+			PRINTF_DEBUG("Unrecognized command\n");
 		} else if (err == ESP_ERR_INVALID_ARG) {
 			// command was empty
 		} else if (err == ESP_OK && ret != ESP_OK) {
-			printf("Command returned non-zero error code: 0x%x (%s)\n", ret, esp_err_to_name(err));
+			PRINTF_DEBUG("Command returned non-zero error code: 0x%x (%s)\n", ret, esp_err_to_name(err));
 		} else if (err != ESP_OK) {
-			printf("Internal error: %s\n", esp_err_to_name(err));
+			PRINTF_DEBUG("Internal error: %s\n", esp_err_to_name(err));
 		}
 		/* linenoise allocates line buffer on the heap, so need to free it */
 		linenoiseFree(line);
@@ -357,7 +358,7 @@ void initialize_cmdline(void)
 	/* Figure out if the terminal supports escape sequences */
 	int probe_status = linenoiseProbe();
 	if (probe_status) { /* zero indicates success */
-		printf("\n"
+		PRINTF_DEBUG("\n"
 			   "Your terminal application does not support escape sequences.\n"
 			   "Line editing and history features are disabled.\n"
 			   "On Windows, try using Putty instead.\n");

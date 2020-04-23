@@ -63,13 +63,13 @@ static void dump_coil_low(void)
 	unsigned int count;
 	struct record_coil_di* r_coil;
 
-	printf("LOW Coil:\n");
+	PRINTF_DEBUG("LOW Coil:\n");
 	for (count = 0; count < ptmyLowPoll->numOfCOIL; count++)
 	{
 		r_coil = p_coil_low_sect + (count * sizeof(r_coil_di));
 
-		printf("%4d, %4d", r_coil->Alias, r_coil->Addr);
-		printf("\n");		
+		PRINTF_DEBUG("%4d, %4d", r_coil->Alias, r_coil->Addr);
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -78,14 +78,14 @@ static void dump_coil_high(void)
 	unsigned int count;
 	struct record_coil_di* r_coil;
 
-	printf("HIGH Coil:\n");
+	PRINTF_DEBUG("HIGH Coil:\n");
 
 	for (count = 0; count < ptmyHighPoll->numOfCOIL; count++)
 	{
 		r_coil = p_coil_high_sect + (count * sizeof(r_coil_di));
 
-		printf("%4d, %4d", r_coil->Alias, r_coil->Addr);
-		printf("\n");
+		PRINTF_DEBUG("%4d, %4d", r_coil->Alias, r_coil->Addr);
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -94,14 +94,14 @@ static void dump_coil_alarm(void)
 	unsigned int count;
 	struct record_coil_di* r_coil;
 
-	printf("ALARM Coil:\n");
+	PRINTF_DEBUG("ALARM Coil:\n");
 
 	for (count = 0; count < ptmyAlarmPoll->numOfCOIL; count++)
 	{
 		r_coil = p_coil_alarm_sect + (count * sizeof(r_coil_di));
 
-		printf("%4d, %4d", r_coil->Alias, r_coil->Addr);
-		printf("\n");
+		PRINTF_DEBUG("%4d, %4d", r_coil->Alias, r_coil->Addr);
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -111,14 +111,14 @@ static void dump_di_low(void)
 	unsigned int count;
 	struct record_coil_di* r_di;
 
-	printf("LOW Di:\n");
+	PRINTF_DEBUG("LOW Di:\n");
 
 	for (count = 0; count < ptmyLowPoll->numOfDISC; count++)
 	{
 		r_di = p_di_low_sect + (count * sizeof(r_coil_di));
 
-		printf("%4d, %4d", r_di->Alias, r_di->Addr);
-		printf("\n");
+		PRINTF_DEBUG("%4d, %4d", r_di->Alias, r_di->Addr);
+		PRINTF_DEBUG("\n");
 
 	}
 }
@@ -128,14 +128,14 @@ static void dump_di_high(void)
 	unsigned int count;
 	struct record_coil_di* r_di;
 
-	printf("HIGH Di:\n");
+	PRINTF_DEBUG("HIGH Di:\n");
 
 	for (count = 0; count < ptmyHighPoll->numOfDISC; count++)
 	{
 		r_di = p_di_high_sect + (count * sizeof(r_coil_di));
 
-		printf("%4d, %4d", r_di->Alias, r_di->Addr);
-		printf("\n");
+		PRINTF_DEBUG("%4d, %4d", r_di->Alias, r_di->Addr);
+		PRINTF_DEBUG("\n");
 
 	}
 }
@@ -145,14 +145,14 @@ static void dump_di_alarm(void)
 	unsigned int count;
 	struct record_coil_di* r_di;
 
-	printf("ALARM Di:\n");
+	PRINTF_DEBUG("ALARM Di:\n");
 
 	for (count = 0; count < ptmyAlarmPoll->numOfDISC; count++)
 	{
 		r_di = p_di_alarm_sect + (count * sizeof(r_coil_di));
 
-		printf("%4d, %4d", r_di->Alias, r_di->Addr);
-		printf("\n");
+		PRINTF_DEBUG("%4d, %4d", r_di->Alias, r_di->Addr);
+		PRINTF_DEBUG("\n");
 
 	}
 }
@@ -163,13 +163,13 @@ static void dump_hr_low(void)
 	unsigned int count;
 	struct record_hr_ir* r_hr;
 
-	printf("LOW Hr:\n");
+	PRINTF_DEBUG("LOW Hr:\n");
 
 	for (count = 0; count < ptmyLowPoll->numOfHR; count++)
 	{
 		r_hr = p_hr_low_sect + (count * sizeof(r_hr_ir));
 
-		printf("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f", 
+		PRINTF_DEBUG("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f",
 			             r_hr->Alias,
 			             r_hr->Addr,
 						 r_hr->flag.byte,
@@ -180,7 +180,7 @@ static void dump_hr_low(void)
 						 r_hr->linB,
 						 r_hr->Hyster
 		);
-		printf("\n");
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -189,13 +189,13 @@ static void dump_hr_high(void)
 	unsigned int count;
 	struct record_hr_ir* r_hr;
 
-	printf("HIGH Hr:\n");
+	PRINTF_DEBUG("HIGH Hr:\n");
 
 	for (count = 0; count < ptmyHighPoll->numOfHR; count++)
 	{
 		r_hr = p_hr_high_sect + (count * sizeof(r_hr_ir));
 
-		printf("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f",
+		PRINTF_DEBUG("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f",
 			r_hr->Alias,
 			r_hr->Addr,
 			r_hr->flag.byte,
@@ -206,7 +206,7 @@ static void dump_hr_high(void)
 			r_hr->linB,
 			r_hr->Hyster
 		);
-		printf("\n");
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -215,17 +215,17 @@ static void dump_hr_alarm(void)
 	unsigned int count;
 	struct record_hr_ir_alarm* r_hr;
 
-	printf("ALARM Hr:\n");
+	PRINTF_DEBUG("ALARM Hr:\n");
 
 	for (count = 0; count < ptmyAlarmPoll->numOfHR; count++)
 	{
 		r_hr = p_hr_alarm_sect + (count * sizeof(r_hr_ir_alarm));
 
-		printf("%4d, %4d,",
+		PRINTF_DEBUG("%4d, %4d,",
 			r_hr->Alias,
 			r_hr->Addr
 		);
-		printf("\n");
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -235,13 +235,13 @@ static void dump_ir_low(void)
 	unsigned int count;
 	struct record_hr_ir* r_ir;
 
-	printf("LOW Ir:\n");
+	PRINTF_DEBUG("LOW Ir:\n");
 
 	for (count = 0; count < ptmyLowPoll->numOfIR; count++)
 	{
 		r_ir = p_ir_low_sect + (count * sizeof(r_hr_ir));
 
-		printf("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f", r_ir->Alias,
+		PRINTF_DEBUG("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f", r_ir->Alias,
 			r_ir->Addr,
 			r_ir->flag.byte,
 			r_ir->dim,
@@ -251,7 +251,7 @@ static void dump_ir_low(void)
 			r_ir->linB,
 			r_ir->Hyster
 		);
-		printf("\n");
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -260,13 +260,13 @@ static void dump_ir_high(void)
 	unsigned int count;
 	struct record_hr_ir* r_ir;
 
-	printf("HIGH Ir:\n");
+	PRINTF_DEBUG("HIGH Ir:\n");
 
 	for (count = 0; count < ptmyHighPoll->numOfIR; count++)
 	{
 		r_ir = p_ir_high_sect + (count * sizeof(r_hr_ir));
 
-		printf("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f", r_ir->Alias,
+		PRINTF_DEBUG("%4d, %4d, %4d, %4d, %4d, %4d, %.2f, %.2f, %.2f", r_ir->Alias,
 			r_ir->Addr,
 			r_ir->flag.byte,
 			r_ir->dim,
@@ -276,7 +276,7 @@ static void dump_ir_high(void)
 			r_ir->linB,
 			r_ir->Hyster
 		);
-		printf("\n");
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -285,17 +285,17 @@ static void dump_ir_alarm(void)
 	unsigned int count;
 	struct record_hr_ir_alarm* r_ir;
 
-	printf("ALARM Ir:\n");
+	PRINTF_DEBUG("ALARM Ir:\n");
 
 	for (count = 0; count < ptmyAlarmPoll->numOfIR; count++)
 	{
 		r_ir = p_ir_alarm_sect + (count * sizeof(r_hr_ir_alarm));
 
-		printf("%4d, %4d,",
+		PRINTF_DEBUG("%4d, %4d,",
 			r_ir->Alias,
 			r_ir->Addr
 		);
-		printf("\n");
+		PRINTF_DEBUG("\n");
 	}
 }
 
@@ -354,7 +354,7 @@ uint16_t CRC16(const uint8_t *nData, uint16_t wLength)
 		wCRCWord >>= 8;
 		wCRCWord ^= wCRCTable[nTemp];
 
-		//printf("CRC %d - %X \r\n", wLength, wCRCWord);
+		//PRINTF_DEBUG("CRC %d - %X \r\n", wLength, wCRCWord);
 
 		wLength--;
 	}
@@ -437,8 +437,8 @@ static void GetDeviceInfo(uint8_t *val)
 
 #ifdef __DEBUG_BYNARY_MODEL
 	// show INFO
-	printf("Header signature:  %s\n", myHeaderModel.signature);
-	printf("Header version  :  %d\n", myHeaderModel.version);
+	PRINTF_DEBUG("Header signature:  %s\n", myHeaderModel.signature);
+	PRINTF_DEBUG("Header version  :  %d\n", myHeaderModel.version);
 	// end show
 #endif
 
@@ -456,16 +456,16 @@ static void GetDeviceInfo(uint8_t *val)
 	{
 		struct NumOfPoll *pt;
 
-		if		(d == 0) { pt = &myLowPoll;		printf("LOW POLLING:     \n"); }
-		else if (d == 1) { pt = &myHighPoll;    printf("HIGH POLLING:    \n"); }
-		else		     { pt = &myAlarmPoll;  printf("ALARM POLLING:  \n"); }
+		if		(d == 0) { pt = &myLowPoll;		PRINTF_DEBUG("LOW POLLING:     \n"); }
+		else if (d == 1) { pt = &myHighPoll;    PRINTF_DEBUG("HIGH POLLING:    \n"); }
+		else		     { pt = &myAlarmPoll;  PRINTF_DEBUG("ALARM POLLING:  \n"); }
 
 		for (int c = 0; c < 4; c++)
 		{
-			if (c == 0)		 { printf("Coil   %d %s", pt->numOfCOIL, "\n");}
-			else if (c == 1) { printf("Disc   %d %s", pt->numOfDISC, "\n");}
-			else if (c == 2) { printf("HR     %d %s", pt->numOfHR,   "\n");}
-			else if (c == 3) { printf("IR     %d %s", pt->numOfIR,   "\n\n");}
+			if (c == 0)		 { PRINTF_DEBUG("Coil   %d %s", pt->numOfCOIL, "\n");}
+			else if (c == 1) { PRINTF_DEBUG("Disc   %d %s", pt->numOfDISC, "\n");}
+			else if (c == 2) { PRINTF_DEBUG("HR     %d %s", pt->numOfHR,   "\n");}
+			else if (c == 3) { PRINTF_DEBUG("IR     %d %s", pt->numOfIR,   "\n\n");}
 		}
 	}
 	// end show
@@ -486,14 +486,14 @@ uint8_t* BinaryModel_GetChunk(long sz){
 	input_file_ptr = fopen(MODEL_FILE, "rb");
 	if (input_file_ptr == NULL)
 	{
-		printf("Unable to open file! \n");
+		PRINTF_DEBUG("Unable to open file! \n");
 		return NULL;
 	}
 
 	sz_read = fread(chunk, sizeof(uint8_t), sz, input_file_ptr);  // double
 //	chunk[sz+1]=0;
 	if(sz_read != sz)
-		printf("Read ERROR!!!! \n");
+		PRINTF_DEBUG("Read ERROR!!!! \n");
 
 	// close streaming
 	fclose(input_file_ptr);

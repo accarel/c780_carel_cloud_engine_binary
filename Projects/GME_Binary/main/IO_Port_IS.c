@@ -86,34 +86,28 @@ C_BYTE Check_HW_Platform_IS(void)
 
     #ifdef  __USE_CAREL_BCU_HW
 	platform = PLATFORM_DETECTED_BCU;
-    #ifdef __DEBUG_IO_PORT_IS_LEV_2
-	printf("__USE_CAREL_BCU_HW \r\n");
-    #endif
+	PRINTF_DEBUG("__USE_CAREL_BCU_HW \r\n");
     #endif
 
     #ifdef 	__USE_ESP_WROVER_KIT
 	platform = PLATFORM_DETECTED_ESP_WROVER_KIT;
-    #ifdef __DEBUG_IO_PORT_IS_LEV_2
-	printf("__USE_ESP_WROVER_KIT \r\n");
-    #endif
+	PRINTF_DEBUG("__USE_ESP_WROVER_KIT \r\n");
     #endif
 
+
+	//TODO BILATO da sistemare così non va
     #ifdef __USE_USR_WIFI_HW
 	//__USE_USR_2G_HW ||
 	/* pin is pull down on 2G and pull upped on WiFi*/
 	if (gpio_get_level(HW_PLATFORM_DETECT_PIN) == 0)
 	{
 		platform = PLATFORM_DETECTED_2G;
-        #ifdef __DEBUG_IO_PORT_IS_LEV_2
-	    printf("__USE_USR_2G_HW \r\n");
-        #endif
+	    PRINTF_DEBUG("__USE_USR_2G_HW \r\n");
 	}
 	else
 	{
 		platform = PLATFORM_DETECTED_WIFI;
-        #ifdef __DEBUG_IO_PORT_IS_LEV_2
-		printf("__USE_USR_WIFI_HW \r\n");
-        #endif
+		PRINTF_DEBUG("__USE_USR_WIFI_HW \r\n");
 	}
     #endif
 
@@ -138,9 +132,7 @@ void Init_IO_IS(void)
 	  gpio_set_direction(GSM_PWRKEY_PIN, GPIO_MODE_OUTPUT);
 	  gpio_set_level(GSM_PWRKEY_PIN, 0);
 
-	  #ifdef __DEBUG_IO_PORT_IS_LEV_2
-	  printf("GSM_Module_IO_Init Done! \r\n");
-	  #endif
+	  PRINTF_DEBUG("GSM_Module_IO_Init Done! \r\n");
 
 
   }
@@ -201,7 +193,7 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 #ifdef __USE_USR_2G_HW
 
     #ifdef __DEBUG_GSM_MISCELLANEOUS_IS_LEV_2
-    printf("GSM_Module_Pon_Poff set_status %X \r\n", set_status);
+    PRINTF_DEBUG("GSM_Module_Pon_Poff set_status %X \r\n", set_status);
     #endif
 
 	switch (set_status)
@@ -212,7 +204,7 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 
 		   NVM__ReadU8Value(GSM_INIT, &gsm_init);
 
-		   printf("GSM PON FLAG >>>> %X \r\n",gsm_init);
+		   PRINTF_DEBUG("GSM PON FLAG >>>> %X \r\n",gsm_init);
 		   if (gsm_init == 0)
 		   {
 			 gsm_init = 1;
@@ -222,13 +214,13 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 		     Sys__Delay(GSM_PWRKEY_ON_TIME);
 		     gpio_set_level(GSM_PWRKEY_PIN, 0);
 		     Sys__Delay(GSM_PWRKEY_ON_TIME);
-		     printf("GSM PON DONE ...........\r\n");
+		     PRINTF_DEBUG("GSM PON DONE ...........\r\n");
 		   }
 		   else
 		   {
 	         gsm_init = 0;
 			 NVM__WriteU8Value(GSM_INIT, gsm_init);
-			 printf("GSM PON NOT DONE ######\r\n");
+			 PRINTF_DEBUG("GSM PON NOT DONE ######\r\n");
 			 Sys__Delay(GSM_PWRKEY_ON_TIME);
 		   }
            #endif
