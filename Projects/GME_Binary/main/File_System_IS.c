@@ -95,20 +95,20 @@ C_RES File_System_Init(void)
  */
 C_RES Set_Gateway_ID(void)
 {
-#if (NETWORK_INTERFACE == WIFI_INTERFACE)
   /* this function set the MAC address of the WiFi appliance
    * in this implementation we leave the original one coming
    * from the chip
    * */
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU)) {
 
     #ifdef INCLUDE_PLATFORM_DEPENDENT
-	esp_err_t retval;
-	uint8_t s_id_tmp[6];
-	retval = esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
-	retval = esp_base_mac_addr_set(&s_id_tmp[0]);
-   #endif
+		esp_err_t retval;
+		uint8_t s_id_tmp[6];
+		retval = esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
+		retval = esp_base_mac_addr_set(&s_id_tmp[0]);
+    #endif
+	}
 
-#endif
 	return C_SUCCESS;
 }
 
@@ -124,29 +124,26 @@ C_RES Set_Gateway_ID(void)
 C_RES Get_Gateway_ID(C_SBYTE *s_id)
 { /* TO BE implemented */
 
-#if (NETWORK_INTERFACE == WIFI_INTERFACE)
-  /* this function returns the MAC address of the WiFi appliance */
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU)) {
+		/* this function returns the MAC address of the WiFi appliance */
 
-    #ifdef INCLUDE_PLATFORM_DEPENDENT
-	uint8_t s_id_tmp[6];
-	esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
+		#ifdef INCLUDE_PLATFORM_DEPENDENT
+		uint8_t s_id_tmp[6];
+		esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
 
-    sprintf(s_id,"%02X%02X%02X%02X%02X%02X",
-            s_id_tmp[0],
-            s_id_tmp[1],
-            s_id_tmp[2],
-            s_id_tmp[3],
-            s_id_tmp[4],
-            s_id_tmp[5]
-           );
-   #endif
-
-
-#endif
-
-#if (NETWORK_INTERFACE == GSM_INTERFACE)
-  /* this function returns the IMEI of the GSM module*/
-    strcpy(s_id, Mobile__GetImeiCode());
-#endif
+		sprintf(s_id,"%02X%02X%02X%02X%02X%02X",
+				s_id_tmp[0],
+				s_id_tmp[1],
+				s_id_tmp[2],
+				s_id_tmp[3],
+				s_id_tmp[4],
+				s_id_tmp[5]
+			   );
+		#endif
+	}
+	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
+		/* this function returns the IMEI of the GSM module*/
+		strcpy(s_id, Mobile__GetImeiCode());
+	}
 	return C_SUCCESS;
 }

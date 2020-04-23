@@ -86,10 +86,9 @@ void Utilities__Init(void){
 	  Update_Led_Status(LED_STAT_MODEL_CFG, LED_STAT_ON);
 	}
 
-#if (NETWORK_INTERFACE == WIFI_INTERFACE)
-	Utilities__CalcMACAddr();
-#elif (NETWORK_INTERFACE == GSM_INTERFACE)
-	Utilities__CalcIMEICode();
-#endif
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
+	  Utilities__CalcMACAddr();
+	else if (PLATFORM(PLATFORM_DETECTED_2G))
+	  Utilities__CalcIMEICode();
 
 }

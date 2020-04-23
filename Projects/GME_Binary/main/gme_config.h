@@ -34,53 +34,9 @@
 #define DEEP_DEBUG_PRINTF_DEFAULT 	ENABLED
 #endif
 
-
-/*-------------------------------
- * Radio Interface by platform
- *-----------------------------*/
-/* ========================================================================== */
-/* development platform                                                       */
-/* ========================================================================== */
-#define WIFI_INTERFACE 		1
-#define GSM_INTERFACE 		0
-
-#ifdef __USE_ESP_WROVER_KIT
-#define NETWORK_INTERFACE 	WIFI_INTERFACE
-//#define NETWORK_INTERFACE 	GSM_INTERFACE
-#endif
-
-/* ========================================================================== */
-/*  OFFICIAL HW PLATFORM                                                      */
-/* ========================================================================== */
-#ifdef __USE_CAREL_BCU_HW
-#define NETWORK_INTERFACE 	WIFI_INTERFACE
-#define WIFI_INTERFACE 		1
-#define GSM_INTERFACE 		0
-#endif
-
-#ifdef __USE_USR_WIFI_HW
-#define NETWORK_INTERFACE 	WIFI_INTERFACE
-#define WIFI_INTERFACE 		1
-#define GSM_INTERFACE 		0
-#endif
-
-#ifdef __USE_USR_2G_HW
-#define NETWORK_INTERFACE 	GSM_INTERFACE
-#define WIFI_INTERFACE 		0
-#define GSM_INTERFACE 		1
-#endif
-
-
 /*-------------------------------
  * WiFi Interface
  *-----------------------------*/
-#define STA_DEF_IP			"192.168.43.50"
-#define STA_DEF_GW			"192.168.43.1"
-#define STA_DEF_DHCP		1
-#define STA_DEF_NETMASK		"255.255.255.0"
-#define STA_DEF_DNS1		"8.8.8.8"
-#define STA_DEF_DNS2		"8.8.4.4"
-
 #define AP_DEF_IP			"10.10.100.254"
 #define AP_DEF_GW			"10.10.100.254"
 #define AP_DEF_NETMASK		"255.255.255.0"

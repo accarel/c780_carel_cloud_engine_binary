@@ -4,28 +4,27 @@
 
 gme_sm_t Radio__Config(void){
 	gme_sm_t config_status = DISCONNECTED;
-#if (NETWORK_INTERFACE == WIFI_INTERFACE)
-	config_status = WiFi__Config(WiFi_GetConfigSM());
-#elif (NETWORK_INTERFACE == GSM_INTERFACE)
-	config_status = Mobile__Config();
-#endif
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
+		config_status = WiFi__Config(WiFi_GetConfigSM());
+	else if (PLATFORM(PLATFORM_DETECTED_2G))
+		config_status = Mobile__Config();
+
 	return config_status;
 }
 
 void Radio__WaitConnection(void)
 {
-#if (NETWORK_INTERFACE == WIFI_INTERFACE)
-	WiFi__WaitConnection();
-#elif (NETWORK_INTERFACE == GSM_INTERFACE)
-	Mobile__WaitConnection();
-#endif
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
+		WiFi__WaitConnection();
+	else if (PLATFORM(PLATFORM_DETECTED_2G))
+		Mobile__WaitConnection();
 }
 
 connection_status_t Radio__GetStatus(void){
 
-#if (NETWORK_INTERFACE == WIFI_INTERFACE)
-	return WIFI__GetSTAStatus();
-#elif (NETWORK_INTERFACE == GSM_INTERFACE)
-	return Mobile__GetStatus();
-#endif
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
+		return WIFI__GetSTAStatus();
+	else if (PLATFORM(PLATFORM_DETECTED_2G))
+		return Mobile__GetStatus();
+	else return DISCONNECTED;
 }
