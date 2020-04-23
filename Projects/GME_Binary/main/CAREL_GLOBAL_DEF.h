@@ -129,5 +129,6 @@
 #define NTP_DEFAULT_SERVER  "pool.ntp.org"
 #define NTP_DEFAULT_PORT  	123
 
+#define GW_MOBILE_TIME		300
 #endif
 
