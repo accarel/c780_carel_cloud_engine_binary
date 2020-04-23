@@ -2098,6 +2098,7 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 	// configuration flag in nvm must be cleared
 	// save cid for successive reboot
 	if (!strcmp(download_devs_config->uri,"")) {
+		unlink(MODEL_FILE);
 		if((C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT)) &&
 				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)))
 		return C_SUCCESS;
