@@ -98,8 +98,9 @@
 /* ========================================================================== */
 /* Device information                                                         */
 /* ========================================================================== */
-#define GW_TYPE "GME"
-#define GW_PARTNUMBER "GTW000M2G0"
+#define GW_WIFI_PARTNUMBER 	"GTW000MWT0"
+#define GW_GSM_PARTNUMBER 	"GTW000MGP0"
+
 #define GW_HW_REV  256 //0x100
 #define GW_FW_REV  256 //0x100
 

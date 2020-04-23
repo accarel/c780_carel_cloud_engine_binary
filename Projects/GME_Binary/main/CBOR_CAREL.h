@@ -296,6 +296,7 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv);
 
 void CBOR_ReadDidFromNVM (void);
 C_UINT16 CBOR_GetDid (void);
+char* CBOR_GetPartNumber(void);
 
 //long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
 void Manage_Report_SlaveId_CAREL( C_CHAR * pucFrame, C_UINT16 * usLen);

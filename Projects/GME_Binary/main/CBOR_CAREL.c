@@ -188,7 +188,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	// encode pn - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "pn");
-	err |= cbor_encode_text_stringz(&mapEncoder, GW_PARTNUMBER);
+	err |= cbor_encode_text_stringz(&mapEncoder, CBOR_GetPartNumber());
 	DEBUG_ADD(err, "part number");
 
 	// encode hwv - elem3
@@ -2509,4 +2509,13 @@ void CBOR_ReadDidFromNVM (void)
 C_UINT16 CBOR_GetDid (void)
 {
 	return did;
+}
+
+char* CBOR_GetPartNumber(void)
+{
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
+		return GW_WIFI_PARTNUMBER;
+	else if (PLATFORM(PLATFORM_DETECTED_2G))
+		return GW_GSM_PARTNUMBER;
+	else return "";
 }
