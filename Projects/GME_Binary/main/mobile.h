@@ -20,5 +20,6 @@ void Mobile__SetStatus(connection_status_t status);
 connection_status_t Mobile__GetStatus(void);
 void Mobile__SaveImeiCode(char* buf);
 char* Mobile__GetImeiCode(void);
+C_TIME Mobile__GetConnTime(void);
 
 #endif

@@ -15,6 +15,9 @@ static const char *TAG = "mobile";
 static connection_status_t MobStatus = DISCONNECTED;
 static char gsm_imei_gw_str[16] = {0};
 
+static C_TIME MobConnTime = 0;
+
+
 C_RES Mobile__GetImsi(char* mobile_imsi_gw){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -128,8 +131,19 @@ void Mobile__WaitConnection(void)
 
 void Mobile__SetStatus(connection_status_t status){
 	MobStatus = status;
+	if (status == CONNECTED)
+		MobConnTime = RTC_Get_UTC_Current_Time();
+	else
+		MobConnTime = 0;
 }
 
 connection_status_t Mobile__GetStatus(void){
 	return MobStatus;
+}
+
+C_TIME Mobile__GetConnTime(void){
+	if (MobConnTime == 0)
+		return -1;
+	else
+		return (RTC_Get_UTC_Current_Time() - MobConnTime);
 }

@@ -561,7 +561,8 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 	// encode gup - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "gup");
-	C_INT32 gup = 72000;											// to be implemented
+	C_INT32 gup = Mobile__GetConnTime();
+	if (gup == 0) gup = -1;
 	err |= cbor_encode_int(&mapEncoder, gup);
 	DEBUG_ADD(err, "gup");
 
@@ -573,8 +574,8 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 	// encode ime - elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "ime");
-	C_BYTE imei[15]={9,9,0,0,0,0,8,6,2,4,7,1,8,5,4};												// to be implemented
-	err |= cbor_encode_byte_string(&mapEncoder, imei, 15);
+	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetImeiCode());	// TODO, at first run, imei (and other related stuff)
+																			// is not initialized yet!
 	DEBUG_ADD(err, "ime");
 
 	// other elements to come (if needed)
@@ -584,6 +585,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	err |= cbor_encode_byte_string(&mapEncoder, ims, 15);
 	DEBUG_ADD(err, "ims");
 
+	// following data can be obtained from AT+QENG?
 	// encode mcc - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "mcc");
 	C_BYTE mcc[3] = {2,2,2};											// to be implemented
@@ -608,7 +610,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	err |= cbor_encode_byte_string(&mapEncoder, cel, 16);
 	DEBUG_ADD(err, "cel");
 
-	// encode uci - elem10
+	// encode uci - elem10 (FOR UMTS, REMOVE?)
 	err |= cbor_encode_text_stringz(&mapEncoder, "uci");
 	C_BYTE uci[16] = {1,3,4,2,1,7,7,2,7};								// to be implemented
 	err |= cbor_encode_byte_string(&mapEncoder, uci, 16);
