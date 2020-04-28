@@ -2117,7 +2117,8 @@ C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config)
 	if (!strcmp(download_devs_config->uri,"")) {
 		unlink(MODEL_FILE);
 		if((C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT)) &&
-				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)))
+				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)) &&
+				(C_SUCCESS == NVM__WriteU32Value(MB_DID_NVM, 0)) )
 		return C_SUCCESS;
 		else return C_FAIL;
 	}
