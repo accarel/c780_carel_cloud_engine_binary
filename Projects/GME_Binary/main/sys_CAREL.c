@@ -68,12 +68,8 @@ C_RES Sys__Init (void)
 
 void Sys__CertAlloc(void)
 {
-	if(0 == FS_ReadFile(CERT1_SPIFFS, (uint8_t*)certificates[0])){
-		GME__Reboot();
-	}
-	if(0 == FS_ReadFile(CERT2_SPIFFS, (uint8_t*)certificates[1])){
-		GME__Reboot();
-	}
+	FS_ReadFile(CERT1_SPIFFS, (uint8_t*)certificates[0]);
+	FS_ReadFile(CERT2_SPIFFS, (uint8_t*)certificates[1]);
 }
 
 
