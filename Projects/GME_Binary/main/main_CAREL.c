@@ -57,7 +57,7 @@
 
 
 
-#define MODBUS_PORT_SELECT(x, port)           (x == 1 ? (port = MB_PORTNUM_485) : (port = MB_PORTNUM_TTL))
+#define MODBUS_PORT_SELECT(x, port)           (x == 2 ? (port = MB_PORTNUM_TTL) : (port = MB_PORTNUM_485))
 /* Functions implementation -------------------------------------------------------*/
 
 //Variables
