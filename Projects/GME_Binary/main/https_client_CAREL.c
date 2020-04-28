@@ -130,8 +130,7 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len);
 			  if (Crc != download_devs_config->crc)
 			  	err = WRONG_CRC;
-
-			  if (memcmp(buffer, "-----BEGIN", sizeof("-----BEGIN")))
+			  if (memcmp(buffer, "-----BEGIN", strlen("-----BEGIN")))
 				  err = WRONG_FILE;
 
 		  }
