@@ -452,7 +452,7 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 	DEBUG_ENC(err, "vals create map");
 	for (C_UINT16 i = index; i < index + number; i++){
 		err |= cbor_encode_text_stringz(&mapEncoder1, Get_Alias(i, alias_tmp));
-		if (memcmp((char*)Get_Value(i, value_tmp), "", sizeof("")) == 0)
+		if (memcmp((char*)Get_Value(i, value_tmp), "", strlen("")) == 0)
 			err |= cbor_encode_null(&mapEncoder1);
 		else
 			err |= cbor_encode_text_stringz(&mapEncoder1, (char*)Get_Value(i, value_tmp));

@@ -571,7 +571,7 @@ int BinaryModel_Init (void)
 		return C_FAIL;
 	}
 	// Check model header
-	if (memcmp(tmpHeaderModel->signature, GME_MODEL, sizeof(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION)) {
+	if (memcmp(tmpHeaderModel->signature, GME_MODEL, strlen(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION)) {
 		DEBUG_BINARY_MODEL("ERROR: Wrong signature Model!\n");
 		valid_model = FALSE;
 		return C_FAIL;

@@ -112,7 +112,7 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 		  ESP_LOG_BUFFER_HEXDUMP(__func__, buffer, MAX_HTTP_RECV_BUFFER, ESP_LOG_INFO);
           #endif
 
-		  if (memcmp(filename, MODEL_FILE, sizeof(MODEL_FILE)) == 0) {
+		  if (memcmp(filename, MODEL_FILE, strlen(MODEL_FILE)) == 0) {
 			  // Check received model before writing to NVM
 			  // Check CRC
 			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len - 2);
@@ -123,10 +123,10 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 			  // Check header
 			  struct HeaderModel* tmpHeaderModel;
 			  tmpHeaderModel = (struct HeaderModel *)buffer;
-			  if (memcmp(tmpHeaderModel->signature, GME_MODEL, sizeof(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION))
+			  if (memcmp(tmpHeaderModel->signature, GME_MODEL, strlen(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION))
 				  err = WRONG_FILE;
 		  }
-		  else if ((memcmp(filename, CERT1_SPIFFS, sizeof(CERT1_SPIFFS)) == 0) || (memcmp(filename, CERT2_SPIFFS, sizeof(CERT2_SPIFFS)) == 0)) {
+		  else if ((memcmp(filename, CERT1_SPIFFS, strlen(CERT1_SPIFFS)) == 0) || (memcmp(filename, CERT2_SPIFFS, strlen(CERT2_SPIFFS)) == 0)) {
 			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len);
 			  if (Crc != download_devs_config->crc)
 			  	err = WRONG_CRC;
