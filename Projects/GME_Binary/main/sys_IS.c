@@ -28,10 +28,6 @@
 #endif
 #include "Led_Manager_IS.h"
  
-static uint32_t factory_reset_debounce_counter = 0;
-static uint32_t config_reset_debounce_counter = 0;
-
- 
  /**
  * @brief Sys__SetFactoryBootPartition
  *     Change boot partition to factory
