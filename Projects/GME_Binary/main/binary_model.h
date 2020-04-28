@@ -28,7 +28,7 @@
 #define GME_MODEL_MAX_SIZE	2048
 
 
-#if __DEBUG_BINARY_MODEL_LEV_1
+#ifdef __DEBUG_BINARY_MODEL_LEV_1
 #define DEBUG_BINARY_MODEL(a) printf("%s: %s\n", __func__, a);
 #else
 #define	DEBUG_BINARY_MODEL(...)
