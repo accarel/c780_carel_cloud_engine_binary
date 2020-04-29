@@ -48,6 +48,7 @@
             this.textBoxMQTT_Server_Port = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonSet_Lines_Config_TTL = new System.Windows.Forms.Button();
             this.button_flush = new System.Windows.Forms.Button();
             this.button_reboot = new System.Windows.Forms.Button();
             this.button_stop_engine = new System.Windows.Forms.Button();
@@ -195,7 +196,7 @@
             this.textBox_MQTT_ID = new System.Windows.Forms.TextBox();
             this.textBox_MQTT_PWD = new System.Windows.Forms.TextBox();
             this.label53 = new System.Windows.Forms.Label();
-            this.buttonSet_Lines_Config_TTL = new System.Windows.Forms.Button();
+            this.button_ReqDBGInfo = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -404,6 +405,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button_ReqDBGInfo);
             this.groupBox1.Controls.Add(this.buttonSet_Lines_Config_TTL);
             this.groupBox1.Controls.Add(this.button_flush);
             this.groupBox1.Controls.Add(this.button_reboot);
@@ -427,6 +429,17 @@
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
+            // 
+            // buttonSet_Lines_Config_TTL
+            // 
+            this.buttonSet_Lines_Config_TTL.Location = new System.Drawing.Point(145, 233);
+            this.buttonSet_Lines_Config_TTL.Margin = new System.Windows.Forms.Padding(4);
+            this.buttonSet_Lines_Config_TTL.Name = "buttonSet_Lines_Config_TTL";
+            this.buttonSet_Lines_Config_TTL.Size = new System.Drawing.Size(129, 46);
+            this.buttonSet_Lines_Config_TTL.TabIndex = 23;
+            this.buttonSet_Lines_Config_TTL.Text = "set_lines_config TTL";
+            this.buttonSet_Lines_Config_TTL.UseVisualStyleBackColor = true;
+            this.buttonSet_Lines_Config_TTL.Click += new System.EventHandler(this.buttonSet_Lines_Config_TTL_Click);
             // 
             // button_flush
             // 
@@ -2024,16 +2037,16 @@
             this.label53.TabIndex = 70;
             this.label53.Text = "PWD";
             // 
-            // buttonSet_Lines_Config_TTL
+            // button_ReqDBGInfo
             // 
-            this.buttonSet_Lines_Config_TTL.Location = new System.Drawing.Point(145, 233);
-            this.buttonSet_Lines_Config_TTL.Margin = new System.Windows.Forms.Padding(4);
-            this.buttonSet_Lines_Config_TTL.Name = "buttonSet_Lines_Config_TTL";
-            this.buttonSet_Lines_Config_TTL.Size = new System.Drawing.Size(129, 46);
-            this.buttonSet_Lines_Config_TTL.TabIndex = 23;
-            this.buttonSet_Lines_Config_TTL.Text = "set_lines_config TTL";
-            this.buttonSet_Lines_Config_TTL.UseVisualStyleBackColor = true;
-            this.buttonSet_Lines_Config_TTL.Click += new System.EventHandler(this.buttonSet_Lines_Config_TTL_Click);
+            this.button_ReqDBGInfo.Location = new System.Drawing.Point(145, 497);
+            this.button_ReqDBGInfo.Margin = new System.Windows.Forms.Padding(4);
+            this.button_ReqDBGInfo.Name = "button_ReqDBGInfo";
+            this.button_ReqDBGInfo.Size = new System.Drawing.Size(129, 46);
+            this.button_ReqDBGInfo.TabIndex = 24;
+            this.button_ReqDBGInfo.Text = "Req. DBG Info";
+            this.button_ReqDBGInfo.UseVisualStyleBackColor = true;
+            this.button_ReqDBGInfo.Click += new System.EventHandler(this.button_ReqDBGInfo_Click);
             // 
             // Form1
             // 
@@ -2276,6 +2289,7 @@
         private System.Windows.Forms.Label label53;
         private System.Windows.Forms.Button button_flush;
         private System.Windows.Forms.Button buttonSet_Lines_Config_TTL;
+        private System.Windows.Forms.Button button_ReqDBGInfo;
     }
 }
 
