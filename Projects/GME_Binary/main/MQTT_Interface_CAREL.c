@@ -308,7 +308,8 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
         case MQTT_EVENT_DISCONNECTED:
         	Update_Led_Status(LED_STAT_MQTT_CONN, LED_STAT_OFF);
-        	mqtt_init = 2;
+        	if(mqtt_init != 0)	// change state only if gme was already connected
+        		mqtt_init = 2;
         	xEventGroupSetBits(s_mqtt_event_group, MQTT_DISCONNECTED_BIT);
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
             DEBUG_MQTT("MQTT_EVENT_DISCONNECTED");
