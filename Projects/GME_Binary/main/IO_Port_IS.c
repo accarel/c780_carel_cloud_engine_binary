@@ -40,6 +40,12 @@
 
 int CONFIG_RESET_BUTTON = -1;
 
+int ECHO_TEST_TXD = -1;
+int ECHO_TEST_RXD = -1;
+int ECHO_TEST_RTS = -1;
+int TTL_TXD = -1;
+int TTL_RXD = -1;
+int TTL_RTS = -1;
 /* ========================================================================== */
 /* general purpose                                                            */
 /* ========================================================================== */
@@ -51,9 +57,9 @@ int CONFIG_RESET_BUTTON = -1;
 
 void Init_Button_Pin(void) {
      if (PLATFORM(PLATFORM_DETECTED_2G) || PLATFORM(PLATFORM_DETECTED_WIFI))
-    	 CONFIG_RESET_BUTTON = GPIO_NUM_0;
+    	 CONFIG_RESET_BUTTON = CONFIG_RESET_BUTTON_WIFI;
      else if(PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT))
-    	 CONFIG_RESET_BUTTON = GPIO_NUM_19;
+    	 CONFIG_RESET_BUTTON = CONFIG_RESET_BUTTON_WROVER;
 
      if (CONFIG_RESET_BUTTON >= 0) {
     	 gpio_pad_select_gpio(CONFIG_RESET_BUTTON);
@@ -73,6 +79,57 @@ void Configure_IO_Check_HW_Platform_IS(void)
   #endif
 }
 
+void Init_TTL_Pins(void){
+	if (PLATFORM(PLATFORM_DETECTED_WIFI)) {
+		ECHO_TEST_TXD = ECHO_TEST_TXD_WIFI;
+		ECHO_TEST_RXD = ECHO_TEST_RXD_WIFI;
+		ECHO_TEST_RTS = ECHO_TEST_RTS_WIFI;
+		TTL_TXD = TTL_TXD_WIFI;
+		TTL_RXD = TTL_RXD_WIFI;
+		TTL_RTS = TTL_RTS_WIFI;
+	}
+	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
+		ECHO_TEST_TXD = ECHO_TEST_TXD_2G;
+		ECHO_TEST_RXD = ECHO_TEST_RXD_2G;
+		ECHO_TEST_RTS = ECHO_TEST_RTS_2G;
+		TTL_TXD = TTL_TXD_2G;
+		TTL_RXD = TTL_RXD_2G;
+		TTL_RTS = TTL_RTS_2G;
+	}
+	else if (PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT)) {
+		ECHO_TEST_TXD = ECHO_TEST_TXD_WROVER;
+		ECHO_TEST_RXD = ECHO_TEST_RXD_WROVER;
+		ECHO_TEST_RTS = ECHO_TEST_RTS_WROVER;
+		TTL_TXD = TTL_TXD_WROVER;
+		TTL_RXD = TTL_RXD_WROVER;
+		TTL_RTS = TTL_RTS_WROVER;
+	}
+	else if (PLATFORM(PLATFORM_DETECTED_BCU)) {
+		TTL_TXD = TTL_TXD_BCU;
+		TTL_RXD = TTL_RXD_BCU;
+		TTL_RTS = TTL_RTS_BCU;
+	}
+}
+
+int Get_TEST_TXD(void){
+	return ECHO_TEST_TXD;
+}
+int Get_TEST_RXD(void){
+	return ECHO_TEST_RXD;
+}
+int Get_TEST_RTS(void){
+	return ECHO_TEST_RTS;
+}
+int Get_TTL_TXD(void){
+	return TTL_RXD;
+}
+int Get_TTL_RXD(void){
+	return TTL_RXD;
+}
+int Get_TTL_RTS(void){
+	return TTL_RTS;
+}
+
 /**
  * @brief Check_HW_Platform_IS
  *        read the pin that return the HW platform
@@ -84,20 +141,13 @@ C_BYTE Check_HW_Platform_IS(void)
 
     #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-    #ifdef  __USE_CAREL_BCU_HW
+    #if defined( __USE_CAREL_BCU_HW)
 	platform = PLATFORM_DETECTED_BCU;
 	PRINTF_DEBUG("__USE_CAREL_BCU_HW \r\n");
-    #endif
-
-    #ifdef 	__USE_ESP_WROVER_KIT
+    #elif defined(__USE_ESP_WROVER_KIT)
 	platform = PLATFORM_DETECTED_ESP_WROVER_KIT;
 	PRINTF_DEBUG("__USE_ESP_WROVER_KIT \r\n");
-    #endif
-
-
-	//TODO BILATO da sistemare così non va
-    #ifdef __USE_USR_WIFI_HW
-	//__USE_USR_2G_HW ||
+    #else
 	/* pin is pull down on 2G and pull upped on WiFi*/
 	if (gpio_get_level(HW_PLATFORM_DETECT_PIN) == 0)
 	{
@@ -109,10 +159,8 @@ C_BYTE Check_HW_Platform_IS(void)
 		platform = PLATFORM_DETECTED_WIFI;
 		PRINTF_DEBUG("__USE_USR_WIFI_HW \r\n");
 	}
-    #endif
-
-    #endif
-
+	#endif
+	#endif
   return platform;
 }
 
@@ -239,4 +287,9 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 	}
 
 #endif
+}
+
+void Init_Pins(void){
+	Init_Button_Pin();
+	Init_TTL_Pins();
 }

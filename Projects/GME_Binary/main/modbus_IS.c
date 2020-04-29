@@ -70,21 +70,21 @@ static uint16_t MB_Delay = 0;
 C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)  // TODO stop bit da capire
 {
      eMBErrorCode eStatus;
-     esp_err_t err;
+     esp_err_t err = C_FAIL;
 
      // translate into the esp constant
      C_SBYTE mParity = GetParityTable(parity);
 
      if(port == MB_PORTNUM_485)
      {
-   	    err = uart_set_pin(port, ECHO_TEST_TXD, ECHO_TEST_RXD, ECHO_TEST_RTS, -1);   // MB_PORTNUM
+   	    err = uart_set_pin(port, Get_TEST_TXD(), Get_TEST_RXD(), Get_TEST_RTS(), -1);   // MB_PORTNUM
    	    //PRINTF_DEBUG("\n\r");
    	    //PRINTF_DEBUG("RS485 selected\n");
    	    //PRINTF_DEBUG("\n\r");
      }
    	 else
    	 {
-    	err = uart_set_pin(port, TTL_TXD, TTL_RXD, TTL_RTS, -1);   					// MB_PORTNUM
+        err = uart_set_pin(port, Get_TTL_TXD(), Get_TTL_RXD(), Get_TTL_RTS(), -1); 		// MB_PORTNUM
     	//PRINTF_DEBUG("\n\r");
     	//PRINTF_DEBUG("TTL selected\n");
     	//PRINTF_DEBUG("\n\r");

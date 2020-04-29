@@ -69,7 +69,8 @@ void app_main(void)  // main_Carel
   Configure_IO_Check_HW_Platform_IS();
   Sys__Delay(50); //just to stabilize the I/O
   hw_platform_detected = Check_HW_Platform_IS();
-  Init_Button_Pin();
+  Init_Pins();
+
   #ifdef CHINESE_HW_TEST
   hw_platform_detected = PLATFORM_DETECTED_WIFI;
   #endif
@@ -325,10 +326,11 @@ void Carel_Main_Task(void)
           	    }
           	    
           	    NVM__ReadU32Value(MB_BAUDRATE_NVM, &NVMBaudrate);		// read the baudrate from nvm
-          	    NVM__ReadU8Value(MB_CONNECTOR_NVM, &NVMConnector);		// read the which uart use (for rs485 or ttl) from nvm
+          	    NVM__ReadU8Value(MB_CONNECTOR_NVM, &NVMConnector);		// read which uart to use (for rs485 or ttl) from nvm
 
           	    MODBUS_PORT_SELECT(NVMConnector, modbusPort);
 
+          	    // in case of bcu only use ttl, pass proper parameter or force it somehow... TODO
           	    retval = Modbus_Init(NVMBaudrate, GME__GetHEaderInfo()->Rs485Parity, GME__GetHEaderInfo()->Rs485Stop, modbusPort);
 
 

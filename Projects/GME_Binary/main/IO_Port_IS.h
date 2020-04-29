@@ -34,58 +34,57 @@
 /* ========================================================================== */
 /* bCU only related I/O                                                       */
 /* ========================================================================== */
-#ifdef __USE_CAREL_BCU_HW
-#define ECHO_TEST_TXD  (GPIO_NUM_19)
-#define ECHO_TEST_RXD  (GPIO_NUM_3)
-#define ECHO_TEST_RTS  (GPIO_NUM_22)
-#endif
 
-#define LED_GREEN_BCU     GPIO_NUM_27
+#define TTL_TXD_BCU				GPIO_NUM_19
+#define TTL_RXD_BCU				GPIO_NUM_3
+#define TTL_RTS_BCU				GPIO_NUM_22
 
+#define LED_GREEN_BCU			GPIO_NUM_27
+
+/* ========================================================================== */
+/* WROVER only related I/O                                                      */
+/* ========================================================================== */
+
+// Note: UART2 default pins IO16, IO17 do not work on ESP32-WROVER module
+// because these pins connected to PSRAM
+#define ECHO_TEST_TXD_WROVER		GPIO_NUM_26
+#define ECHO_TEST_RXD_WROVER		GPIO_NUM_25
+// RTS for RS485 Half-Duplex Mode manages DE/~RE
+#define ECHO_TEST_RTS_WROVER		GPIO_NUM_18
+
+// for TTL one wire
+#define TTL_TXD_WROVER				GPIO_NUM_21
+#define TTL_RXD_WROVER				GPIO_NUM_3
+#define TTL_RTS_WROVER				GPIO_NUM_1
 
 /* ========================================================================== */
 /* WiFi only related I/O                                                      */
 /* ========================================================================== */
 
-#ifdef __USE_ESP_WROVER_KIT
-// Note: UART2 default pins IO16, IO17 do not work on ESP32-WROVER module
-// because these pins connected to PSRAM
-#define ECHO_TEST_TXD  (GPIO_NUM_26)
-#define ECHO_TEST_RXD  (GPIO_NUM_25)
+#define ECHO_TEST_TXD_WIFI		GPIO_NUM_26
+#define ECHO_TEST_RXD_WIFI		GPIO_NUM_25
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
-#define ECHO_TEST_RTS   (GPIO_NUM_18)
+#define ECHO_TEST_RTS_WIFI		GPIO_NUM_18
 
 // for TTL one wire
-#define TTL_TXD         (GPIO_NUM_21)
-#define TTL_RXD 		(GPIO_NUM_3)
-#define TTL_RTS			(GPIO_NUM_1)
-
-#endif
-
-
-#ifdef __USE_USR_WIFI_HW
-#define ECHO_TEST_TXD  (GPIO_NUM_26)
-#define ECHO_TEST_RXD  (GPIO_NUM_25)
-// RTS for RS485 Half-Duplex Mode manages DE/~RE
-#define ECHO_TEST_RTS   (GPIO_NUM_18)
-
-
-// for TTL one wire
-#define TTL_TXD         (21)
-#define TTL_RXD 		(3)
+#define TTL_TXD_WIFI			GPIO_NUM_21
+#define TTL_RXD_WIFI			GPIO_NUM_3
 
 //#define TTL_TXD       (GPIO_NUM_1)
 //#define TTL_RXD 		(GPIO_NUM_3)
 
 //TODO Bilato eliminabile questo pin ?
-#define TTL_RTS			(GPIO_NUM_18)
-#endif
+#define TTL_RTS_WIFI			GPIO_NUM_18
 
 
-#define LED_GREEN_WIFI     GPIO_NUM_27
-#define LED_RED_WIFI       GPIO_NUM_5
 
+#define LED_GREEN_WIFI			GPIO_NUM_27
+#define LED_RED_WIFI			GPIO_NUM_5
 
+// button pin
+#define CONFIG_RESET_BUTTON_WIFI	GPIO_NUM_0
+#define CONFIG_RESET_BUTTON_GSM 	GPIO_NUM_0
+#define CONFIG_RESET_BUTTON_WROVER	GPIO_NUM_19
 
 /* ========================================================================== */
 /* 2G only related I/O                                                        */
@@ -99,29 +98,27 @@
 #endif
 
 
-#define GSM_PWRKEY_PIN       GPIO_NUM_23
+#define GSM_PWRKEY_PIN       	GPIO_NUM_23
 
-#ifdef __USE_USR_2G_HW
-#define ECHO_TEST_TXD  (GPIO_NUM_26)
-#define ECHO_TEST_RXD  (GPIO_NUM_25)
+#define ECHO_TEST_TXD_2G		GPIO_NUM_26
+#define ECHO_TEST_RXD_2G		GPIO_NUM_25
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
-
 #ifdef CHINESE_HW_TEST
-#define ECHO_TEST_RTS   (GPIO_NUM_12)
+#define ECHO_TEST_RTS_2G		GPIO_NUM_12
 #else
-#define ECHO_TEST_RTS   (GPIO_NUM_22)
+#define ECHO_TEST_RTS_2G		GPIO_NUM_22
 #endif
 
 // for TTL one wire
 //TODO CHIEBAO da sistemare
-#define TTL_TXD         (GPIO_NUM_21)
-#define TTL_RXD 		(GPIO_NUM_3)
-#define TTL_RTS			(GPIO_NUM_1)
-#endif
+#define TTL_TXD_2G				GPIO_NUM_21
+#define TTL_RXD_2G				GPIO_NUM_3
+#define TTL_RTS_2G				GPIO_NUM_1
 
-#define LED_GREEN_2G     GPIO_NUM_27
-#define LED_RED_2G       GPIO_NUM_5
-#define LED_BLU_2G       GPIO_NUM_33
+
+#define LED_GREEN_2G     		GPIO_NUM_27
+#define LED_RED_2G       		GPIO_NUM_5
+#define LED_BLU_2G       		GPIO_NUM_33
 
 
 /* ========================================================================== */
@@ -156,8 +153,16 @@
 /* ========================================================================== */
 /* function prototype                                                         */
 /* ========================================================================== */
-void Init_Button_Pin(void);
+void Init_Pins(void);
 int Get_Button_Pin(void);
+
+int Get_TEST_TXD(void);
+int Get_TEST_RXD(void);
+int Get_TEST_RTS(void);
+int Get_TTL_TXD(void);
+int Get_TTL_RXD(void);
+int Get_TTL_RTS(void);
+
 void Configure_IO_Check_HW_Platform_IS(void);
 C_BYTE Check_HW_Platform_IS(void);
 void Init_IO_IS(void);
