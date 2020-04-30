@@ -43,12 +43,6 @@
 #include "SoftWDT.h"
 #include "IO_Port_IS.h"
 
-#ifdef __USE_USR_2G_HW
-#include "GSM_Miscellaneous_IS.h"
-#endif
-
-
-
 #ifdef __DEBUG_MAIN_CAREL_LEV_2
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
 #else
@@ -98,11 +92,8 @@ void Carel_Main_Task(void)
   static C_UINT32 NVMBaudrate;
   static C_BYTE   NVMConnector;
 
-  #ifdef __USE_USR_2G_HW
   static C_BYTE gsm_on_1_shoot;
   static C_BYTE gsm_start_delay;
-  #endif
-
 
   SoftWDT_Init(SWWDT_MAIN_DEVICE, SWWDT_DEFAULT_TIME);
 
@@ -119,14 +110,12 @@ void Carel_Main_Task(void)
 		  {
 			  Init_IO_IS();
 
-              #ifdef __USE_USR_2G_HW
 			  if PLATFORM(PLATFORM_DETECTED_2G)
 		      {
 				GSM_Module_Pwr_Supply_On_Off(GSM_POWER_SUPPLY_ON);
                 gsm_on_1_shoot = 0;
                 gsm_start_delay = 0;
 			  }
-              #endif
 
 			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
@@ -150,8 +139,6 @@ void Carel_Main_Task(void)
 					if(C_SUCCESS == FS_CheckFiles()){
 						sm = GME_RADIO_CONFIG;
 
-                        #ifdef __USE_USR_2G_HW
-
 						if PLATFORM(PLATFORM_DETECTED_2G)
 					    {
 						  if ((gsm_on_1_shoot == 0) && (gsm_start_delay == 0))
@@ -169,8 +156,6 @@ void Carel_Main_Task(void)
 							}
 						  }
 					    }
-                        #endif
-
 					}else{
 						sm = GME_CHECK_FILES;
 						PRINTF_DEBUG("Please be sure that the certificates are uploaded correctly under the following paths:\nCert1: %s\nCert2: %s\n\n",CERT1_SPIFFS,CERT2_SPIFFS);

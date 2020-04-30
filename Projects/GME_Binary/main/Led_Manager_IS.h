@@ -26,11 +26,9 @@
 #endif
 
 /* time in ms TAKE CARE is a busy wait time */
-#ifdef __USE_USR_2G_HW
-#define LED_TEST_DELAY 500
-#else
+
+#define LED_TEST_DELAY_2G 500
 #define LED_TEST_DELAY 100
-#endif
 
 /* time in seconds */
 #define LED_BLINK_FAST_INTERVAL    1

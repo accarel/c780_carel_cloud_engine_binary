@@ -35,17 +35,19 @@
 #define PLATFORM_DETECTED_ESP_WROVER_KIT  4
 
 /* ========================================================================== */
-/* development platform                                                       */
+/* uncomment for development platform                                         */
 /* ========================================================================== */
-//#define __USE_ESP_WROVER_KIT
+#define __USE_ESP_WROVER_KIT
 
 /* ========================================================================== */
-/*  OFFICIAL HW PLATFORM                                                      */
+/*  uncomment for bcu PLATFORM                                                */
 /* ========================================================================== */
 //#define __USE_CAREL_BCU_HW
-#define __USE_USR_WIFI_HW
-//#define __USE_USR_2G_HW
 
+/* ========================================================================== */
+/*  for WiFi ad 2G platforms comment both above defines                       */
+/*  model recognition will happen automatically	                              */
+/* ========================================================================== */
 
 /**
  * @brief INCLUDE_PLATFORM_DEPENDENT

@@ -903,18 +903,18 @@ void Update_Led_Fact_Def_B_2g(C_BYTE fact_def_a_status)
 void Do_Led_Test_Routine_2g(void){
 
 	WORK_LED(LED_ON);
-    Sys__Delay(LED_TEST_DELAY);
+    Sys__Delay(LED_TEST_DELAY_2G);
     LINK_A(LED_ON);
-	Sys__Delay(LED_TEST_DELAY);
+	Sys__Delay(LED_TEST_DELAY_2G);
 	LINK_B(LED_ON);
-	Sys__Delay(LED_TEST_DELAY);
+	Sys__Delay(LED_TEST_DELAY_2G);
 
 	WORK_LED(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
+	Sys__Delay(LED_TEST_DELAY_2G);
 	LINK_A(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
+	Sys__Delay(LED_TEST_DELAY_2G);
 	LINK_B(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
+	Sys__Delay(LED_TEST_DELAY_2G);
 }
 
 //

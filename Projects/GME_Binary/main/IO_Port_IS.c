@@ -238,7 +238,6 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 {
 	C_BYTE gsm_init;
 
-#ifdef __USE_USR_2G_HW
 
     #ifdef __DEBUG_GSM_MISCELLANEOUS_IS_LEV_2
     PRINTF_DEBUG("GSM_Module_Pon_Poff set_status %X \r\n", set_status);
@@ -285,8 +284,6 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 		   //TODO Bilato raise an error
 		   break;
 	}
-
-#endif
 }
 
 void Init_Pins(void){
