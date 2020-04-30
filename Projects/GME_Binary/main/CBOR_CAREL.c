@@ -426,7 +426,9 @@ size_t CBOR_Values(C_CHAR* cbor_stream, C_UINT16 index, C_UINT16 number, C_INT16
 
 	// encode cnt - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "cnt");
-	err |= cbor_encode_uint(&mapEncoder, pkt_cnt++);
+	err |= cbor_encode_uint(&mapEncoder, pkt_cnt);
+	if (frame < 0)
+		pkt_cnt++; 	// do not increment "cnt" field if message is fragmented (unless it is the last)
 	DEBUG_ADD(err, "cnt");
 
 	// encode btm - elem3
