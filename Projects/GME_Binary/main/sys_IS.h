@@ -14,7 +14,7 @@
 
 
 
-#ifdef SYS_DEBUG == ENABLED
+#if SYS_DEBUG == ENABLED
 	#define	PRINTF_DEBUG_SYS	printf
 #else
 	#define	PRINTF_DEBUG_SYS(...)
