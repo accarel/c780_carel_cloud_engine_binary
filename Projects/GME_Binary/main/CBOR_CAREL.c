@@ -1775,7 +1775,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 					Sys__Delay(10);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
 
 				PollEngine_StopEngine_CAREL();
-				previous_poll_engine_status = true;
+				previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
 			}
 			cbor_req.res = (execute_scan_devices(&answer, &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
@@ -1873,7 +1873,7 @@ data_rx_len=0;
 					Sys__Delay(100);
 
 				PollEngine_StopEngine_CAREL();
-				previous_poll_engine_status = true;
+				previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
 
 				if (cbor_req.cmd == READ_VALUES)
 					cbor_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1915,7 +1915,7 @@ data_rx_len=0;
 			if (err == C_SUCCESS) {
 				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
 					PollEngine_StopEngine_CAREL();
-					previous_poll_engine_status = true;
+					previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
 				}
 
 				Modbus_Disable();  // 12/03/2020 Chiebao
@@ -1956,7 +1956,7 @@ data_rx_len=0;
 					Sys__Delay(100);
 				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
 					PollEngine_StopEngine_CAREL();
-					previous_poll_engine_status = true;
+					previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
 				}
 
 				err = OTA__DevFWUpdate(&update_dev_fw);
