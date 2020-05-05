@@ -1714,19 +1714,12 @@ void Led_init(void)
 {
     #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-    #ifdef  __USE_CAREL_BCU_HW
 	if PLATFORM(PLATFORM_DETECTED_BCU) Led_init_bcu();
-    #else
-
-	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Led_init_esp_wrover_kit();
-    #endif
 
 	/* pin is pull down on 2G and pull upped on WiFi*/
 	if PLATFORM(PLATFORM_DETECTED_2G) Led_init_2g();
 	if PLATFORM(PLATFORM_DETECTED_WIFI) Led_init_wifi();
-
-    #endif
 
     #endif
 
@@ -1735,18 +1728,12 @@ void Led_init(void)
 void Do_Led_Test_Routine(void){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-   #ifdef  __USE_CAREL_BCU_HW
 	if PLATFORM(PLATFORM_DETECTED_BCU) Do_Led_Test_Routine_bcu();
-   #else
-
-    #ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Do_Led_Test_Routine_esp_wrover_kit();
-    #endif
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Do_Led_Test_Routine_2g();
     if PLATFORM(PLATFORM_DETECTED_WIFI) Do_Led_Test_Routine_wifi();
-   #endif
 
 #endif
 
@@ -1756,18 +1743,12 @@ void Do_Led_Test_Routine(void){
 void Update_Led_Model_Cfg(C_BYTE model_cfg_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-  #ifdef  __USE_CAREL_BCU_HW
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Model_Cfg_bcu(model_cfg_status);
-  #else
-
-    #ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Model_Cfg_esp_wrover_kit(model_cfg_status);
-    #endif
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Model_Cfg_2g(model_cfg_status);
     if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Model_Cfg_wifi(model_cfg_status);
-#endif
 
 #endif
 }
@@ -1775,18 +1756,12 @@ void Update_Led_Model_Cfg(C_BYTE model_cfg_status){
 void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-  #ifdef  __USE_CAREL_BCU_HW
   if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_MQTT_Conn_bcu(mqtt_conn_status);
-  #else __USE_ESP_WROVER_KIT
-
-  #ifdef __USE_ESP_WROVER_KIT
   if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_MQTT_Conn_esp_wrover_kit(mqtt_conn_status);
-  #endif
 
   /* pin is pull down on 2G and pull upped on WiFi*/
   if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_MQTT_Conn_2g(mqtt_conn_status);
   if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_MQTT_Conn_wifi(mqtt_conn_status);
-  #endif
 
 #endif
 }
@@ -1794,20 +1769,12 @@ void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
 void Update_Led_RS485(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-    #ifdef  __USE_CAREL_BCU_HW
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_RS485_bcu(rs485_status);
-
-	#else
-
-	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT)Update_Led_RS485_esp_wrover_kit(rs485_status);
-    #endif
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_RS485_2g(rs485_status);
     if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_RS485_wifi(rs485_status);
-
-    #endif
 
 #endif
 }
@@ -1817,20 +1784,12 @@ void Update_Led_RS485(C_BYTE rs485_status){
 void Update_Led_Fact_Def_A(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-    #ifdef  __USE_CAREL_BCU_HW
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Fact_Def_A_bcu(rs485_status);
-
-	#else
-
-	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_A_esp_wrover_kit(rs485_status);
-    #endif
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Fact_Def_A_2g(rs485_status);
     if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Fact_Def_A_wifi(rs485_status);
-
-    #endif
 
 #endif
 }
@@ -1838,20 +1797,12 @@ void Update_Led_Fact_Def_A(C_BYTE rs485_status){
 void Update_Led_Fact_Def_B(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-    #ifdef  __USE_CAREL_BCU_HW
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Fact_Def_B_bcu(rs485_status);
-
-	#else
-
-	#ifdef __USE_ESP_WROVER_KIT
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_B_esp_wrover_kit(rs485_status);
-    #endif
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Fact_Def_B_2g(rs485_status);
     if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Fact_Def_B_wifi(rs485_status);
-
-    #endif
 
 #endif
 }
