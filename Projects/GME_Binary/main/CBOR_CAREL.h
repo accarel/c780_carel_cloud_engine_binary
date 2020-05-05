@@ -43,7 +43,7 @@
 
 #define TAG_SIZE				3
 
-#define RESPONSE_SIZE			80
+#define RESPONSE_SIZE			150
 #define ALIAS_SIZE				5
 #define VAL_SIZE				10
 #define A_SIZE					30
@@ -66,7 +66,7 @@ typedef enum{
 	mbR_DI,
 	mbR_HR,
 	mbR_IR,
-	mbW_COIL = 15,
+	mbW_COIL,
 	mbW_HR,
 }mb_Functions_t;
 
