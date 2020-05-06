@@ -6,7 +6,7 @@
         <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
         <Field Type="Text" Name="Text" Row="2" Column="1" Content="Gateway Modubus Test" />
         <Field Type="Text" Name="Text_2" Row="4" Column="1" Content="PRESS  to continue" />
-        <Field Type="Text" Name="Text_3" Row="6" Column="5" Content="V.2.1 OTA1" />
+        <Field Type="Text" Name="Text_3" Row="6" Column="5" Content="V.3.0 OTA1" />
       </Fields>
     </Mask>
     <Mask Name="Mask" Type="Normal" X="0" Y="2">
