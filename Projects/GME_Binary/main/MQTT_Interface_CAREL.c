@@ -152,17 +152,6 @@ C_RES MQTT_Start(void)
     return err;
 }
 
-/**
- * @brief MQTT_Message_Received_Callback
- *         
- * @param param1 broker_uri  - the uri of the broker ie. "mqtt-dev.tera.systems"
- * @param param2 broke_port  - the listen port of the broker ie. 8883
- * @return none 
- */
-void MQTT_Message_Received_Callback(C_SCHAR *msg, C_UINT16 len)
-{
-	CBOR_ReqTopicParser((C_CHAR*)msg, len);
-}
 
 void MQTT_Stop(void)
 {
@@ -336,8 +325,8 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
         case MQTT_EVENT_DATA:
         {
-        	C_GATEWAY_ID dev_id;
-			Get_Gateway_ID(&dev_id);
+            C_GATEWAY_ID dev_id;
+            Get_Gateway_ID(&dev_id);
 
 			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_DATA");
