@@ -1,0 +1,75 @@
+- Start check GME MODEL -
+Type the model file name:
+modbus_salve_v3.0_model.bin
+Read File ok
+Size model Ok
+Header signature:  GME_MBT
+Header version  :  256
+Model GUID      : cf cd 20 84 95 d5 35 ef a6 e7 df f9 f9 87 64 da
+Model Version   :  100027A
+
+Stop   bit   :  1
+Parity bit   :  0
+
+LOW POLLING:
+Coil   2
+Disc   2
+HR     4
+IR     1
+HIGH POLLING:
+Coil   2
+Disc   0
+HR     5
+IR     1
+ALARM POLLING:
+Coil   3
+Disc   1
+HR     0
+IR     0
+
+CRC OK
+
+--------------------- LOW Coil --------------------
+Alias  ADDR
+   6,   13
+   7,   14
+-------------------- HIGH Coil --------------------
+Alias  ADDR
+   1,    1
+   2,    2
+--------------------- ALARM  ----------------------
+Alias  ADDR
+   3,    3
+   4,   11
+   5,   12
+--------------------- LOW Di   --------------------
+Alias  ADDR
+   8,    1
+   9,    2
+--------------------- HIGH Di  --------------------
+Alias  ADDR
+--------------------- ALARM Di --------------------
+Alias  ADDR
+  10,    3
+---------------------- LOW Hr ---------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+  12,    2,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  15,   12,  193,   16,    0,   16, 0.10, 0.00, 0.00
+  16,   13,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  18,  101,  192,   16,    0,   16, 1.00, 0.00, 0.00
+--------------------- HIGH Hr ---------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+  11,    1,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  14,   11,  193,   16,    0,   16, 0.10, 0.00, 0.00
+  17,  100,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  22,  200,  196,   32,    0,   32, 1.00, 0.00, 0.00
+  23,  202,  192,   32,    0,   32, 1.00, 0.00, 0.00
+-------------------- ALARM Hr ---------------------
+------------------- LOW Ir ------------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+  20,    2,  192,   16,    0,   16, 1.00, 0.00, 0.00
+---------------------- HIGH Ir --------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+  19,    1,  192,   16,    0,   16, 1.00, 0.00, 0.00
+--------------------- ALARM Ir --------------------
+Alias  ADDR
