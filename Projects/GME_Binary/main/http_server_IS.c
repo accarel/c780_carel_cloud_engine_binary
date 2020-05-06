@@ -130,6 +130,14 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 
 	cJSON_AddItemToObject(html_config, HTMLCONF_NTP_SRVR_ADDR, cJSON_CreateString(wifi_config->ntp_server_addr));
 
+	// for web pages access, username and password
+	char login[34];
+	char password[34];
+	GetLoginUsr(login);
+	GetLoginPsw(password);
+	cJSON_AddItemToObject(html_config, "login_usr", cJSON_CreateString(login));
+	cJSON_AddItemToObject(html_config, "login_pswd", cJSON_CreateString(password));
+
 	/* print everything */
 	out = cJSON_Print(html_config);
 	PRINTF_DEBUG_SERVER("html_config.json:%s\n", out);
@@ -172,6 +180,7 @@ static C_RES download_get_handler(httpd_req_t *req)
     char filepath[FILE_PATH_MAX];
     FILE *fd = NULL;
     struct stat file_stat;
+    uint8_t cred_conf = DEFAULT;
 
     const char *filename = get_path_from_uri(filepath, ((struct file_server_data *)req->user_ctx)->base_path,
                                              req->uri, sizeof(filepath));
@@ -187,7 +196,6 @@ static C_RES download_get_handler(httpd_req_t *req)
 
     /* If name has trailing '/', respond with directory contents */
     if (filename[strlen(filename) - 1] == '/') {
-    	uint8_t cred_conf = DEFAULT;
     	if(ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
     		return file_get_handler(req, LOGIN_HTML);
     	}else{
@@ -195,34 +203,30 @@ static C_RES download_get_handler(httpd_req_t *req)
     	}
     }
 
-
-    PRINTF_DEBUG_SERVER("Requested path = %s\n",filename);
-    if (stat(filepath, &file_stat) == 0) {
-        /* If file not present on SPIFFS check if URI
-         * corresponds to one of the hardcoded paths */
-        if (strcmp(filename, "/login.html") == 0) {
-        	httpd_resp_set_status(req, "303 See Other");
-            return httpd_resp_set_hdr(req, "Location", "/");
-        }
-        else if (strcmp(filename, "/config.html") == 0) {
-        	return file_get_handler(req, CONFIG_HTML);
-        }
-        else if (strcmp(filename, "/fav.ico") == 0) {
-            return file_get_handler(req, FAV_ICON);
-        }
-        else if (strcmp(filename, "/style.css") == 0){
-        	return file_get_handler(req, STYLE_CSS);
-        }
-    }else{
-    	if (strcmp(filename, "/config.json") == 0){
+	PRINTF_DEBUG_SERVER("Requested path = %s\n",filename);
+	if (stat(filepath, &file_stat) == 0) {
+		/* If file not present on SPIFFS check if URI
+		 * corresponds to one of the hardcoded paths */
+		if (strcmp(filename, "/config.html") == 0) {
+			if(ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED) && (IsLoginDone()))
+				return file_get_handler(req, CONFIG_HTML);
+		}
+		else if (strcmp(filename, "/fav.ico") == 0) {
+			return file_get_handler(req, FAV_ICON);
+		}
+		else if (strcmp(filename, "/style.css") == 0){
+			return file_get_handler(req, STYLE_CSS);
+		}
+	}else{
+		if (strcmp(filename, "/config.json") == 0){
 			return http_resp_config_json(req);
 		}
 
-		ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
-		/* Respond with 404 Not Found */
-		httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "File does not exist");
-		return ESP_FAIL;
-    }
+	ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
+	/* Respond with 404 Not Found */
+	httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "File does not exist");
+	return ESP_FAIL;
+	}
 
     fd = fopen(filepath, "r");
     if (!fd) {
@@ -277,7 +281,7 @@ static C_RES upload_post_handler(httpd_req_t *req)
     		//send_config = true;
 
     	}else{
-    		PRINTF_DEBUG_SERVER("\nWorng login \n");
+    		PRINTF_DEBUG_SERVER("\nWrong login \n");
     		httpd_resp_set_status(req, "303 See Other");
     		httpd_resp_set_hdr(req, "Location", "/");
     	}

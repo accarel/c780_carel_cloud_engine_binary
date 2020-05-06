@@ -38,6 +38,7 @@ static html_login_cred_t HTMLLogin = {
 };
 
 static char ap_ssid_def[30] = {0};
+bool login_done = FALSE;
 
 //Private Functions Declaration
 void url_decoder(char *buf) {
@@ -183,6 +184,7 @@ int check_html_credentials(char* sent_parameters){
 
 
     if ((strcmp(html_login.login_usr, HTMLLogin.login_usr) == 0) && (strcmp(html_login.login_pswd, HTMLLogin.login_pswd) == 0)){
+    	login_done = TRUE;
     	return 1;
     }
 
@@ -275,6 +277,20 @@ void get_html_config_received_data(char* sent_parameters){
     get_value_from_string(sent_parameters, HTMLCONF_NTP_SRVR_ADDR, (unsigned short)(strlen(HTMLCONF_NTP_SRVR_ADDR)), &data_value[0]);
     strcpy(HTMLConfig.ntp_server_addr,data_value);
     PRINTF_DEBUG_SERVER("ntp_server_addr: %s\n",HTMLConfig.ntp_server_addr);
+
+    get_value_from_string(sent_parameters, "login_usr", (unsigned short)(strlen("login_usr")), &data_value[0]);
+    strcpy(HTMLConfig.login_usr,data_value);
+    PRINTF_DEBUG_SERVER("login_usr: %s\n",HTMLConfig.login_usr);
+
+    get_value_from_string(sent_parameters, "login_pswd", (unsigned short)(strlen("login_pswd")), &data_value[0]);
+    strcpy(HTMLConfig.login_pswd,data_value);
+    PRINTF_DEBUG_SERVER("login_pswd: %s\n",HTMLConfig.login_pswd);
+
+    if ((strlen(HTMLConfig.login_usr) > 0) && (strlen(HTMLConfig.login_pswd) > 0)){
+     	esp_err_t err1, err2;
+     	err1 = NVM__WriteString(HTMLLOGIN_USR, HTMLConfig.login_usr);
+     	err2 = NVM__WriteString(HTMLLOGIN_PSWD, HTMLConfig.login_pswd);
+    }
 }
 
 
@@ -313,4 +329,18 @@ char* HTTPServer__SetAPDefSSID(const char* default_name){
 
 uint8_t GetSsidSelection(void){
 	return HTMLConfig.ap_scan_mode;
+}
+
+bool IsLoginDone(void){
+	return login_done;
+}
+
+void GetLoginUsr(char* tmp_login_usr){
+	size_t len = 0;
+	NVM__ReadString(HTMLLOGIN_USR,tmp_login_usr,&len);
+}
+
+void GetLoginPsw(char* tmp_login_psw){
+	size_t len = 0;
+	NVM__ReadString(HTMLLOGIN_PSWD,tmp_login_psw,&len);
 }

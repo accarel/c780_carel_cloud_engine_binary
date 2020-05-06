@@ -46,7 +46,8 @@
 #define HTMLCONF_MQTT_SRVR_ADDR	"mqtt_addr"
 #define HTMLCONF_MQTT_SRVR_PORT	"mqtt_port"
 
-
+#define HTMLCONF_LOGIN_USR		"login_usr"
+#define HTMLCONF_LOGIN_USR		"login_pswd"
 
 #if HTTP_SERVER_DEBUG == 1
 	#define	PRINTF_DEBUG_SERVER	printf
@@ -89,6 +90,8 @@ typedef struct _html_config_param_s
 	char	ntp_server_port[6];
 	char	mqtt_server_addr[60];
 	char	mqtt_server_port[6];
+	char	login_usr[34];
+	char	login_pswd[34];
 }html_config_param_t;
 #pragma pack()
 
@@ -111,5 +114,9 @@ html_config_param_t HTTPServer__GetCustomConfig (void);
 void SetWpsParameters(wifi_config_t wifi_config_temp);
 uint8_t GetSsidSelection(void);
 char* HTTPServer__SetAPDefSSID(const char* default_name);
+bool IsLoginDone(void);
+
+void GetLoginUsr(char*);
+void GetLoginPsw(char*);
 
 #endif /* MAIN_HTTP_SERVER_H_ */
