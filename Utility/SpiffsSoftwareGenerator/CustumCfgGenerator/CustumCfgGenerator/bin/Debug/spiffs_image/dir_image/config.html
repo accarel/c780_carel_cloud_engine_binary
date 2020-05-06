@@ -142,6 +142,21 @@
               
             </table>
           </div>
+		  
+		   <div id="webpages_access">
+            <table style="width: 350px">
+              <tr><h2>Change credentials</h2></tr>
+			  <tr>
+			   <td class="list_input"><label for="uname"><b>Username</b></label></td>
+			   <td><input type="text" value="" name="login_usr"></td>
+			  </tr>
+
+			  <tr>
+			   <td class="list_input"><label for="uname"><b>Password</b></label></td>
+			   <td><input type="password" value="" name="login_pswd"></td>
+            </table>
+          </div>
+		  
         </div>
         <label for="end"></label><input type="text" name="end" value="end" style="display: none;">
         <button style="margin-left: 100px" class="admin-link" type="submit" onclick="myFunction()">Submit</button>
@@ -197,6 +212,9 @@ var configjs;
             document.getElementsByName('sta_pri_dns')[0].value = configjs.sta_pri_dns;
             document.getElementsByName('sta_scnd_dns')[0].value = configjs.sta_scnd_dns;
             document.getElementsByName('ntp_addr')[0].value = configjs.ntp_addr;
+			
+		    document.getElementsByName('login_usr')[0].value = configjs.login_usr;
+		    document.getElementsByName('login_pswd')[0].value = configjs.login_pswd;
         }
     }
 	
