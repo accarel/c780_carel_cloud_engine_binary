@@ -48,6 +48,7 @@
             this.textBoxMQTT_Server_Port = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button_ReqDBGInfo = new System.Windows.Forms.Button();
             this.buttonSet_Lines_Config_TTL = new System.Windows.Forms.Button();
             this.button_flush = new System.Windows.Forms.Button();
             this.button_reboot = new System.Windows.Forms.Button();
@@ -196,7 +197,6 @@
             this.textBox_MQTT_ID = new System.Windows.Forms.TextBox();
             this.textBox_MQTT_PWD = new System.Windows.Forms.TextBox();
             this.label53 = new System.Windows.Forms.Label();
-            this.button_ReqDBGInfo = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -429,6 +429,17 @@
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
+            // 
+            // button_ReqDBGInfo
+            // 
+            this.button_ReqDBGInfo.Location = new System.Drawing.Point(145, 497);
+            this.button_ReqDBGInfo.Margin = new System.Windows.Forms.Padding(4);
+            this.button_ReqDBGInfo.Name = "button_ReqDBGInfo";
+            this.button_ReqDBGInfo.Size = new System.Drawing.Size(129, 46);
+            this.button_ReqDBGInfo.TabIndex = 24;
+            this.button_ReqDBGInfo.Text = "Req. DBG Info";
+            this.button_ReqDBGInfo.UseVisualStyleBackColor = true;
+            this.button_ReqDBGInfo.Click += new System.EventHandler(this.button_ReqDBGInfo_Click);
             // 
             // buttonSet_Lines_Config_TTL
             // 
@@ -744,7 +755,7 @@
             this.textBox_MB_HR_W_Func.ReadOnly = true;
             this.textBox_MB_HR_W_Func.Size = new System.Drawing.Size(55, 22);
             this.textBox_MB_HR_W_Func.TabIndex = 24;
-            this.textBox_MB_HR_W_Func.Text = "16";
+            this.textBox_MB_HR_W_Func.Text = "6";
             this.textBox_MB_HR_W_Func.TextChanged += new System.EventHandler(this.TextBox1_TextChanged_1);
             // 
             // label4
@@ -1197,7 +1208,7 @@
             this.textBox_MB_COIL_W_Func.ReadOnly = true;
             this.textBox_MB_COIL_W_Func.Size = new System.Drawing.Size(55, 22);
             this.textBox_MB_COIL_W_Func.TabIndex = 44;
-            this.textBox_MB_COIL_W_Func.Text = "15";
+            this.textBox_MB_COIL_W_Func.Text = "5";
             // 
             // button_MB_Write_COIL
             // 
@@ -2036,17 +2047,6 @@
             this.label53.Size = new System.Drawing.Size(40, 17);
             this.label53.TabIndex = 70;
             this.label53.Text = "PWD";
-            // 
-            // button_ReqDBGInfo
-            // 
-            this.button_ReqDBGInfo.Location = new System.Drawing.Point(145, 497);
-            this.button_ReqDBGInfo.Margin = new System.Windows.Forms.Padding(4);
-            this.button_ReqDBGInfo.Name = "button_ReqDBGInfo";
-            this.button_ReqDBGInfo.Size = new System.Drawing.Size(129, 46);
-            this.button_ReqDBGInfo.TabIndex = 24;
-            this.button_ReqDBGInfo.Text = "Req. DBG Info";
-            this.button_ReqDBGInfo.UseVisualStyleBackColor = true;
-            this.button_ReqDBGInfo.Click += new System.EventHandler(this.button_ReqDBGInfo_Click);
             // 
             // Form1
             // 
