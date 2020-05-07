@@ -46,9 +46,6 @@
 #define HTMLCONF_MQTT_SRVR_ADDR	"mqtt_addr"
 #define HTMLCONF_MQTT_SRVR_PORT	"mqtt_port"
 
-#define HTMLCONF_LOGIN_USR		"login_usr"
-#define HTMLCONF_LOGIN_USR		"login_pswd"
-
 #if HTTP_SERVER_DEBUG == 1
 	#define	PRINTF_DEBUG_SERVER	printf
 #else

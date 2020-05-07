@@ -278,11 +278,11 @@ void get_html_config_received_data(char* sent_parameters){
     strcpy(HTMLConfig.ntp_server_addr,data_value);
     PRINTF_DEBUG_SERVER("ntp_server_addr: %s\n",HTMLConfig.ntp_server_addr);
 
-    get_value_from_string(sent_parameters, "login_usr", (unsigned short)(strlen("login_usr")), &data_value[0]);
+    get_value_from_string(sent_parameters, HTMLLOGIN_USR, (unsigned short)(strlen(HTMLLOGIN_USR)), &data_value[0]);
     strcpy(HTMLConfig.login_usr,data_value);
     PRINTF_DEBUG_SERVER("login_usr: %s\n",HTMLConfig.login_usr);
 
-    get_value_from_string(sent_parameters, "login_pswd", (unsigned short)(strlen("login_pswd")), &data_value[0]);
+    get_value_from_string(sent_parameters, HTMLLOGIN_PSWD, (unsigned short)(strlen(HTMLLOGIN_PSWD)), &data_value[0]);
     strcpy(HTMLConfig.login_pswd,data_value);
     PRINTF_DEBUG_SERVER("login_pswd: %s\n",HTMLConfig.login_pswd);
 
