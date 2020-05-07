@@ -2409,13 +2409,15 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 
 	switch(cbor_wv.func){
 
-		case mbW_COIL:{
+		case mbW_COIL:
+		case mbW_COILS:{
 
-			result = PollEngine__Write_COIL_Req(val_to_write, cbor_wv.addr);
+			result = PollEngine__Write_COIL_Req(val_to_write, cbor_wv.addr, cbor_wv.func);
 		}
 		break;
 
-		case mbW_HR:{
+		case mbW_HR:
+		case mbW_HRS:{
 
 			if(cbor_wv.flags.bit.fixedpoint == 1 ||
 			   cbor_wv.flags.bit.ieee == 1)
@@ -2424,7 +2426,7 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 			if(cbor_wv.dim == 16) { num_reg = 1; }
 			else                  { num_reg = 2; }
 
-			result = PollEngine__Write_HR_Req(val_to_write , cbor_wv.addr, num_reg);
+			result = PollEngine__Write_HR_Req(val_to_write , cbor_wv.addr, num_reg, cbor_wv.func);
 		}
 		break;
 

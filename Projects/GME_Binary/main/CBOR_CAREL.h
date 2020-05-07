@@ -68,6 +68,8 @@ typedef enum{
 	mbR_IR,
 	mbW_COIL,
 	mbW_HR,
+	mbW_COILS = 15,
+	mbW_HRS = 16
 }mb_Functions_t;
 
 typedef enum CloudtoGME_Commands_l{

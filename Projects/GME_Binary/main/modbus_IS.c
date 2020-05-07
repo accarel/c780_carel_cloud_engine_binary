@@ -289,26 +289,26 @@ int app_input_register_read(const uint8_t addr, const int func, const int index,
 
 
 // app_coil_write
-int app_coil_write(const uint8_t addr, const int index, short newData)
+int app_coil_write(const uint8_t addr, const int index, short newData, int multi)
 {
 	C_RES result = C_SUCCESS;
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
-
-    errorCode = eMBMasterReqWriteCoil( addr, index, newData,timeout);
-
+    if (multi == SINGLE)
+    	errorCode = eMBMasterReqWriteCoil( addr, index, newData,timeout);
+    else
+    	errorCode = eMBMasterReqWriteMultipleCoils(addr, index, 1, &newData, timeout);	// we are sending a multiple coils write even if we always write a single coil
+                                                                                    	// this is just for compatibility with those devices only accepting multiple write operations
     result = errorCode;
 #endif
     Modbus__Delay();
     return result;
 }
 
-
-
 // app_hr_write
-int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 * newData)
+int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 * newData, int multi)
 {
 	C_RES result = C_SUCCESS;
 
@@ -317,8 +317,11 @@ int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 *
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     const USHORT saddr = index;
 
-    errorCode = eMBMasterReqWriteMultipleHoldingRegister( addr, index, num_of, newData, timeout );
-
+    if (multi == SINGLE)
+    	errorCode = eMBMasterReqWriteHoldingRegister( addr, index, newData, timeout );
+    else
+    	errorCode = eMBMasterReqWriteMultipleHoldingRegister( addr, index, num_of, newData, timeout );  // we are sending a multiple hrs write even if we can write at most 2 contiguous hrs
+                                                                                                      	// this is just for compatibility with those devices only accepting multiple write operations
     result = errorCode;
 #endif
     Modbus__Delay();

@@ -1603,8 +1603,8 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
  * @param  C_FLOAT write_value, uint16_t addr, C_CHAR num
  * @return C_RES
  */
-C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num)
-{
+C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_UINT16 fun){
+
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
     data_f data;
@@ -1621,12 +1621,13 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num)
 		val[0] =  data.reg.high;
 	}
 
-	errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val);
+	if (fun == mbW_HR)
+		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, SINGLE);
+	else if (fun == mbW_HRS)
+		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, MULTI);
 
 	if(errorReq == MB_MRE_NO_ERR)
-	{
 		return C_SUCCESS;
-	}
 	else
 		return C_FAIL;
 }
@@ -1638,28 +1639,24 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num)
  * @param  uint16_t write_value, uint16_t addr
  * @return C_RES
  */
-C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr){
+C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 fun){
 
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
-	uint16_t reg_to_write = 0;
-	uint16_t bit = 0;  // ??
-
 	uint16_t value = 0;
-
-	bit = addr % 16; // ??
 
 	if(write_value == 1)
 	  value = 0xFF00;
 	else
 	  value = 0x0000;
 
-	errorReq = app_coil_write(Modbus__GetAddress(), addr, value);
+	if (fun == mbW_COIL)
+		errorReq = app_coil_write(Modbus__GetAddress(), addr, value, SINGLE);
+	else if (fun == mbW_COILS)
+		errorReq = app_coil_write(Modbus__GetAddress(), addr, write_value, MULTI);
 
 	if(errorReq == MB_MRE_NO_ERR)
-	{
 		return C_SUCCESS;
-	}
 	else
 		return C_FAIL;
 }

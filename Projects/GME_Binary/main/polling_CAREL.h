@@ -57,6 +57,9 @@
 #define TSEND		(10*60)
 #define T_HIGH_POLL	(10)   //(65)
 
+#define SINGLE    	0
+#define MULTI    	1
+
 //Register: Coil and DI low polling and high polling
 #pragma pack(1)
 typedef struct coil_di_low_high_s{
@@ -329,9 +332,9 @@ C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr,C_BYTE dim , C_UIN
 
 C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_value);
 
-C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr);
+C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 fun);
 
-C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num);
+C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_UINT16 fun);
 
 
 values_buffer_t* PollEngine__GetValuesBuffer(void);
