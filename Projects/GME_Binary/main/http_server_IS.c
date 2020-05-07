@@ -135,8 +135,8 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 	char password[34];
 	GetLoginUsr(login);
 	GetLoginPsw(password);
-	cJSON_AddItemToObject(html_config, "login_usr", cJSON_CreateString(login));
-	cJSON_AddItemToObject(html_config, "login_pswd", cJSON_CreateString(password));
+	cJSON_AddItemToObject(html_config, HTMLLOGIN_USR, cJSON_CreateString(login));
+	cJSON_AddItemToObject(html_config, HTMLLOGIN_PSWD, cJSON_CreateString(password));
 
 	/* print everything */
 	out = cJSON_Print(html_config);
