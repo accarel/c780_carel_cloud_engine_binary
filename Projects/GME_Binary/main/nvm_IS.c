@@ -2,13 +2,62 @@
 #include "nvm_IS.h"
 #include "gme_types.h"
 
+#include "unity.h"
+#include "esp_flash_encrypt.h"
+#include "esp_partition.h"
+#include "nvs_flash.h"
+#include "esp_system.h"
+#include <errno.h>
+
+#include "mbedtls/aes.h"
 static nvs_handle my_handle;
 
 C_RES NVM_Init(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	return nvs_flash_init();
-#endif
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+  #ifdef CONFIG_NVS_ENCRYPTION
+	nvs_sec_cfg_t cfg;
+
+	//check that the partition NVS and KEY NVS exists
+	const esp_partition_t* key_part = esp_partition_find_first(ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS_KEYS, NULL);
+	assert(key_part && "partition table must have an NVS Key partition");
+
+	const esp_partition_t* nvs_partition = esp_partition_find_first(
+	            ESP_PARTITION_TYPE_DATA, ESP_PARTITION_SUBTYPE_DATA_NVS, NULL);
+	assert(nvs_partition && "partition table must have an NVS partition");
+
+	// check the initialization of NVS KEY partition
+	esp_err_t err = nvs_flash_read_security_cfg(key_part, &cfg);
+
+	if(err == ESP_ERR_NVS_KEYS_NOT_INITIALIZED)
+	{
+		uint8_t value[4096] = {[0 ... 4095] = 0xff};
+		TEST_ESP_OK(esp_partition_write(key_part, 0, value, sizeof(value)));
+
+		TEST_ESP_ERR(nvs_flash_read_security_cfg(key_part, &cfg), ESP_ERR_NVS_KEYS_NOT_INITIALIZED);
+
+		PRINTF_DEBUG_NVM("Generate the nvs key for Encrypt.");
+		TEST_ESP_OK(nvs_flash_generate_keys(key_part, &cfg));
+
+	}
+	else
+	{
+		PRINTF_DEBUG_NVM("Already generated nvs key for Encrypt.");
+		// Second time key_partition exists already
+		ESP_ERROR_CHECK(err);
+	}
+
+
+	return nvs_flash_secure_init(&cfg);
+
+  #else
+        return nvs_flash_init();   // old initialization without encryption
+  #endif
+
+ #endif
+
 }
 
 C_RES NVM__Open(void)
