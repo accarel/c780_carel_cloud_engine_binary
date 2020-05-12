@@ -18,7 +18,7 @@ msgstr ""
 
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_1][Field:Text]"
-msgid "RIVACOLD SIMULATOR V1"
+msgid "RIVACOLD SIMULATOR V2"
 msgstr ""
 
 #: Worksheet_1.otws
@@ -29,5 +29,10 @@ msgstr ""
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_1][Field:Text_3]"
 msgid "DI_LOW_01"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_1][Field:Text_4]"
+msgid "A_COIL_001"
 msgstr ""
 

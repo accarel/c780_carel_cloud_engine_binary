@@ -4,11 +4,13 @@
     <Mask Name="Mask_1" Type="Normal" X="0" Y="1">
       <Fields>
         <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
-        <Field Type="Text" Name="Text" Row="0" Column="0" Content="RIVACOLD SIMULATOR V1" />
+        <Field Type="Text" Name="Text" Row="0" Column="0" Content="RIVACOLD SIMULATOR V2" />
         <Field Type="Text" Name="Text_2" Row="1" Column="0" Content="ALR_7" />
         <Field Type="Variable" Name="Variable" Row="1" Column="10" Content="Alarm_07" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
         <Field Type="Text" Name="Text_3" Row="2" Column="0" Content="DI_LOW_01" />
         <Field Type="Variable" Name="Variable_2" Row="2" Column="10" Content="DI_Low_01" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Text" Name="Text_4" Row="4" Column="0" Content="A_COIL_001" />
+        <Field Type="Variable" Name="Variable_3" Row="4" Column="11" Content="A_Coil_001" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
       </Fields>
     </Mask>
     <Mask Name="Mask" Type="Normal" X="0" Y="2">
