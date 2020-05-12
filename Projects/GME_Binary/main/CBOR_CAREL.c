@@ -820,7 +820,10 @@ size_t CBOR_ResScanLine(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 de
 
 	// encode dev - elem5
 	err = cbor_encode_text_stringz(&mapEncoder, "dev");
-	err |= cbor_encode_int(&mapEncoder, device);
+	if(device == 0)
+		err |= cbor_encode_null(&mapEncoder);
+	else
+		err |= cbor_encode_int(&mapEncoder, device);
 	DEBUG_ADD(err, "dev");
 
 	// encode answer - elem6
