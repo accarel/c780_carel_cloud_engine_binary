@@ -86,13 +86,15 @@ C_RES MQTT_Start(void)
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
 		cert_num = CERT_1;
 	mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
-    #ifdef CHINESE_HW_TEST
-	//check if username == '?' > use mac
+
+
+
+	//check if username == '?' > use mac this to make the spiffs image indipendent from the MAC or IMEI
 	if (mqtt_cfg_nvm.username[0] == 0x3F)
 	{
        strcpy(mqtt_cfg_nvm.username, Utilities__GetMACAddr());
 	}
-    #endif
+
 
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("uri= %s\n",mqtt_cfg_nvm.uri);
