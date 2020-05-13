@@ -78,8 +78,8 @@
 
 
 
-#define LED_GREEN_WIFI			GPIO_NUM_27
-#define LED_RED_WIFI			GPIO_NUM_5
+#define LED_GREEN_WIFI			GPIO_NUM_5
+#define LED_RED_WIFI			GPIO_NUM_27
 
 // button pin
 #define CONFIG_RESET_BUTTON_WIFI	GPIO_NUM_0

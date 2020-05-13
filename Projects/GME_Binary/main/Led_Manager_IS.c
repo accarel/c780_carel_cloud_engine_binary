@@ -40,6 +40,12 @@ duplicate & copy inside each platform
 #define LED_PHY_ON   1
 #define LED_PHY_OFF  0
 
+int LED_GREEN = -1;
+int LED_RED = -1;
+int LED_BLU = -1;
+
+int led_blink_fast_interval;
+
 /* ========================================================================== */
 /* development platform                                                       */
 /* ========================================================================== */
@@ -70,23 +76,6 @@ typedef enum{
 }Led_Bicolor_Status_t;
 
 volatile C_BYTE bicolor_led = LED_BOTH_OFF;
-
-
-
-/* ========================================================================== */
-/*  __USE_USR_2G_HW                                                           */
-/* ========================================================================== */
-/* used to avoid mistake in the association in the 2G model WYSIWYG */
-#define WORK_LED(a) Led_Status_Update_Green_2g(a)
-#define LINK_A(a)   Led_Status_Update_Red_2g(a)
-#define LINK_B(a)   Led_Status_Update_Blu_2g(a)
-
-
-/* ========================================================================== */
-/*  __USE_CAREL_BCU_HW                                                        */
-/* ========================================================================== */
-
-
 
 /* ========================================================================== */
 /*  COMMON PART                                                               */
@@ -125,10 +114,6 @@ static xTaskHandle xLedTask;
 /* ------------------------------------------------------------------- */
 /* function forward declaration section                                */
 /* ------------------------------------------------------------------- */
-void Led_Status_Update_Red(Led_Show_Status_t status);
-void Led_Status_Update_Green(Led_Show_Status_t status);
-void Led_Status_Update_Blu(Led_Show_Status_t status);
-
 void Do_Led_Test_Routine(void);
 void Update_Led_Model_Cfg(C_BYTE model_cfg_status);
 void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status);
@@ -235,43 +220,52 @@ void Task_Led_Status(void)
 }
 
 
-/* ------------------------------------------------------------------- */
-/*           BEGIN OF PLATFORM DEPENDENT LED MANAGEMENT                */
-/* ------------------------------------------------------------------- */
-
-//#ifdef __USE_CAREL_BCU_HW
-
-/**
- * @brief Led_init
- *        Initialize the I/O pin related to the leds for a specific platform
- *
- * @param none
- * @return none
- */
-void Led_init_bcu(void)
-{
-	/* put you I/O initialization here */
-	#ifdef INCLUDE_PLATFORM_DEPENDENT
-    gpio_pad_select_gpio(LED_GREEN_BCU);
-    gpio_set_direction(LED_GREEN_BCU, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
-	#endif
-}
-
-void Led_Status_Update_Red_bcu(Led_Show_Status_t status){
+void Led_Status_Update(Led_Show_Status_t status, int led){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
+  static Led_Show_Status_t blink_status_red = LED_OFF;
+  static Led_Show_Status_t blink_status_green = LED_OFF;
+  static Led_Show_Status_t blink_status_blu = LED_OFF;
+  static C_INT32 blink_timer_red = 0;
+  static C_INT32 blink_timer_green = 0;
+  static C_INT32 blink_timer_blu = 0;
 
     //printf("Status %X\r\n", (uint16_t)status);
+  if(led < 0)
+	  return;
+
+  if (led == LED_RED){
+	  blink_status = blink_status_red;
+	  blink_timer = blink_timer_red;
+  }
+  else if (led == LED_GREEN){
+	  blink_status = blink_status_green;
+	  blink_timer = blink_timer_green;
+  }
+  else if (led == LED_BLU){
+  	  blink_status = blink_status_blu;
+  	  blink_timer = blink_timer_blu;
+  }
+ if ((led == LED_GREEN) && ((led_current_status & LED_STAT_FACT_DEF_A) || (led_current_status & LED_STAT_FACT_DEF_B)))
+    {
+    	//if factory def triggered override the configuration
+    	return;
+    }
 
     switch (status)
 	{
 		case LED_OFF:
 		  /* put the I/O instruction here */
+		  #ifdef INCLUDE_PLATFORM_DEPENDENT
+    	  gpio_set_level(led, LED_PHY_OFF);
+		  #endif
 		  break;
 
 		case LED_ON:
 		  /* put the I/O instruction here */
+		  #ifdef INCLUDE_PLATFORM_DEPENDENT
+		  gpio_set_level(led, LED_PHY_ON);
+		  #endif
 		  break;
 
 		case LED_BLINK_SLOW:
@@ -282,11 +276,39 @@ void Led_Status_Update_Red_bcu(Led_Show_Status_t status){
             if (blink_status == LED_OFF)
             {
 		      /* put the I/O instruction here */
+		      #ifdef INCLUDE_PLATFORM_DEPENDENT
+				if PLATFORM(PLATFORM_DETECTED_WIFI) {
+					if (bicolor_led == LED_BOTH_OFF) {
+						/* to avoid conflict change immediately like a semaphore*/
+						bicolor_led = LED_RED_ON;
+
+						gpio_set_level(LED_GREEN, LED_PHY_OFF);
+						gpio_set_level(LED_RED,   LED_PHY_ON);
+					}
+				}
+				else
+					gpio_set_level(led, LED_PHY_ON);
+              #endif
+
               blink_status = LED_ON;
             }
             else
             {
 			  /* put the I/O instruction here */
+			  #ifdef INCLUDE_PLATFORM_DEPENDENT
+            	if PLATFORM(PLATFORM_DETECTED_WIFI) {
+            		if (bicolor_led == LED_RED_ON) {
+					  /* to avoid conflict change immediately like a semaphore*/
+					  bicolor_led = LED_BOTH_OFF;
+
+					  gpio_set_level(LED_GREEN, LED_PHY_OFF);
+					  gpio_set_level(LED_RED,   LED_PHY_OFF);
+					}
+           		}
+       			else
+       				gpio_set_level(led, LED_PHY_OFF);
+			  #endif
+
               blink_status = LED_OFF;
             }
 
@@ -304,198 +326,93 @@ void Led_Status_Update_Red_bcu(Led_Show_Status_t status){
             if (blink_status == LED_OFF)
             {
 		     /* put the I/O instruction here */
+             #ifdef INCLUDE_PLATFORM_DEPENDENT
+            	if PLATFORM(PLATFORM_DETECTED_WIFI) {
+					if (bicolor_led == LED_BOTH_OFF) {
+					  /* to avoid conflict change immediately like a semaphore*/
+					  bicolor_led = LED_RED_ON;
+
+					  gpio_set_level(LED_GREEN, LED_PHY_OFF);
+					  gpio_set_level(LED_RED,   LED_PHY_ON);
+					}
+            	}
+            	else
+            		gpio_set_level(led, LED_PHY_ON);
+             #endif
              blink_status = LED_ON;
             }
             else
             {
               /* put the I/O instruction here */
+			  #ifdef INCLUDE_PLATFORM_DEPENDENT
+            	if PLATFORM(PLATFORM_DETECTED_WIFI) {
+            		if (bicolor_led == LED_RED_ON) {
+					  /* to avoid conflict change immediately like a semaphore*/
+					  bicolor_led = LED_BOTH_OFF;
+
+					  gpio_set_level(LED_GREEN, LED_PHY_OFF);
+					  gpio_set_level(LED_RED,   LED_PHY_OFF);
+					}
+            	}
+            	else
+            		gpio_set_level(led,   LED_PHY_OFF);
+			  #endif
               blink_status = LED_OFF;
             }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
+			blink_timer = RTC_Get_UTC_Current_Time() + led_blink_fast_interval;
 		  }
 
           break;
 	}
 
-    red_led_current_status = status;
+    if (led == LED_RED){
+  	  blink_status_red = blink_status;
+  	  blink_timer_red = blink_timer;
+  	  red_led_current_status = status;
+    }
+    else if (led == LED_GREEN){
+  	  blink_status_green = blink_status;
+  	  blink_timer_green = blink_timer;
+  	  green_led_current_status = status;
+    }
+    else if (led == LED_BLU){
+      blink_status_blu = blink_status;
+      blink_timer_blu = blink_timer;
+      blu_led_current_status = status;
+    }
 }
 
-void Led_Status_Update_Green_bcu(Led_Show_Status_t status){
-  static Led_Show_Status_t blink_status = LED_OFF;
-  static C_INT32 blink_timer = 0;
+/* ------------------------------------------------------------------- */
+/*           BEGIN OF PLATFORM DEPENDENT LED MANAGEMENT                */
+/* ------------------------------------------------------------------- */
 
-    //printf("Status %X\r\n", (uint16_t)status);
+//#ifdef __USE_CAREL_BCU_HW
 
-    switch (status)
-	{
-		case LED_OFF:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
-		  #endif
-		  break;
+/**
+ * @brief Led_init
+ *        Initialize the I/O pin related to the leds for a specific platform
+ *
+ * @param none
+ * @return none
+ */
 
-		case LED_ON:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-          /* to avoid conflict change immediately like a semaphore*/
-		  gpio_set_level(LED_GREEN_BCU, LED_PHY_ON);
-		  #endif
-		  break;
-
-
-		case LED_BLINK_SLOW:
-		  /* put the I/O instruction here */
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		      /* put the I/O instruction here */
-		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		  gpio_set_level(LED_GREEN_BCU, LED_PHY_ON);
-              #endif
-
-              blink_status = LED_ON;
-            }
-            else
-            {
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
-			  #endif
-
-              blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-		  }
-
-          break;
-
-        //todo BILATO refactoring to make code compact
-		case LED_BLINK_FAST:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 gpio_set_level(LED_GREEN_BCU, LED_PHY_ON);
-             #endif
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-			/* put the I/O instruction here */
-			#ifdef INCLUDE_PLATFORM_DEPENDENT
-  		    gpio_set_level(LED_GREEN_BCU, LED_PHY_OFF);
-			#endif
-            blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-		  }
-
-          break;
-	}
-
-    green_led_current_status = status;
-}
-
-void Led_Status_Update_Blu_bcu(Led_Show_Status_t status){
-	  static Led_Show_Status_t blink_status = LED_OFF;
-	  static C_INT32 blink_timer = 0;
-
-	    //printf("Status %X\r\n", (uint16_t)status);
-
-	    switch (status)
-		{
-			case LED_OFF:
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-			  #endif
-			  break;
-
-			case LED_ON:
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-			  #endif
-			  break;
-
-
-			case LED_BLINK_SLOW:
-			  /* put the I/O instruction here */
-			  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-			  {
-	            if (blink_status == LED_OFF)
-	            {
-			      /* put the I/O instruction here */
-			      #ifdef INCLUDE_PLATFORM_DEPENDENT
-	              #endif
-
-	              blink_status = LED_ON;
-	            }
-	            else
-	            {
-				  /* put the I/O instruction here */
-				  #ifdef INCLUDE_PLATFORM_DEPENDENT
-				  #endif
-
-	              blink_status = LED_OFF;
-	            }
-				blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-			  }
-
-	          break;
-
-	        //todo BILATO refactoring to make code compact
-			case LED_BLINK_FAST:
-			  /* put the I/O instruction here */
-
-			  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-			  {
-	            if (blink_status == LED_OFF)
-	            {
-			     /* put the I/O instruction here */
-			     #ifdef INCLUDE_PLATFORM_DEPENDENT
-	             #endif
-
-	             blink_status = LED_ON;
-	            }
-	            else
-	            {
-				/* put the I/O instruction here */
-				#ifdef INCLUDE_PLATFORM_DEPENDENT
-				#endif
-	            blink_status = LED_OFF;
-	            }
-				blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-			  }
-
-	          break;
-		}
-
-    blu_led_current_status = status;
-
-  }
 
 void Update_Led_Model_Cfg_bcu(C_BYTE model_cfg_status)
 {
 
   if ((model_cfg_status==1) && (led_current_status & LED_STAT_MQTT_CONN))
   {
-   	 Led_Status_Update_Green_bcu(LED_ON);
+   	 Led_Status_Update(LED_ON, LED_GREEN);
   }
 
   if ((model_cfg_status==1) && ((led_current_status & LED_STAT_MQTT_CONN)==0))
   {
-   	 Led_Status_Update_Green_bcu(LED_BLINK_SLOW);
+   	 Led_Status_Update(LED_BLINK_SLOW, LED_GREEN);
   }
 
   if ((model_cfg_status==0) && ((led_current_status & LED_STAT_MQTT_CONN)==0))
   {
-   	 Led_Status_Update_Green_bcu(LED_OFF);
+   	 Led_Status_Update(LED_OFF, LED_GREEN);
   }
 
 }
@@ -504,17 +421,17 @@ void Update_Led_MQTT_Conn_bcu(C_BYTE mqtt_conn_status)
 {
 	  if ((mqtt_conn_status==1) && (led_current_status & LED_STAT_MODEL_CFG))
 	  {
-	   	 Led_Status_Update_Green_bcu(LED_ON);
+	   	 Led_Status_Update(LED_ON, LED_GREEN);
 	  }
 
 	  if ((mqtt_conn_status==1) && ((led_current_status & LED_STAT_MODEL_CFG)==0))
 	  {
-	   	 Led_Status_Update_Green_bcu(LED_BLINK_SLOW);
+	   	 Led_Status_Update(LED_BLINK_SLOW, LED_GREEN);
 	  }
 
 	  if ((mqtt_conn_status==0) && ((led_current_status & LED_STAT_MODEL_CFG)==0))
 	  {
-	   	 Led_Status_Update_Green_bcu(LED_OFF);
+	   	 Led_Status_Update(LED_OFF, LED_GREEN);
 	  }
 }
 
@@ -536,296 +453,11 @@ void Update_Led_Fact_Def_B_bcu(C_BYTE fact_def_a_status)
 //do nothing no led available
 }
 
-void Do_Led_Test_Routine_bcu(void){
-	C_BYTE count;
-
-	for (count=0; count < 3; count++)
-	{
-	Led_Status_Update_Green_bcu(LED_ON);
-	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Green_bcu(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
-	}
-
-}
 
 //#endif
 
 
 
-//#ifdef __USE_USR_2G_HW
-
-/**
- * @brief Led_init
- *        Initialize the I/O pin related to the leds for a specific platform
- *
- * @param none
- * @return none
- */
-void Led_init_2g(void)
-{
-	/* put you I/O initialization here */
-	#ifdef INCLUDE_PLATFORM_DEPENDENT
-	gpio_pad_select_gpio(LED_RED_2G);
-    gpio_set_direction(LED_RED_2G, GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_RED_2G, LED_PHY_OFF);
-
-    gpio_pad_select_gpio(LED_GREEN_2G);
-    gpio_set_direction(LED_GREEN_2G, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
-
-    gpio_pad_select_gpio(LED_BLU_2G);
-    gpio_set_direction(LED_BLU_2G, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
-	#endif
-}
-
-void Led_Status_Update_Red_2g(Led_Show_Status_t status){
-  static Led_Show_Status_t blink_status = LED_OFF;
-  static C_INT32 blink_timer = 0;
-
-    //printf("Status %X\r\n", (uint16_t)status);
-
-    switch (status)
-	{
-		case LED_OFF:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-    	  gpio_set_level(LED_RED_2G, LED_PHY_OFF);
-		  #endif
-		  break;
-
-		case LED_ON:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_RED_2G, LED_PHY_ON);
-		  #endif
-		  break;
-
-		case LED_BLINK_SLOW:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		      /* put the I/O instruction here */
-		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		  gpio_set_level(LED_RED_2G, LED_PHY_ON);
-              #endif
-
-              blink_status = LED_ON;
-            }
-            else
-            {
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		      gpio_set_level(LED_RED_2G, LED_PHY_OFF);
-			  #endif
-
-              blink_status = LED_OFF;
-            }
-
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-		  }
-
-          break;
-
-         //TODO BILATO refactor to make code compact
-		case LED_BLINK_FAST:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-             #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		 gpio_set_level(LED_RED_2G, LED_PHY_ON);
-             #endif
-             blink_status = LED_ON;
-            }
-            else
-            {
-              /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_RED_2G,   LED_PHY_OFF);
-			  #endif
-              blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-		  }
-
-          break;
-	}
-
-    red_led_current_status = status;
-}
-
-void Led_Status_Update_Green_2g(Led_Show_Status_t status){
-  static Led_Show_Status_t blink_status = LED_OFF;
-  static C_INT32 blink_timer = 0;
-
-    //printf("Status %X\r\n", (uint16_t)status);
-
-    switch (status)
-	{
-		case LED_OFF:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
-		  #endif
-		  break;
-
-		case LED_ON:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-          /* to avoid conflict change immediately like a semaphore*/
-		  gpio_set_level(LED_GREEN_2G, LED_PHY_ON);
-		  #endif
-		  break;
-
-
-		case LED_BLINK_SLOW:
-		  /* put the I/O instruction here */
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		      /* put the I/O instruction here */
-		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		  gpio_set_level(LED_GREEN_2G, LED_PHY_ON);
-              #endif
-
-              blink_status = LED_ON;
-            }
-            else
-            {
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
-			  #endif
-
-              blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-		  }
-
-          break;
-
-        //todo BILATO refactoring to make code compact
-		case LED_BLINK_FAST:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 gpio_set_level(LED_GREEN_2G, LED_PHY_ON);
-             #endif
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-			/* put the I/O instruction here */
-			#ifdef INCLUDE_PLATFORM_DEPENDENT
-  		    gpio_set_level(LED_GREEN_2G, LED_PHY_OFF);
-			#endif
-            blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-		  }
-
-          break;
-	}
-    green_led_current_status = status;
-}
-
-void Led_Status_Update_Blu_2g(Led_Show_Status_t status){
-	  static Led_Show_Status_t blink_status = LED_OFF;
-	  static C_INT32 blink_timer = 0;
-
-	    //printf("Status %X\r\n", (uint16_t)status);
-
-	    switch (status)
-		{
-			case LED_OFF:
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-			  gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
-			  #endif
-			  break;
-
-			case LED_ON:
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-	          /* to avoid conflict change immediately like a semaphore*/
-			  gpio_set_level(LED_BLU_2G, LED_PHY_ON);
-			  #endif
-			  break;
-
-
-			case LED_BLINK_SLOW:
-			  /* put the I/O instruction here */
-			  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-			  {
-	            if (blink_status == LED_OFF)
-	            {
-			      /* put the I/O instruction here */
-			      #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		  gpio_set_level(LED_BLU_2G, LED_PHY_ON);
-	              #endif
-
-	              blink_status = LED_ON;
-	            }
-	            else
-	            {
-				  /* put the I/O instruction here */
-				  #ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		      gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
-				  #endif
-
-	              blink_status = LED_OFF;
-	            }
-				blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-			  }
-
-	          break;
-
-	        //todo BILATO refactoring to make code compact
-			case LED_BLINK_FAST:
-			  /* put the I/O instruction here */
-
-			  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-			  {
-	            if (blink_status == LED_OFF)
-	            {
-			     /* put the I/O instruction here */
-			     #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		 gpio_set_level(LED_BLU_2G, LED_PHY_ON);
-	             #endif
-
-	             blink_status = LED_ON;
-	            }
-	            else
-	            {
-				/* put the I/O instruction here */
-				#ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		    gpio_set_level(LED_BLU_2G, LED_PHY_OFF);
-				#endif
-	            blink_status = LED_OFF;
-	            }
-				blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-			  }
-
-	          break;
-		}
-
-	    blu_led_current_status  = status;
-	}
 
 void Update_Led_Model_Cfg_2g(C_BYTE model_cfg_status)
 {
@@ -835,11 +467,11 @@ Model configured         ON
 */
   if (model_cfg_status==1)
   {
-   	 Led_Status_Update_Red_2g(LED_ON);
+   	 Led_Status_Update(LED_ON, LED_RED);
   }
   else
   {
-	 Led_Status_Update_Red_2g(LED_OFF);
+	 Led_Status_Update(LED_OFF, LED_RED);
   }
 }
 
@@ -851,11 +483,11 @@ MQTT connected          ON
 */
 	if (mqtt_conn_status == 1)
 	{
-      Led_Status_Update_Green_2g(LED_ON);
+      Led_Status_Update(LED_ON, LED_GREEN);
 	}
 	else
 	{
-      Led_Status_Update_Green_2g(LED_OFF);
+      Led_Status_Update(LED_OFF, LED_GREEN);
 	}
 
 }
@@ -868,11 +500,11 @@ void Update_Led_RS485_2g(C_BYTE rs485_status)
 */
   if (rs485_status)
   {
-	  Led_Status_Update_Blu_2g(LED_ON);
+	  Led_Status_Update(LED_ON, LED_BLU);
   }
   else
   {
-	  Led_Status_Update_Blu_2g(LED_OFF);
+	  Led_Status_Update(LED_OFF, LED_BLU);
   }
 }
 
@@ -880,11 +512,11 @@ void Update_Led_Fact_Def_A_2g(C_BYTE fact_def_a_status)
 {
 	if (fact_def_a_status == 1)
 	{
-		WORK_LED(LED_BLINK_SLOW);
+		Led_Status_Update(LED_BLINK_SLOW, LED_GREEN);
 	}
 	else
 	{
-		WORK_LED(green_led_current_status);
+		Led_Status_Update(green_led_current_status, LED_GREEN);
 	}
 }
 
@@ -892,29 +524,12 @@ void Update_Led_Fact_Def_B_2g(C_BYTE fact_def_a_status)
 {
 	if (fact_def_a_status == 1)
 	{
-		WORK_LED(LED_BLINK_FAST);
+		Led_Status_Update(LED_BLINK_FAST, LED_GREEN);
 	}
 	else
 	{
-		WORK_LED(green_led_current_status);
+		Led_Status_Update(green_led_current_status, LED_GREEN);
 	}
-}
-
-void Do_Led_Test_Routine_2g(void){
-
-	WORK_LED(LED_ON);
-    Sys__Delay(LED_TEST_DELAY_2G);
-    LINK_A(LED_ON);
-	Sys__Delay(LED_TEST_DELAY_2G);
-	LINK_B(LED_ON);
-	Sys__Delay(LED_TEST_DELAY_2G);
-
-	WORK_LED(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY_2G);
-	LINK_A(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY_2G);
-	LINK_B(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY_2G);
 }
 
 //
@@ -922,285 +537,6 @@ void Do_Led_Test_Routine_2g(void){
 
 
 //#ifdef __USE_ESP_WROVER_KIT
-/**
- * @brief Led_init
- *        Initialize the I/O pin related to the leds for a specific platform
- *
- * @param none
- *  @return none
- */
-
-void Led_init_esp_wrover_kit(void)
-{
-	/* put you I/O initialization here */
-	#ifdef INCLUDE_PLATFORM_DEPENDENT
-	gpio_pad_select_gpio(LED_RED_ESP_WROVER_KIT );
-    gpio_set_direction(LED_RED_ESP_WROVER_KIT , GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_OFF);
-
-    gpio_pad_select_gpio(LED_GREEN_ESP_WROVER_KIT);
-    gpio_set_direction(LED_GREEN_ESP_WROVER_KIT , GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN_ESP_WROVER_KIT , LED_PHY_OFF);
-
-    gpio_pad_select_gpio(LED_BLU_ESP_WROVER_KIT );
-    gpio_set_direction(LED_BLU_ESP_WROVER_KIT , GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_BLU_ESP_WROVER_KIT , LED_PHY_OFF);
-	#endif
-}
-
-void Led_Status_Update_Red_esp_wrover_kit(Led_Show_Status_t status){
-  static Led_Show_Status_t blink_status = LED_OFF;
-  static C_INT32 blink_timer = 0;
-
-    //printf("Status %X\r\n", (uint16_t)status);
-
-    switch (status)
-	{
-		case LED_OFF:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-    	  gpio_set_level(LED_RED_ESP_WROVER_KIT ,   LED_PHY_OFF);
-		  #endif
-		  break;
-
-		case LED_ON:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_RED_ESP_WROVER_KIT ,   LED_PHY_ON);
-		  #endif
-		  break;
-
-		case LED_BLINK_SLOW:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer + LED_BLINK_SLOW_INTERVAL)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		      /* put the I/O instruction here */
-		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		  gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_ON);
-              #endif
-    		  PRINTF_DEBUG_LED("red led on slow\n");
-              blink_status = LED_ON;
-            }
-            else
-            {
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		      gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_OFF);
-			  #endif
-		      PRINTF_DEBUG_LED("red led off slow\n");
-
-              blink_status = LED_OFF;
-            }
-
-			blink_timer = RTC_Get_UTC_Current_Time();
-		  }
-
-          break;
-
-         //TODO BILATO refactor to make code compact
-		case LED_BLINK_FAST:
-		  /* put the I/O instruction here */
-			// no timer here to make led blink as fast as possible...
-		    if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-             #ifdef INCLUDE_PLATFORM_DEPENDENT
-    		 gpio_set_level(LED_RED_ESP_WROVER_KIT , LED_PHY_ON);
-             #endif
-    		 PRINTF_DEBUG_LED("red led on fast\n");
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-              /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_RED_ESP_WROVER_KIT,   LED_PHY_OFF);
-			  #endif
-  	          PRINTF_DEBUG_LED("red led off fast\n");
-
-              blink_status = LED_OFF;
-            }
-
-            break;
-	}
-    red_led_current_status = status;
-}
-
-void Led_Status_Update_Green_esp_wrover_kit(Led_Show_Status_t status){
-  static Led_Show_Status_t blink_status = LED_OFF;
-  static C_INT32 blink_timer = 0;
-
-    //printf("Status %X\r\n", (uint16_t)status);
-
-    if ((led_current_status & LED_STAT_FACT_DEF_A) || (led_current_status & LED_STAT_FACT_DEF_B))
-    {
-    	//if factory def triggered override the configuration
-    	return;
-    }
-
-    switch (status)
-	{
-		case LED_OFF:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN_ESP_WROVER_KIT , LED_PHY_OFF);
-		  #endif
-		  break;
-
-		case LED_ON:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-          /* to avoid conflict change immediately like a semaphore*/
-		  gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_ON);
-		  #endif
-		  break;
-
-
-		case LED_BLINK_SLOW:
-		  /* put the I/O instruction here */
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer + LED_BLINK_SLOW_INTERVAL)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		      /* put the I/O instruction here */
-		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		  gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_ON);
-              #endif
-
-              blink_status = LED_ON;
-            }
-            else
-            {
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-  		      gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_OFF);
-			  #endif
-
-              blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time();
-		  }
-
-          break;
-
-        //todo BILATO refactoring to make code compact
-		case LED_BLINK_FAST:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer + LED_BLINK_FAST_INTERVAL)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_ON);
-             #endif
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-			/* put the I/O instruction here */
-			#ifdef INCLUDE_PLATFORM_DEPENDENT
-  		    gpio_set_level(LED_GREEN_ESP_WROVER_KIT, LED_PHY_OFF);
-			#endif
-            blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time();
-		  }
-
-          break;
-	}
-
-    green_led_current_status = status;
-}
-
-void Led_Status_Update_Blu_esp_wrover_kit(Led_Show_Status_t status){
-	  static Led_Show_Status_t blink_status = LED_OFF;
-	  static C_INT32 blink_timer = 0;
-
-	    //printf("Status %X\r\n", (uint16_t)status);
-
-	    switch (status)
-		{
-			case LED_OFF:
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-			  gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_OFF);
-			  #endif
-			  break;
-
-			case LED_ON:
-			  /* put the I/O instruction here */
-			  #ifdef INCLUDE_PLATFORM_DEPENDENT
-	          /* to avoid conflict change immediately like a semaphore*/
-			  gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_ON);
-			  #endif
-			  break;
-
-
-			case LED_BLINK_SLOW:
-			  /* put the I/O instruction here */
-			  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-			  {
-	            if (blink_status == LED_OFF)
-	            {
-			      /* put the I/O instruction here */
-			      #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		  gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_ON);
-	              #endif
-
-	              blink_status = LED_ON;
-	            }
-	            else
-	            {
-				  /* put the I/O instruction here */
-				  #ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		      gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_OFF);
-				  #endif
-
-	              blink_status = LED_OFF;
-	            }
-				blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-			  }
-
-	          break;
-
-	        //todo BILATO refactoring to make code compact
-			case LED_BLINK_FAST:
-			  /* put the I/O instruction here */
-
-			  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-			  {
-	            if (blink_status == LED_OFF)
-	            {
-			     /* put the I/O instruction here */
-			     #ifdef INCLUDE_PLATFORM_DEPENDENT
-	      		 gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_ON);
-	             #endif
-
-	             blink_status = LED_ON;
-	            }
-	            else
-	            {
-				/* put the I/O instruction here */
-				#ifdef INCLUDE_PLATFORM_DEPENDENT
-	  		    gpio_set_level(LED_BLU_ESP_WROVER_KIT, LED_PHY_OFF);
-				#endif
-	            blink_status = LED_OFF;
-	            }
-				blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-			  }
-
-	          break;
-		}
-
-	    blu_led_current_status = status;
-	}
 
 void Update_Led_Model_Cfg_esp_wrover_kit(C_BYTE model_cfg_status)
 {
@@ -1211,11 +547,11 @@ Model configured         ON
 
   if (model_cfg_status==1)
   {
-   	 Led_Status_Update_Red_esp_wrover_kit(LED_ON);
+   	 Led_Status_Update(LED_ON, LED_RED);
   }
   else
   {
-	 Led_Status_Update_Red_esp_wrover_kit(LED_OFF);
+	 Led_Status_Update(LED_OFF, LED_RED);
   }
 }
 
@@ -1227,11 +563,11 @@ MQTT connected          ON
 */
 	if (mqtt_conn_status == 1)
 	{
-      Led_Status_Update_Green_esp_wrover_kit(LED_ON);
+      Led_Status_Update(LED_ON, LED_GREEN);
 	}
 	else
 	{
-      Led_Status_Update_Green_esp_wrover_kit(LED_OFF);
+      Led_Status_Update(LED_OFF, LED_GREEN);
 	}
 }
 
@@ -1243,11 +579,11 @@ void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
 */
   if (rs485_status)
   {
-	  Led_Status_Update_Blu_esp_wrover_kit(LED_ON);
+	  Led_Status_Update(LED_ON, LED_BLU);
   }
   else
   {
-	  Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
+	  Led_Status_Update(LED_OFF, LED_BLU);
   }
 }
 
@@ -1255,11 +591,11 @@ void Update_Led_Fact_Def_A_esp_wrover_kit(C_BYTE fact_def_a_status)
 {
 	if (fact_def_a_status == 1)
 	{
-		Led_Status_Update_Red_esp_wrover_kit(LED_BLINK_SLOW);
+		Led_Status_Update(LED_BLINK_SLOW, LED_RED);
 	}
 	else
 	{
-		Led_Status_Update_Red_esp_wrover_kit(red_led_current_status);
+		Led_Status_Update(red_led_current_status, LED_RED);
 	}
 }
 
@@ -1267,316 +603,15 @@ void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
 {
 	if (fact_def_b_status == 1)
 	{
-		Led_Status_Update_Red_esp_wrover_kit(LED_BLINK_FAST);
+		Led_Status_Update(LED_BLINK_FAST, LED_RED);
 	}
 	else
 	{
-		Led_Status_Update_Red_esp_wrover_kit(red_led_current_status);
+		Led_Status_Update(red_led_current_status, LED_RED);
 	}
 }
-
-void Do_Led_Test_Routine_esp_wrover_kit(void){
-	C_BYTE count;
-
-	for (count=0; count < 3; count++)
-	{
-	Led_Status_Update_Red_esp_wrover_kit(LED_ON);
-    Sys__Delay(LED_TEST_DELAY);
-    Led_Status_Update_Red_esp_wrover_kit(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
-
-	Led_Status_Update_Green_esp_wrover_kit(LED_ON);
-	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Green_esp_wrover_kit(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
-
-	Led_Status_Update_Blu_esp_wrover_kit(LED_ON);
-	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Blu_esp_wrover_kit(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
-	}
-}
-
 
 //#endif
-
-
-
-
-
-/**
- * @brief Led_init
- *        Initialize the I/O pin related to the leds for a specific platform
- * 
- * @param none
- * @return none
- */
-void Led_init_wifi(void)
-{
-	/* put you I/O initialization here */	
-	#ifdef INCLUDE_PLATFORM_DEPENDENT	
-	gpio_pad_select_gpio(LED_RED_WIFI);
-    gpio_set_direction(LED_RED_WIFI, GPIO_MODE_OUTPUT);
-    gpio_set_level(LED_RED_WIFI, LED_PHY_OFF);
-
-    gpio_pad_select_gpio(LED_GREEN_WIFI);
-    gpio_set_direction(LED_GREEN_WIFI, GPIO_MODE_OUTPUT);
-	gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-	#endif
-}
-
-void Led_Status_Update_Red_wifi(Led_Show_Status_t status){
-  static Led_Show_Status_t blink_status = LED_OFF;
-  static C_INT32 blink_timer = 0;
-
-    //printf("Status %X\r\n", (uint16_t)status);
-
-    switch (status)
-	{
-		case LED_OFF:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-    	  gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-
-    	  /* to avoid conflict change at the end*/
-    	  bicolor_led = LED_BOTH_OFF;
-		  #endif
-		  break;
-
-		case LED_ON:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-
-		  if (bicolor_led == LED_BOTH_OFF)
-		  {
-			/* to avoid conflict change immediately like a semaphore*/
-		    bicolor_led = LED_RED_ON;
-
-		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-		    gpio_set_level(LED_RED_WIFI,   LED_PHY_ON);
-		  }
-		  #endif
-		  break;
-
-		case LED_BLINK_SLOW:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 if (bicolor_led == LED_BOTH_OFF)
-      		 {
-      			/* to avoid conflict change immediately like a semaphore*/
-      		    bicolor_led = LED_RED_ON;
-
-      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_ON);
-      		  }
-             #endif
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-			/* put the I/O instruction here */
-			#ifdef INCLUDE_PLATFORM_DEPENDENT
-
-  		    if (bicolor_led == LED_RED_ON)
-  		    {
-  			  /* to avoid conflict change immediately like a semaphore*/
-  		      bicolor_led = LED_BOTH_OFF;
-
-  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-  		    }
-
-			#endif
-            blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-		  }
-
-          break;
-
-         //TODO BILATO refactor to make code compact
-		case LED_BLINK_FAST:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 if (bicolor_led == LED_BOTH_OFF)
-      		 {
-      			/* to avoid conflict change immediately like a semaphore*/
-      		    bicolor_led = LED_RED_ON;
-
-      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_ON);
-      		  }
-             #endif
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-			/* put the I/O instruction here */
-			#ifdef INCLUDE_PLATFORM_DEPENDENT
-
-  		    if (bicolor_led == LED_RED_ON)
-  		    {
-  			  /* to avoid conflict change immediately like a semaphore*/
-  		      bicolor_led = LED_BOTH_OFF;
-
-  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-  		    }
-
-			#endif
-            blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-		  }
-
-          break;
-	}
-
-    red_led_current_status = status;
-}
-
-void Led_Status_Update_Green_wifi(Led_Show_Status_t status){
-  static Led_Show_Status_t blink_status = LED_OFF;
-  static C_INT32 blink_timer = 0;
-  
-    //printf("Status %X\r\n", (uint16_t)status);
- 
-    switch (status)
-	{
-		case LED_OFF:
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT
-		  gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-    	  gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-
-    	  /* to avoid conflict change at the end*/
-    	  bicolor_led = LED_BOTH_OFF;
-		  #endif
-		  break;
-		  
-		case LED_ON:  
-		  /* put the I/O instruction here */
-		  #ifdef INCLUDE_PLATFORM_DEPENDENT		  
-
-		  if (bicolor_led == LED_BOTH_OFF)
-		  {
-			/* to avoid conflict change immediately like a semaphore*/
-		    bicolor_led = LED_GREEN_ON;
-
-		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_ON);
-		    gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-		  }
-		  #endif		  
-		  break;
-		  
-		  
-		case LED_BLINK_SLOW:
-		  /* put the I/O instruction here */
-		  
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {       	     	  		
-		     /* put the I/O instruction here */
-		     #ifdef INCLUDE_PLATFORM_DEPENDENT	
-      		 if (bicolor_led == LED_BOTH_OFF)
-      		 {
-      			/* to avoid conflict change immediately like a semaphore*/
-      		    bicolor_led = LED_GREEN_ON;
-
-      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_ON);
-      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-      		  }
-             #endif
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-			/* put the I/O instruction here */	
-			#ifdef INCLUDE_PLATFORM_DEPENDENT		
-
-  		    if (bicolor_led == LED_GREEN_ON)
-  		    {
-  			  /* to avoid conflict change immediately like a semaphore*/
-  		      bicolor_led = LED_BOTH_OFF;
-
-  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-  		    }
-
-			#endif
-            blink_status = LED_OFF;			
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_SLOW_INTERVAL;
-		  }
-
-          break;
-
-        //todo BILATO refactoring to make code compact
-		case LED_BLINK_FAST:
-		  /* put the I/O instruction here */
-
-		  if (RTC_Get_UTC_Current_Time() >= blink_timer)
-		  {
-            if (blink_status == LED_OFF)
-            {
-		     /* put the I/O instruction here */
-		     #ifdef INCLUDE_PLATFORM_DEPENDENT
-      		 if (bicolor_led == LED_BOTH_OFF)
-      		 {
-      			/* to avoid conflict change immediately like a semaphore*/
-      		    bicolor_led = LED_GREEN_ON;
-
-      		    gpio_set_level(LED_GREEN_WIFI, LED_PHY_ON);
-      		    gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-      		  }
-             #endif
-
-             blink_status = LED_ON;
-            }
-            else
-            {
-			/* put the I/O instruction here */
-			#ifdef INCLUDE_PLATFORM_DEPENDENT
-
-  		    if (bicolor_led == LED_GREEN_ON)
-  		    {
-  			  /* to avoid conflict change immediately like a semaphore*/
-  		      bicolor_led = LED_BOTH_OFF;
-
-  		      gpio_set_level(LED_GREEN_WIFI, LED_PHY_OFF);
-  		      gpio_set_level(LED_RED_WIFI,   LED_PHY_OFF);
-  		    }
-
-			#endif
-            blink_status = LED_OFF;
-            }
-			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
-		  }
-		    		  		
-          break;				
-
-	}
-
-    green_led_current_status = status;
-
-}
 
 void Update_Led_Model_Cfg_wifi(C_BYTE model_cfg_status)
 {
@@ -1596,11 +631,11 @@ MQTT connected           ON          ON
 
   if ((led_current_status & LED_STAT_MQTT_CONN) && (model_cfg_status==0))
   {
-   	 Led_Status_Update_Red_wifi(LED_ON);
+   	 Led_Status_Update(LED_ON, LED_RED);
   }		
   else
   {
-	 Led_Status_Update_Red_wifi(LED_OFF);
+	 Led_Status_Update(LED_OFF, LED_RED);
   }		
 #endif
 }
@@ -1620,18 +655,18 @@ MQTT connected           ON          ON
 	{	
        if (led_current_status & LED_STAT_MODEL_CFG)
 	   {
-		   Led_Status_Update_Green_wifi(LED_ON);
+		   Led_Status_Update(LED_ON, LED_GREEN);
 	   }		
 	}
 	else
 	{
 	       if (led_current_status & LED_STAT_MODEL_CFG)
 		   {
-			   Led_Status_Update_Green_wifi(LED_BLINK_SLOW);
+			   Led_Status_Update(LED_BLINK_SLOW, LED_GREEN);
 		   }
 	       else
 	       {
-		     Led_Status_Update_Green_wifi(LED_OFF);
+		     Led_Status_Update(LED_OFF, LED_GREEN);
 	       }
 	}
 #endif
@@ -1647,11 +682,11 @@ void Update_Led_RS485_wifi(C_BYTE rs485_status)
   //only for the HW test
   if (rs485_status==1)
   {
-	  Led_Status_Update_Red_wifi(LED_ON);
+	  Led_Status_Update(LED_ON, LED_RED);
   }
   else
   {
-	  Led_Status_Update_Red_wifi(LED_OFF);
+	  Led_Status_Update(LED_OFF, LED_RED);
   }
 
 #endif
@@ -1662,11 +697,11 @@ void Update_Led_Fact_Def_A_wifi(C_BYTE fact_def_a_status)
 
 	if (fact_def_a_status == 1)
 	{
-  	 Led_Status_Update_Red_wifi(LED_BLINK_SLOW);
+  	 Led_Status_Update(LED_BLINK_SLOW, LED_RED);
 	}
 	else
 	{
-	  Led_Status_Update_Red_wifi(red_led_current_status);
+	  Led_Status_Update(red_led_current_status, LED_RED);
 	}
 
 }
@@ -1675,29 +710,11 @@ void Update_Led_Fact_Def_B_wifi(C_BYTE fact_def_b_status)
 {
 	if (fact_def_b_status == 1)
 	{
-  	  Led_Status_Update_Red_wifi(LED_BLINK_FAST);
+  	  Led_Status_Update(LED_BLINK_FAST, LED_RED);
 	}
 	else
 	{
-	  Led_Status_Update_Red_wifi(red_led_current_status);
-	}
-
-}
-
-void Do_Led_Test_Routine_wifi(void){
-	C_BYTE count;
-
-	for (count=0; count < 3; count++)
-	{
-	Led_Status_Update_Red_wifi(LED_ON);
-    Sys__Delay(LED_TEST_DELAY);
-    Led_Status_Update_Red_wifi(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
-
-	Led_Status_Update_Green_wifi(LED_ON);
-	Sys__Delay(LED_TEST_DELAY);
-	Led_Status_Update_Green_wifi(LED_OFF);
-	Sys__Delay(LED_TEST_DELAY);
+	  Led_Status_Update(red_led_current_status, LED_RED);
 	}
 
 }
@@ -1709,17 +726,54 @@ void Do_Led_Test_Routine_wifi(void){
 /*                          TASK MANAGER                               */
 /* ------------------------------------------------------------------- */
 
+void Led_Pin_Init(void){
+
+	led_blink_fast_interval = LED_BLINK_FAST_INTERVAL;
+	if PLATFORM(PLATFORM_DETECTED_BCU){
+		LED_GREEN = LED_GREEN_BCU;
+	}
+	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT){
+		LED_RED = LED_RED_ESP_WROVER_KIT;
+		LED_GREEN = LED_GREEN_ESP_WROVER_KIT;
+		LED_BLU = LED_BLU_ESP_WROVER_KIT;
+	}
+	/* pin is pull down on 2G and pull upped on WiFi*/
+	if PLATFORM(PLATFORM_DETECTED_2G){
+		LED_RED = LED_RED_2G;
+		LED_GREEN = LED_GREEN_2G;
+		LED_BLU = LED_BLU_2G;
+	}
+	if PLATFORM(PLATFORM_DETECTED_WIFI){
+		LED_RED = LED_RED_WIFI;
+		LED_GREEN = LED_GREEN_WIFI;
+		led_blink_fast_interval = LED_BLINK_NOTSOFAST_INTERVAL;	// bicolor led requires slower switching times
+	}
+}
 
 void Led_init(void)
 {
     #ifdef INCLUDE_PLATFORM_DEPENDENT
 
-	if PLATFORM(PLATFORM_DETECTED_BCU) Led_init_bcu();
-	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Led_init_esp_wrover_kit();
+	Led_Pin_Init();
 
-	/* pin is pull down on 2G and pull upped on WiFi*/
-	if PLATFORM(PLATFORM_DETECTED_2G) Led_init_2g();
-	if PLATFORM(PLATFORM_DETECTED_WIFI) Led_init_wifi();
+	/* put you I/O initialization here */
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	if (LED_RED >= 0){
+		gpio_pad_select_gpio(LED_RED);
+		gpio_set_direction(LED_RED, GPIO_MODE_OUTPUT);
+		gpio_set_level(LED_RED, LED_PHY_OFF);
+	}
+	if (LED_GREEN >= 0){
+		gpio_pad_select_gpio(LED_GREEN);
+		gpio_set_direction(LED_GREEN, GPIO_MODE_OUTPUT);
+		gpio_set_level(LED_GREEN, LED_PHY_OFF);
+	}
+	if (LED_BLU >= 0){
+		gpio_pad_select_gpio(LED_BLU);
+		gpio_set_direction(LED_BLU, GPIO_MODE_OUTPUT);
+		gpio_set_level(LED_BLU, LED_PHY_OFF);
+	}
+#endif
 
     #endif
 
@@ -1727,14 +781,26 @@ void Led_init(void)
 
 void Do_Led_Test_Routine(void){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
+	C_BYTE count;
+	C_BYTE led_test = 3;
+	if PLATFORM(PLATFORM_DETECTED_2G) led_test = 1;
 
-	if PLATFORM(PLATFORM_DETECTED_BCU) Do_Led_Test_Routine_bcu();
-	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Do_Led_Test_Routine_esp_wrover_kit();
+	for (count=0; count < led_test; count++) {
+		Led_Status_Update(LED_ON, LED_RED);
+		Sys__Delay(LED_TEST_DELAY);
+		Led_Status_Update(LED_OFF, LED_RED);
+		Sys__Delay(LED_TEST_DELAY);
 
-    /* pin is pull down on 2G and pull upped on WiFi*/
-    if PLATFORM(PLATFORM_DETECTED_2G) Do_Led_Test_Routine_2g();
-    if PLATFORM(PLATFORM_DETECTED_WIFI) Do_Led_Test_Routine_wifi();
+		Led_Status_Update(LED_ON, LED_GREEN);
+		Sys__Delay(LED_TEST_DELAY);
+		Led_Status_Update(LED_OFF, LED_GREEN);
+		Sys__Delay(LED_TEST_DELAY);
 
+		Led_Status_Update(LED_ON, LED_BLU);
+		Sys__Delay(LED_TEST_DELAY);
+		Led_Status_Update(LED_OFF, LED_BLU);
+		Sys__Delay(LED_TEST_DELAY);
+	}
 #endif
 
 }
@@ -1742,25 +808,25 @@ void Do_Led_Test_Routine(void){
 
 void Update_Led_Model_Cfg(C_BYTE model_cfg_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Model_Cfg_bcu(model_cfg_status);
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Model_Cfg_esp_wrover_kit(model_cfg_status);
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Model_Cfg_2g(model_cfg_status);
-    if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Model_Cfg_wifi(model_cfg_status);
+
+    if PLATFORM(PLATFORM_DETECTED_WIFI)	Update_Led_Model_Cfg_wifi(model_cfg_status);
 
 #endif
 }
 
 void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-
   if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_MQTT_Conn_bcu(mqtt_conn_status);
   if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_MQTT_Conn_esp_wrover_kit(mqtt_conn_status);
 
   /* pin is pull down on 2G and pull upped on WiFi*/
   if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_MQTT_Conn_2g(mqtt_conn_status);
+
   if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_MQTT_Conn_wifi(mqtt_conn_status);
 
 #endif
@@ -1768,13 +834,13 @@ void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
 
 void Update_Led_RS485(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_RS485_bcu(rs485_status);
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT)Update_Led_RS485_esp_wrover_kit(rs485_status);
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_RS485_2g(rs485_status);
-    if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_RS485_wifi(rs485_status);
+
+    if PLATFORM(PLATFORM_DETECTED_WIFI)	Update_Led_RS485_wifi(rs485_status);
 
 #endif
 }
@@ -1783,7 +849,6 @@ void Update_Led_RS485(C_BYTE rs485_status){
 
 void Update_Led_Fact_Def_A(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Fact_Def_A_bcu(rs485_status);
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_A_esp_wrover_kit(rs485_status);
 
@@ -1796,13 +861,12 @@ void Update_Led_Fact_Def_A(C_BYTE rs485_status){
 
 void Update_Led_Fact_Def_B(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Fact_Def_B_bcu(rs485_status);
 	if PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) Update_Led_Fact_Def_B_esp_wrover_kit(rs485_status);
 
     /* pin is pull down on 2G and pull upped on WiFi*/
     if PLATFORM(PLATFORM_DETECTED_2G) Update_Led_Fact_Def_B_2g(rs485_status);
-    if PLATFORM(PLATFORM_DETECTED_WIFI) Update_Led_Fact_Def_B_wifi(rs485_status);
+    if PLATFORM(PLATFORM_DETECTED_WIFI)	Update_Led_Fact_Def_B_wifi(rs485_status);
 
 #endif
 }
