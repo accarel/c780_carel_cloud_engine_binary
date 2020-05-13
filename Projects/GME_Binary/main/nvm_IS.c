@@ -15,7 +15,6 @@ static nvs_handle my_handle;
 C_RES NVM_Init(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-#ifdef INCLUDE_PLATFORM_DEPENDENT
 
   #ifdef CONFIG_NVS_ENCRYPTION
 	nvs_sec_cfg_t cfg;
