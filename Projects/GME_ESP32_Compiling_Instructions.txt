@@ -1,0 +1,63 @@
+The RELEASE FW of the gateway includes
+a. the all in one version for the GME WiFi and 2G model
+b. the version for bCU embedded gateway
+
+
+To build te RELEASE version of the FW you need to 
+
+1. check CAREL_GLOBAL_DEF.h and decomment 
+   a. #define __USE_CAREL_BCU_HW if needed 
+   b. check and comment out //#define __CCL_DEBUG_MODE
+      
+2. go to development enviroment and via MAKE MENUCONFIG check CAREFULLY  
+   the list of item below
+
+a. Bootloader log verbosity --> No output
+b. Security feature -->
+   2_1. Require signed app images                                             <<< TO BE CONFIRMED
+   2_2. Enable hardware secure boot in bootloader (READ DOCS FIRST)
+   2_3. Enable flash encryption on boot (READ DOCS FIRST)                     <<<<< if make sense
+
+c. Compiler Option -->
+   3_1.Optimization level --> Release
+   3_2.Assertion level    --> Disabled
+   
+d. Component Config -->
+   4_1. ESP32-specific    --> Rev.1
+   
+   4_2. Common ESP-related --> UART for console ouput --> NONE
+   4_3. Task Watchdog timeout period -->  60 sec
+   4_4. Ethernet --> Support ESP32 internal ... --> unselect
+                 --> SPI ...                    --> unselect
+				 
+   4_5. HTTP Server --> Max HTTP Request ...    --> 1792                      <<<<< esiste ancora il bug overflow?
+   4_6. Log Output --> Default log ...          --> none
+
+   4_7. Wi-Fi Provisioning Manager --> Max Wi-Fi Scan Result Entries --> 16
+   
+   
+   
+   
+   
+   
+   
+   
+     
+   
+   
+IMPORTANT NOTE
+===============
+- Bootloader di default viene disabilitato se secure boot è attivo
+  quindi non funziona più il sistema del boot  
+
+
+Your FLASH_CRYPT_CNT=3 means encryption should be disabled and you should be able to 
+reflash plaintext signed binaries. But if you don't have the flash encryption key be 
+very careful, you only get to flash 4 times total and in this case you should leave 
+encryption off during development because you are not using OTA update. 
+You need to have the flash encryption key if you want to reflash pre-encrypted signed 
+binaries without incrementing the FLASH_CRYPT_CNT.
+
+   
+   
+   
