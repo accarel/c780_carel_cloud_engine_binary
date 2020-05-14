@@ -21,7 +21,7 @@
   #include "nvm_CAREL.h"
   #include "wifi.h"
   #include "common.h"
-  #include "cmd_custom.h"
+
   #include "driver/gpio.h"
   #include "http_server.h"
   #include "esp_ota_ops.h"

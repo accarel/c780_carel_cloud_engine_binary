@@ -64,17 +64,24 @@
 #define ECHO_TEST_TXD_WIFI		GPIO_NUM_26
 #define ECHO_TEST_RXD_WIFI		GPIO_NUM_25
 // RTS for RS485 Half-Duplex Mode manages DE/~RE
-#define ECHO_TEST_RTS_WIFI		GPIO_NUM_18
+#define ECHO_TEST_RTS_WIFI		GPIO_NUM_22
 
 // for TTL one wire
 #define TTL_TXD_WIFI			GPIO_NUM_21
 #define TTL_RXD_WIFI			GPIO_NUM_3
+//the DIR pin is not used
+#define TTL_DIR_WIFI			GPIO_NUM_1
+
+
+
+
+
 
 //#define TTL_TXD       (GPIO_NUM_1)
 //#define TTL_RXD 		(GPIO_NUM_3)
 
 //TODO Bilato eliminabile questo pin ?
-#define TTL_RTS_WIFI			GPIO_NUM_18
+#define TTL_RTS_WIFI			GPIO_NUM_22
 
 
 

@@ -1458,6 +1458,10 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 	C_BYTE pva_trigger = 0;
 	C_BYTE something_sent = 0;
 
+	#ifdef __DEBUG_POLLING_CAREL_LEV_1
+	C_UINT32 cronometro;
+    #endif
+
 		if(RUNNING == PollEngine_Status.engine)
 		{
 		SoftWDT_Reset(SWWDT_POLLING);
@@ -1473,7 +1477,16 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
                 #endif
 				timestamp.current_alarm = RTC_Get_UTC_Current_Time();
 
+                #ifdef __DEBUG_POLLING_CAREL_LEV_1
+				cronometro = RTC_Get_UTC_Current_Time();
+                #endif
+
 				poll_done = DoAlarmPolling(COILAlarmPollTab, DIAlarmPollTab, HRAlarmPollTab, IRAlarmPollTab);
+                #ifdef __DEBUG_POLLING_CAREL_LEV_1
+				cronometro = RTC_Get_UTC_Current_Time() - cronometro;
+				PRINTF_DEBUG("ALR POLL TIME %X\n", cronometro);
+                #endif
+
 				SendOffline(poll_done);
 
 				check_alarms_change();
@@ -1491,13 +1504,18 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				timestamp.current_high = timeout;
 				timestamp.current_low = timeout;
 				//HIGH POLLING
-                #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				PRINTF_DEBUG("HIGH&LOW%d\n", timeout);
+                #ifdef __DEBUG_POLLING_CAREL_LEV_1
+				cronometro = RTC_Get_UTC_Current_Time();
                 #endif
+
 				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
 				SendOffline(poll_done);
 
 				poll_done = DoPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab, LOW_POLLING);
+                #ifdef __DEBUG_POLLING_CAREL_LEV_1
+				cronometro = RTC_Get_UTC_Current_Time() - cronometro;
+				PRINTF_DEBUG("H+L POLL TIME %X\n", cronometro);
+                #endif
 				SendOffline(poll_done);
 				FlushValues(LOW_POLLING);
 				FlushValues(HIGH_POLLING);
@@ -1512,10 +1530,19 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			if (high_trigger) {
 				//LOW POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				PRINTF_DEBUG("HIGH %d\n", timeout);
-                #endif
 				timestamp.current_high = timeout;
+
+                #ifdef __DEBUG_POLLING_CAREL_LEV_1
+				cronometro = RTC_Get_UTC_Current_Time();
+                #endif
+
 				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
+
+                #ifdef __DEBUG_POLLING_CAREL_LEV_1
+				cronometro = RTC_Get_UTC_Current_Time() - cronometro;
+				PRINTF_DEBUG("H POLL TIME %X\n", cronometro);
+                #endif
+
 				SendOffline(poll_done);
 
 				FlushValues(HIGH_POLLING);

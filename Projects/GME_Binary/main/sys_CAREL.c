@@ -11,7 +11,7 @@
 #include "sys_IS.h"
 #include "File_System_CAREL.h"
 #include "common.h"
-#include "cmd_custom.h"
+
 #include "nvm_IS.h"
 
 static char certificates[CERT_MAX_NUMBRER][CERT_MAX_SIZE] = {0};
