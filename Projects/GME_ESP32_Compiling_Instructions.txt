@@ -1,4 +1,4 @@
-The RELEASE FW of the gateway includes
+﻿The RELEASE FW of the gateway includes
 a. the all in one version for the GME WiFi and 2G model
 b. the version for bCU embedded gateway
 
@@ -12,11 +12,17 @@ To build te RELEASE version of the FW you need to
 2. go to development enviroment and via MAKE MENUCONFIG check CAREFULLY  
    the list of item below
 
-a. Bootloader log verbosity --> No output
+a. Bootloader config
+   1_1. Bootloader log verbosity --> No output
+   1_2. Enable app Rollback support                                  <<<<  works, to understand if there is a 
+                                                                           way to check the functionality of the app	
+
 b. Security feature -->
    2_1. Require signed app images                                             <<< TO BE CONFIRMED
-   2_2. Enable hardware secure boot in bootloader (READ DOCS FIRST)
-   2_3. Enable flash encryption on boot (READ DOCS FIRST)                     <<<<< if make sense
+   2_2. Enable flash encryption on boot (READ DOCS FIRST)                     <<<<< yes, the second-stage boot encrypt it self the image (both via cable and via ota),
+                                                                                    in this way the first-stage bootloader (in ROM) remain available
+   2_3 Enable usage mode --> Release                                          <<< currently we are in "development", just for test 		
+								          			
 
 c. Compiler Option -->
    3_1.Optimization level --> Release
@@ -30,11 +36,12 @@ d. Component Config -->
    4_4. Ethernet --> Support ESP32 internal ... --> unselect
                  --> SPI ...                    --> unselect
 				 
-   4_5. HTTP Server --> Max HTTP Request ...    --> 1792                      <<<<< esiste ancora il bug overflow?
+   4_5. HTTP Server --> Max HTTP Request ...    --> 1792                      <<<< esiste ancora il bug overflow?
    4_6. Log Output --> Default log ...          --> none
 
    4_7. Wi-Fi Provisioning Manager --> Max Wi-Fi Scan Result Entries --> 16
    
+   4_8. NVS  --> Enable NVS encryption                                        <<<< you see this feature only when flash encryption on boot are ENABLE
    
    
    
