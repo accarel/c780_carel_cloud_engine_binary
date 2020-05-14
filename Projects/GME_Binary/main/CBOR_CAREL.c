@@ -391,8 +391,9 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 	}
 	printf("\n");
 #endif
-
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)mybuf, len, QOS_1, NO_RETAIN);
+	printf("CBOR_SendValues mqtt publish start\n");
+	C_RES err = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)mybuf, len, QOS_1, NO_RETAIN);
+printf("CBOR_SendValues mqtt publish result: %d\n", err);
 }
 
 /**
@@ -1672,6 +1673,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	CborError err;
 	C_CHAR cbor_response[RESPONSE_SIZE];		// buffer to store response, maybe better global...
 	size_t len = 0;
+	int ret = 0;
 
 	C_MQTT_TOPIC topic;
 	C_GATEWAY_ID dev_id;
@@ -1725,24 +1727,11 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case SET_GW_CONFIG:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborreqsetgwconfig cbor_setgwconfig = {0};
 			cbor_req.res = ERROR_CMD;
 
 			err = CBOR_ReqSetGwConfig(cbor_stream, cbor_len, &cbor_setgwconfig);
 			if (err == C_SUCCESS) {
-
-				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				{
-				   Sys__Delay(10);
-				}
-
-				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-				PollEngine_StopEngine_CAREL();
-				}
-
-
 				// write new data to configuration file and put in res the result of operation
 				// to be implemented
 				cbor_req.res = (execute_set_gw_config(cbor_setgwconfig) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1751,16 +1740,11 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
 		case SET_DEVS_CONFIG:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborreqdwldevsconfig download_devs_config = {0};
 			cbor_req.res = ERROR_CMD;
 
@@ -1789,60 +1773,32 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				PollEngine_StopEngine_CAREL();
 				GME__Reboot();
 			}
-
-			// maybe something goes wrong, put it in the previously condition
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
 		case SET_LINES_CONFIG:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborreqlinesconfig set_line_cfg = {0};
 			cbor_req.res = ERROR_CMD;
 
 			err = CBOR_ReqSetLinesConfig(cbor_stream, cbor_len, &set_line_cfg);
 			if (err == C_SUCCESS) {
-
-				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				{
-				   Sys__Delay(10);
-				}
-
-				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-				PollEngine_StopEngine_CAREL();
-				}
-
 				// write new baud rate and connector to configuration file and put in res the result of operation
 				cbor_req.res = (execute_set_line_config(set_line_cfg) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
 		case SCAN_DEVICES:
 		{
 			// scan Modbus line
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			C_UINT16 device = 0;
 			C_BYTE answer[REPORT_SLAVE_ID_SIZE];
 			C_INT16 length = 0;
 			cbor_req.res = ERROR_CMD;
-
-			while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-			  Sys__Delay(10);		// add to shorten delay to permit STOPPED polling status to be captured when slave is offline
-
-			if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-				PollEngine_StopEngine_CAREL();
-			}
 
 			cbor_req.res = (execute_scan_devices(&answer, &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 
@@ -1852,9 +1808,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
             sprintf(topic,"%s%s", "/res/", cbor_req.rto);
             mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
@@ -1912,21 +1865,12 @@ data_rx_len=0;
 		case READ_VALUES:
 		case WRITE_VALUES:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborreqrdwrvalues cbor_rwv = {0};
 			cbor_req.res = ERROR_CMD;
 			err = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rwv);
 			if (err == C_SUCCESS) {
 				// send modbus command to read/write values
 				// wait modbus response to get result
-				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-					Sys__Delay(100);
-
-				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-				}
-
 				if (cbor_req.cmd == READ_VALUES)
 					cbor_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 				else
@@ -1950,29 +1894,17 @@ data_rx_len=0;
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 
-
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
 
 		case UPDATE_GME_FIRMWARE:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborrequpdgmefw update_gw_fw = {0};
 			cbor_req.res = ERROR_CMD;
 
 			err = CBOR_ReqUpdateGMEFW(cbor_stream, cbor_len, &update_gw_fw);
 			if (err == C_SUCCESS) {
-
-				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-					Sys__Delay(10);
-
-				if(PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-				}
 
 				Modbus_Disable();
 
@@ -1992,29 +1924,17 @@ data_rx_len=0;
 
 			// it could be RUNNING or STOPPED, at least it was running and we put it again in running mode
 			Modbus_Enable();
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
-
 		}
 		break;
 
 
 		case UPDATE_DEV_FIRMWARE:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborrequpddevfw update_dev_fw = {0};
 			cbor_req.res = ERROR_CMD;
 
 			err = CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 			if (err == C_SUCCESS) {
-				while(!IsOffline() && STOPPED != PollEngine_GetPollingStatus_CAREL())
-					Sys__Delay(100);
-
-				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-				}
-
 				// here we don't disable modbus, the file transfer are necessary!!!
 				err = OTA__DevFWUpdate(&update_dev_fw);
 			}
@@ -2022,29 +1942,17 @@ data_rx_len=0;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
 
 		case UPDATE_CA_CERTIFICATES:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborrequpdatecacert update_ca_config = {0};
 			cbor_req.res = ERROR_CMD;
 
 			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &update_ca_config);
 			if (err == C_SUCCESS) {
-				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-					Sys__Delay(100);
-
-				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-					PollEngine_StopEngine_CAREL();
-				}
-
 				// perform a https read file from uri, using usr and pwd authentication data
 				cbor_req.res = (execute_update_ca_cert(&update_ca_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
@@ -2052,30 +1960,17 @@ data_rx_len=0;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-
-			if(previous_poll_engine_status == RUNNING)
-				PollEngine_StartEngine_CAREL();
 		}
 		break;
 
 
 		case CHANGE_CREDENTIALS:
 		{
-			uint8_t previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
-
 			c_cborreqchangecred change_cred_config = {0};
 			cbor_req.res = ERROR_CMD;
 
 			err = CBOR_ReqChangeCredentials(cbor_stream, cbor_len, &change_cred_config);
 			if (err == C_SUCCESS) {
-
-				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				   Sys__Delay(10);
-
-				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-									PollEngine_StopEngine_CAREL();
-								}
-
 				// write new credentials to configuration file and put in res the result of operation
 				cbor_req.res = (execute_change_cred(change_cred_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
@@ -2084,9 +1979,6 @@ data_rx_len=0;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-
-			if(previous_poll_engine_status == RUNNING)
-			   PollEngine_StartEngine_CAREL();
 		}
 		break;
 
@@ -2097,9 +1989,9 @@ data_rx_len=0;
 				PollEngine_StartEngine_CAREL();
 				cbor_req.res = SUCCESS_CMD;
 			}
-			else
+			else {
 				cbor_req.res = ERROR_CMD;
-
+			}
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
@@ -2112,10 +2004,11 @@ data_rx_len=0;
 			if ( C_SUCCESS == NVM__WriteU8Value(PE_STATUS_NVM, STOPPED) ) {
 				PollEngine_StopEngine_CAREL();
 				cbor_req.res = SUCCESS_CMD;
+				ret = 1;
 			}
-			else
+			else {
 				cbor_req.res = ERROR_CMD;
-
+			}
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
@@ -2148,7 +2041,7 @@ data_rx_len=0;
 
 	}
 
-	return 0;
+	return ret;
 }
 
 C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){

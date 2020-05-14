@@ -21,6 +21,7 @@
 #include "polling_CAREL.h"
 #include "polling_IS.h"
 #include "Led_Manager_IS.h"
+#include "sys_IS.h"
 
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
@@ -251,6 +252,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
 {
 
 	int msg_id;
+	static int previous_poll_engine_status = STOPPED;
     switch (event->event_id) {
         case MQTT_EVENT_CONNECTED:
 
@@ -327,14 +329,18 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
         case MQTT_EVENT_DATA:
         {
-            C_GATEWAY_ID dev_id;
-            Get_Gateway_ID(&dev_id);
-
-			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_DATA");
             PRINTF_DEBUG("TOPIC=%.*s\r\n", event->topic_len, event->topic);
             PRINTF_DEBUG("DATA=%.*s\r\n", event->data_len, event->data);
             #endif
+
+        	int ret = 0;
+            previous_poll_engine_status = PollEngine_GetEngineStatus_CAREL();
+            PollEngine_StopEngine_CAREL();
+
+            C_GATEWAY_ID dev_id;
+            Get_Gateway_ID(&dev_id);
 
             C_MQTT_TOPIC parsed_topic;
             memset((void*)parsed_topic,0,sizeof(parsed_topic));
@@ -352,8 +358,11 @@ C_RES EventHandler(mqtt_event_handle_t event)
                 #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
 				PRINTF_DEBUG("/req found_topic\n");
                 #endif
-				CBOR_ReqTopicParser((C_CHAR*)event->data, event->data_len);
+				ret = CBOR_ReqTopicParser((C_CHAR*)event->data, event->data_len);
 			}
+
+			if(previous_poll_engine_status == RUNNING && ret == 0)  // do not restart polling if received command was a stop polling
+				PollEngine_StartEngine_CAREL();
         }
             break;
         case MQTT_EVENT_ERROR:
