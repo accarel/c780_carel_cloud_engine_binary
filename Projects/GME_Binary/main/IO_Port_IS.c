@@ -121,7 +121,7 @@ int Get_TEST_RTS(void){
 	return ECHO_TEST_RTS;
 }
 int Get_TTL_TXD(void){
-	return TTL_RXD;
+	return TTL_TXD;
 }
 int Get_TTL_RXD(void){
 	return TTL_RXD;
