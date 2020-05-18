@@ -318,7 +318,7 @@ int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 *
     const USHORT saddr = index;
 
     if (multi == SINGLE)
-    	errorCode = eMBMasterReqWriteHoldingRegister( addr, index, newData, timeout );
+    	errorCode = eMBMasterReqWriteHoldingRegister( addr, index, *newData, timeout );
     else
     	errorCode = eMBMasterReqWriteMultipleHoldingRegister( addr, index, num_of, newData, timeout );  // we are sending a multiple hrs write even if we can write at most 2 contiguous hrs
                                                                                                       	// this is just for compatibility with those devices only accepting multiple write operations
