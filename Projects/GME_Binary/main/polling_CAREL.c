@@ -1531,6 +1531,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				//LOW POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				timestamp.current_high = timeout;
+				PRINTF_DEBUG("HIGH %d\n", timeout);
+                #endif
 
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1
 				cronometro = RTC_Get_UTC_Current_Time();
