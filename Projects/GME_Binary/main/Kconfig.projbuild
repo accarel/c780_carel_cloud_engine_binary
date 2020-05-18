@@ -33,12 +33,6 @@ menu "Modem Configuration"
                 Quectel BG96 is a series of LTE Cat M1/Cat NB1/EGPRS module.
     endchoice
 
-    config MODEM_APN
-        string "Set Access Point Name (APN)"
-        default "CMNET"
-        help
-            Logical name which is used to select the GGSN or the external packet data network.
-
     config MODEM_PPP_AUTH_USERNAME
         string "Set username for authentication"
         default "espressif"
@@ -66,40 +60,6 @@ menu "Modem Configuration"
     endif
 
     menu "UART Configuration"
-        config UART_MODEM_PORT
-            int "Modem Port Number"
-            default 1
-            range 0 2
-            help
-                UART PORT for modem connection.
-
-        config UART_MODEM_TX_PIN
-            int "TXD Pin Number"
-            default 25
-            range 0 31
-            help
-                Pin number of UART TX.
-
-        config UART_MODEM_RX_PIN
-            int "RXD Pin Number"
-            default 26
-            range 0 31
-            help
-                Pin number of UART RX.
-
-        config UART_MODEM_RTS_PIN
-            int "RTS Pin Number"
-            default 27
-            range 0 31
-            help
-                Pin number of UART RTS.
-
-        config UART_MODEM_CTS_PIN
-            int "CTS Pin Number"
-            default 23
-            range 0 31
-            help
-                Pin number of UART CTS.
 
         config UART_EVENT_TASK_STACK_SIZE
             int "UART Event Task Stack Size"

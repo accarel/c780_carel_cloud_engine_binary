@@ -97,24 +97,11 @@
 /* 2G only related I/O                                                        */
 /* ========================================================================== */
 
-#ifdef CHINESE_HW_TEST
 #define GSM_POWER_CTRL_PIN   GPIO_NUM_22
-#else
-//TODO BILATO solo temporaneamente
-#define GSM_POWER_CTRL_PIN   GPIO_NUM_12
-#endif
-
-
 #define GSM_PWRKEY_PIN       	GPIO_NUM_23
 
 #define ECHO_TEST_TXD_2G		GPIO_NUM_26
 #define ECHO_TEST_RXD_2G		GPIO_NUM_25
-// RTS for RS485 Half-Duplex Mode manages DE/~RE
-#ifdef CHINESE_HW_TEST
-#define ECHO_TEST_RTS_2G		GPIO_NUM_12
-#else
-#define ECHO_TEST_RTS_2G		GPIO_NUM_22
-#endif
 
 // for TTL one wire
 //TODO CHIEBAO da sistemare
@@ -127,6 +114,12 @@
 #define LED_RED_2G       		GPIO_NUM_5
 #define LED_BLU_2G       		GPIO_NUM_33
 
+#define CONFIG_UART_MODEM_PORT 		1
+#define CONFIG_MODEM_APN			"m2m.rmpro.carel.com"
+
+
+#define UART_MODEM_TX_2G		GPIO_NUM_17
+#define UART_MODEM_RX_2G		GPIO_NUM_16
 
 /* ========================================================================== */
 /* 2G only defines and constants                                              */
@@ -177,6 +170,8 @@ void Init_IO_IS(void);
 void GSM_Module_Pwr_Supply_On_Off(C_BYTE set_status);
 void GSM_Module_PwrKey_On_Off(C_BYTE set_status);
 
-
-
+int Get_Modem_TX(void);
+int Get_Modem_RX(void);
+int Get_Modem_RTS(void);
+int Get_Modem_CTS(void);
 #endif

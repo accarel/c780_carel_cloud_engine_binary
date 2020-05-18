@@ -36,8 +36,6 @@
 /* general purpose                                                            */
 /* ========================================================================== */
 
-#define GSM_INIT "gsm_init"
-
 int CONFIG_RESET_BUTTON = -1;
 
 int ECHO_TEST_TXD = -1;
@@ -46,6 +44,12 @@ int ECHO_TEST_RTS = -1;
 int TTL_TXD = -1;
 int TTL_RXD = -1;
 int TTL_RTS = -1;
+int CONFIG_UART_MODEM_TX_PIN = -1;
+int CONFIG_UART_MODEM_RX_PIN = -1;
+int CONFIG_UART_MODEM_RTS_PIN = -1;
+int CONFIG_UART_MODEM_CTS_PIN = -1;
+
+
 /* ========================================================================== */
 /* general purpose                                                            */
 /* ========================================================================== */
@@ -91,7 +95,6 @@ void Init_TTL_Pins(void){
 	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
 		ECHO_TEST_TXD = ECHO_TEST_TXD_2G;
 		ECHO_TEST_RXD = ECHO_TEST_RXD_2G;
-		ECHO_TEST_RTS = ECHO_TEST_RTS_2G;
 		TTL_TXD = TTL_TXD_2G;
 		TTL_RXD = TTL_RXD_2G;
 		TTL_RTS = TTL_RTS_2G;
@@ -215,6 +218,7 @@ void GSM_Module_Pwr_Supply_On_Off(C_BYTE set_status)
 
 	   case	GSM_POWER_SUPPLY_ON:
 		   gpio_set_level(GSM_POWER_CTRL_PIN, 1);
+		   Sys__Delay(5000);		// TODO, set to a reasonable value, this way it works
 		   break;
 
 	   default:
@@ -236,8 +240,6 @@ void GSM_Module_Pwr_Supply_On_Off(C_BYTE set_status)
 
 void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 {
-	C_BYTE gsm_init;
-
 
     #ifdef __DEBUG_GSM_MISCELLANEOUS_IS_LEV_2
     PRINTF_DEBUG("GSM_Module_Pon_Poff set_status %X \r\n", set_status);
@@ -247,30 +249,12 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 	{
 	   case GSM_PWRKEY_ON :
 		   /* pulse the pin to enable the module see M95 manual */
-           #if 1
-
-		   NVM__ReadU8Value(GSM_INIT, &gsm_init);
-
-		   PRINTF_DEBUG("GSM PON FLAG >>>> %X \r\n",gsm_init);
-		   if (gsm_init == 0)
-		   {
-			 gsm_init = 1;
-			 NVM__WriteU8Value(GSM_INIT, gsm_init);
 		     Sys__Delay(GSM_PWRKEY_ON_TIME);
 		     gpio_set_level(GSM_PWRKEY_PIN, 1);
-		     Sys__Delay(GSM_PWRKEY_ON_TIME);
+		     Sys__Delay(2000);				// TODO, set to a reasonable value, this way it works
 		     gpio_set_level(GSM_PWRKEY_PIN, 0);
-		     Sys__Delay(GSM_PWRKEY_ON_TIME);
+		     Sys__Delay(5000);				// TODO, set to a reasonable value, this way it works
 		     PRINTF_DEBUG("GSM PON DONE ...........\r\n");
-		   }
-		   else
-		   {
-	         gsm_init = 0;
-			 NVM__WriteU8Value(GSM_INIT, gsm_init);
-			 PRINTF_DEBUG("GSM PON NOT DONE ######\r\n");
-			 Sys__Delay(GSM_PWRKEY_ON_TIME);
-		   }
-           #endif
 		   break;
 
 	   case GSM_PWRKEY_OFF:
@@ -286,7 +270,29 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 	}
 }
 
+void Init_Modem_Pins(void){
+	CONFIG_UART_MODEM_TX_PIN = UART_MODEM_TX_2G;
+	CONFIG_UART_MODEM_RX_PIN = UART_MODEM_RX_2G;
+}
+
+int Get_Modem_TX(void){
+	return CONFIG_UART_MODEM_TX_PIN;
+}
+
+int Get_Modem_RX(void){
+	return CONFIG_UART_MODEM_RX_PIN;
+}
+
+int Get_Modem_RTS(void){
+	return CONFIG_UART_MODEM_RTS_PIN;
+}
+
+int Get_Modem_CTS(void){
+	return CONFIG_UART_MODEM_CTS_PIN;
+}
+
 void Init_Pins(void){
 	Init_Button_Pin();
 	Init_TTL_Pins();
+	Init_Modem_Pins();
 }

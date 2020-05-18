@@ -5,6 +5,7 @@
 #include "sim800.h"
 #include "wifi.h"
 #include "utilities_CAREL.h"
+#include "IO_Port_IS.h"
 
 static EventGroupHandle_t mobile_event_group = NULL;
 static const int CONNECT_BIT = BIT0;
@@ -74,8 +75,9 @@ gme_sm_t Mobile__Config(void){
     mobile_event_group = xEventGroupCreate();
 
     /* create dte object */
-    esp_modem_dte_config_t config = ESP_MODEM_DTE_DEFAULT_CONFIG();
-    modem_dte_t *dte = esp_modem_dte_init(&config);
+    esp_modem_dte_config_t config = ESP_MODEM_DTE_DEFAULT_CONFIG(CONFIG_UART_MODEM_PORT);
+    esp_uart_t uart_pins = {Get_Modem_TX(), Get_Modem_RX(), Get_Modem_RTS(), Get_Modem_CTS};
+    modem_dte_t *dte = esp_modem_dte_init(&config, uart_pins);
 
     /* Register event handler */
     ESP_ERROR_CHECK(esp_modem_add_event_handler(dte, modem_event_handler, NULL));
@@ -108,7 +110,7 @@ gme_sm_t Mobile__Config(void){
     Utilities__Init();
 
     /* Setup PPP environment */
-    esp_modem_setup_ppp(dte);
+    esp_modem_setup_ppp(dte, CONFIG_MODEM_APN);
 
     return GME_WAITING_FOR_INTERNET;
 
