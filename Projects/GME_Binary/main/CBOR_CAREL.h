@@ -43,7 +43,7 @@
 
 #define TAG_SIZE				3
 
-#define RESPONSE_SIZE			150
+#define RESPONSE_SIZE			256
 #define ALIAS_SIZE				5
 #define VAL_SIZE				10
 #define A_SIZE					30
