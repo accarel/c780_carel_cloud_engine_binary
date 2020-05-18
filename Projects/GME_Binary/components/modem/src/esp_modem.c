@@ -349,7 +349,7 @@ static esp_err_t esp_modem_dte_deinit(modem_dte_t *dte)
     return ESP_OK;
 }
 
-modem_dte_t *esp_modem_dte_init(const esp_modem_dte_config_t *config)
+modem_dte_t *esp_modem_dte_init(const esp_modem_dte_config_t *config, esp_uart_t uart_pins)
 {
     esp_err_t res;
     /* malloc memory for esp_dte object */
@@ -378,10 +378,10 @@ modem_dte_t *esp_modem_dte_init(const esp_modem_dte_config_t *config)
     };
     MODEM_CHECK(uart_param_config(esp_dte->uart_port, &uart_config) == ESP_OK, "config uart parameter failed", err_uart_config);
     if (config->flow_control == MODEM_FLOW_CONTROL_HW) {
-        res = uart_set_pin(esp_dte->uart_port, CONFIG_UART_MODEM_TX_PIN, CONFIG_UART_MODEM_RX_PIN,
-                           CONFIG_UART_MODEM_RTS_PIN, CONFIG_UART_MODEM_CTS_PIN);
+        res = uart_set_pin(esp_dte->uart_port, uart_pins.tx, uart_pins.rx,
+                           uart_pins.rts, uart_pins.cts);
     } else {
-        res = uart_set_pin(esp_dte->uart_port, CONFIG_UART_MODEM_TX_PIN, CONFIG_UART_MODEM_RX_PIN,
+        res = uart_set_pin(esp_dte->uart_port, uart_pins.tx, uart_pins.rx,
                            UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
     }
     MODEM_CHECK(res == ESP_OK, "config uart gpio failed", err_uart_config);
@@ -579,13 +579,13 @@ static uint32_t pppos_low_level_output(ppp_pcb *pcb, uint8_t *data, uint32_t len
     return dte->send_data(dte, (const char *)data, len);
 }
 
-esp_err_t esp_modem_setup_ppp(modem_dte_t *dte)
+esp_err_t esp_modem_setup_ppp(modem_dte_t *dte, char* apn)
 {
     modem_dce_t *dce = dte->dce;
     MODEM_CHECK(dce, "DTE has not yet bind with DCE", err);
     esp_modem_dte_t *esp_dte = __containerof(dte, esp_modem_dte_t, parent);
     /* Set PDP Context */
-    MODEM_CHECK(dce->define_pdp_context(dce, 1, "IP", CONFIG_MODEM_APN) == ESP_OK, "set MODEM APN failed", err);
+    MODEM_CHECK(dce->define_pdp_context(dce, 1, "IP", apn) == ESP_OK, "set MODEM APN failed", err);
     /* Enter PPP mode */
     MODEM_CHECK(dte->change_mode(dte, MODEM_PPP_MODE) == ESP_OK, "enter ppp mode failed", err);
     /* Create PPPoS interface */

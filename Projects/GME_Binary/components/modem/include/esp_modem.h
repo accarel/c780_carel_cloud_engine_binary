@@ -57,15 +57,24 @@ typedef struct {
  * @brief ESP Modem DTE Default Configuration
  *
  */
-#define ESP_MODEM_DTE_DEFAULT_CONFIG()          \
+#define ESP_MODEM_DTE_DEFAULT_CONFIG(port)          \
     {                                           \
-        .port_num = CONFIG_UART_MODEM_PORT,     \
+        .port_num = port,					    \
         .data_bits = UART_DATA_8_BITS,          \
         .stop_bits = UART_STOP_BITS_1,          \
         .parity = UART_PARITY_DISABLE,          \
         .baud_rate = 115200,                    \
         .flow_control = MODEM_FLOW_CONTROL_NONE \
     }
+
+
+struct esp_uart{
+	int tx;
+	int rx;
+	int rts;
+	int cts;
+};
+typedef struct esp_uart esp_uart_t;
 
 /**
  * @brief Create and initialize Modem DTE object
@@ -74,7 +83,7 @@ typedef struct {
  * @return modem_dte_t*
  *      - Modem DTE object
  */
-modem_dte_t *esp_modem_dte_init(const esp_modem_dte_config_t *config);
+modem_dte_t *esp_modem_dte_init(const esp_modem_dte_config_t *config, esp_uart_t uart_pins);
 
 /**
  * @brief Register event handler for ESP Modem event loop
@@ -120,7 +129,7 @@ typedef struct {
  *      - ESP_OK on success
  *      - ESP_FAIL on error
  */
-esp_err_t esp_modem_setup_ppp(modem_dte_t *dte);
+esp_err_t esp_modem_setup_ppp(modem_dte_t *dte, char* apn);
 
 /**
  * @brief Exit PPP Session
