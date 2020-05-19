@@ -65,10 +65,6 @@ void app_main(void)  // main_Carel
   hw_platform_detected = Check_HW_Platform_IS();
   Init_Pins();
 
-  #ifdef CHINESE_HW_TEST
-  hw_platform_detected = PLATFORM_DETECTED_WIFI;
-  #endif
-
   Set_Gateway_ID();
 
   Led_Task_Start();
@@ -382,6 +378,15 @@ void GME__CheckHTMLConfig(void){
 }
 
 void GME__Reboot(void){
+
+	if (PLATFORM(PLATFORM_DETECTED_2G)) {
+		PRINTF_DEBUG("Powering down 2G module... power key\n");
+		GSM_Module_PwrKey_On_Off(GSM_PWRKEY_OFF);
+		Sys__Delay(12000);
+		PRINTF_DEBUG("Powering down 2G module... power down\n");
+		GSM_Module_Pwr_Supply_On_Off(GSM_POWER_SUPPLY_OFF);
+	}
+
 	for(int i=5; i>0; i--)
 	{
 		PRINTF_DEBUG("Rebooting after %d sec ...\n",i);
