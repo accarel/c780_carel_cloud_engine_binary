@@ -358,9 +358,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
  */
 void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 {
-	C_CHAR mybuf[500];
-
-	size_t len = CBOR_Values(mybuf, index, number, frame);
+	size_t len = CBOR_Values(txbuff, index, number, frame);
 
 #if 0
 #define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c"
@@ -378,7 +376,7 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
     #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("valuespkt len %d: \n", len);
 	for (int i=0;i<len;i++){
-		printf("%02X ", mybuf[i]);
+		printf("%02X ", txbuff[i]);
 	}
 	printf("\n");
     #endif
@@ -387,12 +385,12 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 #if 0
 	printf("values pkt binary: \n");
 	for (int i=0;i<len;i++){
-			printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(mybuf[i]));
+			printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(txbuff[i]));
 	}
 	printf("\n");
 #endif
 	printf("CBOR_SendValues mqtt publish start\n");
-	C_RES err = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)mybuf, len, QOS_1, NO_RETAIN);
+	C_RES err = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
 printf("CBOR_SendValues mqtt publish result: %d\n", err);
 }
 
