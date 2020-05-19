@@ -620,9 +620,6 @@ void Update_Led_Model_Cfg_wifi(C_BYTE model_cfg_status)
 Model configured        ---         BLINK
 MQTT connected           ON          ON
 */
-#ifdef CHINESE_HW_TEST
-//do nothing
-#else
   if ((led_current_status & LED_STAT_FACT_DEF_A) || (led_current_status & LED_STAT_FACT_DEF_B))
   {
   	//if factory def triggered override the configuration
@@ -637,7 +634,6 @@ MQTT connected           ON          ON
   {
 	 Led_Status_Update(LED_OFF, LED_RED);
   }		
-#endif
 }
 
 void Update_Led_MQTT_Conn_wifi(C_BYTE mqtt_conn_status)
@@ -647,10 +643,6 @@ void Update_Led_MQTT_Conn_wifi(C_BYTE mqtt_conn_status)
 Model configured        ---         BLINK
 MQTT connected           ON          ON
 */
-#ifdef CHINESE_HW_TEST
-//do nothing
-#else
-
 	if (mqtt_conn_status == 1)
 	{	
        if (led_current_status & LED_STAT_MODEL_CFG)
@@ -669,7 +661,6 @@ MQTT connected           ON          ON
 		     Led_Status_Update(LED_OFF, LED_GREEN);
 	       }
 	}
-#endif
 }
 
 void Update_Led_RS485_wifi(C_BYTE rs485_status)
@@ -678,18 +669,6 @@ void Update_Led_RS485_wifi(C_BYTE rs485_status)
  right now for the WiFi model there isn't any RS485
  activity indicator, so do nothing
 */
-  #ifdef CHINESE_HW_TEST
-  //only for the HW test
-  if (rs485_status==1)
-  {
-	  Led_Status_Update(LED_ON, LED_RED);
-  }
-  else
-  {
-	  Led_Status_Update(LED_OFF, LED_RED);
-  }
-
-#endif
 }
 
 void Update_Led_Fact_Def_A_wifi(C_BYTE fact_def_a_status)
