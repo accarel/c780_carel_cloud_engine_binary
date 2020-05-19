@@ -91,6 +91,11 @@ void Init_TTL_Pins(void){
 		TTL_TXD = TTL_TXD_WIFI;
 		TTL_RXD = TTL_RXD_WIFI;
 		TTL_RTS = TTL_RTS_WIFI;
+		/* the DIR pin is not used right but is use in native BOOT mode
+		   is initialize in this way to not avoid troubles */
+   	    gpio_pad_select_gpio(TTL_DIR_WIFI);
+   	    gpio_set_direction(TTL_DIR_WIFI, GPIO_MODE_INPUT);
+   	    gpio_set_pull_mode(TTL_DIR_WIFI, GPIO_FLOATING);
 	}
 	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
 		ECHO_TEST_TXD = ECHO_TEST_TXD_2G;
