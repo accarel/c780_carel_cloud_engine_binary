@@ -916,13 +916,12 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	err |= cbor_encode_text_stringz(&mapEncoder, (char*)ali);
 	DEBUG_ADD(err, "ali");
 
-	// encode val - elem5
-	err = cbor_encode_text_stringz(&mapEncoder, "val");
-	if (cbor_req->cmd == WRITE_VALUES)
-		err |= cbor_encode_null(&mapEncoder);
-	else
+	// encode val - elem5 - only read
+	if (cbor_req->cmd == READ_VALUES) {
+		err = cbor_encode_text_stringz(&mapEncoder, "val");
 		err |= cbor_encode_text_stringz(&mapEncoder, (char*)val);
-	DEBUG_ADD(err, "val");
+		DEBUG_ADD(err, "val");
+	}
 
 	// encode dev - elem6
 	err = cbor_encode_text_stringz(&mapEncoder, "dev");
