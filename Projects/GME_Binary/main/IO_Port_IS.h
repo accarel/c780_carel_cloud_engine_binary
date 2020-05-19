@@ -126,8 +126,8 @@
 /* ========================================================================== */
 
 /* take a look to M95_Hardware_Design time are in ms */
-#define GSM_PWRKEY_ON_TIME		800
-#define GSM_PWRKEY_OFF_TIME		700
+#define GSM_PWRKEY_ON_TIME		1000
+#define GSM_PWRKEY_OFF_TIME		1000
 
 
  typedef enum{
