@@ -88,6 +88,7 @@ namespace MqttClientSimulatorBinary
 
         public int msg_line_count = 1;
 
+        public int flags_of;
 
         private void MessageBoxInfo(string message, string caption)
         {
@@ -509,7 +510,7 @@ namespace MqttClientSimulatorBinary
 
             //@"A0A1A2A3A4A5A6"; //fixed for the simulator
             string clientId = textBox_MQTT_ID.Text;
-            //string clientPwd = textBox_MQTT_PWD.Text;
+            string clientPwd = textBox_MQTT_PWD.Text;
 
             //client.Connect(clientId);                                                              // for local Mosquitto
             //client.Connect(clientId, "alessandro_bilato", "51ed38a4a4d14de09f021ee0de2db993");     // for Iot Adafruit    
@@ -517,7 +518,7 @@ namespace MqttClientSimulatorBinary
 
             //mqtts://test-mqtt.remotepro.io   user=MAC=clientId
 
-            client.Connect(clientId, clientId, "7fTU6z2dH84CYry3");
+            client.Connect(clientId, clientId, clientPwd);
 
             if (client.IsConnected)
             {
@@ -1461,6 +1462,45 @@ namespace MqttClientSimulatorBinary
         {
             string textFilePath = @".\cbor_cloud\REQ_DBG_INFO.cbor";
             PublishTestFile(textFilePath);
+        }
+
+        private void textBox_MB_Pos_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+
+        private void set_flags_form_call()
+        {
+            FormFlags frm = new FormFlags();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+
+        private void button_SetFlags_Click(object sender, EventArgs e)
+        {
+            flags_of = 1;
+            set_flags_form_call();
+        }
+
+        private void formVisibleChanged(object sender, EventArgs e)
+        {
+            FormFlags frm = (FormFlags)sender;
+            if (!frm.Visible)
+            {
+                string value = frm.ReturnText;
+                if (flags_of == 1) textBox_Flags.Text = value;
+                if (flags_of == 2) textBox_Flags_IR.Text = value;
+
+                frm.Dispose();
+            }
+        }
+
+        private void button_SetFlags_IR_Click(object sender, EventArgs e)
+        {
+            flags_of = 2;
+            set_flags_form_call();
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)

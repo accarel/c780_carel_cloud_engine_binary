@@ -58,6 +58,7 @@
             this.button_send_mb_adu = new System.Windows.Forms.Button();
             this.buttonClearResponse = new System.Windows.Forms.Button();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button_SetFlags = new System.Windows.Forms.Button();
             this.textBox_MB_HR_R_Func = new System.Windows.Forms.TextBox();
             this.button_MB_Write_HR = new System.Windows.Forms.Button();
             this.button_MB_Read_HR = new System.Windows.Forms.Button();
@@ -197,6 +198,7 @@
             this.textBox_MQTT_ID = new System.Windows.Forms.TextBox();
             this.textBox_MQTT_PWD = new System.Windows.Forms.TextBox();
             this.label53 = new System.Windows.Forms.Label();
+            this.button_SetFlags_IR = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -531,6 +533,7 @@
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.button_SetFlags);
             this.groupBox2.Controls.Add(this.textBox_MB_HR_R_Func);
             this.groupBox2.Controls.Add(this.button_MB_Write_HR);
             this.groupBox2.Controls.Add(this.button_MB_Read_HR);
@@ -562,6 +565,17 @@
             this.groupBox2.TabIndex = 24;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Modbus Value Req HR";
+            // 
+            // button_SetFlags
+            // 
+            this.button_SetFlags.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_SetFlags.Location = new System.Drawing.Point(103, 261);
+            this.button_SetFlags.Name = "button_SetFlags";
+            this.button_SetFlags.Size = new System.Drawing.Size(66, 21);
+            this.button_SetFlags.TabIndex = 45;
+            this.button_SetFlags.Text = "< SET";
+            this.button_SetFlags.UseVisualStyleBackColor = true;
+            this.button_SetFlags.Click += new System.EventHandler(this.button_SetFlags_Click);
             // 
             // textBox_MB_HR_R_Func
             // 
@@ -678,7 +692,8 @@
             this.textBox_MB_Pos.Name = "textBox_MB_Pos";
             this.textBox_MB_Pos.Size = new System.Drawing.Size(55, 22);
             this.textBox_MB_Pos.TabIndex = 33;
-            this.textBox_MB_Pos.Text = "16";
+            this.textBox_MB_Pos.Text = "1";
+            this.textBox_MB_Pos.TextChanged += new System.EventHandler(this.textBox_MB_Pos_TextChanged);
             // 
             // label8
             // 
@@ -1529,6 +1544,7 @@
             // 
             // groupBox8
             // 
+            this.groupBox8.Controls.Add(this.button_SetFlags_IR);
             this.groupBox8.Controls.Add(this.textBox_MB_IR_R_Func);
             this.groupBox8.Controls.Add(this.button_MB_Read_IR);
             this.groupBox8.Controls.Add(this.label29);
@@ -1662,7 +1678,7 @@
             this.textBox_MB_Pos_IR.Name = "textBox_MB_Pos_IR";
             this.textBox_MB_Pos_IR.Size = new System.Drawing.Size(55, 22);
             this.textBox_MB_Pos_IR.TabIndex = 33;
-            this.textBox_MB_Pos_IR.Text = "16";
+            this.textBox_MB_Pos_IR.Text = "1";
             // 
             // label33
             // 
@@ -2027,7 +2043,7 @@
             this.textBox_MQTT_ID.Name = "textBox_MQTT_ID";
             this.textBox_MQTT_ID.Size = new System.Drawing.Size(168, 22);
             this.textBox_MQTT_ID.TabIndex = 68;
-            this.textBox_MQTT_ID.Text = "A0A1A2A3A4A5A6";
+            this.textBox_MQTT_ID.Text = "C00000000000001";
             // 
             // textBox_MQTT_PWD
             // 
@@ -2036,7 +2052,7 @@
             this.textBox_MQTT_PWD.Name = "textBox_MQTT_PWD";
             this.textBox_MQTT_PWD.Size = new System.Drawing.Size(168, 22);
             this.textBox_MQTT_PWD.TabIndex = 69;
-            this.textBox_MQTT_PWD.Text = "7fTU6z2dH84CYry3";
+            this.textBox_MQTT_PWD.Text = "ClIjN8uaM3rwN5nE";
             // 
             // label53
             // 
@@ -2047,6 +2063,17 @@
             this.label53.Size = new System.Drawing.Size(40, 17);
             this.label53.TabIndex = 70;
             this.label53.Text = "PWD";
+            // 
+            // button_SetFlags_IR
+            // 
+            this.button_SetFlags_IR.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_SetFlags_IR.Location = new System.Drawing.Point(104, 261);
+            this.button_SetFlags_IR.Name = "button_SetFlags_IR";
+            this.button_SetFlags_IR.Size = new System.Drawing.Size(66, 21);
+            this.button_SetFlags_IR.TabIndex = 46;
+            this.button_SetFlags_IR.Text = "< SET";
+            this.button_SetFlags_IR.UseVisualStyleBackColor = true;
+            this.button_SetFlags_IR.Click += new System.EventHandler(this.button_SetFlags_IR_Click);
             // 
             // Form1
             // 
@@ -2095,7 +2122,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.1.8";
+            this.Text = "IoT Server Simulator Binary Edition V.2.0";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2290,6 +2317,8 @@
         private System.Windows.Forms.Button button_flush;
         private System.Windows.Forms.Button buttonSet_Lines_Config_TTL;
         private System.Windows.Forms.Button button_ReqDBGInfo;
+        private System.Windows.Forms.Button button_SetFlags;
+        private System.Windows.Forms.Button button_SetFlags_IR;
     }
 }
 
