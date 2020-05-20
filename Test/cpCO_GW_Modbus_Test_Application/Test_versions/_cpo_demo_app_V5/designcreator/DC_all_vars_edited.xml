@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" docVersion="2.0" docDate="2020-05-20T12:27:21">
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" docVersion="2.0" docDate="2020-05-20T14:22:40">
   <Device code="0" swVersion="Modbus_Salve_Simulator cpCOMini #@#VAR_COMP#@#" littleEndian="0" manufacturer="0" descriptionKey="0~device~descr" ide="1" allowRWAlarm="false">
     <Vars>
       <Var code="Coil_Low_P" type="1" signed="false" decimal="0" minValue="0" maxValue="1" measureUnit="" />
@@ -108,9 +108,9 @@
           <VarMDB code="Float_A2_B1000" addressIn="300208" funcTypeRead="3" addressOut="600208" funcTypeWrite="6" varDimension="32" varLength="32" bitPosition="0" aValue="2" bValue="1000" varEncoding="1" />
           <VarMDB code="Float_A0_5_B100" addressIn="300210" funcTypeRead="3" addressOut="600210" funcTypeWrite="6" varDimension="32" varLength="32" bitPosition="0" aValue="0.5" bValue="100" varEncoding="1" />
           <VarMDB code="HR_Nib_0_3" addressIn="300212" funcTypeRead="3" addressOut="600212" funcTypeWrite="6" varDimension="16" varLength="4" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
-          <VarMDB code="HR_Nib_4_7" addressIn="300213" funcTypeRead="3" addressOut="600213" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="HR_Nib_4_7" addressIn="300213" funcTypeRead="3" addressOut="600213" funcTypeWrite="6" varDimension="16" varLength="4" bitPosition="4" aValue="1" bValue="0" varEncoding="0" />
           <VarMDB code="HR_Nib_8_11" addressIn="300214" funcTypeRead="3" addressOut="600214" funcTypeWrite="6" varDimension="16" varLength="4" bitPosition="8" aValue="1" bValue="0" varEncoding="0" />
-          <VarMDB code="HR_Nib_12_15" addressIn="300215" funcTypeRead="3" addressOut="600215" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="HR_Nib_12_15" addressIn="300215" funcTypeRead="3" addressOut="600215" funcTypeWrite="6" varDimension="16" varLength="4" bitPosition="12" aValue="1" bValue="0" varEncoding="0" />
           <VarMDB code="OFFLINE" addressIn="0" funcTypeRead="0" addressOut="0" funcTypeWrite="0" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
         </Vars>
       </Modbus>
@@ -346,5 +346,5 @@
       </Langs>
     </Translations>
   </Device>
-  <Check code="99E3551A" />
+  <Check code="2E1CFFE4" />
 </Project>
