@@ -1529,8 +1529,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 			if (high_trigger) {
 				//LOW POLLING
-                #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				timestamp.current_high = timeout;
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("HIGH %d\n", timeout);
                 #endif
 
