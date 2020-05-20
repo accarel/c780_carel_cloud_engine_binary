@@ -2372,6 +2372,7 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 
 	C_CHAR num_reg;
 	C_FLOAT val_to_write;
+	C_INT32 ivalue;
 
 	double res;
 
@@ -2391,14 +2392,21 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 		case mbW_HR:
 		case mbW_HRS:{
 
+			if(cbor_wv.dim == 16) { num_reg = 1; }
+			else                  {	num_reg = 2; }
+
 			if(cbor_wv.flags.bit.fixedpoint == 1 ||
 			   cbor_wv.flags.bit.ieee == 1)
+			{
 				val_to_write = (val_to_write - (long double)(atof((C_SCHAR*)cbor_wv.b)))  /  (long double)(atof((C_SCHAR*)cbor_wv.a));
+			    result = PollEngine__Write_HR_Req(val_to_write, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
+			}
+			else
+			{  // is an Integer number
+				ivalue = atoi((C_SCHAR*)cbor_wv.val);
+				result = PollEngine__Write_HR_Req_Int(ivalue, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
+			}
 
-			if(cbor_wv.dim == 16) { num_reg = 1; }
-			else                  { num_reg = 2; }
-
-			result = PollEngine__Write_HR_Req(val_to_write , cbor_wv.addr, num_reg, cbor_wv.func);
 		}
 		break;
 

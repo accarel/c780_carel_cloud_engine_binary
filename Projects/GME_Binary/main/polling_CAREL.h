@@ -38,7 +38,7 @@
 #ifdef __CCL_DEBUG_MODE
 
 //this define enable the output of the communications errors
-//#define __DEBUG_POLLING_CAREL_LEV_1
+#define __DEBUG_POLLING_CAREL_LEV_1
 
 //this define enable the output of others debug informations
 //#define __DEBUG_POLLING_CAREL_LEV_2
@@ -81,6 +81,18 @@ typedef union Data{
 	   }reg;
 }data_f;
 #pragma pack()
+
+
+#pragma pack(1)
+typedef union Data_Int{
+	   C_INT32 value;
+	   struct{
+		   C_UINT16 low;
+		   C_UINT16 high;
+	   }reg;
+}data_int_f;
+#pragma pack()
+
 
 //Table: Coil and DI low polling and high polling tables
 #pragma pack(1)
@@ -334,7 +346,9 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
 
 C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 fun);
 
-C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_UINT16 fun);
+C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun);
+
+C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun);
 
 
 values_buffer_t* PollEngine__GetValuesBuffer(void);

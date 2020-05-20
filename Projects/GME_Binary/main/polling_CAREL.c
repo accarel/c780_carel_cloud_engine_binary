@@ -349,6 +349,11 @@ void create_values_buffers(void){
 	// to test buffering TEMPORARY
 	// values_buffer_len = 20;
 
+
+	PRINTF_DEBUG("create_values_buffers %d \n",values_buffer_len);
+
+
+
 	values_buffer = malloc(values_buffer_len * sizeof(values_buffer_t));						// malloc
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
 }
@@ -1281,6 +1286,8 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
+
+
 	// Polling the Di register
 	for (uint16_t i = 0; i < alarm_n.di; i++)
 	{
@@ -1462,6 +1469,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 	C_UINT32 cronometro;
     #endif
 
+
 		if(RUNNING == PollEngine_Status.engine)
 		{
 		SoftWDT_Reset(SWWDT_POLLING);
@@ -1482,6 +1490,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
                 #endif
 
 				poll_done = DoAlarmPolling(COILAlarmPollTab, DIAlarmPollTab, HRAlarmPollTab, IRAlarmPollTab);
+
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1
 				cronometro = RTC_Get_UTC_Current_Time() - cronometro;
 				PRINTF_DEBUG("ALR POLL TIME %X\n", cronometro);
@@ -1512,10 +1521,13 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				SendOffline(poll_done);
 
 				poll_done = DoPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab, LOW_POLLING);
+
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1
 				cronometro = RTC_Get_UTC_Current_Time() - cronometro;
 				PRINTF_DEBUG("H+L POLL TIME %X\n", cronometro);
                 #endif
+
+
 				SendOffline(poll_done);
 				FlushValues(LOW_POLLING);
 				FlushValues(HIGH_POLLING);
@@ -1530,9 +1542,6 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			if (high_trigger) {
 				//LOW POLLING
 				timestamp.current_high = timeout;
-				#ifdef __DEBUG_POLLING_CAREL_LEV_2
-				PRINTF_DEBUG("HIGH %d\n", timeout);
-                #endif
 
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1
 				cronometro = RTC_Get_UTC_Current_Time();
@@ -1632,7 +1641,7 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
  * @param  C_FLOAT write_value, uint16_t addr, C_CHAR num
  * @return C_RES
  */
-C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_UINT16 fun){
+C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun){
 
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
@@ -1646,8 +1655,17 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C
 
 	if(num == 1) {   val[0] = write_value; }
 	else{
-		val[1] =  data.reg.low;
-		val[0] =  data.reg.high;
+
+		if (is_big_end == 0)
+		{
+		  val[1] =  data.reg.high;
+		  val[0] =  data.reg.low;
+		}
+		else
+		{
+		  val[1] =  data.reg.low;
+		  val[0] =  data.reg.high;
+		}
 	}
 
 	if (fun == mbW_HR)
@@ -1660,6 +1678,62 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C
 	else
 		return C_FAIL;
 }
+
+
+/**
+ * @brief PollEngine__Write_HR_Req_Int
+ *        function that write a holding register via Modbus
+ *
+ * @param  C_INT32 write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end,
+ * @return C_RES
+ */
+C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun){
+
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+
+	data_int_f data;
+    C_UINT16 val[2];
+
+	data.reg.high = 0;
+	data.reg.low = 0;
+
+	data.value = write_value;
+
+	if(num == 1) {   val[0] = write_value; }
+	else{
+
+		if (is_big_end == 0)
+		{
+		  val[1] =  data.reg.high;
+		  val[0] =  data.reg.low;
+		}
+		else
+		{
+		  val[1] =  data.reg.low;
+		  val[0] =  data.reg.high;
+		}
+	}
+
+	if (fun == mbW_HR)
+		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, SINGLE);
+	else if (fun == mbW_HRS)
+		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, MULTI);
+
+	if(errorReq == MB_MRE_NO_ERR)
+		return C_SUCCESS;
+	else
+		return C_FAIL;
+}
+
+
+
+
+
+
+
+
+
+
 
 /**
  * @brief PollEngine__Write_COIL_Req
