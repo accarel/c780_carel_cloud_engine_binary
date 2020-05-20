@@ -1,7 +1,7 @@
 [DEFAULT]
 Gateway Modubus Test
 PRESS Å to continue
-V.2.1 OTA1
+V.4.0 OTA1
 Coil_alr
 DI_alr
 HR_alr
