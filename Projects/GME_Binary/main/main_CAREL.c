@@ -329,6 +329,8 @@ void Carel_Main_Task(void)
   				sm = GME_IDLE_INTERNET_CONNECTED;
   			}else{
   				sm = GME_START_POLLING_ENGINE;
+  				GME__CheckHTMLConfig();			// this is needed in case MQTT is not connected
+  												// and we want a new config from web to reboot gme (differently reboot won't happen)
   			}
 
   			break;
