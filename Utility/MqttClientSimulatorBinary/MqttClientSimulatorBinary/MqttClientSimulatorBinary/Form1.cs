@@ -670,6 +670,7 @@ namespace MqttClientSimulatorBinary
         private void Button_MB_Write_HR_Click(object sender, EventArgs e)
         {
             int value;
+            int dim_value;
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
@@ -677,8 +678,31 @@ namespace MqttClientSimulatorBinary
             value = 7;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias.Text);
-                       
+
             value = 0;
+            dim_value = 16;
+
+            if (Int32.TryParse(textBox_MB_Dim.Text, out value))
+            {
+                cbor.Add(@"dim", value);
+                dim_value = value;
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim ");
+            }
+
+            if (dim_value == 32)
+            {
+                textBox_MB_HR_W_Func.Text = "16";
+            }
+            else 
+            {
+                textBox_MB_HR_W_Func.Text = "6";
+            }
+
+
+            value = 0;                                                  
             if (Int32.TryParse(textBox_MB_HR_W_Func.Text, out value))
             {
                 cbor.Add(@"fun", value);
@@ -698,15 +722,7 @@ namespace MqttClientSimulatorBinary
                 textBox_Message.AppendText("Error during conversion of > adr ");
             }
 
-            value = 0;
-            if (Int32.TryParse(textBox_MB_Dim.Text, out value))
-            {
-                cbor.Add(@"dim", value);
-            }
-            else
-            {
-                textBox_Message.AppendText("Error during conversion of > dim ");
-            }
+
 
             value = 0;
             if (Int32.TryParse(textBox_MB_Pos.Text, out value))
@@ -1501,6 +1517,11 @@ namespace MqttClientSimulatorBinary
         {
             flags_of = 2;
             set_flags_form_call();
+        }
+
+        private void textBox_MB_Dim_TextChanged(object sender, EventArgs e)
+        {
+
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)

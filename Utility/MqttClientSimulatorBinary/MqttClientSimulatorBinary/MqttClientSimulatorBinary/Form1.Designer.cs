@@ -151,6 +151,7 @@
             this.textBox_MB_DI_R_Func = new System.Windows.Forms.TextBox();
             this.label43 = new System.Windows.Forms.Label();
             this.groupBox8 = new System.Windows.Forms.GroupBox();
+            this.button_SetFlags_IR = new System.Windows.Forms.Button();
             this.textBox_MB_IR_R_Func = new System.Windows.Forms.TextBox();
             this.button_MB_Read_IR = new System.Windows.Forms.Button();
             this.label29 = new System.Windows.Forms.Label();
@@ -198,7 +199,6 @@
             this.textBox_MQTT_ID = new System.Windows.Forms.TextBox();
             this.textBox_MQTT_PWD = new System.Windows.Forms.TextBox();
             this.label53 = new System.Windows.Forms.Label();
-            this.button_SetFlags_IR = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -751,6 +751,7 @@
             this.textBox_MB_Dim.Size = new System.Drawing.Size(55, 22);
             this.textBox_MB_Dim.TabIndex = 26;
             this.textBox_MB_Dim.Text = "16";
+            this.textBox_MB_Dim.TextChanged += new System.EventHandler(this.textBox_MB_Dim_TextChanged);
             // 
             // label5
             // 
@@ -1574,6 +1575,17 @@
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Modbus Value Req IR";
             // 
+            // button_SetFlags_IR
+            // 
+            this.button_SetFlags_IR.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_SetFlags_IR.Location = new System.Drawing.Point(104, 261);
+            this.button_SetFlags_IR.Name = "button_SetFlags_IR";
+            this.button_SetFlags_IR.Size = new System.Drawing.Size(66, 21);
+            this.button_SetFlags_IR.TabIndex = 46;
+            this.button_SetFlags_IR.Text = "< SET";
+            this.button_SetFlags_IR.UseVisualStyleBackColor = true;
+            this.button_SetFlags_IR.Click += new System.EventHandler(this.button_SetFlags_IR_Click);
+            // 
             // textBox_MB_IR_R_Func
             // 
             this.textBox_MB_IR_R_Func.Location = new System.Drawing.Point(44, 70);
@@ -2064,17 +2076,6 @@
             this.label53.TabIndex = 70;
             this.label53.Text = "PWD";
             // 
-            // button_SetFlags_IR
-            // 
-            this.button_SetFlags_IR.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_SetFlags_IR.Location = new System.Drawing.Point(104, 261);
-            this.button_SetFlags_IR.Name = "button_SetFlags_IR";
-            this.button_SetFlags_IR.Size = new System.Drawing.Size(66, 21);
-            this.button_SetFlags_IR.TabIndex = 46;
-            this.button_SetFlags_IR.Text = "< SET";
-            this.button_SetFlags_IR.UseVisualStyleBackColor = true;
-            this.button_SetFlags_IR.Click += new System.EventHandler(this.button_SetFlags_IR_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -2122,7 +2123,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.0";
+            this.Text = "IoT Server Simulator Binary Edition V.2.1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
