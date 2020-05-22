@@ -757,7 +757,7 @@ hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
 			type = TYPE_D;
 		}else if(1 == info.flag.bit.fixedpoint){
 			type = TYPE_B;
-		}else if(info.len == 4 && 0 != info.bitposition){
+		}else if(info.len == 4 && 0 >= info.bitposition){
 			type = TYPE_E;
 		}else{
 			if(1 == info.flag.bit.signed_f){
