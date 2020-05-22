@@ -381,6 +381,8 @@ void GME__CheckHTMLConfig(void){
 
 void GME__Reboot(void){
 
+	Do_Led_Test_Routine();
+
 	if (PLATFORM(PLATFORM_DETECTED_2G)) {
 		PRINTF_DEBUG("Powering down 2G module... power key\n");
 		GSM_Module_PwrKey_On_Off(GSM_PWRKEY_OFF);

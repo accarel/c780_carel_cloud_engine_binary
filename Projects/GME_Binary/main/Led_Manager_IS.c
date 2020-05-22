@@ -110,19 +110,6 @@ C_BYTE blu_led_current_status;
 static xTaskHandle xLedTask;
 #endif
 
-
-/* ------------------------------------------------------------------- */
-/* function forward declaration section                                */
-/* ------------------------------------------------------------------- */
-void Do_Led_Test_Routine(void);
-void Update_Led_Model_Cfg(C_BYTE model_cfg_status);
-void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status);
-void Update_Led_RS485(C_BYTE rs485_status);
-void Update_Led_Fact_Def_A(C_BYTE fact_def_a_status);
-void Update_Led_Fact_Def_B(C_BYTE fact_def_b_status);
-
-
-
 /* ------------------------------------------------------------------- */
 /*           BEGIN OF PLATFORM INDEPENDENT LED MANAGEMENT              */
 /* ------------------------------------------------------------------- */
