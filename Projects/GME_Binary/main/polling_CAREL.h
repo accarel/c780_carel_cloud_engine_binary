@@ -361,7 +361,7 @@ float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
 int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
 uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
 uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
-int32_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
+int16_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
 int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
 uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind);
 

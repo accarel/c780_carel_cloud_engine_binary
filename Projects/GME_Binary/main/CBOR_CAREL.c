@@ -2319,7 +2319,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_E:
 		{
-			int32_t c_read = 0;
+			int16_t c_read = 0;
 			c_read = get_type_e(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
 			printf("TYPE_E c_read: %d \n",c_read);
@@ -2374,6 +2374,14 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 	C_FLOAT val_to_write;
 	C_INT32 ivalue;
 
+        // only for Nibble management
+	hr_ir_low_high_poll_t hr_to_read = {0};
+	long double conv_value = 0;
+
+	uint16_t tmp;
+
+	//
+
 	double res;
 
 	res = atof((C_SCHAR*)cbor_wv.val);
@@ -2399,14 +2407,36 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 			   cbor_wv.flags.bit.ieee == 1)
 			{
 				val_to_write = (val_to_write - (long double)(atof((C_SCHAR*)cbor_wv.b)))  /  (long double)(atof((C_SCHAR*)cbor_wv.a));
-			    result = PollEngine__Write_HR_Req(val_to_write, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
+			        result = PollEngine__Write_HR_Req(val_to_write, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
 			}
 			else
-			{  // is an Integer number
+			{  
+			   if(cbor_wv.len == 16)
+			   {
+				// is an Integer number
 				ivalue = atoi((C_SCHAR*)cbor_wv.val);
 				result = PollEngine__Write_HR_Req_Int(ivalue, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
-			}
+			   }
+			   else
+			   {
+			     // Write a nibble
+				 hr_to_read.info.Addr = cbor_wv.addr;
+				 hr_to_read.info.dim = cbor_wv.dim;
+				 hr_to_read.info.bitposition = cbor_wv.pos;
+				 hr_to_read.info.len = cbor_wv.len;
+				 hr_to_read.info.linA = atoi((C_SCHAR*)cbor_wv.a);
+				 hr_to_read.info.linB = atoi((C_SCHAR*)cbor_wv.b);
+				 hr_to_read.info.flag.byte = cbor_wv.flags.byte;
 
+				 result = PollEngine__Read_HR_IR_Req(mbR_HR,  hr_to_read.info.Addr, hr_to_read.info.dim ,(void*)&hr_to_read.c_value.value);
+
+				 tmp = ((uint16_t)hr_to_read.c_value.value & (0xFFFF^(0x000F << (cbor_wv.pos-1))));
+
+				 tmp |= ((uint16_t)val_to_write << (cbor_wv.pos-1));
+
+				 result = PollEngine__Write_HR_Req(tmp , cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);   
+			   }
+			}
 		}
 		break;
 
