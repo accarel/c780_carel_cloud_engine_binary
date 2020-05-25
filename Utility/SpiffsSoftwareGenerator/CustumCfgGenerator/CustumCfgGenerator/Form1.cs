@@ -21,6 +21,8 @@ namespace CustumCfgGenerator
         public const int NUM_OF_NTPSERVER = 30;
         public const int NUM_OF_NTPPORT = 6;
         public const int NUM_OF_CRC = 2;
+        public const int NUM_OF_CHAR_IN_APN_FIELD = 64;
+
 
         public struct myDataToStore
         {
@@ -32,6 +34,10 @@ namespace CustumCfgGenerator
             public byte[] mqtt_user;
             public byte[] ntp_server;
             public byte[] ntp_port;
+
+            public byte[] apn_name;
+            public byte[] apn_user;
+            public byte[] apn_password;
         }
 
         private myDataToStore mySpiffs;
@@ -59,6 +65,18 @@ namespace CustumCfgGenerator
 
             mySpiffs = new myDataToStore();
             mySpiffs.cfg_version = new byte[NUM_OF_CFG_VERSION];
+
+            mySpiffs.mqtt_broker = new byte[NUM_OF_BROKER];
+            mySpiffs.mqtt_port = new byte[NUM_OF_PORT];
+            mySpiffs.mqtt_pssw = new byte[NUM_OF_PSSW];
+            mySpiffs.mqtt_user = new byte[NUM_OF_USER];
+            mySpiffs.ntp_server = new byte[NUM_OF_NTPSERVER];
+            mySpiffs.ntp_port = new byte[NUM_OF_NTPPORT];
+
+            mySpiffs.apn_password = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+            mySpiffs.apn_user = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+            mySpiffs.apn_name = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+
         }
 
         private void label1_Click(object sender, EventArgs e)
@@ -80,14 +98,28 @@ namespace CustumCfgGenerator
 
             mySpiffs.enc_key = randomNum;
 
+
+            //
+            //  Nego il risultato di ogni check in quanto ritorna --->  true se tutto a 0, false se c'è qualcosa.
+            //
+            bool ThereIsZeroes = (mySpiffs.mqtt_broker.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.mqtt_port.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.mqtt_pssw.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.mqtt_user.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.ntp_port.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.ntp_server.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.apn_name.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.apn_user.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.apn_password.All(singleByte => singleByte == 0)) ||
+                                 (mySpiffs.cfg_version.All(singleByte => singleByte == 0));
+
+            
+
             // genera file .bin per esp32
             // controllo il contenuto delle textbox
             try
             {
-                if (mySpiffs.mqtt_broker.Length != 0 && mySpiffs.mqtt_port.Length != 0 &&
-                    mySpiffs.mqtt_pssw.Length != 0   && mySpiffs.mqtt_user.Length != 0 &&
-                    mySpiffs.ntp_server.Length != 0  && mySpiffs.ntp_port.Length != 0  &&
-                    mySpiffs.cfg_version[0] != 0)
+                if(!ThereIsZeroes)
                 {
                     string exeFolder = System.IO.Path.GetDirectoryName(Application.ExecutablePath);
 
@@ -113,7 +145,11 @@ namespace CustumCfgGenerator
 
                             writer.Write(mySpiffs.ntp_server);
                             writer.Write(mySpiffs.ntp_port);
-                            
+
+                            writer.Write(mySpiffs.apn_name);
+                            writer.Write(mySpiffs.apn_user);
+                            writer.Write(mySpiffs.apn_password);
+
                             writer.Close();
 
                             var source = @cfg_data;
@@ -171,13 +207,6 @@ namespace CustumCfgGenerator
                             }
 
                             button1.BackColor = Color.Green;
-
-                            mySpiffs.mqtt_broker = null;
-                            mySpiffs.mqtt_port   = null;
-                            mySpiffs.mqtt_pssw   = null;
-                            mySpiffs.mqtt_user   = null;
-                            mySpiffs.ntp_server  = null;
-                            mySpiffs.ntp_port    = null;                        
                         }
                     }
                 }
@@ -196,79 +225,159 @@ namespace CustumCfgGenerator
         {
             button1.BackColor = Color.Gray;
 
-            mySpiffs.mqtt_broker = new byte[NUM_OF_BROKER];
-
             string newBroker = textMqttBroker.Text;
 
             byte[] tmp = Encoding.ASCII.GetBytes(newBroker);
 
             //int startAt = mqtt_broker.Length - tmp.Length;
-            Array.Copy(tmp, 0, mySpiffs.mqtt_broker, 0, tmp.Length);
+            if(tmp.Length != 0)
+            {
+                mySpiffs.mqtt_broker = new byte[NUM_OF_BROKER];
+                Array.Copy(tmp, 0, mySpiffs.mqtt_broker, 0, tmp.Length);
+
+            }
+            else
+                mySpiffs.mqtt_broker = new byte[NUM_OF_BROKER];
         }
 
         private void textMqttPort_TextChanged(object sender, EventArgs e)
-        {
-            mySpiffs.mqtt_port = new byte[NUM_OF_PORT];
-            
+        {           
             button1.BackColor = Color.Gray;
 
             string newPort = textMqttPort.Text;
 
             byte[] tmp = Encoding.ASCII.GetBytes(newPort);
              
-            Array.Copy(tmp, 0, mySpiffs.mqtt_port, 0, tmp.Length);
+            if(tmp.Length != 0)
+            {
+                mySpiffs.mqtt_port = new byte[NUM_OF_PORT];
+                Array.Copy(tmp, 0, mySpiffs.mqtt_port, 0, tmp.Length);
+            }
+            else
+              mySpiffs.mqtt_port = new byte[NUM_OF_PORT];
         }
 
         private void textMqttPassword_TextChanged(object sender, EventArgs e)
         {
-            mySpiffs.mqtt_pssw = new byte[NUM_OF_PSSW];
-
             button1.BackColor = Color.Gray;
 
             string newPass = textMqttPassword.Text;
 
             byte[] tmp = Encoding.ASCII.GetBytes(newPass);
 
-            Array.Copy(tmp, 0, mySpiffs.mqtt_pssw, 0, tmp.Length);
+            if(tmp.Length != 0)
+            {
+                mySpiffs.mqtt_pssw = new byte[NUM_OF_PSSW];
+                Array.Copy(tmp, 0, mySpiffs.mqtt_pssw, 0, tmp.Length);
+            }
+            else
+              mySpiffs.mqtt_pssw = new byte[NUM_OF_PSSW];
         }
         private void textMqttUser_TextChanged(object sender, EventArgs e)
         {
-            mySpiffs.mqtt_user = new byte[NUM_OF_USER];
-
             button1.BackColor = Color.Gray;
 
             string newUsr = textMqttUser.Text;
 
             byte[] tmp = Encoding.ASCII.GetBytes(newUsr);
 
-            Array.Copy(tmp, 0, mySpiffs.mqtt_user, 0, tmp.Length);
+            if(tmp.Length != 0)
+            {
+                mySpiffs.mqtt_user = new byte[NUM_OF_USER];
+                Array.Copy(tmp, 0, mySpiffs.mqtt_user, 0, tmp.Length);
+            }
+            else
+              mySpiffs.mqtt_user = new byte[NUM_OF_USER];
         }
 
         private void textNtpAddress_TextChanged(object sender, EventArgs e)
-        {
-            mySpiffs.ntp_server = new byte[NUM_OF_NTPSERVER];
-            
+        {  
             button1.BackColor = Color.Gray;
 
             string newNtpServer = textNtpAddress.Text;
 
             byte[] tmp = Encoding.ASCII.GetBytes(newNtpServer);
 
-            Array.Copy(tmp, 0, mySpiffs.ntp_server, 0, tmp.Length);
+            if(tmp.Length != 0)
+            {
+                mySpiffs.ntp_server = new byte[NUM_OF_NTPSERVER];
+                Array.Copy(tmp, 0, mySpiffs.ntp_server, 0, tmp.Length);
+            }
+            else
+             mySpiffs.ntp_server = new byte[NUM_OF_NTPSERVER];
         }
 
         private void textNtpPort_TextChanged(object sender, EventArgs e)
-        {
-            mySpiffs.ntp_port = new byte[NUM_OF_NTPPORT];
-
+        {         
             button1.BackColor = Color.Gray;
 
             string newNtpPort = textNtpPort.Text;
 
             byte[] tmp = Encoding.ASCII.GetBytes(newNtpPort);
 
-            Array.Copy(tmp, 0, mySpiffs.ntp_port, 0, tmp.Length);
+            if (tmp.Length != 0)
+            {
+                mySpiffs.ntp_port = new byte[NUM_OF_NTPPORT];
+                Array.Copy(tmp, 0, mySpiffs.ntp_port, 0, tmp.Length);
+            }
+            else
+                mySpiffs.ntp_port = new byte[NUM_OF_NTPPORT];
         }
+
+        //
+        //  APN 
+        //
+        private void textApnName_TextChanged(object sender, EventArgs e)
+        {
+            button1.BackColor = Color.Gray;
+
+            string newApnName = textApnName.Text;
+
+            byte[] tmp = Encoding.ASCII.GetBytes(newApnName);
+
+            if(tmp.Length != 0) 
+            {
+                mySpiffs.apn_name = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+                Array.Copy(tmp, 0, mySpiffs.apn_name, 0, tmp.Length);
+            }
+            else
+              mySpiffs.apn_name = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+        }
+
+        private void textApnUser_TextChanged(object sender, EventArgs e)
+        {              
+            button1.BackColor = Color.Gray;
+
+            string newApnUser = textApnUser.Text;
+
+            byte[] tmp = Encoding.ASCII.GetBytes(newApnUser);
+
+            if(tmp.Length != 0)
+            { 
+                mySpiffs.apn_user = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+                Array.Copy(tmp, 0, mySpiffs.apn_user, 0, tmp.Length);
+            }
+            else
+              mySpiffs.apn_user = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+        }
+
+        private void textApnPassword_TextChanged(object sender, EventArgs e)
+        {
+            button1.BackColor = Color.Gray;
+
+            string newApnPassword = textApnPassword.Text;
+
+            byte[] tmp = Encoding.ASCII.GetBytes(newApnPassword);
+
+            if(tmp.Length != 0)
+            {
+                mySpiffs.apn_password = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+                Array.Copy(tmp, 0, mySpiffs.apn_password, 0, tmp.Length);
+            }
+            else
+                mySpiffs.apn_password = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+        }
+
 
         private void textVersion_TextChanged(object sender, EventArgs e)
         {
@@ -338,6 +447,7 @@ namespace CustumCfgGenerator
             }
         }
 
+
         private void button2_Click(object sender, EventArgs e)
         {
             textMqttBroker.Clear();
@@ -348,6 +458,9 @@ namespace CustumCfgGenerator
             textNtpPort.Clear();
             textVersion.Clear();
             textBetaVersion.Clear();
+            textApnName.Clear();
+            textApnPassword.Clear();
+            textApnUser.Clear();
         }
 
 
@@ -469,8 +582,6 @@ namespace CustumCfgGenerator
                 return crc;
             }
         }
-
-
     }
 }
 

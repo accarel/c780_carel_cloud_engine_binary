@@ -4,3 +4,21 @@ admin
 5Qz*(3_>K&vU!PS^
 pool.ntp.org
 123
+
+
+*********************************************************************
+
+mqtts://test-mqtt.remotepro.io
+8883
+
+30AEA4EF4738 (mac-addr del dispositivo)
+7fTU6z2dH84CYry3
+
+pool.ntp.org
+123
+
+m2m.rmpro.carel.com
+123
+123
+
+*********************************************************************
