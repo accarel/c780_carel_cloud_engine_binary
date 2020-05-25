@@ -108,6 +108,9 @@ typedef struct cfg_data{
 	C_SBYTE mqtt_user[USERNAME_SIZE];
 	C_CHAR  ntp_server[30];
 	C_CHAR  ntp_port[6];
+	C_CHAR  apn_name[64];
+	C_CHAR	apn_user[64];
+	C_CHAR  apn_password[64];
 	C_CHAR  crc[2];
 }cfg_data_t, *ptr_cfg_data_t;
 #pragma pack()
