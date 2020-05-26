@@ -8,7 +8,6 @@
 #include "RTC_IS.h"
 #include <sys/time.h>
 #include "data_types_IS.h"
-#include "sntp.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT 
 
@@ -16,8 +15,6 @@
 #include "lwip/err.h"
 #include "lwip/apps/sntp.h"
 
-//depend of device
-#include "sntp.h"
 #endif
 /* Functions implementation -------------------------------------------------------*/
 

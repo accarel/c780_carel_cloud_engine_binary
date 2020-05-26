@@ -40,7 +40,6 @@
 #include"gme_config.h"
 
 #include "CAREL_GLOBAL_DEF.h"
-#include "sntp.h"
 
 #define STRCAT(A, B) A B
 
