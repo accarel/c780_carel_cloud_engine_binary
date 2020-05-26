@@ -128,7 +128,9 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_SCND_DNS, cJSON_CreateNull());
 	}
 
-	cJSON_AddItemToObject(html_config, HTMLCONF_NTP_SRVR_ADDR, cJSON_CreateString(wifi_config->ntp_server_addr));
+	char tmp_ntp_server[SERVER_SIZE];
+	GetNtpServer(tmp_ntp_server);
+	cJSON_AddItemToObject(html_config, HTMLCONF_NTP_SRVR_ADDR, cJSON_CreateString(tmp_ntp_server));
 
 	// for web pages access, username and password
 	char login[34];

@@ -22,12 +22,16 @@
 /* Function prototypes -------------------------------------------------------*/
 long filesize(const char *fname);
 C_RES FS_CheckFiles(void);
-void FS_DisplayFiles(void);
 long FS_ReadFile(const char* filename, uint8_t* cert_ptr);
 C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filename);
 
-C_RES FS_GetCfgData(C_BYTE file);
-C_RES FS_SaveCfgData(C_BYTE file);
+C_RES SaveCfgDefDataToNVM(void);
+
+char* GetNtpServer(char* tmp_ntp_server);
+char* GetMqttBroker(char* tmp_mqtt_broker);
+char* GetMqttPort(char* tmp_mqtt_port);
+char* GetMqttUser(char* tmp_mqtt_user);
+char* GetMqttPassword(char* tmp_mqtt_password);
 
 void encrypt(char data[],int key);
 void dencrypt(char data[],int key);

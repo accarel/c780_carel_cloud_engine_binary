@@ -17,6 +17,10 @@
 
 #define USERNAME_SIZE	34
 #define PASSWORD_SIZE	34
+#define SERVER_SIZE		60
+#define MQTT_PORT_SIZE	30
+#define PORT_SIZE 		6
+
 #define URI_SIZE 		64
 #define RTO_SIZE 		64
 #define TOPIC_SIZE		100
@@ -102,12 +106,12 @@ typedef struct req_set_gw_config_s{
 typedef struct cfg_data{
 	C_SBYTE cfg_version[2];
 	C_UINT16 enc_key;
-	C_CHAR  mqtt_broker[60];
-	C_CHAR  mqtt_port[30];
+	C_CHAR  mqtt_broker[SERVER_SIZE];
+	C_CHAR  mqtt_port[MQTT_PORT_SIZE];
 	C_SBYTE mqtt_pssw[PASSWORD_SIZE];
 	C_SBYTE mqtt_user[USERNAME_SIZE];
 	C_CHAR  ntp_server[30];
-	C_CHAR  ntp_port[6];
+	C_CHAR  ntp_port[PORT_SIZE];
 	C_CHAR  apn_name[64];
 	C_CHAR	apn_user[64];
 	C_CHAR  apn_password[64];
@@ -115,8 +119,8 @@ typedef struct cfg_data{
 }cfg_data_t, *ptr_cfg_data_t;
 #pragma pack()
 
-ptr_cfg_data_t pCfgData, pCfgDataUsr;
-cfg_data_t    CfgData, CfgDataUsr;
+ptr_cfg_data_t pCfgData;
+cfg_data_t    CfgData;
 
 
 C_BYTE hw_platform_detected; //the value is the detected hw platform

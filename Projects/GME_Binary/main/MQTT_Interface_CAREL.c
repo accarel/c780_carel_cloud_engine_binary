@@ -22,7 +22,7 @@
 #include "polling_IS.h"
 #include "Led_Manager_IS.h"
 #include "sys_IS.h"
-
+#include "mobile.h"
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
@@ -56,18 +56,23 @@ C_RES MQTT_Start(void)
 	uint8_t gw_config_status, mqtt_url;
 	uint8_t cert_num;
 
-	strcpy(mqtt_cfg_nvm.uri, CfgDataUsr.mqtt_broker);             // MQTT_DEFAULT_BROKER
+	char tmp_mqtt_broker[SERVER_SIZE];
+	char tmp_mqtt_port[32];		//TODO check max size
+	char tmp_mqtt_user[USERNAME_SIZE];
+	char tmp_mqtt_pssw[PASSWORD_SIZE];
+
+	strcpy(mqtt_cfg_nvm.uri, GetMqttBroker(tmp_mqtt_broker));             // MQTT_DEFAULT_BROKER
 	strcat(mqtt_cfg_nvm.uri, ":");
-	strcat(mqtt_cfg_nvm.uri, CfgDataUsr.mqtt_port);   			   // mqtt_port_str
+	strcat(mqtt_cfg_nvm.uri, GetMqttPort(tmp_mqtt_port));   			   // mqtt_port_str
 	mqtt_cfg_nvm.keepalive = MQTT_KEEP_ALIVE_DEFAULT_SEC;
 
-	strcpy(mqtt_cfg_nvm.username, CfgDataUsr.mqtt_user);    // MQTT_DEFAULT_USER
-	strcpy(mqtt_cfg_nvm.password, CfgDataUsr.mqtt_pssw);     // MQTT_DEFAULT_PWD
+	strcpy(mqtt_cfg_nvm.username, GetMqttUser(tmp_mqtt_user));    // MQTT_DEFAULT_USER
+	strcpy(mqtt_cfg_nvm.password, GetMqttPassword(tmp_mqtt_pssw));     // MQTT_DEFAULT_PWD
 
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-    PRINTF_DEBUG("mqtt_broker %s\n", CfgDataUsr.mqtt_broker);
-    PRINTF_DEBUG("mqtt user   %s\n", CfgDataUsr.mqtt_user);
-    PRINTF_DEBUG("mqtt passw  %s\n", CfgDataUsr.mqtt_pssw);
+    PRINTF_DEBUG("mqtt_broker %s\n", GetMqttBroker(tmp_mqtt_broker));
+    PRINTF_DEBUG("mqtt user   %s\n", GetMqttUser(tmp_mqtt_user));
+    PRINTF_DEBUG("mqtt passw  %s\n", GetMqttPassword(tmp_mqtt_pssw));
     #endif
 
 

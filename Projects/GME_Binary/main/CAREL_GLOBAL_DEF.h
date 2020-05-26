@@ -77,7 +77,7 @@
  *        WARNING! remember that the debug output take elaboration time 
  *        WARNING! this define MUST be DISABLE in the release version of the FW
  */
-//#define __CCL_DEBUG_MODE
+#define __CCL_DEBUG_MODE
 
 #ifdef __CCL_DEBUG_MODE
 	#define	PRINTF_DEBUG	printf
@@ -121,16 +121,10 @@
 /* Cloud related                                                              */
 /* ========================================================================== */
 
-#define MQTT_DEFAULT_BROKER "mqtts://mqtt-dev.tera.systems"   // "mqtts://carelmqtt.com"    //
-#define MQTT_DEFAULT_PORT   (8883)
-#define MQTT_DEFAULT_USER   "admin"
-#define MQTT_DEFAULT_PWD    "5Qz*(3_>K&vU!PS^"
 #define MQTT_KEEP_ALIVE_DEFAULT_SEC   (600)
 
-
-#define NTP_DEFAULT_SERVER  "pool.ntp.org"
 #define NTP_DEFAULT_PORT  	123
 
-#define GW_MOBILE_TIME		300
+#define GW_MOBILE_TIME		60	//TODO temporarily set to 60s, should be 300s
 #endif
 

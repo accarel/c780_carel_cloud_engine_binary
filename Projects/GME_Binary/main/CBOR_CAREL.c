@@ -562,8 +562,9 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 	// encode gup - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "gup");
-	C_INT32 gup = Mobile__GetConnTime();
+	C_INT32 gup = Mobile__GetConnTime();  // TODO valutare se usare RTC_Get_UTC_MQTTConnect_Time(); è sbagliato perché prende l'ora prima di essersi connesso all'ntp
 	if (gup == 0) gup = -1;
+	printf("mobile payload, gup=%d\n", gup);
 	err |= cbor_encode_int(&mapEncoder, gup);
 	DEBUG_ADD(err, "gup");
 
@@ -573,45 +574,51 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	err |= cbor_encode_int(&mapEncoder, sig);
 	DEBUG_ADD(err, "sig");
 
-	// encode ime - elem4
+	// encode t - elem4
+	err |= cbor_encode_text_stringz(&mapEncoder, "t");
+	C_TIME t = RTC_Get_UTC_Current_Time();
+	err |= cbor_encode_uint(&mapEncoder, t);
+	DEBUG_ADD(err, "t");
+
+	// encode ime - elem5
 	err |= cbor_encode_text_stringz(&mapEncoder, "ime");
 	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetImeiCode());	// TODO, at first run, imei (and other related stuff)
 																			// is not initialized yet!
 	DEBUG_ADD(err, "ime");
 
 	// other elements to come (if needed)
-	// encode ims - elem5
+	// encode ims - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "ims");
 	C_BYTE ims[15] = {3,1,0,1,5,0,1,2,3,4,5,6,7,8,9};					// to be implemented
 	err |= cbor_encode_byte_string(&mapEncoder, ims, 15);
 	DEBUG_ADD(err, "ims");
 
 	// following data can be obtained from AT+QENG?
-	// encode mcc - elem6
+	// encode mcc - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "mcc");
 	C_BYTE mcc[3] = {2,2,2};											// to be implemented
 	err |= cbor_encode_byte_string(&mapEncoder, mcc, 3);
 	DEBUG_ADD(err, "mcc");
 
-	// encode mnc - elem7
+	// encode mnc - elem8
 	err |= cbor_encode_text_stringz(&mapEncoder, "mnc");
 	C_BYTE mnc[3] = {8,8};											// to be implemented
 	err |= cbor_encode_byte_string(&mapEncoder, mnc, 3);
 	DEBUG_ADD(err, "mcc");
 
-	// encode lac - elem8
+	// encode lac - elem9
 	err |= cbor_encode_text_stringz(&mapEncoder, "lac");
 	C_BYTE lac[16] = {1,2,3,4,5};										// to be implemented
 	err |= cbor_encode_byte_string(&mapEncoder, lac, 16);
 	DEBUG_ADD(err, "lac");
 
-	// encode cel - elem9
+	// encode cel - elem10
 	err |= cbor_encode_text_stringz(&mapEncoder, "cel");
 	C_BYTE cel[16] = {5,4,3,2,1};										// to be implemented
 	err |= cbor_encode_byte_string(&mapEncoder, cel, 16);
 	DEBUG_ADD(err, "cel");
 
-	// encode uci - elem10 (FOR UMTS, REMOVE?)
+	// encode uci - elem11 (FOR UMTS, REMOVE?)
 	err |= cbor_encode_text_stringz(&mapEncoder, "uci");
 	C_BYTE uci[16] = {1,3,4,2,1,7,7,2,7};								// to be implemented
 	err |= cbor_encode_byte_string(&mapEncoder, uci, 16);
@@ -2163,41 +2170,17 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred){
 
-	C_BYTE res = C_FAIL;
-	C_UINT16 newCrc = 0;
+	C_BYTE res = C_SUCCESS;
 
     #ifdef __DEBUG_CBOR_CAREL_LEV_2
 	printf("Execute Change Credentials\n");
     #endif
-	//if(C_SUCCESS == NVM__WriteString(MQTT_USER, change_cred.usr)
-	//		&& C_SUCCESS == NVM__WriteString(MQTT_PASS, change_cred.pwd)){
-	//	return C_SUCCESS;
 
-	// read and save (encrypt) the new credential user/password
-	memcpy(CfgDataUsr.mqtt_user , change_cred.usr, sizeof(change_cred.usr));
-	memcpy(CfgDataUsr.mqtt_pssw , change_cred.pwd, sizeof(change_cred.pwd));
+	// save new credentials, user/password
+	res |= NVM__WriteString(MQTT_USER, change_cred.usr);
+	res |= NVM__WriteString(MQTT_PASSWORD, change_cred.pwd);
 
-	encrypt(CfgDataUsr.mqtt_user, CfgDataUsr.enc_key);
-	encrypt(CfgDataUsr.mqtt_pssw, CfgDataUsr.enc_key);
-
-	//new CRC
-	newCrc = CRC16(&CfgDataUsr ,sizeof(cfg_data_t)-2);
-
-	CfgDataUsr.crc[0] = (C_SBYTE)(newCrc);
-	CfgDataUsr.crc[1] = (C_SBYTE)(newCrc>>8);
-
-	// todo check the crc in the file system...todo pure quello
-	res = FS_SaveCfgData(CFG_USR);
-	if(res == C_SUCCESS)
-	{
-		// use the decrypted credential!!!
-		memcpy(CfgDataUsr.mqtt_user , change_cred.usr, sizeof(change_cred.usr));
-		memcpy(CfgDataUsr.mqtt_pssw , change_cred.pwd, sizeof(change_cred.pwd));
-
-		return C_SUCCESS;
-	}else{
-		return C_FAIL;
-	}
+	return res;
 }
 
 

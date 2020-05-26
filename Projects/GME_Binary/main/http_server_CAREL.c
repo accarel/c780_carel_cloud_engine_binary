@@ -277,6 +277,10 @@ void get_html_config_received_data(char* sent_parameters){
     get_value_from_string(sent_parameters, HTMLCONF_NTP_SRVR_ADDR, (unsigned short)(strlen(HTMLCONF_NTP_SRVR_ADDR)), &data_value[0]);
     strcpy(HTMLConfig.ntp_server_addr,data_value);
     PRINTF_DEBUG_SERVER("ntp_server_addr: %s\n",HTMLConfig.ntp_server_addr);
+    if (strlen(HTMLConfig.ntp_server_addr) > 0){
+        	esp_err_t err;
+        	err = NVM__WriteString(NTP_SERVER, HTMLConfig.ntp_server_addr);
+       }
 
     get_value_from_string(sent_parameters, HTMLLOGIN_USR, (unsigned short)(strlen(HTMLLOGIN_USR)), &data_value[0]);
     strcpy(HTMLConfig.login_usr,data_value);
@@ -302,7 +306,7 @@ html_config_param_t HTTPServer__GetCustomConfig (void){
 void SetWpsParameters(wifi_config_t wifi_config_temp){
 
 	// read from file system
-	memcpy(HTMLConfig.ntp_server_addr, CfgDataUsr.ntp_server, sizeof(HTMLConfig.ntp_server_addr));
+	GetNtpServer(HTMLConfig.ntp_server_addr);
 	// set wps recovered data
 	strcpy(HTMLConfig.sta_ssid, (char*)wifi_config_temp.ap.ssid);
 	strcpy(HTMLConfig.sta_pswd, (char*)wifi_config_temp.ap.password);

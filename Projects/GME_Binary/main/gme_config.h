@@ -75,11 +75,6 @@
 #define FAV_ICON 			"/spiffs/fav.ico"
 
 #define CFG_DEF			     "/spiffs/cfgdef.bin"
-#define CFG_USR		         "/spiffs/cfgusr.bin"
-
-
-#define FILE_CFG_DEF		 0
-#define FILE_CFG_USR         1
 
 /*-------------------------------
  * Certificates Allocation

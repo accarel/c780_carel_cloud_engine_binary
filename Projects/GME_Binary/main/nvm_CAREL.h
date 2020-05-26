@@ -25,13 +25,13 @@
 #define MB_CERT_NVM "cert"
 #define MB_DELAY_NVM "del"
 #define PE_STATUS_NVM "pe_status"
+#define CFG_DEF_NVM "cfg_def_copied"
 
 #define MQTT_USER "mqtt_user"
-
-#define MODEL_GUID "model_guid"
-
-
-
+#define MQTT_PASSWORD "mqtt_password"
+#define MQTT_BROKER "mqtt_broker"
+#define MQTT_PORT "mqtt_port"
+#define NTP_SERVER "ntp_server"
 
 #if NVM_DEBUG == 1
 	#define	PRINTF_DEBUG_NVM	printf

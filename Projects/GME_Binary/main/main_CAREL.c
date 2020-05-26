@@ -83,7 +83,7 @@ void Carel_Main_Task(void)
   static bool once = false;
   static uint32_t waiting_conf_timer = 0;
   static uint8_t gw_config_status, line_config_status, devs_config_status;
-  static uint8_t test3 = 0;
+  static uint8_t checked_files = 0;
 
   static C_UINT32 NVMBaudrate;
   static C_BYTE   NVMConnector;
@@ -130,10 +130,13 @@ void Carel_Main_Task(void)
 
 	        case GME_CHECK_FILES:
 	        {
-	        	if (test3 == 0){
-
-					if(C_SUCCESS == FS_CheckFiles()){
-						sm = GME_RADIO_CONFIG;
+	        	if (checked_files == 0){
+	        		if(C_SUCCESS == FS_CheckFiles()){
+	        			uint8_t cfg_def_status = 0;
+	        			if(C_SUCCESS != NVM__ReadU8Value(CFG_DEF_NVM, &cfg_def_status) || (cfg_def_status != 1)) {
+	        				SaveCfgDefDataToNVM();
+	        			}
+	        			sm = GME_RADIO_CONFIG;
 
 						if PLATFORM(PLATFORM_DETECTED_2G)
 					    {
@@ -154,10 +157,10 @@ void Carel_Main_Task(void)
 					    }
 					}else{
 						sm = GME_CHECK_FILES;
-						PRINTF_DEBUG("Please be sure that the certificates are uploaded correctly under the following paths:\nCert1: %s\nCert2: %s\n\n",CERT1_SPIFFS,CERT2_SPIFFS);
+						PRINTF_DEBUG("Please be sure that the certificates and cfgdef are uploaded correctly under the following paths:\nCert1: %s\nCert2: %s\nCfgDef: %s\n\n",CERT1_SPIFFS,CERT2_SPIFFS,CFG_DEF);
 					}
 
-					test3 = 1;
+	    			checked_files = 1;
 	        	}
 
 	        	break;
@@ -203,7 +206,8 @@ void Carel_Main_Task(void)
 
 			Radio__WaitConnection();
             //NB. the esp library use always the default port 123...so the file system contain the ntp port value but is not used!!!
-			retval = RTC_Init( WiFi__GetCustomConfig().ntp_server_addr, NTP_DEFAULT_PORT);
+			char ntp_server[30];		//TODO check max size
+			retval = RTC_Init(GetNtpServer(ntp_server), NTP_DEFAULT_PORT);
 			retval = RTC_Sync();
 			CAREL_CHECK(retval, "TIME");
 

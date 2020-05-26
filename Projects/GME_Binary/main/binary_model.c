@@ -542,8 +542,6 @@ int BinaryModel_Init (void)
 {
 	uint8_t* chunk;
 	long sz = 0;
-	// check the existance of the files in the FileSystem
-	FS_DisplayFiles();
 
 	DEBUG_BINARY_MODEL("Start check GME MODEL\n");
 	// Check model size
