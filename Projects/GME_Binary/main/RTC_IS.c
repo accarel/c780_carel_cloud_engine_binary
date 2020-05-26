@@ -8,6 +8,7 @@
 #include "RTC_IS.h"
 #include <sys/time.h>
 #include "data_types_IS.h"
+#include "sys_IS.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT 
 
@@ -67,7 +68,7 @@ C_RES RTC_Sync(void)
         #ifdef __DEBUG_RTC_IS_LEV_2
 		printf("Waiting for system time to be set... (%d/%d)\n", retry, retry_count);
         #endif
-		vTaskDelay(2000 / portTICK_PERIOD_MS);
+		Sys__Delay(2000);
 		stat = sntp_get_sync_status();
 	}
 	time(&now);
