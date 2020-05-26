@@ -202,21 +202,23 @@ void Carel_Main_Task(void)
 			if(false == once){
 				PRINTF_DEBUG("Radio__Config .... GME_STRAT_MQTT_NTC\n");
 				once = true;
+				Radio__WaitConnection();
 			}
 
-			Radio__WaitConnection();
             //NB. the esp library use always the default port 123...so the file system contain the ntp port value but is not used!!!
 			char ntp_server[30];		//TODO check max size
 			retval = RTC_Init(GetNtpServer(ntp_server), NTP_DEFAULT_PORT);
 			retval = RTC_Sync();
 			CAREL_CHECK(retval, "TIME");
 
-			//Set boot time
-			RTC_Set_UTC_Boot_Time();
+			if (retval == C_SUCCESS) {
+				//Set boot time
+				RTC_Set_UTC_Boot_Time();
 
-			Sys__CertAlloc();
+				Sys__CertAlloc();
 
-			sm = GME_CHECK_GW_CONFIG;
+				sm = GME_CHECK_GW_CONFIG;
+			}
 
 			GME__CheckHTMLConfig();
 
