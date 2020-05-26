@@ -226,7 +226,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 	// encode did - elem8
 	err |= cbor_encode_text_stringz(&mapEncoder, "did");
 	err |= cbor_encode_uint(&mapEncoder, CBOR_GetDid());
-	DEBUG_ADD(err, "dev");
+	DEBUG_ADD(err, "did");
 
 	// encode gid - elem9
 	err |= cbor_encode_text_stringz(&mapEncoder, "gid");
