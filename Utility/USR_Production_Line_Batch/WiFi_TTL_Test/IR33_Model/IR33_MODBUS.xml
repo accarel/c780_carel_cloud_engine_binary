@@ -1,0 +1,1029 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" docVersion="2.0" docDate="2020-04-20T10:20:43">
+  <Device code="IR33_MODBUS" swVersion="1.4#@#VAR_COMP#@#" littleEndian="1" manufacturer="CAREL" descriptionKey="IR33_MODBUS~device~descr" ide="1" allowRWAlarm="false">
+    <Vars>
+      <Var code="DECIMAL_POINT" type="1" signed="true" decimal="0" minValue="" maxValue="" measureUnit="" />
+      <Var code="S_ALM_SONDA_1" type="4" signed="true" decimal="0" minValue="" maxValue="" measureUnit="" />
+      <Var code="S_ALM_SONDA_2" type="4" signed="true" decimal="0" minValue="" maxValue="" measureUnit="" />
+      <Var code="S_COMANDO_ON_OFF" type="1" signed="true" decimal="0" minValue="" maxValue="" measureUnit="" />
+      <Var code="S_SONDA_1" type="2" signed="true" decimal="1" minValue="" maxValue="" measureUnit="°C/°F" />
+      <Var code="S_SONDA_2" type="2" signed="true" decimal="1" minValue="" maxValue="" measureUnit="°C/°F" />
+      <Var code="OFFLINE" type="4" signed="false" decimal="0" minValue="" maxValue="" measureUnit="" />
+      <Var code="S_STATO_PORTA" type="1" signed="true" decimal="0" minValue="" maxValue="" measureUnit="" />
+    </Vars>
+    <Supervisors>
+      <PV imageKey="1hUxddHCUJ0cyFZKYtI17VM5WNfHjF1YueaZm0na+/4=">
+        <Vars>
+          <PVVar code="DECIMAL_POINT" priority="5" readWrite="3" hsTime="0" hsFrequency="0" hsDelta="0" toDisplay="None" isCommand="false" HACCP="false" category="6" relay="false" defaultValue="0" warning="false" />
+          <PVVar code="S_ALM_SONDA_1" priority="1" readWrite="1" hsTime="0" hsFrequency="0" hsDelta="0" toDisplay="None" isCommand="false" HACCP="false" category="8" relay="false" warning="false" />
+          <PVVar code="S_ALM_SONDA_2" priority="1" readWrite="1" hsTime="0" hsFrequency="0" hsDelta="0" toDisplay="None" isCommand="false" HACCP="false" category="8" relay="false" warning="false" />
+          <PVVar code="S_COMANDO_ON_OFF" priority="216" readWrite="3" hsTime="0" hsFrequency="0" hsDelta="0" toDisplay="Main" isCommand="false" HACCP="false" category="2" relay="false" imageOn="IaDmhrpvRR5A5HnLpaYo7ZA6M/J3Uv9GkkMs0oUKI94=" imageOff="8OuH1qoqz0SjpCG4Pq/s+SODY8hJZaE+9WmjJB4NXJY=" defaultValue="0" warning="false" />
+          <PVVar code="S_SONDA_1" priority="203" readWrite="1" hsTime="15552000" hsFrequency="300" hsDelta="0" toDisplay="None" isCommand="false" HACCP="true" category="" relay="false" defaultValue="0" warning="false" />
+          <PVVar code="S_SONDA_2" priority="204" readWrite="1" hsTime="15552000" hsFrequency="300" hsDelta="0" toDisplay="Home" isCommand="false" HACCP="false" category="" relay="false" defaultValue="0" warning="false" />
+          <PVVar code="OFFLINE" priority="1" readWrite="1" hsTime="0" hsFrequency="0" hsDelta="0" toDisplay="None" isCommand="false" HACCP="false" category="47" relay="false" warning="false" />
+          <PVVar code="S_STATO_PORTA" priority="169" readWrite="1" hsTime="46656000" hsFrequency="300" hsDelta="1.0" toDisplay="None" isCommand="false" HACCP="false" category="" relay="false" defaultValue="0" warning="false" />
+        </Vars>
+        <Enums />
+        <Combos />
+        <Links />
+        <Wizards />
+        <Categories />
+      </PV>
+      <PW idDevFather="0">
+        <Vars />
+        <CommandControls />
+        <Infos />
+      </PW>
+    </Supervisors>
+    <Protos>
+      <Modbus stopBit="2" parity="0" readTimeOut="2000" writeTimeOut="2000" activityTimeOut="100" f1="16" f2="16" f3="16" f4="16" f5="1" f6="1" f15="0" f16="0">
+        <Vars>
+          <VarMDB code="DECIMAL_POINT" addressIn="100040" funcTypeRead="1" addressOut="500040" funcTypeWrite="5" varDimension="8" varLength="8" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="S_ALM_SONDA_1" addressIn="100009" funcTypeRead="1" addressOut="500009" funcTypeWrite="5" varDimension="8" varLength="8" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="S_ALM_SONDA_2" addressIn="100010" funcTypeRead="1" addressOut="500010" funcTypeWrite="5" varDimension="8" varLength="8" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="S_COMANDO_ON_OFF" addressIn="100058" funcTypeRead="1" addressOut="500058" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="S_SONDA_1" addressIn="300003" funcTypeRead="3" addressOut="600003" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="0.1" bValue="0" varEncoding="0" />
+          <VarMDB code="S_SONDA_2" addressIn="300004" funcTypeRead="3" addressOut="600004" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="0.1" bValue="0" varEncoding="0" />
+          <VarMDB code="OFFLINE" addressIn="0" funcTypeRead="0" addressOut="0" funcTypeWrite="0" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="S_STATO_PORTA" addressIn="100036" funcTypeRead="1" addressOut="500036" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+        </Vars>
+      </Modbus>
+    </Protos>
+    <Images>
+      <ImageStringed key="1hUxddHCUJ0cyFZKYtI17VM5WNfHjF1YueaZm0na+/4=" ext=".jpg" fileName="ir_33_c_v2.jpg" bytes="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" />
+      <ImageStringed key="IaDmhrpvRR5A5HnLpaYo7ZA6M/J3Uv9GkkMs0oUKI94=" ext=".png" fileName="on.png" bytes="iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAStJREFUeNrs1D9Lw0AcxvGmItilgnV2sUKpOHRxFZw6+GfxFVhc+ia6dOzoLji4OeskqOhmh0JRRMQiFheJoBRbtPF78BSu8QJZBIUcfLjw5HI/LneJFwRB6jeblxRICvz9AumIfAUn6OABhyjp3izOcY8DZUXcKBtvZgUhq3gNfrYO5pHFs7IB1rBgjRubz7WCGqbxgnVU8I457GASPY0111Xk8OZ8F44VjNq+lbWVtVDAnTVuiF34cVcw2vVHK2upnwjtW98cFGwjG3eTPfUzVpZXP8DQyi/RRCbqwLjCC/VlTbyFRWVX8K3n2mhYq461Bxv40Ps0/Zeuu1jSKXpStocpnEWdIlcB8/Ft4lQPfOIYy7qfwxGuUVdWRhO34fmSf1FS4B8U+BZgAG2WkpA8JdMgAAAAAElFTkSuQmCC" />
+      <ImageStringed key="8OuH1qoqz0SjpCG4Pq/s+SODY8hJZaE+9WmjJB4NXJY=" ext=".png" fileName="off.png" bytes="iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAADDSURBVEhLY2AYBaMhMBoC8BD4//+/wb9///YDaTAAss8DqQCYAiC7ASaHTIPksYmD1KMYjkMRSBhsCbIFIIfAMLIFQLH7MHGg+gS4BUDB9VBXvwfSAiAMUgwVu49uAXrEIzkO4WpkRUjBMh9HkIAsRQ4iEBuEwa5E0g8KYpicA3IQwdTAXYBmoAO2OAAFB7FxALYAqAGrD9CDCKgUZCEIG6D5YD6SnAJd48CAlFREciRDvUl0PiDLAnRNo/zREBg8IQAAiF4q+MZApeAAAAAASUVORK5CYII=" />
+    </Images>
+    <Translations langDefault="IT">
+      <Langs>
+        <Lang key="IT">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Unit ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="OFFLINE" />
+                    <Key key="short" value="OFFLINE" />
+                    <Key key="long" value="OFFLINE" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Door status" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="EN">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Unit ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="OFFLINE" />
+                    <Key key="short" value="OFFLINE" />
+                    <Key key="long" value="OFFLINE" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Door status" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="CN">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="CS">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="DE">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Aktivierung des Dezimalpunktes (0 = Ja, 1 = Nein)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Fühler 1 defekt" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Fühler 2 defekt" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Befehl Regelung AN/AUS" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Wert Fühler 1" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Wert Fühler 2" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="keine Verbindung" />
+                    <Key key="short" value="keine Verbindung" />
+                    <Key key="long" value="keine Verbindung" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Türstatus" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="ES">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="FR">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33 Réfrigération - IR33C ModBus (IR33C****M)" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Affichage du point décimal" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="0=oui / 1=non" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Défaut sonde 1 (S1) (E0)" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Défaut sonde 2 (S2) (E1)" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Commande ON/OFF" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Sonde 1" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Sonde 2" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="Défaut de communication" />
+                    <Key key="short" value="Défaut de communication" />
+                    <Key key="long" value="Défaut de communication" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Etat de la porte" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="HR">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="HU">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="PL">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="PT">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="RU">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="SE">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+        <Lang key="TR">
+          <Sections>
+            <Section name="PV">
+              <Items>
+                <Item code="IR33_MODBUS~device~descr">
+                  <Keys>
+                    <Key key="descr" value="IR33C Modbus" />
+                  </Keys>
+                </Item>
+                <Item code="DECIMAL_POINT">
+                  <Keys>
+                    <Key key="descr" value="Decimal point (0 =YES, 1 =NO)" />
+                    <Key key="short" value="/6" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 fault alarm" />
+                    <Key key="short" value="s_pre1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_ALM_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 fault alarm" />
+                    <Key key="short" value="s_pre2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_COMANDO_ON_OFF">
+                  <Keys>
+                    <Key key="descr" value="Control ON/OFF command" />
+                    <Key key="short" value="On/Off" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_1">
+                  <Keys>
+                    <Key key="descr" value="Probe 1 value" />
+                    <Key key="short" value="s_pr1" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="S_SONDA_2">
+                  <Keys>
+                    <Key key="descr" value="Probe 2 value" />
+                    <Key key="short" value="s_pr2" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+                <Item code="OFFLINE">
+                  <Keys>
+                    <Key key="descr" value="no connection" />
+                    <Key key="short" value="no connection" />
+                    <Key key="long" value="no connection" />
+                  </Keys>
+                </Item>
+                <Item code="S_STATO_PORTA">
+                  <Keys>
+                    <Key key="descr" value="Status of door" />
+                    <Key key="short" value="s_doors" />
+                    <Key key="long" value="" />
+                  </Keys>
+                </Item>
+              </Items>
+            </Section>
+          </Sections>
+        </Lang>
+      </Langs>
+    </Translations>
+  </Device>
+  <Check code="1BE42DB6" />
+</Project>
