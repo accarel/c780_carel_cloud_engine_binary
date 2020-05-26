@@ -396,7 +396,9 @@ uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
-	read = temp & ((uint16_t) (1 << arr->info.bitposition)) ;
+	read = (temp & ((uint16_t) (1 << arr->info.bitposition))) >> (arr->info.bitposition) ;
+
+
 	return (uint8_t)read;
 }
 
@@ -404,7 +406,7 @@ uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 int16_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp , read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
-	read = (temp &  ((0x000F)<< (arr->info.bitposition-1))) >> (arr->info.bitposition-1);
+	read = (temp &  ((0x000F)<< (arr->info.bitposition))) >> (arr->info.bitposition);
     return (int16_t)read;
 }
 
@@ -753,11 +755,11 @@ hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
 			}
 		}
 	}else{
-		if((1 == info.len) && (0 != info.bitposition)){
+		if((1 == info.len) && ((info.bitposition >= 0) && (info.bitposition < 16))){
 			type = TYPE_D;
 		}else if(1 == info.flag.bit.fixedpoint){
 			type = TYPE_B;
-		}else if(info.len == 4 && 0 >= info.bitposition){
+		}else if(info.len == 4 && (info.bitposition >= 0)){
 			type = TYPE_E;
 		}else{
 			if(1 == info.flag.bit.signed_f){

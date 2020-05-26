@@ -2411,11 +2411,15 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 				 hr_to_read.info.linB = atoi((C_SCHAR*)cbor_wv.b);
 				 hr_to_read.info.flag.byte = cbor_wv.flags.byte;
 
+				 // read the actual data
 				 result = PollEngine__Read_HR_IR_Req(mbR_HR,  hr_to_read.info.Addr, hr_to_read.info.dim ,(void*)&hr_to_read.c_value.value);
 
-				 tmp = ((uint16_t)hr_to_read.c_value.value & (0xFFFF^(0x000F << (cbor_wv.pos-1))));
+				 if(cbor_wv.len == 4)
+				    tmp = ((uint16_t)hr_to_read.c_value.value & (0xFFFF^(0x000F << (cbor_wv.pos))));
+				 else
+					tmp = ((uint16_t)hr_to_read.c_value.value & (0xFFFF^(0x0001 << (cbor_wv.pos))));
 
-				 tmp |= ((uint16_t)val_to_write << (cbor_wv.pos-1));
+				 tmp |= ((uint16_t)val_to_write << (cbor_wv.pos));
 
 				 result = PollEngine__Write_HR_Req(tmp , cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);   
 			   }
