@@ -1201,6 +1201,52 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 	return err;
 }
 
+
+/**
+ * @brief CBOR_ReqScanLine
+ *
+ * Interprets CBOR scan line request
+ *
+ * @param Pointer to the CBOR stream
+ * @param Length of the CBOR stream
+ * @param Pointer to the address to be queried (if 0, query all addresses)
+ * @return CborError
+ */
+CborError CBOR_ReqScanLine(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16 *device)
+{
+	CborError err = CborNoError;
+	size_t stlen;
+	char tag[TAG_SIZE];
+	CborValue it, recursed;
+	CborParser parser;
+
+	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
+	err |= cbor_value_enter_container(&it, &recursed);
+	DEBUG_DEC(err, "scan line request map");
+
+	while (!cbor_value_at_end(&recursed)) {
+		stlen = TAG_SIZE;
+		memset(tag,'0',sizeof(tag));
+		err = cbor_value_copy_text_string(&recursed, tag, &stlen, &recursed);
+
+		if (strncmp(tag, "dev", 3) == 0)
+		{
+			err |= CBOR_ExtractInt(&recursed, device);
+			DEBUG_DEC(err, "req_scan_line: dev");
+		}
+		else
+		{
+			err |= CBOR_DiscardElement(&recursed);
+			DEBUG_DEC(err, "req_scan_line: discard element");
+		}
+		if (err)
+			return err;
+	}
+
+	err = cbor_value_leave_container(&it, &recursed);
+	return err;
+}
+
 /**
  * @brief CBOR_ReqRdWrValues
  *
@@ -1804,10 +1850,15 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			C_INT16 length = 0;
 			cbor_req.res = ERROR_CMD;
 
-			cbor_req.res = (execute_scan_devices(&answer, &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			err = CBOR_ReqScanLine(cbor_stream, cbor_len, &device);
+			if (err == C_SUCCESS) {
+				cbor_req.res = (execute_scan_devices(&answer, &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			}
+			if (cbor_req.res == ERROR_CMD)
+				device = 0;
 
-			if(length > 0)
-				length += 2;	//include the 2 byte of the CRC modbus
+	//		if(length > 0)
+	//			length += 2;	//include the 2 byte of the CRC modbus
 
 			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
             sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -2201,13 +2252,18 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 	C_RES err = 0;
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	// send request
-	do{
-	  err = app_report_slave_id_read(++addr);
+	if (*add == 0) {
+		// send request
+		do{
+		  err = app_report_slave_id_read(++addr);
 
-	  Sys__Delay(100);
+		  Sys__Delay(100);
 
-	}while(err != C_SUCCESS && addr < MB_ADDRESS_MAX);
+		}while(err != C_SUCCESS && addr < MB_ADDRESS_MAX);
+	}
+	else {
+		  err = app_report_slave_id_read(*add);
+	}
 
 	Sys__Delay(1000);
 #endif
@@ -2221,13 +2277,14 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 	len = usMBSlaveIDLen;
 	*(data_rx) = addr;
 	// get response
-	for(C_INT16 i = 0; i < len + 1; i++)
+	for(C_INT16 i = 0; i < len + 2; i++)
 	  *(data_rx + i + 1) = 	ucMBSlaveID[i];
 
 #endif
 
 	*add = addr;
 	*lnt = len + 1;
+	*lnt += 2;	//include the 2 byte of the CRC modbus
 
 	return C_SUCCESS;
 }
