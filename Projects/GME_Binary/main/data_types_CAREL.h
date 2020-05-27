@@ -94,13 +94,6 @@ typedef struct req_set_gw_config_s{
 	C_UINT32 hispeedsamplevalue;
 }req_set_gw_config_t;
 #pragma pack()
-#ifdef IS_A_WIFI_GATEWAY
-#define MACORIMEISIZE 	12
-#endif
-#ifdef  IS_A_GSM_GATEWAY
-#define MACORIMEISIZE 	15
-#endif
-
 
 #pragma pack(1)
 typedef struct cfg_data{

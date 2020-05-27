@@ -28,15 +28,9 @@
 
 
 /* Function prototypes -------------------------------------------------------*/
-#ifdef IS_A_WIFI_GATEWAY
 
-#endif
-
-
-#ifdef IS_A_GSM_GATEWAY
 void GSM_Misc_SMS_Config_Received(void);
 void GSM_Misc_Get_Communication_Status(void);
-#endif
 
 #ifdef __cplusplus
 }

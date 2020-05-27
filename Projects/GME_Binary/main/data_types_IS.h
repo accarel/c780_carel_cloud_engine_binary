@@ -24,11 +24,6 @@
  * @warning only one of this two define must be active
  */
 
-//TODO A.Bilato rifattorizzare usando target platform
-#define IS_A_WIFI_GATEWAY
-//#define IS_A_GSM_GATEWAY
-
-
 /* you MUST change the data type to match the type your    */ 
 /* compiler data types                                     */
 typedef unsigned char   C_BYTE;     // 8 bit value
@@ -77,12 +72,5 @@ typedef unsigned int CRC_TABLE_TYPE;
 /* ======================================================= */
 /*           END OF CUSTOMIZABLE SECTION                   */
 /* ======================================================= */
-
-/* just a check */
-#ifdef IS_A_GSM_GATEWAY 
-#ifdef IS_A_WIFI_GATEWAY
-#error Only one define is allowed IS_A_GSM_GATEWAY or IS_A_WIFI_GATEWAY
-#endif
-#endif
 
 #endif   /* #ifndef __CAREL_TYPES_H */
