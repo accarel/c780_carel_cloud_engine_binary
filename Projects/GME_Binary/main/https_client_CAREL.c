@@ -49,7 +49,7 @@ static const char *TAG = "HTTP_CLIENT_CAREL";
 
 https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, uint8_t cert_num, const char *filename)
 {	
-	https_conn_err_t err = CONN_OK;	
+	https_conn_err_t err = CONN_FAIL;
 	c_http_client_config_t c_config;
 		
     C_RES err2;
@@ -113,6 +113,7 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
           #endif
 
 		  if (memcmp(filename, MODEL_FILE, strlen(MODEL_FILE)) == 0) {
+			  err = CONN_OK;
 			  // Check received model before writing to NVM
 			  // Check CRC
 			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len - 2);
@@ -127,6 +128,7 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 				  err = WRONG_FILE;
 		  }
 		  else if ((memcmp(filename, CERT1_SPIFFS, strlen(CERT1_SPIFFS)) == 0) || (memcmp(filename, CERT2_SPIFFS, strlen(CERT2_SPIFFS)) == 0)) {
+			  err = CONN_OK;
 			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len);
 			  if (Crc != download_devs_config->crc)
 			  	err = WRONG_CRC;
@@ -134,7 +136,7 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 				  err = WRONG_FILE;
 
 		  }
-		  // If model controls are ok, write new model file to NVM
+		  // If controls are ok, write new file to NVM
 		  if (err == CONN_OK)
 			  if(C_SUCCESS != FS_SaveFile(buffer , (size_t)read_len, filename))
 				  err = FILE_NOT_SAVED;
