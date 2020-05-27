@@ -27,38 +27,7 @@
   #include "esp_ota_ops.h"
 #endif
 #include "Led_Manager_IS.h"
- 
- /**
- * @brief Sys__SetFactoryBootPartition
- *     Change boot partition to factory
- *
- *
- * @param  none
- * @return C_RES
- */
-C_RES Sys__SetFactoryBootPartition(void){
-	
-	C_RES err;
-	
-    #ifdef INCLUDE_PLATFORM_DEPENDENT
-	const esp_partition_t *factory = esp_partition_find_first(ESP_PARTITION_TYPE_APP, ESP_PARTITION_SUBTYPE_APP_FACTORY, NULL);
 
-	err = esp_ota_set_boot_partition(factory);
-
-	if (err != C_SUCCESS) {
-		PRINTF_DEBUG_SYS("SetFactoryBootPartition failed!  err=0x%d", err);
-		return err;
-	}else{
-		PRINTF_DEBUG_SYS("SetFactoryBootPartition Succeeded!");
-		return C_SUCCESS;
-	}
-   #endif
-
-   return C_FAIL;
-}
- 
- 
- 
  /**
  * @brief Sys_ResetCheck
  *      test the button for system reset   
@@ -168,41 +137,6 @@ void Sys__ResetCheck(void){
 	return;
 }
 
-
-/**
- * @brief Sys_FirmwareFactoryReset
- *      TODO   
- *
- *
- * @param  none
- * @return C_RES
- */
-C_BOOL Sys__FirmwareFactoryReset(void){
-	// Debounce check using up/down counter every 10ms
-    #ifdef INCLUDE_PLATFORM_DEPENDENT
-
-    #if FACTORY_RESET_BUTTON_EXIST
-	if (gpio_get_level(FACTORY_RESET_BUTTON) == 0) {
-		factory_reset_debounce_counter++;
-		Sys__Delay(100);
-	}else if(gpio_get_level(FACTORY_RESET_BUTTON) == 1 && factory_reset_debounce_counter > 0){
-		factory_reset_debounce_counter--;
-		Sys__Delay(100);
-	}
-
-
-	if ((FACTORY_RESET_SEC * 10) == factory_reset_debounce_counter){
-		//Point boot partition on /factory part.
-		Sys__SetFactoryBootPartition();
-		PRINTF_DEBUG_SYS("GME FACTORY RESET done\n");
-		PRINTF_DEBUG_SYS("FIRMWARE RESET CHECK DONE = %d\n",factory_reset_debounce_counter);
-		return C_TRUE;
-	}
-
-    #endif
-    #endif
-	return C_FALSE;
-}
 
 C_UINT32 Sys__GetFreeHeapSize(void){
 	C_UINT32 freemem = 0;

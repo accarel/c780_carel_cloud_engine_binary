@@ -27,10 +27,7 @@
 #define BUTTON_FASTBLINK	 	4
 #define	BUTTON_WAITFACTORY	 	5
 
-
-C_RES Sys__SetFactoryBootPartition(void);
 void Sys__ResetCheck(void);
-C_BOOL Sys__FirmwareFactoryReset(void);
 C_UINT32 Sys__GetFreeHeapSize(void);
 void Sys__Delay(C_UINT32 delay);
 
