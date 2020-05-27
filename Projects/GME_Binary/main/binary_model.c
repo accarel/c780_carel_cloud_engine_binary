@@ -24,7 +24,7 @@
 //#define __DEBUG_BYNARY_MODEL
 
 #if WANT_DUMP_MODEL
-static void dump_all_values(uint8_t* val);
+static void dump_all_values(void);
 #endif
 
 static struct HeaderModel myHeaderModel, *ptmyHeaderModel;
@@ -64,7 +64,7 @@ static void dump_coil_low(void)
 	struct record_coil_di* r_coil;
 
 	PRINTF_DEBUG("LOW Coil:\n");
-	for (count = 0; count < ptmyLowPoll->numOfCOIL; count++)
+	for (count = 0; count < myLowPoll.numOfCOIL; count++)
 	{
 		r_coil = p_coil_low_sect + (count * sizeof(r_coil_di));
 
@@ -80,7 +80,7 @@ static void dump_coil_high(void)
 
 	PRINTF_DEBUG("HIGH Coil:\n");
 
-	for (count = 0; count < ptmyHighPoll->numOfCOIL; count++)
+	for (count = 0; count < myHighPoll.numOfCOIL; count++)
 	{
 		r_coil = p_coil_high_sect + (count * sizeof(r_coil_di));
 
@@ -96,7 +96,7 @@ static void dump_coil_alarm(void)
 
 	PRINTF_DEBUG("ALARM Coil:\n");
 
-	for (count = 0; count < ptmyAlarmPoll->numOfCOIL; count++)
+	for (count = 0; count < myAlarmPoll.numOfCOIL; count++)
 	{
 		r_coil = p_coil_alarm_sect + (count * sizeof(r_coil_di));
 
@@ -113,7 +113,7 @@ static void dump_di_low(void)
 
 	PRINTF_DEBUG("LOW Di:\n");
 
-	for (count = 0; count < ptmyLowPoll->numOfDISC; count++)
+	for (count = 0; count < myLowPoll.numOfDISC; count++)
 	{
 		r_di = p_di_low_sect + (count * sizeof(r_coil_di));
 
@@ -130,7 +130,7 @@ static void dump_di_high(void)
 
 	PRINTF_DEBUG("HIGH Di:\n");
 
-	for (count = 0; count < ptmyHighPoll->numOfDISC; count++)
+	for (count = 0; count < myHighPoll.numOfDISC; count++)
 	{
 		r_di = p_di_high_sect + (count * sizeof(r_coil_di));
 
@@ -147,7 +147,7 @@ static void dump_di_alarm(void)
 
 	PRINTF_DEBUG("ALARM Di:\n");
 
-	for (count = 0; count < ptmyAlarmPoll->numOfDISC; count++)
+	for (count = 0; count < myAlarmPoll.numOfDISC; count++)
 	{
 		r_di = p_di_alarm_sect + (count * sizeof(r_coil_di));
 
@@ -165,7 +165,7 @@ static void dump_hr_low(void)
 
 	PRINTF_DEBUG("LOW Hr:\n");
 
-	for (count = 0; count < ptmyLowPoll->numOfHR; count++)
+	for (count = 0; count < myLowPoll.numOfHR; count++)
 	{
 		r_hr = p_hr_low_sect + (count * sizeof(r_hr_ir));
 
@@ -191,7 +191,7 @@ static void dump_hr_high(void)
 
 	PRINTF_DEBUG("HIGH Hr:\n");
 
-	for (count = 0; count < ptmyHighPoll->numOfHR; count++)
+	for (count = 0; count < myHighPoll.numOfHR; count++)
 	{
 		r_hr = p_hr_high_sect + (count * sizeof(r_hr_ir));
 
@@ -217,7 +217,7 @@ static void dump_hr_alarm(void)
 
 	PRINTF_DEBUG("ALARM Hr:\n");
 
-	for (count = 0; count < ptmyAlarmPoll->numOfHR; count++)
+	for (count = 0; count < myAlarmPoll.numOfHR; count++)
 	{
 		r_hr = p_hr_alarm_sect + (count * sizeof(r_hr_ir_alarm));
 
@@ -237,7 +237,7 @@ static void dump_ir_low(void)
 
 	PRINTF_DEBUG("LOW Ir:\n");
 
-	for (count = 0; count < ptmyLowPoll->numOfIR; count++)
+	for (count = 0; count < myLowPoll.numOfIR; count++)
 	{
 		r_ir = p_ir_low_sect + (count * sizeof(r_hr_ir));
 
@@ -262,7 +262,7 @@ static void dump_ir_high(void)
 
 	PRINTF_DEBUG("HIGH Ir:\n");
 
-	for (count = 0; count < ptmyHighPoll->numOfIR; count++)
+	for (count = 0; count < myHighPoll.numOfIR; count++)
 	{
 		r_ir = p_ir_high_sect + (count * sizeof(r_hr_ir));
 
@@ -287,7 +287,7 @@ static void dump_ir_alarm(void)
 
 	PRINTF_DEBUG("ALARM Ir:\n");
 
-	for (count = 0; count < ptmyAlarmPoll->numOfIR; count++)
+	for (count = 0; count < myAlarmPoll.numOfIR; count++)
 	{
 		r_ir = p_ir_alarm_sect + (count * sizeof(r_hr_ir_alarm));
 
@@ -371,7 +371,6 @@ static void get_model_pointers(uint8_t *val)
 
 	uint8_t* model_data_begin;
 
-
 	ptmyLowPoll   = (struct NumOfPoll*)(val + sizeof(H_HeaderModel));
 	ptmyHighPoll  = (struct NumOfPoll*)(val + sizeof(H_HeaderModel) + sizeof(myNumOfPoll));
 	ptmyAlarmPoll = (struct NumOfPoll*)(val + sizeof(H_HeaderModel) + 2 * sizeof(myNumOfPoll));
@@ -407,23 +406,22 @@ static void get_model_pointers(uint8_t *val)
 
 
 #if WANT_DUMP_MODEL
-static void dump_all_values(uint8_t* val)
+static void dump_all_values(void)
 {
 	//get_model_pointers(val);
 	dump_coil_low();
-	dump_coil_high();
-	dump_coil_alarm();
-
 	dump_di_low();
-	dump_di_high();
-	dump_di_alarm();
-
 	dump_hr_low();
-	dump_hr_high();
-	dump_hr_alarm();
-
 	dump_ir_low();
+
+	dump_coil_high();
+	dump_di_high();
+	dump_hr_high();
 	dump_ir_high();
+
+	dump_coil_alarm();
+	dump_di_alarm();
+	dump_hr_alarm();
 	dump_ir_alarm();
 }
 #endif
@@ -580,12 +578,16 @@ int BinaryModel_Init (void)
 
 	// retrieve the useful pointers inside the model
 	// if below 2 functions are not called in close succession
-	// something does not work... TODO
+	// something does not work... tables must be created before chunk dealloc
 	get_model_pointers(chunk);
     PollEngine__CreateTables();
-	GME__ExtractHeaderInfo(tmpHeaderModel);
+#if WANT_DUMP_MODEL
+    dump_all_values();
+#endif
+    GME__ExtractHeaderInfo(tmpHeaderModel);
 
 	free(chunk);
+
 	valid_model = TRUE;
 	return C_SUCCESS;
 
