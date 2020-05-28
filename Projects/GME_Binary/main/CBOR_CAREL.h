@@ -90,6 +90,7 @@ typedef enum CloudtoGME_Commands_l{
 	CHANGE_CREDENTIALS,
 	START_ENGINE,
 	STOP_ENGINE,
+	UPDATE_FILE = 50,
 }cloud_req_commands_t;
 
 
@@ -176,6 +177,7 @@ typedef struct C_CBORDWLDEVSCFG{
 	C_UINT16 crc;
 	C_UINT16 dev;
 	C_UINT16 did;
+	C_CHAR fil[FIL_SIZE];
 }c_cborreqdwldevsconfig;
 #pragma pack()
 
@@ -287,7 +289,9 @@ CborError CBOR_ExtractInt(CborValue* recursed, int64_t* read);
 typedef 	c_cborreqdwldevsconfig			c_cborrequpdatecacert;
 typedef		c_cborreqdwldevsconfig			c_cborreqchangecred;
 typedef 	c_cborrequpddevfw				c_cborrequpdgmefw;
+typedef		c_cborreqdwldevsconfig			c_cborrequpdatefile;
 #define 	CBOR_ReqUpdateGMEFW 			CBOR_ReqUpdateDevFW
+#define		CBOR_ReqUpdateFile				CBOR_ReqSetDevsConfig
 
 C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg);
 C_RES execute_download_devs_config(c_cborreqdwldevsconfig* download_devs_config);
@@ -295,6 +299,7 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
 C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert);
 C_RES execute_scan_devices(C_BYTE* data_rx, C_UINT16 *add, C_INT16 * lnt);
+C_RES execute_update_file(c_cborrequpdatefile *update_file);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
 C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv);
 

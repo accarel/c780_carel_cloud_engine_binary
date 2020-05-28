@@ -1188,6 +1188,12 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 			download_devs_config->did = tmp;
 			DEBUG_DEC(err, "req_set_devs_config: did");
 		}
+		else if (strncmp(tag, "fil", 3) == 0)
+		{
+			stlen = FIL_SIZE;
+			err |= cbor_value_copy_text_string(&recursed, download_devs_config->fil, &stlen, &recursed);
+			DEBUG_DEC(err, "req_set_devs_config: fil");
+		}
 		else
 		{
 			err |= CBOR_DiscardElement(&recursed);
@@ -1801,15 +1807,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			err = CBOR_ReqSetDevsConfig(cbor_stream, cbor_len, &download_devs_config);
 			if(err == C_SUCCESS) {
 
-				while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-				{
-				   Sys__Delay(10);
-				}
-
-				if (PollEngine_GetEngineStatus_CAREL() == RUNNING){
-				PollEngine_StopEngine_CAREL();
-				}
-
 				// write new data to configuration file and put in res the result of operation
 				// to be implemented
 				cbor_req.res = (execute_download_devs_config(&download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -1856,9 +1853,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			}
 			if (cbor_req.res == ERROR_CMD)
 				device = 0;
-
-	//		if(length > 0)
-	//			length += 2;	//include the 2 byte of the CRC modbus
 
 			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
             sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -2085,6 +2079,24 @@ data_rx_len=0;
 		}
 		break;
 #endif
+
+		case UPDATE_FILE:
+		{
+			c_cborrequpdatefile update_file = {0};
+			cbor_req.res = ERROR_CMD;
+
+			err = CBOR_ReqUpdateFile(cbor_stream, cbor_len, &update_file);
+			if(err == C_SUCCESS) {
+				// write new data to configuration file and put in res the result of operation
+				// to be implemented
+				cbor_req.res = (execute_update_file(&update_file) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			}
+			// mqtt response
+			len = CBOR_ResSimple(cbor_response, &cbor_req);
+			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
+			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
+		}
+		break;
 
 		case NO_COMMAND:
 		default:
@@ -2575,6 +2587,37 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 	return result;
 }
 
+C_RES execute_update_file(c_cborrequpdatefile *update_file){
+
+	https_conn_err_t err;
+	uint8_t cert_num = CERT_1;
+
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
+	printf("execute_update_file\n");
+    #endif
+
+	if ((memcmp(update_file->fil,LOGIN_HTML, strlen(LOGIN_HTML)))!=0 &&
+			(memcmp(update_file->fil,CHANGE_CRED_HTML, strlen(CHANGE_CRED_HTML)))!=0 &&
+			(memcmp(update_file->fil,CONFIG_HTML, strlen(CONFIG_HTML)))!=0 &&
+			(memcmp(update_file->fil,STYLE_CSS, strlen(STYLE_CSS)))!=0 &&
+			(memcmp(update_file->fil,FAV_ICON, strlen(FAV_ICON)))!=0) {
+		return C_FAIL;
+	}
+
+	// get current certificate number and download file
+	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		cert_num = CERT_1;
+
+	err = HttpsClient__DownloadFile(update_file, cert_num, update_file->fil);
+	if(CONN_OK != err)
+		return C_FAIL;
+
+    #ifdef __DEBUG_CBOR_CAREL_LEV_2
+	printf("execute_update_file err= %d \n",err);
+    #endif
+
+	return C_SUCCESS;
+}
 
 void CBOR_ReadDidFromNVM (void)
 {

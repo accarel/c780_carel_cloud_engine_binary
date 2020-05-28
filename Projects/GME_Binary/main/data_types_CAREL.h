@@ -24,7 +24,7 @@
 #define URI_SIZE 		64
 #define RTO_SIZE 		64
 #define TOPIC_SIZE		100
-
+#define FIL_SIZE		20
 
 /* ======================================================= */
 /*                     ! WARNING !                         */
