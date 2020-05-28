@@ -214,6 +214,7 @@ void Carel_Main_Task(void)
 			if (retval == C_SUCCESS) {
 				//Set boot time
 				RTC_Set_UTC_Boot_Time();
+				Mobile__SetConnTime();
 
 				Sys__CertAlloc();
 

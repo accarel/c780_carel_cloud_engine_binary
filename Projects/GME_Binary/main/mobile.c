@@ -133,14 +133,17 @@ void Mobile__WaitConnection(void)
 
 void Mobile__SetStatus(connection_status_t status){
 	MobStatus = status;
-	if (status == CONNECTED)
-		MobConnTime = RTC_Get_UTC_Current_Time();
-	else
-		MobConnTime = 0;
 }
 
 connection_status_t Mobile__GetStatus(void){
 	return MobStatus;
+}
+
+void Mobile__SetConnTime(void){
+	if (Mobile__GetStatus() == CONNECTED)
+			MobConnTime = RTC_Get_UTC_Current_Time();
+		else
+			MobConnTime = 0;
 }
 
 C_TIME Mobile__GetConnTime(void){
