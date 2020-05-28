@@ -136,6 +136,14 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 				  err = WRONG_FILE;
 
 		  }
+		  else if ((memcmp(filename,LOGIN_HTML, strlen(LOGIN_HTML)))==0 ||
+				  	  (memcmp(filename,CHANGE_CRED_HTML, strlen(CHANGE_CRED_HTML)))==0 ||
+					  (memcmp(filename,CONFIG_HTML, strlen(CONFIG_HTML)))==0 ||
+					  (memcmp(filename,STYLE_CSS, strlen(STYLE_CSS)))==0 ||
+					  (memcmp(filename,FAV_ICON, strlen(FAV_ICON)))==0) {
+			  err = CONN_OK;
+		  }
+
 		  // If controls are ok, write new file to NVM
 		  if (err == CONN_OK)
 			  if(C_SUCCESS != FS_SaveFile(buffer , (size_t)read_len, filename))
