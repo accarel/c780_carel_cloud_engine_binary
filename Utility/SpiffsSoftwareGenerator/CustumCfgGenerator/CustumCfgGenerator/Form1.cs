@@ -125,8 +125,9 @@ namespace CustumCfgGenerator
 
                     cfg_data = exeFolder + "\\spiffs_image\\dir_image\\cfgdef.bin";
                     File.Delete(cfg_data);
-                    cfg_data_usr = exeFolder + "\\spiffs_image\\dir_image\\cfgusr.bin";
-                    File.Delete(cfg_data_usr);
+
+                    //cfg_data_usr = exeFolder + "\\spiffs_image\\dir_image\\cfgusr.bin";
+                    //File.Delete(cfg_data_usr);
 
                     using (FileStream stream = new FileStream(cfg_data, FileMode.Create))
                     {
@@ -153,7 +154,7 @@ namespace CustumCfgGenerator
                             writer.Close();
 
                             var source = @cfg_data;
-                            var destination = @cfg_data_usr;
+                           // var destination = @cfg_data_usr;
 
                             
                             byte[] file = File.ReadAllBytes(source);
@@ -175,14 +176,14 @@ namespace CustumCfgGenerator
                             File.WriteAllBytes(source, newFile);
 
                             // clone the file
-                            try
-                            {
-                                File.Copy(source, destination);
-                            }
-                            catch
-                            {
-                                MessageBox.Show("Rimuovere i file precedenti o rinominarli");
-                            }
+                        //    try
+                        //    {
+                        //        File.Copy(source, destination);
+                        //    }
+                        //    catch
+                        //    {
+                        //       MessageBox.Show("Rimuovere i file precedenti o rinominarli");
+                        //   }
 
 
                             Process proc = null;
