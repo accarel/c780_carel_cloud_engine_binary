@@ -103,8 +103,8 @@
 #define GW_WIFI_PARTNUMBER 	"GTW000MWT0"
 #define GW_GSM_PARTNUMBER 	"GTW000MGP0"
 
-#define GW_HW_REV  256 //0x100
-#define GW_FW_REV  256 //0x100
+#define GW_HW_REV  "100"
+#define GW_FW_REV  "100"
 
 /* ========================================================================== */
 /* OS related                                                                 */

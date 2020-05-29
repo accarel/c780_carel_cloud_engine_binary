@@ -194,12 +194,12 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	// encode hwv - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "hwv");
-	err |= cbor_encode_uint(&mapEncoder, GW_HW_REV);
+	err |= cbor_encode_text_stringz(&mapEncoder, GW_HW_REV);
 	DEBUG_ADD(err, "hw version");
 
 	// encode fwv - elem4
 	err |= cbor_encode_text_stringz(&mapEncoder, "fwv");
-	err |= cbor_encode_uint(&mapEncoder, GW_FW_REV);
+	err |= cbor_encode_text_stringz(&mapEncoder, GW_FW_REV);
 	DEBUG_ADD(err, "fw version");
 
 	// encode btm - elem5
