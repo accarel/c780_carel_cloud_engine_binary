@@ -381,7 +381,7 @@ void Carel_Main_Task(void)
 void GME__CheckHTMLConfig(void){
 	if(IsConfigReceived() || IsWpsMode()){
 		PRINTF_DEBUG("IsConfigReceived\n");
-		sm = GME_RADIO_CONFIG; //GME_WIFI_CONFIG;
+		sm = GME_RADIO_CONFIG;
 		WiFi_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
 	}
 }
@@ -417,6 +417,12 @@ void GME__ExtractHeaderInfo(H_HeaderModel *pt)
 {
 	mHeaderModel = *pt;
 }
+
+gme_sm_t GetsmStatus(void)
+{
+	return sm;
+}
+
 
 
 H_HeaderModel * GME__GetHEaderInfo(void)

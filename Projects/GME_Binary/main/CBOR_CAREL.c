@@ -1916,26 +1916,28 @@ data_rx_len=0;
 		{
 			c_cborreqrdwrvalues cbor_rwv = {0};
 			cbor_req.res = ERROR_CMD;
-			err = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rwv);
-			if (err == C_SUCCESS) {
-				// send modbus command to read/write values
-				// wait modbus response to get result
-				if (cbor_req.cmd == READ_VALUES)
-					cbor_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-				else
-					cbor_req.res = (parse_write_values(cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+			// following check to be sure we are not asking something on non-configured serial
+			if (GetsmStatus() == GME_IDLE_INTERNET_CONNECTED) {
+				err = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rwv);
+				if (err == C_SUCCESS) {
+					// send modbus command to read/write values
+					// wait modbus response to get result
+					if (cbor_req.cmd == READ_VALUES)
+						cbor_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+					else
+						cbor_req.res = (parse_write_values(cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+				}
 			}
-
 			if (cbor_req.res == SUCCESS_CMD)	{
-                    #ifdef __DEBUG_CBOR_CAREL_LEV_2
+					#ifdef __DEBUG_CBOR_CAREL_LEV_2
 					printf("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rwv.val);
-                    #endif
+					#endif
 
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, cbor_rwv.val);
 			} else {
-                    #ifdef __DEBUG_CBOR_CAREL_LEV_1
+					#ifdef __DEBUG_CBOR_CAREL_LEV_1
 					printf("CBOR R/W VALUES OPERATION_FAILED\n");
-                    #endif
+					#endif
 					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, "0");
 			}
 

@@ -28,5 +28,6 @@
 void Carel_Main_Task(void);
 
 void GME__ExtractHeaderInfo(H_HeaderModel *pt);
+gme_sm_t GetsmStatus(void);
 
 H_HeaderModel * GME__GetHEaderInfo(void);
