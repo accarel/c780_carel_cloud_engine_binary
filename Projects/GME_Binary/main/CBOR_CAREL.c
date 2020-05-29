@@ -2409,6 +2409,33 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 }
 
 
+C_INT16 getBitMask(C_INT16 len)
+{
+	C_INT16 data = 0;
+
+	switch(len)
+	{
+	   case 0: { data = 0x0000; break; }
+	   case 1: { data = 0x0001; break; }
+	   case 2: { data = 0x0003; break; }
+	   case 3: { data = 0x0007; break; }
+	   case 4: { data = 0x000F; break; }
+	   case 5: { data = 0x001F; break; }
+	   case 6: { data = 0x003F; break; }
+	   case 7: { data = 0x007F; break; }
+	   case 8: { data = 0x00FF; break; }
+	   case 9: { data = 0x01FF; break; }
+	   case 10: { data = 0x03FF; break; }
+	   case 11: { data = 0x07FF; break; }
+	   case 12: { data = 0x0FFF; break; }
+	   case 13: { data = 0x1FFF; break; }
+	   case 14: { data = 0x3FFF; break; }
+	   case 15: { data = 0x7FFF; break; }
+	   case 16: { data = 0xFFFF; break; }
+	}
+	return data;
+}
+
 /**
  * @brief parse_write_values
  *
@@ -2430,7 +2457,7 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 	hr_ir_low_high_poll_t hr_to_read = {0};
 	long double conv_value = 0;
 
-	uint16_t tmp;
+        uint16_t tmp, mask;
 
 	//
 
@@ -2483,12 +2510,9 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 				 // read the actual data
 				 result = PollEngine__Read_HR_IR_Req(mbR_HR,  hr_to_read.info.Addr, hr_to_read.info.dim ,(void*)&hr_to_read.c_value.value);
 
-				 if(cbor_wv.len == 4)
-				    tmp = ((uint16_t)hr_to_read.c_value.value & (0xFFFF^(0x000F << (cbor_wv.pos))));
-				 else
-					tmp = ((uint16_t)hr_to_read.c_value.value & (0xFFFF^(0x0001 << (cbor_wv.pos))));
-
-				 tmp |= ((uint16_t)val_to_write << (cbor_wv.pos));
+				 mask = getBitMask(cbor_wv.len);
+				 tmp = ((uint16_t)hr_to_read.c_value.value & (0xFFFF^(mask << (cbor_wv.pos))));
+				 tmp |= (((uint16_t)val_to_write & mask) << (cbor_wv.pos));
 
 				 result = PollEngine__Write_HR_Req(tmp , cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);   
 			   }
