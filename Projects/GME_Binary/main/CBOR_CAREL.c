@@ -2495,13 +2495,15 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 			   if(cbor_wv.len == 16)
 			   {
 				// is an Integer number
-				ivalue = atoi((C_SCHAR*)cbor_wv.val);
+				ivalue = atoi((C_SCHAR*)cbor_wv.val);				
+				ivalue = (ivalue - (C_INT32)(atoi((C_SCHAR*)cbor_wv.b)))  /  (C_INT32)(atoi((C_SCHAR*)cbor_wv.a));				
 				result = PollEngine__Write_HR_Req_Int(ivalue, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
 			   }
 			   else if(cbor_wv.len == 32)
 			   {
 				// for Int32 bit
 				ivalue = atol((C_SCHAR*)cbor_wv.val);
+				ivalue = (ivalue - (C_INT32)(atol((C_SCHAR*)cbor_wv.b)))  /  (C_INT32)(atol((C_SCHAR*)cbor_wv.a));
 				result = PollEngine__Write_HR_Req_Int(ivalue, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
 			   }
 			   else
@@ -2511,8 +2513,8 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 				 hr_to_read.info.dim = cbor_wv.dim;
 				 hr_to_read.info.bitposition = cbor_wv.pos;
 				 hr_to_read.info.len = cbor_wv.len;
-				 hr_to_read.info.linA = atof((C_SCHAR*)cbor_wv.a);
-				 hr_to_read.info.linB = atof((C_SCHAR*)cbor_wv.b);
+				 hr_to_read.info.linA = atoi((C_SCHAR*)cbor_wv.a);
+				 hr_to_read.info.linB = atoi((C_SCHAR*)cbor_wv.b);
 				 hr_to_read.info.flag.byte = cbor_wv.flags.byte;
 
 				 // read the actual data
@@ -2585,8 +2587,8 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 		hr_to_read.info.dim = cbor_rv->dim;
 		hr_to_read.info.bitposition = cbor_rv->pos;
 		hr_to_read.info.len = cbor_rv->len;
-		hr_to_read.info.linA = atof((C_SCHAR*)cbor_rv->a);
-		hr_to_read.info.linB = atof((C_SCHAR*)cbor_rv->b);
+		hr_to_read.info.linA = atoi((C_SCHAR*)cbor_rv->a);
+		hr_to_read.info.linB = atoi((C_SCHAR*)cbor_rv->b);
 		hr_to_read.info.flag.byte = cbor_rv->flags.byte;
 
 		result = PollEngine__Read_HR_IR_Req(cbor_rv->func, hr_to_read.info.Addr, hr_to_read.info.dim ,(void*)&hr_to_read.c_value.value);
