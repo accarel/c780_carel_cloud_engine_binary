@@ -26,7 +26,7 @@
 #include "https_client_CAREL.h"
 #include "ota_CAREL.h"
 #include "ota_IS.h"
-#include "sys_IS.h"
+#include "sys_IS.h"6
 #include "wifi.h"
 #include "main_CAREL.h"
 #include "mobile.h"
@@ -2496,6 +2496,12 @@ C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 			   {
 				// is an Integer number
 				ivalue = atoi((C_SCHAR*)cbor_wv.val);
+				result = PollEngine__Write_HR_Req_Int(ivalue, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
+			   }
+			   else if(cbor_wv.len == 32)
+			   {
+				// for Int32 bit
+				ivalue = atol((C_SCHAR*)cbor_wv.val);
 				result = PollEngine__Write_HR_Req_Int(ivalue, cbor_wv.addr, num_reg, cbor_wv.flags.bit.bigendian, cbor_wv.func);
 			   }
 			   else
