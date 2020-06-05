@@ -82,14 +82,14 @@
     <Protos>
       <Modbus stopBit="0" parity="0" readTimeOut="1000" writeTimeOut="1000" activityTimeOut="100" f1="2000" f2="2000" f3="125" f4="125" f5="1" f6="1" f15="1968" f16="123">
         <Vars>
-          <VarMDB code="Coil_Low_P"      addressIn="100001" funcTypeRead="1" addressOut="510001" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
-          <VarMDB code="Coil_High_P"     addressIn="100002" funcTypeRead="1" addressOut="510002" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
-          <VarMDB code="Coil_alr"        addressIn="100003" funcTypeRead="1" addressOut="510003" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="Coil_Low_P"      addressIn="100001" funcTypeRead="1" addressOut="500001" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="Coil_High_P"     addressIn="100002" funcTypeRead="1" addressOut="500002" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="Coil_alr"        addressIn="100003" funcTypeRead="1" addressOut="500003" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
           <VarMDB code="Rele_1"          addressIn="100013" funcTypeRead="1" addressOut="500013" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
           <VarMDB code="Rele_2"          addressIn="100014" funcTypeRead="1" addressOut="500014" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
-          <VarMDB code="DI_Low_P"        addressIn="200001" funcTypeRead="2" addressOut="500001" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
-          <VarMDB code="DI_High_P"       addressIn="200002" funcTypeRead="2" addressOut="500002" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
-          <VarMDB code="DI_alr"          addressIn="200003" funcTypeRead="2" addressOut="500003" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="DI_Low_P"        addressIn="200001" funcTypeRead="2" addressOut="510001" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="DI_High_P"       addressIn="200002" funcTypeRead="2" addressOut="510002" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
+          <VarMDB code="DI_alr"          addressIn="200003" funcTypeRead="2" addressOut="510003" funcTypeWrite="5" varDimension="16" varLength="1" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
           <VarMDB code="HR_Low_P"        addressIn="300001" funcTypeRead="3" addressOut="600001" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
           <VarMDB code="HR_High_P"       addressIn="300002" funcTypeRead="3" addressOut="600002" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" varEncoding="0" />
           <VarMDB code="HR_alr_Bit_1"    addressIn="300003" funcTypeRead="3" addressOut="600003" funcTypeWrite="6" varDimension="16" varLength="1" bitPosition="1" aValue="1" bValue="0" varEncoding="0" />
