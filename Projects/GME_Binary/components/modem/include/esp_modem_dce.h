@@ -45,6 +45,10 @@ typedef struct modem_dte modem_dte_t;
 #define MODEM_MAX_OPERATOR_LENGTH (32) /*!< Max Operator Name Length */
 #define MODEM_IMEI_LENGTH (15)         /*!< IMEI Number Length */
 #define MODEM_IMSI_LENGTH (15)         /*!< IMSI Number Length */
+#define MCC_LENGTH  (3)                /*!< Mobile Country Code */
+#define MNC_LENGTH  (3)                /*!< Mobile Network Code */
+#define LAC_LENGTH  (5)                /*!< Location Area Code */
+#define CELLID_LENGTH  (16)            /*!< Cell ID */
 
 /**
  * @brief Specific Timeout Constraint, Unit: millisecond
@@ -74,7 +78,11 @@ struct modem_dce {
     char imei[MODEM_IMEI_LENGTH + 1];                                                 /*!< IMEI number */
     char imsi[MODEM_IMSI_LENGTH + 1];                                                 /*!< IMSI number */
     char name[MODEM_MAX_NAME_LENGTH];                                                 /*!< Module name */
-    char oper[MODEM_MAX_OPERATOR_LENGTH];                                             /*!< Operator name */
+    char oper[MODEM_MAX_OPERATOR_LENGTH + 1];                                             /*!< Operator name */
+    char mcc[MCC_LENGTH + 1];                                                             /*!< Mobile Country Code */
+    char mnc[MNC_LENGTH + 1];                                                             /*!< Mobile Network Code */
+    char lac[LAC_LENGTH + 1];                                                             /*!< Location Area Code */
+    char cellid[CELLID_LENGTH + 1];                                                       /*!< Cell ID */
     modem_state_t state;                                                              /*!< Modem working state */
     modem_mode_t mode;                                                                /*!< Working mode */
     modem_dte_t *dte;                                                                 /*!< DTE which connect to DCE */
@@ -89,6 +97,7 @@ struct modem_dce {
     esp_err_t (*define_pdp_context)(modem_dce_t *dce, uint32_t cid,
                                     const char *type, const char *apn); /*!< Set PDP Contex */
     esp_err_t (*set_working_mode)(modem_dce_t *dce, modem_mode_t mode); /*!< Set working mode */
+    esp_err_t (*get_qeng)(modem_dce_t *dce);
     esp_err_t (*hang_up)(modem_dce_t *dce);                             /*!< Hang up */
     esp_err_t (*power_down)(modem_dce_t *dce);                          /*!< Normal power down */
     esp_err_t (*deinit)(modem_dce_t *dce);                              /*!< Deinitialize */

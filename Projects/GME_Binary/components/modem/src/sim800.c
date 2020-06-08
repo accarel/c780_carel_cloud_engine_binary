@@ -126,7 +126,7 @@ static esp_err_t sim800_handle_cgmm(modem_dce_t *dce, const char *line)
     } else if (strstr(line, MODEM_RESULT_CODE_ERROR)) {
         err = esp_modem_process_command_done(dce, MODEM_STATE_FAIL);
     } else {
-        int len = snprintf(dce->name, MODEM_MAX_NAME_LENGTH, "%s", line);
+        int len = snprintf(dce->name, MODEM_MAX_NAME_LENGTH + 1, "%s", line);
         if (len > 2) {
             /* Strip "\r\n" */
             strip_cr_lf_tail(dce->name, len);
@@ -213,6 +213,84 @@ static esp_err_t sim800_handle_cops(modem_dce_t *dce, const char *line)
         }
         free(line_copy);
     }
+    return err;
+}
+
+static esp_err_t sim800_handle_qengset(modem_dce_t *dce, const char *line)
+{
+	esp_err_t err = ESP_FAIL;
+	if (strstr(line, MODEM_RESULT_CODE_SUCCESS)) {
+		err = esp_modem_process_command_done(dce, MODEM_STATE_SUCCESS);
+	} else if (strstr(line, MODEM_RESULT_CODE_ERROR)) {
+		err = esp_modem_process_command_done(dce, MODEM_STATE_FAIL);
+	}
+	return err;
+}
+
+/**
+ * @brief Handle response from AT+QENG?
+ */
+static esp_err_t sim800_handle_qeng(modem_dce_t *dce, const char *line)
+{
+	esp_err_t err = ESP_FAIL;
+	printf("sim800_handle_qeng, line: %s\n", line);
+    if (strstr(line, MODEM_RESULT_CODE_SUCCESS)) {
+        err = esp_modem_process_command_done(dce, MODEM_STATE_SUCCESS);
+    } else if (strstr(line, MODEM_RESULT_CODE_ERROR)) {
+        err = esp_modem_process_command_done(dce, MODEM_STATE_FAIL);
+    } else if (!strncmp(line, "+QENG: 0", strlen("+QENG: 0"))) {
+        /* there might be some random spaces in operator's name, we can not use sscanf to parse the result */
+        /* strtok will break the string, we need to create a copy */
+
+    	size_t len = strlen(line);
+        char *line_copy = malloc(len + 1);
+        strcpy(line_copy, line);
+
+        printf("sim800_handle_qeng len %d: %s\n", len+1, line_copy);
+        /* +QENG: <mode>[,x,x,x,x,x,x,...] */
+
+        char *str_ptr = NULL;
+        char *p[20];
+        uint8_t i = 0;
+        /* strtok will broke string by replacing delimiter with '\0' */
+        p[i] = strtok_r(line_copy, ",", &str_ptr);
+        while (p[i]) {
+        	printf("p[%d] %s\n", i, p[i]);
+            p[++i] = strtok_r(NULL, ",", &str_ptr);
+        }
+        if (i >= 5) {
+            int len = snprintf(dce->mcc, MCC_LENGTH + 1, "%s", p[1]);
+            printf("dce->mcc: %s\n", dce->mcc);
+            if (len > 2) {
+                /* Strip "\r\n" */
+                strip_cr_lf_tail(dce->mcc, len);
+                printf("p[1] %s, len %d, mcc %s\n", p[1], len, dce->mcc);
+            }
+            len = snprintf(dce->mnc, MNC_LENGTH +1, "%s", p[2]);
+		  	if (len >= 2) {
+				/* Strip "\r\n" */
+				strip_cr_lf_tail(dce->mnc, len);
+				printf("p[2] %s, len %d, mnc %s\n", p[2], len, dce->mnc);
+			}
+			len = snprintf(dce->lac, LAC_LENGTH + 1, "%s", p[3]);
+			if (len > 2) {
+				/* Strip "\r\n" */
+				strip_cr_lf_tail(dce->lac, len);
+				printf("p[3] %s, len %d, lac %s\n", p[3], len, dce->lac);
+			}
+			len = snprintf(dce->cellid, CELLID_LENGTH + 1, "%s", p[4]);
+			if (len > 2) {
+				/* Strip "\r\n" */
+				strip_cr_lf_tail(dce->cellid, len);
+				printf("p[4] %s, len %d, cellid %s\n", p[4], len, dce->cellid);
+			}
+        }
+        err = ESP_OK;
+        free(line_copy);
+
+    }
+
+    printf("end of sim800_handle_qeng, err %d\n", err);
     return err;
 }
 
@@ -426,6 +504,41 @@ err:
 }
 
 /**
+ * @brief Get serving cell information
+ *
+ * @param sim800_dce sim800 object
+ * @return esp_err_t
+ *      - ESP_OK on success
+ *      - ESP_FAIL on error
+ */
+static esp_err_t sim800_set_eng_mode(sim800_modem_dce_t *sim800_dce)
+{
+    modem_dte_t *dte = sim800_dce->parent.dte;
+    sim800_dce->parent.handle_line = sim800_handle_qengset;
+    DCE_CHECK(dte->send_cmd(dte, "AT+QENG=1,0\r", MODEM_COMMAND_TIMEOUT_OPERATOR) == ESP_OK, "send command failed", err);
+    DCE_CHECK(sim800_dce->parent.state == MODEM_STATE_SUCCESS, "set eng mode failed", err);
+    ESP_LOGD(DCE_TAG, "set eng mode ok");
+    return ESP_OK;
+err:
+    return ESP_FAIL;
+}
+
+static esp_err_t sim800_get_serving_cell_info(modem_dce_t *dce)
+{
+    modem_dte_t *dte = dce->dte;
+    sim800_modem_dce_t *sim800_dce = __containerof(dce, sim800_modem_dce_t, parent);
+    dce->handle_line = sim800_handle_qeng;
+    printf("sim800_get_serving_cell_info send cmd\n");
+    DCE_CHECK(dte->send_cmd(dte, "AT+QENG?\r", MODEM_COMMAND_TIMEOUT_OPERATOR) == ESP_OK, "send command failed", err);
+//    DCE_CHECK(dte->send_cmd(dte, "AT+CPAS\r", MODEM_COMMAND_TIMEOUT_OPERATOR) == ESP_OK, "send command failed", err);
+    DCE_CHECK(dce->state == MODEM_STATE_SUCCESS, "get serving cell info failed", err);
+    ESP_LOGD(DCE_TAG, "get serving cell info ok");
+    printf("get serving cell info ok\n");
+    return ESP_OK;
+err:
+    return ESP_FAIL;
+}
+/**
  * @brief Deinitialize SIM800 object
  *
  * @param dce Modem DCE object
@@ -465,6 +578,7 @@ modem_dce_t *sim800_init(modem_dte_t *dte)
     sim800_dce->parent.set_working_mode = sim800_set_working_mode;
     sim800_dce->parent.power_down = sim800_power_down;
     sim800_dce->parent.deinit = sim800_deinit;
+    sim800_dce->parent.get_qeng = sim800_get_serving_cell_info;
     /* Sync between DTE and DCE */
     DCE_CHECK(esp_modem_dce_sync(&(sim800_dce->parent)) == ESP_OK, "sync failed", err_io);
     /* Close echo */
@@ -477,6 +591,8 @@ modem_dce_t *sim800_init(modem_dte_t *dte)
     DCE_CHECK(sim800_get_imsi_number(sim800_dce) == ESP_OK, "get imsi failed", err_io);
     /* Get operator name */
     DCE_CHECK(sim800_get_operator_name(sim800_dce) == ESP_OK, "get operator name failed", err_io);
+    /* Get serving cell info */
+    DCE_CHECK(sim800_set_eng_mode(sim800_dce) == ESP_OK, "set eng mode failed", err_io);
     return &(sim800_dce->parent);
 err_io:
     free(sim800_dce);

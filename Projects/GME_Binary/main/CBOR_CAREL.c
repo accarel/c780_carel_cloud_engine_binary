@@ -582,40 +582,34 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 	// encode ime - elem5
 	err |= cbor_encode_text_stringz(&mapEncoder, "ime");
-	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetImeiCode());	// TODO, at first run, imei (and other related stuff)
-																			// is not initialized yet!
+	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetImeiCode());
 	DEBUG_ADD(err, "ime");
 
-	// other elements to come (if needed)
+	// other elements (if needed)
 	// encode ims - elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "ims");
-	C_BYTE ims[15] = {3,1,0,1,5,0,1,2,3,4,5,6,7,8,9};					// to be implemented
-	err |= cbor_encode_byte_string(&mapEncoder, ims, 15);
+	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetImsiCode());
 	DEBUG_ADD(err, "ims");
 
 	// following data can be obtained from AT+QENG?
 	// encode mcc - elem7
 	err |= cbor_encode_text_stringz(&mapEncoder, "mcc");
-	C_BYTE mcc[3] = {2,2,2};											// to be implemented
-	err |= cbor_encode_byte_string(&mapEncoder, mcc, 3);
+	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetMccCode());
 	DEBUG_ADD(err, "mcc");
 
 	// encode mnc - elem8
 	err |= cbor_encode_text_stringz(&mapEncoder, "mnc");
-	C_BYTE mnc[3] = {8,8};											// to be implemented
-	err |= cbor_encode_byte_string(&mapEncoder, mnc, 3);
-	DEBUG_ADD(err, "mcc");
+	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetMncCode());
+	DEBUG_ADD(err, "mnc");
 
 	// encode lac - elem9
 	err |= cbor_encode_text_stringz(&mapEncoder, "lac");
-	C_BYTE lac[16] = {1,2,3,4,5};										// to be implemented
-	err |= cbor_encode_byte_string(&mapEncoder, lac, 16);
+	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetLacCode());
 	DEBUG_ADD(err, "lac");
 
 	// encode cel - elem10
 	err |= cbor_encode_text_stringz(&mapEncoder, "cel");
-	C_BYTE cel[16] = {5,4,3,2,1};										// to be implemented
-	err |= cbor_encode_byte_string(&mapEncoder, cel, 16);
+	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetCidCode());
 	DEBUG_ADD(err, "cel");
 
 	// encode uci - elem11 (FOR UMTS, REMOVE?)

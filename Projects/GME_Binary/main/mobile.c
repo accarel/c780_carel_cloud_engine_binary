@@ -6,32 +6,22 @@
 #include "wifi.h"
 #include "utilities_CAREL.h"
 #include "IO_Port_IS.h"
+#include "radio.h"
 
 static EventGroupHandle_t mobile_event_group = NULL;
 static const int CONNECT_BIT = BIT0;
 static const int STOP_BIT = BIT1;
-//static const int GOT_DATA_BIT = BIT2;
 
 static const char *TAG = "mobile";
 static connection_status_t MobStatus = DISCONNECTED;
-static char gsm_imei_gw_str[16] = {0};
+static char gsm_imei_gw_str[MODEM_IMEI_LENGTH] = {0};
+static char gsm_imsi_gw_str[MODEM_IMSI_LENGTH] = {0};
+static char gsm_mcc_gw_str[MCC_LENGTH] = {0};
+static char gsm_mnc_gw_str[MNC_LENGTH] = {0};
+static char gsm_lac_gw_str[LAC_LENGTH] = {0};
+static char gsm_cellid_gw_str[CELLID_LENGTH] = {0};
 
 static C_TIME MobConnTime = 0;
-
-
-C_RES Mobile__GetImsi(char* mobile_imsi_gw){
-	C_RES err = C_FAIL;
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-		// todo
-#if CONFIG_MODEM_DEVICE_SIM800
-// todo	sim800_get_imsi_number();
-#elif CONFIG_MODEM_DEVICE_BG96
-	//todo
-#endif
-#endif
-	return err;
-}
-
 
 static void modem_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
@@ -70,13 +60,12 @@ static void modem_event_handler(void *event_handler_arg, esp_event_base_t event_
 
 gme_sm_t Mobile__Config(void){
 
-	C_RES err = C_FAIL;
 	tcpip_adapter_init();
     mobile_event_group = xEventGroupCreate();
 
     /* create dte object */
     esp_modem_dte_config_t config = ESP_MODEM_DTE_DEFAULT_CONFIG(CONFIG_UART_MODEM_PORT);
-    esp_uart_t uart_pins = {Get_Modem_TX(), Get_Modem_RX(), Get_Modem_RTS(), Get_Modem_CTS};
+    esp_uart_t uart_pins = {Get_Modem_TX(), Get_Modem_RX(), Get_Modem_RTS(), Get_Modem_CTS()};
     modem_dte_t *dte = esp_modem_dte_init(&config, uart_pins);
 
     /* Register event handler */
@@ -97,6 +86,19 @@ gme_sm_t Mobile__Config(void){
     ESP_LOGI(TAG, "IMSI: %s", dce->imsi);
 
     Mobile__SaveImeiCode(dce->imei);
+    Mobile__SaveImsiCode(dce->imsi);
+
+    ESP_ERROR_CHECK(dce->get_qeng(dce));
+
+    ESP_LOGI(TAG, "Module: %s", dce->mcc);
+    ESP_LOGI(TAG, "Operator: %s", dce->mnc);
+    ESP_LOGI(TAG, "IMEI: %s", dce->lac);
+    ESP_LOGI(TAG, "IMSI: %s", dce->cellid);
+
+    Mobile__SaveMccCode(dce->mcc);
+    Mobile__SaveMncCode(dce->mnc);
+    Mobile__SaveLacCode(dce->lac);
+    Mobile__SaveCidCode(dce->cellid);
 
     /* Get signal quality */
     uint32_t rssi = 0, ber = 0;
@@ -120,8 +122,48 @@ void Mobile__SaveImeiCode(char* buf){
 	strcpy(gsm_imei_gw_str, buf);
 }
 
+void Mobile__SaveImsiCode(char* buf){
+	strcpy(gsm_imsi_gw_str, buf);
+}
+
+void Mobile__SaveMccCode(char* buf){
+	strcpy(gsm_mcc_gw_str, buf);
+}
+
+void Mobile__SaveMncCode(char* buf){
+	strcpy(gsm_mnc_gw_str, buf);
+}
+
+void Mobile__SaveLacCode(char* buf){
+	strcpy(gsm_lac_gw_str, buf);
+}
+
+void Mobile__SaveCidCode(char* buf){
+	strcpy(gsm_cellid_gw_str, buf);
+}
+
 char* Mobile__GetImeiCode(void){
 	return gsm_imei_gw_str;
+}
+
+char* Mobile__GetImsiCode(void){
+	return gsm_imsi_gw_str;
+}
+
+char* Mobile__GetMccCode(void){
+	return gsm_mcc_gw_str;
+}
+
+char* Mobile__GetMncCode(void){
+	return gsm_mnc_gw_str;
+}
+
+char* Mobile__GetLacCode(void){
+	return gsm_lac_gw_str;
+}
+
+char* Mobile__GetCidCode(void){
+	return gsm_cellid_gw_str;
 }
 
 void Mobile__WaitConnection(void)
