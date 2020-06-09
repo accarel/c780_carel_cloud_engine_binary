@@ -33,6 +33,8 @@
 #define MQTT_PORT "mqtt_port"
 #define NTP_SERVER "ntp_server"
 
+#define APN_NAME "apn"
+
 #if NVM_DEBUG == 1
 	#define	PRINTF_DEBUG_NVM	printf
 #else

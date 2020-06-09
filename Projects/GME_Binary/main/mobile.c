@@ -112,7 +112,8 @@ gme_sm_t Mobile__Config(void){
     Utilities__Init();
 
     /* Setup PPP environment */
-    esp_modem_setup_ppp(dte, CONFIG_MODEM_APN);
+    char tmp_apn_name[64];
+    esp_modem_setup_ppp(dte, GetApnName(tmp_apn_name));
 
     return GME_WAITING_FOR_INTERNET;
 

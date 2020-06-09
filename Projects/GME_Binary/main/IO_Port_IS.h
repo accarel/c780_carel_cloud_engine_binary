@@ -115,7 +115,6 @@
 #define LED_BLU_2G       		GPIO_NUM_33
 
 #define CONFIG_UART_MODEM_PORT 		1
-#define CONFIG_MODEM_APN			"m2m.rmpro.carel.com"
 
 
 #define UART_MODEM_TX_2G		GPIO_NUM_17
