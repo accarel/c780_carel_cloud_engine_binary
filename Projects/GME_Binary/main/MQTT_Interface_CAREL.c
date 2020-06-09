@@ -95,10 +95,12 @@ C_RES MQTT_Start(void)
 
 
 
-	//check if username == '?' > use mac this to make the spiffs image indipendent from the MAC or IMEI
-	if (mqtt_cfg_nvm.username[0] == 0x3F)
-	{
-       strcpy(mqtt_cfg_nvm.username, Utilities__GetMACAddr());
+	//check if username == '?', then use deviceid as username (to make spiffs image independent from MAC or IMEI)
+	if (mqtt_cfg_nvm.username[0] == 0x3F) {
+		if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
+			strcpy(mqtt_cfg_nvm.username, Utilities__GetMACAddr());
+		else if (PLATFORM(PLATFORM_DETECTED_2G))
+			strcpy(mqtt_cfg_nvm.username, Utilities__GetIMEICode());
 	}
 
 
