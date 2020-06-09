@@ -98,20 +98,39 @@ namespace CustumCfgGenerator
 
             mySpiffs.enc_key = randomNum;
 
-
             //
             //  Nego il risultato di ogni check in quanto ritorna --->  true se tutto a 0, false se c'è qualcosa.
             //
-            bool ThereIsZeroes = (mySpiffs.mqtt_broker.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.mqtt_port.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.mqtt_pssw.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.mqtt_user.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.ntp_port.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.ntp_server.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.apn_name.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.apn_user.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.apn_password.All(singleByte => singleByte == 0)) ||
-                                 (mySpiffs.cfg_version.All(singleByte => singleByte == 0));
+
+            bool ThereIsZeroes = false;
+
+            if (checkBox1.Checked == false)
+            {
+                ThereIsZeroes = (mySpiffs.mqtt_broker.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.mqtt_port.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.mqtt_pssw.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.mqtt_user.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.ntp_port.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.ntp_server.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.apn_name.All(singleByte => singleByte == 0)) ||
+                    (mySpiffs.cfg_version.All(singleByte => singleByte == 0));
+
+            }
+            else
+            {
+                ThereIsZeroes = (mySpiffs.mqtt_broker.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.mqtt_port.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.mqtt_pssw.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.mqtt_user.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.ntp_port.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.ntp_server.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.apn_name.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.apn_user.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.apn_password.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.cfg_version.All(singleByte => singleByte == 0));
+
+            }
+
 
             
 
@@ -581,6 +600,24 @@ namespace CustumCfgGenerator
                 }
 
                 return crc;
+            }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox1.Checked == true)
+            {
+                groupBox1apn.Enabled = true;
+            }
+            else
+            {
+                groupBox1apn.Enabled = false;
+
+                textApnPassword.Clear();
+                textApnUser.Clear();
+
+                mySpiffs.apn_password = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+                mySpiffs.apn_user = new byte[NUM_OF_CHAR_IN_APN_FIELD];
             }
         }
     }

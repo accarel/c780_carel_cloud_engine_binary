@@ -53,6 +53,9 @@
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
             this.label11 = new System.Windows.Forms.Label();
+            this.groupBox1apn = new System.Windows.Forms.GroupBox();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.groupBox1apn.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -72,7 +75,7 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(86, 187);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(91, 17);
+            this.label1.Size = new System.Drawing.Size(71, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "mqtt broker";
             this.label1.Click += new System.EventHandler(this.label1_Click);
@@ -81,7 +84,7 @@
             // 
             this.textMqttBroker.Location = new System.Drawing.Point(89, 207);
             this.textMqttBroker.Name = "textMqttBroker";
-            this.textMqttBroker.Size = new System.Drawing.Size(186, 22);
+            this.textMqttBroker.Size = new System.Drawing.Size(186, 19);
             this.textMqttBroker.TabIndex = 3;
             this.textMqttBroker.TextChanged += new System.EventHandler(this.textMqttBroker_TextChanged);
             // 
@@ -89,7 +92,7 @@
             // 
             this.textMqttPort.Location = new System.Drawing.Point(89, 252);
             this.textMqttPort.Name = "textMqttPort";
-            this.textMqttPort.Size = new System.Drawing.Size(186, 22);
+            this.textMqttPort.Size = new System.Drawing.Size(186, 19);
             this.textMqttPort.TabIndex = 4;
             this.textMqttPort.TextChanged += new System.EventHandler(this.textMqttPort_TextChanged);
             // 
@@ -99,7 +102,7 @@
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(86, 232);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 17);
+            this.label2.Size = new System.Drawing.Size(57, 13);
             this.label2.TabIndex = 3;
             this.label2.Text = "mqtt port";
             // 
@@ -107,7 +110,7 @@
             // 
             this.textMqttPassword.Location = new System.Drawing.Point(89, 365);
             this.textMqttPassword.Name = "textMqttPassword";
-            this.textMqttPassword.Size = new System.Drawing.Size(183, 22);
+            this.textMqttPassword.Size = new System.Drawing.Size(183, 19);
             this.textMqttPassword.TabIndex = 6;
             this.textMqttPassword.TextChanged += new System.EventHandler(this.textMqttPassword_TextChanged);
             // 
@@ -117,7 +120,7 @@
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label3.Location = new System.Drawing.Point(86, 345);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(112, 17);
+            this.label3.Size = new System.Drawing.Size(88, 13);
             this.label3.TabIndex = 7;
             this.label3.Text = "mqtt password";
             // 
@@ -125,7 +128,7 @@
             // 
             this.textMqttUser.Location = new System.Drawing.Point(89, 306);
             this.textMqttUser.Name = "textMqttUser";
-            this.textMqttUser.Size = new System.Drawing.Size(183, 22);
+            this.textMqttUser.Size = new System.Drawing.Size(183, 19);
             this.textMqttUser.TabIndex = 5;
             this.textMqttUser.TextChanged += new System.EventHandler(this.textMqttUser_TextChanged);
             // 
@@ -135,7 +138,7 @@
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.Location = new System.Drawing.Point(86, 286);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(76, 17);
+            this.label4.Size = new System.Drawing.Size(59, 13);
             this.label4.TabIndex = 5;
             this.label4.Text = "mqtt user";
             // 
@@ -143,7 +146,7 @@
             // 
             this.textNtpPort.Location = new System.Drawing.Point(352, 269);
             this.textNtpPort.Name = "textNtpPort";
-            this.textNtpPort.Size = new System.Drawing.Size(184, 22);
+            this.textNtpPort.Size = new System.Drawing.Size(184, 19);
             this.textNtpPort.TabIndex = 8;
             this.textNtpPort.TextChanged += new System.EventHandler(this.textNtpPort_TextChanged);
             // 
@@ -153,7 +156,7 @@
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.Location = new System.Drawing.Point(349, 249);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(65, 17);
+            this.label5.Size = new System.Drawing.Size(51, 13);
             this.label5.TabIndex = 11;
             this.label5.Text = "ntp port";
             // 
@@ -161,7 +164,7 @@
             // 
             this.textNtpAddress.Location = new System.Drawing.Point(352, 207);
             this.textNtpAddress.Name = "textNtpAddress";
-            this.textNtpAddress.Size = new System.Drawing.Size(184, 22);
+            this.textNtpAddress.Size = new System.Drawing.Size(184, 19);
             this.textNtpAddress.TabIndex = 7;
             this.textNtpAddress.TextChanged += new System.EventHandler(this.textNtpAddress_TextChanged);
             // 
@@ -171,7 +174,7 @@
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label6.Location = new System.Drawing.Point(349, 187);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(94, 17);
+            this.label6.Size = new System.Drawing.Size(73, 13);
             this.label6.TabIndex = 9;
             this.label6.Text = "ntp address";
             // 
@@ -179,7 +182,7 @@
             // 
             this.textVersion.Location = new System.Drawing.Point(89, 129);
             this.textVersion.Name = "textVersion";
-            this.textVersion.Size = new System.Drawing.Size(88, 22);
+            this.textVersion.Size = new System.Drawing.Size(88, 19);
             this.textVersion.TabIndex = 1;
             this.textVersion.TextChanged += new System.EventHandler(this.textVersion_TextChanged);
             // 
@@ -189,7 +192,7 @@
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label7.Location = new System.Drawing.Point(86, 94);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(179, 17);
+            this.label7.Size = new System.Drawing.Size(141, 13);
             this.label7.TabIndex = 13;
             this.label7.Text = "versione config. default";
             // 
@@ -197,7 +200,7 @@
             // 
             this.textBetaVersion.Location = new System.Drawing.Point(207, 129);
             this.textBetaVersion.Name = "textBetaVersion";
-            this.textBetaVersion.Size = new System.Drawing.Size(88, 22);
+            this.textBetaVersion.Size = new System.Drawing.Size(88, 19);
             this.textBetaVersion.TabIndex = 2;
             this.textBetaVersion.TextChanged += new System.EventHandler(this.textBetaVersion_TextChanged);
             // 
@@ -207,7 +210,7 @@
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.Location = new System.Drawing.Point(183, 129);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(18, 17);
+            this.label8.Size = new System.Drawing.Size(15, 13);
             this.label8.TabIndex = 16;
             this.label8.Text = "B";
             // 
@@ -226,23 +229,23 @@
             // 
             this.textApnName.Location = new System.Drawing.Point(649, 207);
             this.textApnName.Name = "textApnName";
-            this.textApnName.Size = new System.Drawing.Size(184, 22);
+            this.textApnName.Size = new System.Drawing.Size(184, 19);
             this.textApnName.TabIndex = 9;
             this.textApnName.TextChanged += new System.EventHandler(this.textApnName_TextChanged);
             // 
             // textApnUser
             // 
-            this.textApnUser.Location = new System.Drawing.Point(649, 269);
+            this.textApnUser.Location = new System.Drawing.Point(13, 26);
             this.textApnUser.Name = "textApnUser";
-            this.textApnUser.Size = new System.Drawing.Size(184, 22);
+            this.textApnUser.Size = new System.Drawing.Size(184, 19);
             this.textApnUser.TabIndex = 10;
             this.textApnUser.TextChanged += new System.EventHandler(this.textApnUser_TextChanged);
             // 
             // textApnPassword
             // 
-            this.textApnPassword.Location = new System.Drawing.Point(649, 331);
+            this.textApnPassword.Location = new System.Drawing.Point(13, 81);
             this.textApnPassword.Name = "textApnPassword";
-            this.textApnPassword.Size = new System.Drawing.Size(184, 22);
+            this.textApnPassword.Size = new System.Drawing.Size(184, 19);
             this.textApnPassword.TabIndex = 11;
             this.textApnPassword.TextChanged += new System.EventHandler(this.textApnPassword_TextChanged);
             // 
@@ -252,7 +255,7 @@
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label9.Location = new System.Drawing.Point(646, 187);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(79, 17);
+            this.label9.Size = new System.Drawing.Size(62, 13);
             this.label9.TabIndex = 21;
             this.label9.Text = "apn name";
             // 
@@ -260,9 +263,9 @@
             // 
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(646, 252);
+            this.label10.Location = new System.Drawing.Point(10, 10);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(72, 17);
+            this.label10.Size = new System.Drawing.Size(56, 13);
             this.label10.TabIndex = 22;
             this.label10.Text = "apn user";
             // 
@@ -270,22 +273,46 @@
             // 
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label11.Location = new System.Drawing.Point(646, 311);
+            this.label11.Location = new System.Drawing.Point(10, 65);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(108, 17);
+            this.label11.Size = new System.Drawing.Size(85, 13);
             this.label11.TabIndex = 23;
             this.label11.Text = "apn password";
             // 
+            // groupBox1apn
+            // 
+            this.groupBox1apn.Controls.Add(this.label11);
+            this.groupBox1apn.Controls.Add(this.label10);
+            this.groupBox1apn.Controls.Add(this.textApnPassword);
+            this.groupBox1apn.Controls.Add(this.textApnUser);
+            this.groupBox1apn.Location = new System.Drawing.Point(649, 272);
+            this.groupBox1apn.Name = "groupBox1apn";
+            this.groupBox1apn.Size = new System.Drawing.Size(215, 121);
+            this.groupBox1apn.TabIndex = 24;
+            this.groupBox1apn.TabStop = false;
+            this.groupBox1apn.Enabled = false;
+            
+            // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Location = new System.Drawing.Point(649, 249);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(180, 17);
+            this.checkBox1.TabIndex = 25;
+            this.checkBox1.Text = "Enable apn User/Password";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.Checked = false;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // Form1
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(907, 564);
-            this.Controls.Add(this.label11);
-            this.Controls.Add(this.label10);
+            this.Controls.Add(this.checkBox1);
+            this.Controls.Add(this.groupBox1apn);
             this.Controls.Add(this.label9);
-            this.Controls.Add(this.textApnPassword);
-            this.Controls.Add(this.textApnUser);
             this.Controls.Add(this.textApnName);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label8);
@@ -309,6 +336,8 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
             this.Text = "GME Default Parameter Generator";
+            this.groupBox1apn.ResumeLayout(false);
+            this.groupBox1apn.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -340,6 +369,8 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.GroupBox groupBox1apn;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }
 
