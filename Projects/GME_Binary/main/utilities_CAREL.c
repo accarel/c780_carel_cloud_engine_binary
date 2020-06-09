@@ -57,17 +57,6 @@ static void Utilities_ScanGWConfigData(void){
 }
 
 req_set_gw_config_t* Utilities__GetGWConfigData(void){
-
-    #ifdef CHINESE_HW_TEST
-	//TODO Bilato che sia il caso che se gw_config_data contiene dati non corretti questi vengano forzati
-	//a questi ad esempio ?
-	gw_config_data.statusPeriod = 300;
-	gw_config_data.lowspeedsamplevalue = 600;
-	gw_config_data.hispeedsamplevalue = 300;
-	gw_config_data.mqttKeepAliveInterval = 60;
-	gw_config_data.valuesPeriod = 600;
-    #endif
-
 	return &gw_config_data;
 }
 

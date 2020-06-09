@@ -216,18 +216,6 @@ void Carel_Main_Task(void)
 			NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
 			NVM__ReadU8Value(SET_DEVS_CONFIG_NVM, &devs_config_status);
 
-
-            #ifdef CHINESE_HW_TEST
-				/* this row force the device to be active immediately without a
-				 * remote configuration */
-				NVM__WriteU8Value(SET_GW_CONFIG_NVM, CONFIGURED);
-				NVM__WriteU8Value(SET_LINE_CONFIG_NVM, CONFIGURED);
-				NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED);
-				NVM__WriteU32Value(MB_BAUDRATE_NVM, 19200);
-				NVM__WriteU8Value(MB_CONNECTOR_NVM, 2);   //write "1" for rs485/ "2" for ttl
-				NVM__WriteU32Value(MB_DELAY_NVM, 0);      // no polling delay
-            #endif
-
 			if(( CONFIGURED == gw_config_status &&
 				 CONFIGURED == line_config_status &&
 				 CONFIGURED == devs_config_status))
