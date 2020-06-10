@@ -89,6 +89,10 @@ namespace CustumCfgGenerator
             string cfg_data     = null;
             string cfg_data_usr = null;
 
+            byte[] temp_mqtt_pssw = new byte[NUM_OF_PSSW];
+            byte[] temp_mqtt_user = new byte[NUM_OF_USER];
+
+
             ushort randomNum = 0;
 
             string batch_file = "\\spiffs_image\\go_make_spiffs.bat";
@@ -157,11 +161,14 @@ namespace CustumCfgGenerator
                             writer.Write(mySpiffs.mqtt_broker);
                             writer.Write(mySpiffs.mqtt_port);
 
-                            encrypt(mySpiffs.mqtt_pssw, randomNum);                           
-                            writer.Write(mySpiffs.mqtt_pssw);
 
-                            encrypt(mySpiffs.mqtt_user, randomNum);
-                            writer.Write(mySpiffs.mqtt_user);
+                            Array.Copy(mySpiffs.mqtt_pssw, 0, temp_mqtt_pssw, 0, temp_mqtt_pssw.Length);
+                            encrypt(temp_mqtt_pssw, randomNum);                           
+                            writer.Write(temp_mqtt_pssw);
+
+                            Array.Copy(mySpiffs.mqtt_user, 0, temp_mqtt_user, 0, temp_mqtt_user.Length);
+                            encrypt(temp_mqtt_user, randomNum);
+                            writer.Write(temp_mqtt_user);
 
                             writer.Write(mySpiffs.ntp_server);
                             writer.Write(mySpiffs.ntp_port);
