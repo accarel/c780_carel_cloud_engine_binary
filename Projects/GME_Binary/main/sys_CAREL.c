@@ -33,25 +33,12 @@ C_RES Sys__Init (void)
     if (C_SUCCESS != NVM_Init()){
     	PRINTF_DEBUG_SYS("NVS PROBLEM\n");
         return C_FAIL;
-        }
-
+    }
 
     if (C_SUCCESS != File_System_Init()){
     	PRINTF_DEBUG_SYS("SPIFFS PROBLEM\n");
         return C_FAIL;
     }
-
-    //Initializing Factory Reset button
-    //gpio_pad_select_gpio(GPIO_NUM_0);
-    //gpio_set_direction(GPIO_NUM_0, GPIO_MODE_DEF_INPUT);
-
-
-    //Initializing CLI
-    //initialize_console();
-    //initialize_cmdline();
-
-    //Lunch Command Line Task
-    //xTaskCreate(cmdline_handler, "CLI__CmdLine", 2*CONFIG_SYSTEM_EVENT_TASK_STACK_SIZE, NULL, tskIDLE_PRIORITY, CLI__CmdLine );
 
     return C_SUCCESS;
 }
