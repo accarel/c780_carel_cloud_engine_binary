@@ -100,7 +100,7 @@ C_RES MQTT_Start(void)
 		if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
 			strcpy(mqtt_cfg_nvm.username, Utilities__GetMACAddr());
 		else if (PLATFORM(PLATFORM_DETECTED_2G))
-			strcpy(mqtt_cfg_nvm.username, Utilities__GetIMEICode());
+			strcpy(mqtt_cfg_nvm.username, Mobile__GetImeiCode());
 	}
 
 

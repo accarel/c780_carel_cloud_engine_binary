@@ -31,7 +31,6 @@
 size_t getFilesize(const char* filename);
 void Utilities__CalcMACAddr(void);
 char* Utilities__GetMACAddr(void);
-char* Utilities__GetIMEICode(void);
 void Utilities__Init(void);
 req_set_gw_config_t* Utilities__GetGWConfigData(void);
 

@@ -47,10 +47,6 @@ char* Utilities__CalcIMEICode(void){
 	return Mobile__GetImeiCode();
 }
 
-char* Utilities__GetIMEICode(void){
-	return gsm_imei_gw_str;
-}
-
 static void Utilities_ScanGWConfigData(void){
 	size_t len = 0;
 	NVM__ReadBlob(SET_GW_PARAM_NVM, (void*)&gw_config_data, &len);

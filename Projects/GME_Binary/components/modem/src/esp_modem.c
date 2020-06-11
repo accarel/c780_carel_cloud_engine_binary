@@ -579,7 +579,7 @@ static uint32_t pppos_low_level_output(ppp_pcb *pcb, uint8_t *data, uint32_t len
     return dte->send_data(dte, (const char *)data, len);
 }
 
-esp_err_t esp_modem_setup_ppp(modem_dte_t *dte, char* apn)
+esp_err_t esp_modem_setup_ppp(modem_dte_t *dte, char* apn, char* user, char* password)
 {
     modem_dce_t *dce = dte->dce;
     MODEM_CHECK(dce, "DTE has not yet bind with DCE", err);
@@ -601,9 +601,10 @@ esp_err_t esp_modem_setup_ppp(modem_dte_t *dte, char* apn)
     ppp_set_usepeerdns(esp_dte->ppp, 1);
     /* Auth configuration */
 #if PAP_SUPPORT
-    pppapi_set_auth(esp_dte->ppp, PPPAUTHTYPE_PAP, CONFIG_MODEM_PPP_AUTH_USERNAME, CONFIG_MODEM_PPP_AUTH_PASSWORD);
+    printf("PAP_SUPPORT enabled, username %s, password %s\n", user, password);
+    pppapi_set_auth(esp_dte->ppp, PPPAUTHTYPE_PAP, user, password);
 #elif CHAP_SUPPORT
-    pppapi_set_auth(esp_dte->ppp, PPPAUTHTYPE_CHAP, CONFIG_MODEM_PPP_AUTH_USERNAME, CONFIG_MODEM_PPP_AUTH_PASSWORD);
+    pppapi_set_auth(esp_dte->ppp, PPPAUTHTYPE_CHAP, user, password);
 #else
 #error "Unsupported AUTH Negotiation"
 #endif

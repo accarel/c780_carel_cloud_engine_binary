@@ -33,6 +33,8 @@ char* GetMqttPort(char* tmp_mqtt_port);
 char* GetMqttUser(char* tmp_mqtt_user);
 char* GetMqttPassword(char* tmp_mqtt_password);
 char* GetApnName(char* tmp_apn_name);
+char* GetApnUserName(char* tmp_apn_username);
+char* GetApnPassword(char* tmp_apn_password);
 
 void encrypt(char data[],int key);
 void dencrypt(char data[],int key);

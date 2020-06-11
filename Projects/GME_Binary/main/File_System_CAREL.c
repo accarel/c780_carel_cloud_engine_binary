@@ -164,7 +164,8 @@ C_RES SaveCfgDefDataToNVM(void) {
 	err |= NVM__WriteString(MQTT_PORT, CfgData.mqtt_port);
 	err |= NVM__WriteString(NTP_SERVER, CfgData.ntp_server);
 	err |= NVM__WriteString(APN_NAME, CfgData.apn_name);
-	// apn user name and password not managed yet...
+	err |= NVM__WriteString(APN_USERNAME, CfgData.apn_user);
+	err |= NVM__WriteString(APN_PASSWORD, CfgData.apn_password);
 
 	if (err == C_SUCCESS)
 		err = NVM__WriteU8Value(CFG_DEF_NVM, 1);
@@ -208,4 +209,16 @@ char* GetApnName(char* tmp_apn_name){
 	size_t len = 0;
 	NVM__ReadString(APN_NAME, tmp_apn_name, &len);
 	return tmp_apn_name;
+}
+
+char* GetApnUserName(char* tmp_apn_username){
+	size_t len = 0;
+	NVM__ReadString(APN_USERNAME, tmp_apn_username, &len);
+	return tmp_apn_username;
+}
+
+char* GetApnPassword(char* tmp_apn_password){
+	size_t len = 0;
+	NVM__ReadString(APN_PASSWORD, tmp_apn_password, &len);
+	return tmp_apn_password;
 }

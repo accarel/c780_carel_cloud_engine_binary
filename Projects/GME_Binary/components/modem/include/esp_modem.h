@@ -129,7 +129,7 @@ typedef struct {
  *      - ESP_OK on success
  *      - ESP_FAIL on error
  */
-esp_err_t esp_modem_setup_ppp(modem_dte_t *dte, char* apn);
+esp_err_t esp_modem_setup_ppp(modem_dte_t *dte, char* apn, char* user, char* password);
 
 /**
  * @brief Exit PPP Session

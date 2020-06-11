@@ -34,6 +34,8 @@
 #define NTP_SERVER "ntp_server"
 
 #define APN_NAME "apn"
+#define APN_USERNAME "apn_user"
+#define APN_PASSWORD "apn_pass"
 
 #if NVM_DEBUG == 1
 	#define	PRINTF_DEBUG_NVM	printf

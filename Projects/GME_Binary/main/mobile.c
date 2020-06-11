@@ -90,10 +90,10 @@ gme_sm_t Mobile__Config(void){
 
     ESP_ERROR_CHECK(dce->get_qeng(dce));
 
-    ESP_LOGI(TAG, "Module: %s", dce->mcc);
-    ESP_LOGI(TAG, "Operator: %s", dce->mnc);
-    ESP_LOGI(TAG, "IMEI: %s", dce->lac);
-    ESP_LOGI(TAG, "IMSI: %s", dce->cellid);
+    ESP_LOGI(TAG, "MCC: %s", dce->mcc);
+    ESP_LOGI(TAG, "MNC: %s", dce->mnc);
+    ESP_LOGI(TAG, "LAC: %s", dce->lac);
+    ESP_LOGI(TAG, "CELLID: %s", dce->cellid);
 
     Mobile__SaveMccCode(dce->mcc);
     Mobile__SaveMncCode(dce->mnc);
@@ -113,7 +113,9 @@ gme_sm_t Mobile__Config(void){
 
     /* Setup PPP environment */
     char tmp_apn_name[64];
-    esp_modem_setup_ppp(dte, GetApnName(tmp_apn_name));
+    char tmp_username[64];
+    char tmp_password[64];
+    esp_modem_setup_ppp(dte, GetApnName(tmp_apn_name), GetApnUserName(tmp_username), GetApnPassword(tmp_password));
 
     return GME_WAITING_FOR_INTERNET;
 
