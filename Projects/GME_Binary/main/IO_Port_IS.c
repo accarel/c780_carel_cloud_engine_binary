@@ -258,7 +258,7 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 	{
 	   case GSM_PWRKEY_ON :
 		   /* pulse the pin to enable the module see M95 manual */
-		     Sys__Delay(GSM_PWRKEY_ON_TIME);
+		     Sys__Delay(GSM_PWRKEY_TIME);
 		     gpio_set_level(GSM_PWRKEY_PIN, 1);
 		     Sys__Delay(2000);				// TODO, set to a reasonable value, this way it works
 		     gpio_set_level(GSM_PWRKEY_PIN, 0);
@@ -269,7 +269,7 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 	   case GSM_PWRKEY_OFF:
 		   /* pulse the pin to enable the module see M95 manual */
 		   gpio_set_level(GSM_PWRKEY_PIN, 1);
-		   Sys__Delay(GSM_PWRKEY_OFF_TIME);
+		   Sys__Delay(GSM_PWRKEY_TIME);
 		   gpio_set_level(GSM_PWRKEY_PIN, 0);
 		   break;
 
