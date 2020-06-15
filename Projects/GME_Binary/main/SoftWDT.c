@@ -77,3 +77,14 @@ void SoftWDT_Manager(void){
     }
    
   }
+
+
+/*
+    called by task_wdt_isr function (ISR for when TWDT times out)
+*/
+void esp_task_wdt_isr_user_handler(void)
+{
+	/* restart firmware */
+	esp_restart();
+}
+
