@@ -107,7 +107,7 @@
 //TODO CHIEBAO da sistemare
 #define TTL_TXD_2G				GPIO_NUM_21
 #define TTL_RXD_2G				GPIO_NUM_3
-#define TTL_RTS_2G				GPIO_NUM_1
+#define TTL_DIR_2G				GPIO_NUM_1
 
 
 #define LED_GREEN_2G     		GPIO_NUM_27

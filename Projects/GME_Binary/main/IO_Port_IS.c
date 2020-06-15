@@ -43,6 +43,7 @@ int ECHO_TEST_RXD = -1;
 int ECHO_TEST_RTS = -1;
 int TTL_TXD = -1;
 int TTL_RXD = -1;
+int TTL_DIR = -1;
 int TTL_RTS = -1;
 int CONFIG_UART_MODEM_TX_PIN = -1;
 int CONFIG_UART_MODEM_RX_PIN = -1;
@@ -90,28 +91,14 @@ void Init_TTL_Pins(void){
 		ECHO_TEST_RTS = ECHO_TEST_RTS_WIFI;
 		TTL_TXD = TTL_TXD_WIFI;
 		TTL_RXD = TTL_RXD_WIFI;
-		TTL_RTS = TTL_RTS_WIFI;
-		/* the DIR pin is not used right but is use in native BOOT mode
-		   is initialize in this way to not avoid troubles */
-#ifndef __CCL_DEBUG_MODE
-		gpio_pad_select_gpio(TTL_DIR_WIFI);
- 	    gpio_set_direction(TTL_DIR_WIFI, GPIO_MODE_INPUT);
- 	    gpio_set_pull_mode(TTL_DIR_WIFI, GPIO_FLOATING);
-#endif
+		TTL_DIR = TTL_DIR_WIFI;
 	}
 	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
 		ECHO_TEST_TXD = ECHO_TEST_TXD_2G;
 		ECHO_TEST_RXD = ECHO_TEST_RXD_2G;
 		TTL_TXD = TTL_TXD_2G;
 		TTL_RXD = TTL_RXD_2G;
-		TTL_RTS = TTL_RTS_2G;
-		/* the DIR pin is not used right but is use in native BOOT mode
-		   is initialize in this way to not avoid troubles */
-#ifndef __CCL_DEBUG_MODE
-		gpio_pad_select_gpio(TTL_DIR_WIFI);
- 	    gpio_set_direction(TTL_DIR_WIFI, GPIO_MODE_INPUT);
- 	    gpio_set_pull_mode(TTL_DIR_WIFI, GPIO_FLOATING);
-#endif
+		TTL_DIR = TTL_DIR_2G;
 	}
 	else if (PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT)) {
 		ECHO_TEST_TXD = ECHO_TEST_TXD_WROVER;
@@ -126,6 +113,15 @@ void Init_TTL_Pins(void){
 		TTL_RXD = TTL_RXD_BCU;
 		TTL_RTS = TTL_RTS_BCU;
 	}
+#ifndef __CCL_DEBUG_MODE
+	/* TTL_DIR pin is used in native BOOT mode
+	   it must be left floating input */
+	if(TTL_DIR >= 0) {
+		gpio_pad_select_gpio(TTL_DIR);
+		gpio_set_direction(TTL_DIR, GPIO_MODE_INPUT);
+		gpio_set_pull_mode(TTL_DIR, GPIO_FLOATING);
+	}
+#endif
 }
 
 int Get_TEST_TXD(void){
