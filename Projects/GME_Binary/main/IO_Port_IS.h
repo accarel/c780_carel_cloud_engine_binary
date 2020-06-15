@@ -29,7 +29,7 @@
 /* ========================================================================== */
 /* general purpose I/O common to all                                          */
 /* ========================================================================== */
-#define HW_PLATFORM_DETECT_PIN GPIO_NUM_34
+#define HW_PLATFORM_DETECT_PIN  GPIO_NUM_34
 
 /* ========================================================================== */
 /* bCU only related I/O                                                       */
@@ -57,76 +57,68 @@
 #define TTL_RXD_WROVER				GPIO_NUM_3
 #define TTL_RTS_WROVER				GPIO_NUM_1
 
+// leds
+#define LED_GREEN_ESP_WROVER_KIT       GPIO_NUM_2
+#define LED_RED_ESP_WROVER_KIT  	   GPIO_NUM_0
+#define LED_BLU_ESP_WROVER_KIT         GPIO_NUM_4
+
+// button pin
+#define CONFIG_RESET_BUTTON_WROVER	GPIO_NUM_19
+
 /* ========================================================================== */
 /* WiFi only related I/O                                                      */
 /* ========================================================================== */
 
+// RS485
 #define ECHO_TEST_TXD_WIFI		GPIO_NUM_26
 #define ECHO_TEST_RXD_WIFI		GPIO_NUM_25
-// RTS for RS485 Half-Duplex Mode manages DE/~RE
-#define ECHO_TEST_RTS_WIFI		GPIO_NUM_22
 
-// for TTL one wire
+// TTL one wire
 #define TTL_TXD_WIFI			GPIO_NUM_21
 #define TTL_RXD_WIFI			GPIO_NUM_3
-//the DIR pin is not used
+// the DIR pin is not used
 #define TTL_DIR_WIFI			GPIO_NUM_1
 
-
-
-
-
-
-//#define TTL_TXD       (GPIO_NUM_1)
-//#define TTL_RXD 		(GPIO_NUM_3)
-
-//TODO Bilato eliminabile questo pin ?
-#define TTL_RTS_WIFI			GPIO_NUM_22
-
-
-
+// leds
 #define LED_GREEN_WIFI			GPIO_NUM_5
 #define LED_RED_WIFI			GPIO_NUM_27
 
 // button pin
 #define CONFIG_RESET_BUTTON_WIFI	GPIO_NUM_0
-#define CONFIG_RESET_BUTTON_GSM 	GPIO_NUM_0
-#define CONFIG_RESET_BUTTON_WROVER	GPIO_NUM_19
 
 /* ========================================================================== */
 /* 2G only related I/O                                                        */
 /* ========================================================================== */
 
-#define GSM_POWER_CTRL_PIN   GPIO_NUM_22
-#define GSM_PWRKEY_PIN       	GPIO_NUM_23
-
+// RS485
 #define ECHO_TEST_TXD_2G		GPIO_NUM_26
 #define ECHO_TEST_RXD_2G		GPIO_NUM_25
 
-// for TTL one wire
-//TODO CHIEBAO da sistemare
+// TTL one wire
 #define TTL_TXD_2G				GPIO_NUM_21
 #define TTL_RXD_2G				GPIO_NUM_3
+// the DIR pin is not used
 #define TTL_DIR_2G				GPIO_NUM_1
 
-
+// leds
 #define LED_GREEN_2G     		GPIO_NUM_27
 #define LED_RED_2G       		GPIO_NUM_5
 #define LED_BLU_2G       		GPIO_NUM_33
 
+// M95 port
 #define CONFIG_UART_MODEM_PORT 		1
-
-
+// M95 powering
+#define GSM_POWER_CTRL_PIN   	GPIO_NUM_22
+#define GSM_PWRKEY_PIN       	GPIO_NUM_23
+// M95 serial
 #define UART_MODEM_TX_2G		GPIO_NUM_17
 #define UART_MODEM_RX_2G		GPIO_NUM_16
 
-/* ========================================================================== */
-/* 2G only defines and constants                                              */
-/* ========================================================================== */
+// button pin
+#define CONFIG_RESET_BUTTON_GSM 	GPIO_NUM_0
 
-/* take a look to M95_Hardware_Design time are in ms */
-#define GSM_PWRKEY_ON_TIME		1000
-#define GSM_PWRKEY_OFF_TIME		1000
+// M95 power key press time [ms]
+#define GSM_PWRKEY_TIME		1000
 
 
  typedef enum{
@@ -143,9 +135,6 @@
 /* ========================================================================== */
 /* debugging board only related I/O                                           */
 /* ========================================================================== */
-#define LED_GREEN_ESP_WROVER_KIT       GPIO_NUM_2
-#define LED_RED_ESP_WROVER_KIT  	   GPIO_NUM_0
-#define LED_BLU_ESP_WROVER_KIT         GPIO_NUM_4
 
 
 
