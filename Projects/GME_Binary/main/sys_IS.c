@@ -115,10 +115,6 @@ void Sys__ResetCheck(void){
 					PRINTF_DEBUG_SYS("button pressed again after %d, between 0 and 5 seconds: go FACTORY\n", CurrentTime - TimerForButton);
 
 					// do fact setting
-					while(STOPPED != PollEngine_GetPollingStatus_CAREL())
-						Sys__Delay(100);
-					PollEngine_StopEngine_CAREL();
-
 					NVM__EraseAll();
 					unlink(MODEL_FILE);
 					PRINTF_DEBUG_SYS("Rebooting after factory setting\n");
