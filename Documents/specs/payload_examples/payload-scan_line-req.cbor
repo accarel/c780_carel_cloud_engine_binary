@@ -1,6 +1,7 @@
 {
     // this is in addition to request header.
                                          //TAG TYPE
-   empty
+   "dev": 1,                             //C_UINT16, address to query, if 0 all addresses are queried 
+                                         //          response is sent as soon as the first (the only one for GME) device answers
  
 }
