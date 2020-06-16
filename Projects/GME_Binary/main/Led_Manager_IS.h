@@ -32,7 +32,6 @@
 
 /* time in seconds */
 #define LED_BLINK_FAST_INTERVAL    		0
-#define LED_BLINK_NOTSOFAST_INTERVAL	1
 #define LED_BLINK_SLOW_INTERVAL    		2
 
 #define LED_STAT_OFF   0

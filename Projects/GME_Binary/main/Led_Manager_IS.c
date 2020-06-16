@@ -44,8 +44,6 @@ int LED_GREEN = -1;
 int LED_RED = -1;
 int LED_BLU = -1;
 
-int led_blink_fast_interval;
-
 /* ========================================================================== */
 /* development platform                                                       */
 /* ========================================================================== */
@@ -75,8 +73,6 @@ typedef enum{
 	LED_GREEN_ON  = 2
 }Led_Bicolor_Status_t;
 
-volatile C_BYTE bicolor_led = LED_BOTH_OFF;
-
 /* ========================================================================== */
 /*  COMMON PART                                                               */
 /* ========================================================================== */
@@ -94,14 +90,6 @@ typedef enum{
  *        each platform could be used different led or indication 
  */
 volatile C_UINT16 led_current_status = 0;
-
-
-/* contain the current status of the led used to restore
- * previous condition if needed */
-C_BYTE red_led_current_status;
-C_BYTE green_led_current_status;
-C_BYTE blu_led_current_status;
-
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #define LED_TASK_TASK_STACK_SIZE   (1024)
@@ -233,11 +221,6 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
   	  blink_status = blink_status_blu;
   	  blink_timer = blink_timer_blu;
   }
- if ((led == LED_GREEN) && ((led_current_status & LED_STAT_FACT_DEF_A) || (led_current_status & LED_STAT_FACT_DEF_B)))
-    {
-    	//if factory def triggered override the configuration
-    	return;
-    }
 
     switch (status)
 	{
@@ -264,16 +247,6 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
             {
 		      /* put the I/O instruction here */
 		      #ifdef INCLUDE_PLATFORM_DEPENDENT
-				if PLATFORM(PLATFORM_DETECTED_WIFI) {
-					if (bicolor_led == LED_BOTH_OFF) {
-						/* to avoid conflict change immediately like a semaphore*/
-						bicolor_led = LED_RED_ON;
-
-						gpio_set_level(LED_GREEN, LED_PHY_OFF);
-						gpio_set_level(LED_RED,   LED_PHY_ON);
-					}
-				}
-				else
 					gpio_set_level(led, LED_PHY_ON);
               #endif
 
@@ -284,13 +257,8 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
 			  /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
             	if PLATFORM(PLATFORM_DETECTED_WIFI) {
-            		if (bicolor_led == LED_RED_ON) {
-					  /* to avoid conflict change immediately like a semaphore*/
-					  bicolor_led = LED_BOTH_OFF;
-
+					  gpio_set_level(LED_RED, LED_PHY_OFF);
 					  gpio_set_level(LED_GREEN, LED_PHY_OFF);
-					  gpio_set_level(LED_RED,   LED_PHY_OFF);
-					}
            		}
        			else
        				gpio_set_level(led, LED_PHY_OFF);
@@ -304,7 +272,6 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
 
           break;
 
-         //TODO BILATO refactor to make code compact
 		case LED_BLINK_FAST:
 		  /* put the I/O instruction here */
 
@@ -314,17 +281,7 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
             {
 		     /* put the I/O instruction here */
              #ifdef INCLUDE_PLATFORM_DEPENDENT
-            	if PLATFORM(PLATFORM_DETECTED_WIFI) {
-					if (bicolor_led == LED_BOTH_OFF) {
-					  /* to avoid conflict change immediately like a semaphore*/
-					  bicolor_led = LED_RED_ON;
-
-					  gpio_set_level(LED_GREEN, LED_PHY_OFF);
-					  gpio_set_level(LED_RED,   LED_PHY_ON);
-					}
-            	}
-            	else
-            		gpio_set_level(led, LED_PHY_ON);
+          		  gpio_set_level(led, LED_PHY_ON);
              #endif
              blink_status = LED_ON;
             }
@@ -333,20 +290,15 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
               /* put the I/O instruction here */
 			  #ifdef INCLUDE_PLATFORM_DEPENDENT
             	if PLATFORM(PLATFORM_DETECTED_WIFI) {
-            		if (bicolor_led == LED_RED_ON) {
-					  /* to avoid conflict change immediately like a semaphore*/
-					  bicolor_led = LED_BOTH_OFF;
-
-					  gpio_set_level(LED_GREEN, LED_PHY_OFF);
-					  gpio_set_level(LED_RED,   LED_PHY_OFF);
-					}
+				  gpio_set_level(LED_RED, LED_PHY_OFF);
+				  gpio_set_level(LED_GREEN, LED_PHY_OFF);
             	}
             	else
-            		gpio_set_level(led,   LED_PHY_OFF);
+            		gpio_set_level(led, LED_PHY_OFF);
 			  #endif
               blink_status = LED_OFF;
             }
-			blink_timer = RTC_Get_UTC_Current_Time() + led_blink_fast_interval;
+			blink_timer = RTC_Get_UTC_Current_Time() + LED_BLINK_FAST_INTERVAL;
 		  }
 
           break;
@@ -355,17 +307,14 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
     if (led == LED_RED){
   	  blink_status_red = blink_status;
   	  blink_timer_red = blink_timer;
-  	  red_led_current_status = status;
     }
     else if (led == LED_GREEN){
   	  blink_status_green = blink_status;
   	  blink_timer_green = blink_timer;
-  	  green_led_current_status = status;
     }
     else if (led == LED_BLU){
       blink_status_blu = blink_status;
       blink_timer_blu = blink_timer;
-      blu_led_current_status = status;
     }
 }
 
@@ -501,10 +450,6 @@ void Update_Led_Fact_Def_A_2g(C_BYTE fact_def_a_status)
 	{
 		Led_Status_Update(LED_BLINK_SLOW, LED_GREEN);
 	}
-	else
-	{
-		Led_Status_Update(green_led_current_status, LED_GREEN);
-	}
 }
 
 void Update_Led_Fact_Def_B_2g(C_BYTE fact_def_a_status)
@@ -512,10 +457,6 @@ void Update_Led_Fact_Def_B_2g(C_BYTE fact_def_a_status)
 	if (fact_def_a_status == 1)
 	{
 		Led_Status_Update(LED_BLINK_FAST, LED_GREEN);
-	}
-	else
-	{
-		Led_Status_Update(green_led_current_status, LED_GREEN);
 	}
 }
 
@@ -580,10 +521,6 @@ void Update_Led_Fact_Def_A_esp_wrover_kit(C_BYTE fact_def_a_status)
 	{
 		Led_Status_Update(LED_BLINK_SLOW, LED_RED);
 	}
-	else
-	{
-		Led_Status_Update(red_led_current_status, LED_RED);
-	}
 }
 
 void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
@@ -591,10 +528,6 @@ void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
 	if (fact_def_b_status == 1)
 	{
 		Led_Status_Update(LED_BLINK_FAST, LED_RED);
-	}
-	else
-	{
-		Led_Status_Update(red_led_current_status, LED_RED);
 	}
 }
 
@@ -663,26 +596,18 @@ void Update_Led_Fact_Def_A_wifi(C_BYTE fact_def_a_status)
 
 	if (fact_def_a_status == 1)
 	{
-  	 Led_Status_Update(LED_BLINK_SLOW, LED_RED);
+		Led_Status_Update(LED_OFF, LED_RED);
+		Led_Status_Update(LED_BLINK_FAST, LED_GREEN);
 	}
-	else
-	{
-	  Led_Status_Update(red_led_current_status, LED_RED);
-	}
-
 }
 
 void Update_Led_Fact_Def_B_wifi(C_BYTE fact_def_b_status)
 {
 	if (fact_def_b_status == 1)
 	{
-  	  Led_Status_Update(LED_BLINK_FAST, LED_RED);
+		Led_Status_Update(LED_OFF, LED_GREEN);
+		Led_Status_Update(LED_BLINK_FAST, LED_RED);
 	}
-	else
-	{
-	  Led_Status_Update(red_led_current_status, LED_RED);
-	}
-
 }
 
 //#endif
@@ -694,7 +619,6 @@ void Update_Led_Fact_Def_B_wifi(C_BYTE fact_def_b_status)
 
 void Led_Pin_Init(void){
 
-	led_blink_fast_interval = LED_BLINK_FAST_INTERVAL;
 	if PLATFORM(PLATFORM_DETECTED_BCU){
 		LED_GREEN = LED_GREEN_BCU;
 	}
@@ -703,7 +627,7 @@ void Led_Pin_Init(void){
 		LED_GREEN = LED_GREEN_ESP_WROVER_KIT;
 		LED_BLU = LED_BLU_ESP_WROVER_KIT;
 	}
-	/* pin is pull down on 2G and pull upped on WiFi*/
+	/* pin is pull down on 2G and pull up on WiFi*/
 	if PLATFORM(PLATFORM_DETECTED_2G){
 		LED_RED = LED_RED_2G;
 		LED_GREEN = LED_GREEN_2G;
@@ -712,7 +636,6 @@ void Led_Pin_Init(void){
 	if PLATFORM(PLATFORM_DETECTED_WIFI){
 		LED_RED = LED_RED_WIFI;
 		LED_GREEN = LED_GREEN_WIFI;
-		led_blink_fast_interval = LED_BLINK_NOTSOFAST_INTERVAL;	// bicolor led requires slower switching times
 	}
 }
 
