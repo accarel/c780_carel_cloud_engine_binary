@@ -14,3 +14,5 @@ patch components/freemodbus/modbus/include/mbconfig.h ~/esp/GME_Binary/patches/0
 # collect messages longer than 120 bytes
 patch components/freemodbus/port/portserial_m.c ~/esp/GME_Binary/patches/0005_receive_mesg_longer_than_120.patch
 patch components/freemodbus/modbus/include/mbport.h ~/esp/GME_Binary/patches/0006_receive_mesg_longer_than_120.patch
+# in ota process, erase in chunks to yield for a while in between (thus avoiding task starvation) 
+patch components/app_update/esp_ota_ops.c ~/esp/GME_Binary/patches/0007_erase_ota_in_chunks_to_avoid_starvation.patch
