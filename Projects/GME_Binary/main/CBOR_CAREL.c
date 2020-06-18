@@ -45,6 +45,8 @@ C_CHAR* txbuff;
 uint16_t txbuff_len = 0;
 
 C_UINT16 did;
+c_cborhreq async_req = {0};
+c_cborrequpdgmefw async_update_gw_fw = {0};
 
 /**
  * @brief CBOR_SendAlarms
@@ -1721,7 +1723,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 	c_cborhreq cbor_req = {0};
 	CborError err;
-	C_CHAR cbor_response[RESPONSE_SIZE];		// buffer to store response, maybe better global...
+	C_CHAR cbor_response[RESPONSE_SIZE];
 	size_t len = 0;
 	int ret = 0;
 
@@ -1766,7 +1768,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
             #ifdef __DEBUG_CBOR_CAREL_LEV_1
 			printf("flush_values\n");
             #endif
-			ForceSending();
+			ForceSending();		// TODO move this call after publish? ...that way response to flush is surely sent before forced values
 			cbor_req.res = SUCCESS_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -1899,25 +1901,11 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqUpdateGMEFW(cbor_stream, cbor_len, &update_gw_fw);
 			if (err == C_SUCCESS) {
-
 				Modbus_Disable();
-
+				CBOR_SaveAsyncRequest(cbor_req, &update_gw_fw);
 				OTA__GMEInit(update_gw_fw);
-				cbor_req.res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
-				OTA_GMEEnd();
 			}
-			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-			if(cbor_req.res == SUCCESS_CMD){
-				PollEngine_StopEngine_CAREL();
-				// save cid for successive hello
-				NVM__WriteU32Value(MB_CID_NVM, update_gw_fw.cid);
-				GME__Reboot();
-			}
-
-			// it could be RUNNING or STOPPED, at least it was running and we put it again in running mode
-			Modbus_Enable();
+			// response will be sent when ota task will come to its end
 		}
 		break;
 
@@ -1929,7 +1917,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 			if (err == C_SUCCESS) {
-				// here we don't disable modbus, the file transfer are necessary!!!
 				err = OTA__DevFWUpdate(&update_dev_fw);
 			}
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
@@ -2057,6 +2044,31 @@ C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
     #endif
 
 	return C_SUCCESS;
+}
+
+void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, void* update_gw_fw){
+	c_cborrequpdgmefw* tmp = (c_cborrequpdgmefw*)update_gw_fw;
+	async_req = cbor_req;
+	async_update_gw_fw = *tmp;
+}
+
+void CBOR_SendAsyncResponse(C_INT16 res){
+	C_CHAR cbor_response[RESPONSE_SIZE];
+	C_MQTT_TOPIC topic;
+
+	async_req.res = res;
+	size_t len = CBOR_ResSimple(cbor_response, &async_req);
+	sprintf(topic,"%s%s", "/res/", async_req.rto);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+	if(res == SUCCESS_CMD){
+		PollEngine_StopEngine_CAREL();
+		// save cid for successive hello
+		NVM__WriteU32Value(MB_CID_NVM, async_update_gw_fw.cid);
+		GME__Reboot();
+	}
+
+	// it could be RUNNING or STOPPED, at least it was running and we put it again in running mode
+	Modbus_Enable();
 }
 
 

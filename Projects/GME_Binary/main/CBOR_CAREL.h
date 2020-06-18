@@ -309,6 +309,8 @@ char* CBOR_GetPartNumber(void);
 
 //long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
 void Manage_Report_SlaveId_CAREL( C_CHAR * pucFrame, C_UINT16 * usLen);
+void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, void* update_gw_fw);
+void CBOR_SendAsyncResponse(C_INT16 res);
 #ifdef __cplusplus
 }
 #endif

@@ -219,5 +219,10 @@ void OTAGroup (bool ota_res){
 	}else{
 		xEventGroupSetBits(s_ota_gme_group, OTA_GME_FAIL);
 	}
+	C_INT16 res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
+	OTA_GMEEnd();
+
+	CBOR_SendAsyncResponse(res);
+
 #endif
 }
