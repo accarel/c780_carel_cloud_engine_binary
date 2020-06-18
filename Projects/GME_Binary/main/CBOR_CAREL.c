@@ -1854,57 +1854,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		}
 		break;
 
-# if 0
-		/* below code was just sketched, to be checked and tested */
-		case SEND_MB_ADU:		// not tested
-		{
-			C_UINT16 seq = 0;
-			C_CHAR adu[ADU_SIZE];
-			err = CBOR_ReqSendMbAdu(cbor_stream, cbor_len, &seq, adu);
-
-			// execute command (when polling machine available) and gather result
-			// put modbus answer in adu buffer to reuse resources and save memory
-		/*	cbor_req.res = 1; // todo
-			C_UINT16 adulen = 8; // todo
-			adu[0]=0x01;
-			adu[1]=0x03;
-			adu[2]=0x00;
-			adu[3]=0x01;
-			adu[4]=0x00;
-			adu[5]=0x01;
-			adu[6]=0xAA;
-			adu[7]=0xBB;*/
-
-			if(ACTIVATED == PollEngine__GetPassModeStatus()){
-
-				PollEngine_MBSuspend_IS();
-				PollEngine__SetPassModeCMD(RECEIVED);
-
-				uint8_t data_rx[20] = {0};
-				uint8_t data_rx_len;
-//				c_cbor_send_mb_adu send_mb_adu = {0};
-//				parse_send_mb_adu(root, &send_mb_adu);
-//				data_rx_len = PollEngine__SendMBAdu(&send_mb_adu, data_rx);
-data_rx_len=0;
-				// mqtt response
-				if(data_rx_len <= 0)
-					cbor_req.res = ERROR_CMD;
-				else
-					cbor_req.res = SUCCESS_CMD;
-
-				len = CBOR_ResSendMbAdu(cbor_response, &cbor_req, seq, data_rx, data_rx_len);
-				sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-				mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
-
-				PollEngine__SetPassModeCMD(EXECUTED);
-				PollEngine_MBResume_IS();
-
-			}
-
-		}
-		break;
-#endif
-
 		case READ_VALUES:
 		case WRITE_VALUES:
 		{
