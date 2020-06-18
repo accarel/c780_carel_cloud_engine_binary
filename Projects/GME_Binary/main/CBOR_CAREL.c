@@ -2009,22 +2009,6 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		}
 		break;
 
-#if 0
-		/* below code was just sketched, to be checked and tested */
-		case SEND_MB_PASS_THROUGH:	// not tested
-		{
-			C_UINT16 cbor_pass;
-			err = CBOR_ReqSendMbPassThrough(cbor_stream, cbor_len, &cbor_pass);
-			// change pass through mode or just get status
-			PollEngine__ActivatePassMode();
-
-			len = CBOR_ResSendMbPassThrough(cbor_response, &cbor_req, cbor_pass);
-			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
-		}
-		break;
-#endif
-
 		case UPDATE_FILE:
 		{
 			c_cborrequpdatefile update_file = {0};
