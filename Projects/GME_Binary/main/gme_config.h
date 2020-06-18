@@ -32,6 +32,7 @@
 #define HTTP_SERVER_DEBUG 			ENABLED
 #define NVM_DEBUG 					DISABLED
 #define DEEP_DEBUG_PRINTF_DEFAULT 	ENABLED
+#define MYSYS_DEBUG					DISABLED
 #endif
 
 /*-------------------------------

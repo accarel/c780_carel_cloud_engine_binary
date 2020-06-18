@@ -12,9 +12,7 @@
 #include "data_types_CAREL.h" 
 #include "common.h"
 
-
-
-#if SYS_DEBUG == ENABLED
+#if MYSYS_DEBUG == ENABLED
 	#define	PRINTF_DEBUG_SYS	printf
 #else
 	#define	PRINTF_DEBUG_SYS(...)
