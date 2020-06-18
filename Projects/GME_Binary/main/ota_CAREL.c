@@ -113,7 +113,7 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 
 C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 
-	C_RES err, ret = C_FAIL;
+	C_RES err = C_FAIL;
 	uint8_t cert_num;
 	c_http_client_config_t c_config;
 	http_client_handle_t client;
