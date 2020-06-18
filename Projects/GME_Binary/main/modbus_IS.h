@@ -47,4 +47,5 @@ void Modbus__ReadAddressFromNVM(void);
 void Modbus__ReadDelayFromNVM(void);
 C_UINT16 Modbus__GetAddress(void);
 void Modbus__Delay(void);
+C_UINT16 Modbus__GetStatus(void);
 #endif   /* #ifndef __MODBUS_IS_H */

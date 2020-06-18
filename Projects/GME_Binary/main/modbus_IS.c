@@ -48,6 +48,7 @@ static TaskHandle_t MODBUS_TASK = NULL;
 static uint32_t MB_Device = 0;
 static uint16_t MB_Delay = 0;
 
+C_UINT16 ModbusDisabled = 0;
 
 
 /**
@@ -184,17 +185,20 @@ void Modbus_Task(void)
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	while(1)
 	{
-			SoftWDT_Reset(SWWDT_MODBUS_RTU );
+		if(Modbus__GetStatus())
+			Sys__Delay(100);
 
-			eMBMasterPoll();
+		SoftWDT_Reset(SWWDT_MODBUS_RTU );
 
-			BOOL xSentState = xMBMasterPortSerialTxPoll();
+		eMBMasterPoll();
 
-			if (xSentState) {
-				// Let state machine know that response was transmitted out
-				(void)xMBMasterPortEventPost(EV_MASTER_FRAME_TRANSMITTED);
-			}
+		BOOL xSentState = xMBMasterPortSerialTxPoll();
+
+		if (xSentState) {
+			// Let state machine know that response was transmitted out
+			(void)xMBMasterPortEventPost(EV_MASTER_FRAME_TRANSMITTED);
 		}
+	}
 #endif
 }
 
@@ -349,6 +353,10 @@ void Modbus_Disable(void)
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	eMBMasterDisable();
 #endif
+	ModbusDisabled = 1;
+}
+C_UINT16 Modbus__GetStatus(void){
+	return ModbusDisabled;
 }
 
 void Modbus_Enable(void)
