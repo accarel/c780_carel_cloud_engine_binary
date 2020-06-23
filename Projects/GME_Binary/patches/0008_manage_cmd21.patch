@@ -1,0 +1,133 @@
+diff -Naur ./functions/mbfuncother.c.orig ./functions/mbfuncother.c
+--- ./functions/mbfuncother.c.orig	2020-06-23 01:29:42.301549631 -0700
++++ ./functions/mbfuncother.c		2020-06-23 01:27:14.554806959 -0700
+@@ -47,11 +47,13 @@
+ 
+ 
+ /* ----------------------- Static variables ---------------------------------*/
+-//static UCHAR    ucMBSlaveID[MB_FUNC_OTHER_REP_SLAVEID_BUF];
+ 
+ CHAR    ucMBSlaveID[256];
+ USHORT   usMBSlaveIDLen;
+ 
++CHAR ucMBFileTransfer[256];
++USHORT   usMBFileTransferLen;
++
+ /* ----------------------- Start implementation -----------------------------*/
+ #if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+ eMBErrorCode
+@@ -82,19 +84,16 @@
+     return eStatus;
+ }
+ #endif
++
+ eMBException
+ eMBFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen )
+ {
+ 	// TODO Chiebao
+     usMBSlaveIDLen = *usLen;
+ 
+-    for(int i = 0; i < (usMBSlaveIDLen); i++)  //  + 2 bytes CRC ?!?! TODO Chiebao
++    for(int i = 0; i < (usMBSlaveIDLen + 2); i++)  //  + 2 bytes CRC
+     	ucMBSlaveID[i] =  *(pucFrame+i);
+ 
+-// OLD PART
+-//    memcpy( &pucFrame[MB_PDU_DATA_OFF], &ucMBSlaveID[0], ( size_t )usMBSlaveIDLen );
+-//   *usLen = ( USHORT )( MB_PDU_DATA_OFF + usMBSlaveIDLen );
+-
+     return MB_EX_NONE;
+ }
+ 
+@@ -120,7 +119,36 @@
+ }
+ 
+ 
++eMBException
++eMBFuncFileTransfer( UCHAR * pucFrame, USHORT * usLen )
++{
++    usMBFileTransferLen = *usLen;
+ 
++    for(int i = 0; i < (usMBFileTransferLen + 2); i++) {  //  + 2 bytes CRC
++        ucMBFileTransfer[i] =  *(pucFrame+i);
++    }
++    return MB_EX_NONE;
++}
+ 
++eMBMasterReqErrCode
++eMBMAsterReqFileTransfer(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen,  LONG lTimeOut)
++{
++    UCHAR                 *ucMBFrame;
++    eMBMasterReqErrCode    eErrStatus = MB_MRE_NO_ERR;
+ 
++    if ( ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM ) eErrStatus = MB_MRE_ILL_ARG;
++	else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) eErrStatus = MB_MRE_MASTER_BUSY;
++	else
++	{
++		vMBMasterGetPDUSndBuf(&ucMBFrame);
++		vMBMasterSetDestAddress(ucSndAddr);
++		for (USHORT i=0; i<datalen-1; i++)
++			ucMBFrame[i] = databuf[i+1];
+ 
++		vMBMasterSetPDUSndLength(datalen - 1);
++		xMBMasterPortEventPost( EV_MASTER_FRAME_SENT);
++		eErrStatus = eMBMasterWaitRequestFinish( );
++		printf("eMBMasterWaitRequestFinish eErrStatus %d\n", eErrStatus);
++	}
++    return eErrStatus;
++}
+diff -Naur ./include/mbconfig.h.orig ./include/mbconfig.h
+--- ./include/mbconfig.h.orig	2020-06-23 01:30:37.693072869 -0700
++++ ./include/mbconfig.h	2020-06-23 01:27:14.554806959 -0700
+@@ -103,6 +103,9 @@
+ /*! \brief If the <em>Report Slave ID</em> function should be enabled. */
+ #define MB_FUNC_OTHER_REP_SLAVEID_ENABLED       (  1 )  // CONFIG_FMB_CONTROLLER_SLAVE_ID_SUPPORT
+ 
++/*! \brief If the <em>File Transfer</em> function should be enabled. */
++#define MB_FUNC_FILE_TRANSFER_ENABLED			(  1 )
++
+ /*! \brief If the <em>Read Input Registers</em> function should be enabled. */
+ #define MB_FUNC_READ_INPUT_ENABLED              (  1 )
+ 
+diff -Naur ./include/mb_m.h.orig ./include/mb_m.h
+--- ./include/mb_m.h.orig	2020-06-23 01:30:10.653305922 -0700
++++ ./include/mb_m.h		2020-06-23 01:27:14.554806959 -0700
+@@ -387,6 +387,10 @@
+ /*! \ingroup modbus
+  *\brief These Modbus functions are called for user when Modbus run in Master Mode.
+  */
++
++eMBMasterReqErrCode
++eMBMAsterReqFileTransfer(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen, LONG lTimeOut );
++
+ eMBMasterReqErrCode
+ eMBMasterReqReadInputRegister( UCHAR ucSndAddr, USHORT usRegAddr, USHORT usNRegs, LONG lTimeOut );
+ eMBMasterReqErrCode
+@@ -411,8 +415,7 @@
+ eMBMasterReqReadDiscreteInputs( UCHAR ucSndAddr, USHORT usDiscreteAddr, USHORT usNDiscreteIn, LONG lTimeOut );
+ 
+ eMBMasterReqErrCode
+-eMBMAsterReqReportSlaveId(UCHAR ucSndAddr,  LONG lTimeOut);  //CHIEBAO
+-
++eMBMAsterReqReportSlaveId(UCHAR ucSndAddr,  LONG lTimeOut);
+ 
+ eMBException
+ eMBMasterFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen );
+@@ -435,10 +438,6 @@
+ eMBException
+ eMBMasterFuncReadWriteMultipleHoldingRegister( UCHAR * pucFrame, USHORT * usLen );
+ 
+-
+-
+-
+-
+ /* \ingroup modbus
+  * \brief These functions are interface for Modbus Master
+  */
+@@ -457,7 +456,6 @@
+ 
+ /* ----------------------- Callback -----------------------------------------*/
+ 
+-
+ #ifdef __cplusplus
+ PR_END_EXTERN_C
+ #endif
