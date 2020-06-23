@@ -199,6 +199,12 @@ void OTA_GMEEnd(void)
 #endif
 }
 
+void OTA_DEVEnd(void)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	vEventGroupDelete(s_ota_dev_group);
+#endif
+}
 
 /**
  * @brief OTA__GMEInit Create a task for ota GME upgrade
@@ -219,7 +225,7 @@ void OTA__DEVInit(c_cborrequpddevfw update_dev_fw)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	s_ota_dev_group = xEventGroupCreate();
-	xTaskCreate(&DEV_ota_task, "DEV_ota_task", 8192, (void*)&update_dev_fw, 10, NULL);
+	xTaskCreate(&DEV_ota_task, "DEV_ota_task", 8192, (void*)&update_dev_fw, 5, NULL);
 #endif
 }
 
