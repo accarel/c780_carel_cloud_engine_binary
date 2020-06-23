@@ -1919,8 +1919,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			if (err == C_SUCCESS) {
 				CBOR_SaveAsyncRequest(cbor_req, &update_dev_fw);
 				OTA__DEVInit(update_dev_fw);
-				ret = 1;
+				ret = 1;	// this let polling restart after update
 			}
+			// response will be sent when update_dev task will come to its end
 		}
 		break;
 
