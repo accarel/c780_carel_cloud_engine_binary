@@ -1917,12 +1917,10 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 			if (err == C_SUCCESS) {
-				err = OTA__DevFWUpdate(&update_dev_fw);
+				CBOR_SaveAsyncRequest(cbor_req, &update_dev_fw);
+				OTA__DEVInit(update_dev_fw);
+				ret = 1;
 			}
-			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 		}
 		break;
 
@@ -2061,10 +2059,11 @@ void CBOR_SendAsyncResponse(C_INT16 res){
 	sprintf(topic,"%s%s", "/res/", async_req.rto);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 	if(res == SUCCESS_CMD){
-		PollEngine_StopEngine_CAREL();
 		// save cid for successive hello
-		NVM__WriteU32Value(MB_CID_NVM, async_update_gw_fw.cid);
-		GME__Reboot();
+		if(async_update_gw_fw.cid != 0) {
+			NVM__WriteU32Value(MB_CID_NVM, async_update_gw_fw.cid);
+			GME__Reboot();
+		}
 	}
 
 	// it could be RUNNING or STOPPED, at least it was running and we put it again in running mode

@@ -71,7 +71,7 @@ enum{
 /* Functions prototypes                                                       */
 /* ========================================================================== */
 C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config);
-	
+void DEV_ota_task(void * pvParameter);
 C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_UINT16 starting_reg);
 
 void GME_ota_task(void * pvParameter);

@@ -75,34 +75,8 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 	
 	printf("\n\n");
     #endif
-
-	for(int i=0; i<packet_len; i++)
-	{
-		uart_write_bytes_IS(modbusPort, (const C_BYTE *) &data_tx[i], 1);  // MB_PORTNUM
-	}
-
-	data_rx_len = uart_read_bytes_IS(modbusPort, data_rx, MODBUS_RX_BUFFER_SIZE, MB_RESPONSE_TIMEOUT(packet_len));  // MB_PORTNUM
-
-	// Check on incoming data (necessary to find out exceptions in answers or missing answers)
-	if(data_rx_len != packet_len){
-		printf("Received packet length doesn't match the transmitted packet length\n");
-		err = C_FAIL;
-	}else{
-		if(data_rx[data_rx_len-1] != data_tx[packet_len-1] || data_rx[data_rx_len-2] != data_tx[packet_len-2]){
-			printf("Received packet content doesn't match the transmitted packet content\n");
-			err = C_FAIL;
-		}else{
-			err = C_SUCCESS;
-#ifdef __CCL_DEBUG_MODE
-			printf("uart_read_bytes len = %d\n",data_rx_len);
-
-			for(int i=0; i<data_rx_len; i++){
-				printf("%02X ",data_rx[i]);
-			}
-			printf("\n");
-#endif
-		}
-	}
+	err = app_file_transfer(data_tx, packet_len);
+	printf("app_file_transfer err %d\n", err);
 
 	free(data_tx);
 
@@ -110,8 +84,9 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 
 }
 
+void DEV_ota_task(void * pvParameter){
 
-C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
+	c_cborrequpddevfw * dev_fw_config = (c_cborrequpdgmefw*)pvParameter;
 
 	C_RES err = C_FAIL;
 	uint8_t cert_num;
@@ -120,8 +95,11 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 
 	C_UINT16 url_len = strlen(dev_fw_config->uri) + strlen(dev_fw_config->pwd) + strlen(dev_fw_config->usr);
 	C_CHAR *url = malloc(url_len + 5);
-	if (url == NULL)
-		return C_FAIL;
+	if (url == NULL) {
+		printf("cannot alloc url\n");
+		OTADEVGroup(false);
+		vTaskDelete(NULL);
+	}
 
 	memset((void*)url, 0, url_len);
 	sprintf(url,"%.*s%s:%s@%s", 8, dev_fw_config->uri, dev_fw_config->usr,dev_fw_config->pwd, dev_fw_config->uri+8);
@@ -140,7 +118,8 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 		printf("%s Failed to open HTTP connection", TAG);
 		#endif
 		free(url);
-		return C_FAIL;
+		OTADEVGroup(false);
+		vTaskDelete(NULL);
 	}
 
 	C_UINT16 file_number = dev_fw_config->fid;
@@ -157,9 +136,10 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	if (upgrade_data_buf == NULL)
 	{
 		free(url);
-		return C_FAIL;
+		printf("cannot alloc upgrade_data_buf\n");
+		OTADEVGroup(false);
+		vTaskDelete(NULL);
 	}
-
 	memset((void*)upgrade_data_buf, 0, DEV_OTA_BUF_SIZE * sizeof(C_BYTE));
 
 	C_INT16 content_length =  http_client_fetch_headers_IS(client);
@@ -168,7 +148,6 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 	printf("%s content_length = %d\n",TAG, content_length);
 	#endif
 
-	Modbus_Disable();
 	while(1){
 
 		//chunk_size
@@ -180,36 +159,15 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 		}
 
 		data_read_len = http_client_read_IS(client, (char*)upgrade_data_buf, chunk_size);
-
-		if (data_read_len == 0) {
-			err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
-			if(err != C_SUCCESS)
-				break;
-			#ifdef __CCL_DEBUG_MODE 
-			printf("%s %s\r\n", TAG, "Connection closed,all data received");
-			#endif
-			
-			break;
-		}
-		
-		if (data_read_len < 0) {
-			#ifdef __CCL_DEBUG_MODE 
-			printf("%s %s\r\n", TAG, "Error: SSL data read error");
-			#endif
-			break;
-		}
 		
 		if (data_read_len > 0) {
-            #ifdef __CCL_DEBUG_MODE 
-			for(int i=0; i<data_read_len; i++){
-				printf("%s DBUFF - %02X ",TAG, upgrade_data_buf[i]);
-			}
-			printf("\n");
-			#endif
-
 			err = UpdateDevFirmware(upgrade_data_buf, data_read_len, file_number, starting_reg);	//, content_length - sent_data_per_file
-			if(err != C_SUCCESS)
-				break;
+			if(err != C_SUCCESS) {
+				free(url);
+				free(upgrade_data_buf);
+				OTADEVGroup(false);
+				vTaskDelete(NULL);
+			}
 
 			if(sent_data_per_file > MB_FILE_MAX_BYTES - DEV_OTA_BUF_SIZE){
 				file_number++;
@@ -228,22 +186,46 @@ C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config){
 			printf("%s Written image length %d\n", TAG, sent_data_per_file);
 			#endif
 		}
+		else {
+			printf("closing update\n");
+			http_client_close_IS(client);
+			http_client_cleanup_IS(client);
+
+			uart_flush_input_IS(modbusPort);   // MB_PORTNUM
+			uart_flush_IS(modbusPort);         // MB_PORTNUM
+
+			if (data_read_len == 0) {
+				err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
+				if(err != C_SUCCESS) {
+					free(url);
+					free(upgrade_data_buf);
+					OTADEVGroup(false);
+					vTaskDelete(NULL);
+				}
+
+				#ifdef __CCL_DEBUG_MODE
+				printf("%s %s\r\n", TAG, "Connection closed,all data received");
+				#endif
+				free(url);
+				free(upgrade_data_buf);
+				OTADEVGroup(true);
+				vTaskDelete(NULL);
+			}
+
+			if (data_read_len < 0) {
+				#ifdef __CCL_DEBUG_MODE
+				printf("%s %s\r\n", TAG, "Error: SSL data read error");
+				#endif
+				free(url);
+				free(upgrade_data_buf);
+				OTADEVGroup(false);
+				vTaskDelete(NULL);
+			}
+		}
 	}
-
-	http_client_close_IS(client);
-	http_client_cleanup_IS(client);
-
-	uart_flush_input_IS(modbusPort);   // MB_PORTNUM
-	uart_flush_IS(modbusPort);         // MB_PORTNUM
-
-	Modbus_Enable();
-
 	free(url);
 	free(upgrade_data_buf);
-	
-	return err;
 }
-
 
 void GME_ota_task(void * pvParameter)
 {
@@ -280,11 +262,13 @@ void GME_ota_task(void * pvParameter)
     if (ret == C_SUCCESS) {
     	ESP_LOGI(TAG, "Firmware Upgrades Succeeded");
     	//Send true to ota group to send the res and restart gme
+    	free(url);
     	OTAGroup(true);
     	vTaskDelete(NULL);
     } else {
     	ESP_LOGE(TAG, "Firmware Upgrades Failed");
     	//Send false to ota group to send the res and continue working
+    	free(url);
     	OTAGroup(false);
     	vTaskDelete(NULL);
     }

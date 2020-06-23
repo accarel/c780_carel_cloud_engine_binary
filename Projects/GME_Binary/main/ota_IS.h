@@ -40,4 +40,8 @@ void OTA__GMEInit(c_cborrequpdgmefw update_gw_fw);
 C_RES OTA_GMEWaitCompletion(void);
 void OTA_GMEEnd(void);
 void OTAGroup (bool ota_res);
+void OTA__DEVInit(c_cborrequpddevfw update_dev_fw);
+void OTADEVGroup (bool ota_res);
+
+
 #endif  //__OTA_IS

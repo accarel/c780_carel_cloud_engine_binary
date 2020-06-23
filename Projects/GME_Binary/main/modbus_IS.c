@@ -51,6 +51,9 @@ static uint16_t MB_Delay = 0;
 C_UINT16 ModbusDisabled = 0;
 
 
+extern CHAR ucMBFileTransfer[256];
+extern USHORT usMBFileTransferLen;
+
 /**
  * @brief Use brief, otherwise the index won't have a brief explanation.
  *
@@ -343,6 +346,57 @@ C_RES app_report_slave_id_read(const uint8_t addr)
 
     errorCode = eMBMAsterReqReportSlaveId(addr, timeout);
     result = errorCode;
+#endif
+    Modbus__Delay();
+    return result;
+}
+
+C_RES app_file_transfer(unsigned char* data_tx, uint8_t packet_len)
+{
+   C_RES result = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+    const long timeout = MODBUS_TIME_OUT;
+    eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
+    errorCode = eMBMAsterReqFileTransfer(1, data_tx, packet_len, timeout);
+    result = errorCode;
+
+    char data_rx[260];
+    uint16_t data_rx_len = usMBFileTransferLen + 3;
+    data_rx[0] = ucMBFileTransfer[0];
+    // get response
+    for(C_INT16 i = 0; i < data_rx_len + 2; i++)
+   	  (data_rx[i + 1]) = 	ucMBFileTransfer[i];
+
+    if(data_rx_len != packet_len){
+    	printf("Received packet length %d doesn't match the transmitted packet length %d\n", data_rx_len, packet_len);
+#ifdef __CCL_DEBUG_MODE
+    	printf("uart_read_bytes len = %d\n",data_rx_len);
+
+    	for(int i=0; i<data_rx_len; i++){
+   			printf("%02X ",data_rx[i]);
+   		}
+   		printf("\n");
+#endif
+   		result = C_FAIL;
+   	}else{
+		if(data_rx[data_rx_len-1] != data_tx[packet_len-1] || data_rx[data_rx_len-2] != data_tx[packet_len-2]){
+			printf("Received packet content doesn't match the transmitted packet content\n");
+			result = C_FAIL;
+		}else{
+			result = C_SUCCESS;
+#ifdef __CCL_DEBUG_MODE
+			printf("uart_read_bytes len = %d\n",data_rx_len);
+
+			for(int i=0; i<data_rx_len; i++){
+				printf("%02X ",data_rx[i]);
+			}
+			printf("\n");
+#endif
+		}
+   	}
+
 #endif
     Modbus__Delay();
     return result;

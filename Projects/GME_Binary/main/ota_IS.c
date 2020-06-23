@@ -13,6 +13,7 @@
 #include "https_client_IS.h"
 #include "ota_CAREL.h"
 #include "sys_CAREL.h"
+#include "nvm_CAREL.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_https_ota.h"
@@ -22,6 +23,8 @@
 static const char *TAG = "OTA_IS";
 const esp_partition_t *run_part = NULL;
 EventGroupHandle_t s_ota_gme_group;
+EventGroupHandle_t s_ota_dev_group;
+
 const int OTA_GME_OK = BIT0;
 const int OTA_GME_FAIL = BIT1;
 
@@ -74,6 +77,7 @@ C_INT16 uart_read_bytes_IS(C_BYTE uart_num, C_BYTE *buf, C_UINT32 length, C_UINT
 	
 	#ifdef INCLUDE_PLATFORM_DEPENDENT
 	len = uart_read_bytes((uart_port_t)uart_num, buf, (uint32_t)length, (TickType_t)ticks_to_wait);
+	printf("uart_read_bytes len %d\n", len);
 	#endif
 	
 	return len;
@@ -211,6 +215,29 @@ void OTA__GMEInit(c_cborrequpdgmefw update_gw_fw)
 #endif
 }
 
+void OTA__DEVInit(c_cborrequpddevfw update_dev_fw)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	s_ota_dev_group = xEventGroupCreate();
+	xTaskCreate(&DEV_ota_task, "DEV_ota_task", 8192, (void*)&update_dev_fw, 10, NULL);
+#endif
+}
+
+void OTADEVGroup (bool ota_res){
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	if(true == ota_res){
+		xEventGroupSetBits(s_ota_dev_group, OTA_GME_OK);
+	}else{
+		xEventGroupSetBits(s_ota_dev_group, OTA_GME_FAIL);
+	}
+	ota_res == TRUE ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);
+
+	// restart polling if needed
+	uint8_t pe_status;
+	if (C_SUCCESS != NVM__ReadU8Value(PE_STATUS_NVM, &pe_status))
+		PollEngine_StartEngine_CAREL();
+#endif
+}
 
 void OTAGroup (bool ota_res){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
