@@ -115,7 +115,7 @@
 /* Cloud related                                                              */
 /* ========================================================================== */
 
-#define MQTT_KEEP_ALIVE_DEFAULT_SEC   (600)
+#define MQTT_KEEP_ALIVE_DEFAULT_SEC   (60)
 
 #define NTP_DEFAULT_PORT  	123
 
