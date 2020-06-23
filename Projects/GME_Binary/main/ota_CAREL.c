@@ -86,7 +86,7 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 
 void DEV_ota_task(void * pvParameter){
 
-	c_cborrequpddevfw * dev_fw_config = (c_cborrequpdgmefw*)pvParameter;
+	c_cborrequpddevfw * dev_fw_config = (c_cborrequpddevfw*)pvParameter;
 
 	C_RES err = C_FAIL;
 	uint8_t cert_num;
