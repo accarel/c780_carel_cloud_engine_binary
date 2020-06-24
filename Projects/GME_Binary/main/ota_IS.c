@@ -236,6 +236,8 @@ void OTADEVGroup (bool ota_res){
 	}else{
 		xEventGroupSetBits(s_ota_dev_group, OTA_GME_FAIL);
 	}
+	OTA_DEVEnd();
+
 	ota_res == TRUE ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);
 
 	// restart polling if needed
