@@ -19,4 +19,5 @@ patch components/app_update/esp_ota_ops.c ~/esp/GME_Binary/patches/0007_erase_ot
 # manage cmd 21
 cd components/freemodbus/modbus
 patch -p0 < ~/esp/GME_Binary/patches/0008_manage_cmd21.patch
+patch -p0 < ~/esp/GME_Binary/patches/0009_manage_cmd21.patch
 cd ../../..
