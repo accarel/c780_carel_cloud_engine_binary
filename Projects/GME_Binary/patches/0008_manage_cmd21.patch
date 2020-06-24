@@ -1,6 +1,6 @@
 diff -Naur ./functions/mbfuncother.c.orig ./functions/mbfuncother.c
---- ./functions/mbfuncother.c.orig	2020-06-23 01:29:42.301549631 -0700
-+++ ./functions/mbfuncother.c		2020-06-23 01:27:14.554806959 -0700
+--- functions/mbfuncother.c.orig	2020-06-24 01:23:01.840349557 -0700
++++ functions/mbfuncother.c			2020-06-23 01:27:14.554806959 -0700
 @@ -47,11 +47,13 @@
  
  
@@ -75,9 +75,10 @@ diff -Naur ./functions/mbfuncother.c.orig ./functions/mbfuncother.c
 +	}
 +    return eErrStatus;
 +}
+
 diff -Naur ./include/mbconfig.h.orig ./include/mbconfig.h
---- ./include/mbconfig.h.orig	2020-06-23 01:30:37.693072869 -0700
-+++ ./include/mbconfig.h	2020-06-23 01:27:14.554806959 -0700
+--- include/mbconfig.h.orig	2020-06-24 01:23:16.996270488 -0700
++++ include/mbconfig.h		2020-06-23 01:27:14.554806959 -0700
 @@ -103,6 +103,9 @@
  /*! \brief If the <em>Report Slave ID</em> function should be enabled. */
  #define MB_FUNC_OTHER_REP_SLAVEID_ENABLED       (  1 )  // CONFIG_FMB_CONTROLLER_SLAVE_ID_SUPPORT
@@ -89,8 +90,8 @@ diff -Naur ./include/mbconfig.h.orig ./include/mbconfig.h
  #define MB_FUNC_READ_INPUT_ENABLED              (  1 )
  
 diff -Naur ./include/mb_m.h.orig ./include/mb_m.h
---- ./include/mb_m.h.orig	2020-06-23 01:30:10.653305922 -0700
-+++ ./include/mb_m.h		2020-06-23 01:27:14.554806959 -0700
+--- include/mb_m.h.orig	2020-06-24 01:23:09.208311102 -0700
++++ include/mb_m.h		2020-06-23 01:27:14.554806959 -0700
 @@ -387,6 +387,10 @@
  /*! \ingroup modbus
   *\brief These Modbus functions are called for user when Modbus run in Master Mode.
