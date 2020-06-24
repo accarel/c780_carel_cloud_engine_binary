@@ -31,8 +31,6 @@
 /* Functions prototypes                                                       */
 /* ========================================================================== */
 
-C_INT16 uart_read_bytes_IS(C_BYTE uart_num, C_BYTE *buf, C_UINT32 length, C_UINT32 ticks_to_wait);
-C_INT16 uart_write_bytes_IS(C_BYTE uart_num, const C_BYTE* src, C_INT16 size);
 C_RES uart_flush_IS(C_BYTE uart_num);
 C_RES uart_flush_input_IS(C_BYTE uart_num);
 C_RES https_ota(c_http_client_config_t* c_config);
