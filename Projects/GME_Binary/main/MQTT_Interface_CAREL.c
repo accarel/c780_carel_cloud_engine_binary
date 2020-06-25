@@ -93,8 +93,6 @@ C_RES MQTT_Start(void)
 		cert_num = CERT_1;
 	mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
 
-
-
 	//check if username == '?', then use deviceid as username (to make spiffs image independent from MAC or IMEI)
 	if (mqtt_cfg_nvm.username[0] == 0x3F) {
 		if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
@@ -105,6 +103,8 @@ C_RES MQTT_Start(void)
 
 
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+	PRINTF_DEBUG("attempt to connect with certificate id %d\n", cert_num);
+
 	PRINTF_DEBUG("uri= %s\n",mqtt_cfg_nvm.uri);
 	PRINTF_DEBUG("username= %s\n",mqtt_cfg_nvm.username);
 	PRINTF_DEBUG("password= %s\n",mqtt_cfg_nvm.password);
@@ -152,6 +152,10 @@ C_RES MQTT_Start(void)
     	// try connecting using the other certificate
     	cert_num = (cert_num == CERT_1) ? CERT_2 : CERT_1;
 		mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
+
+#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+		PRINTF_DEBUG("another attempt to connect with certificate id %d\n", cert_num);
+#endif
 	//	memset((void*)mqtt_client,0,sizeof(esp_mqtt_client_handle_t));
 		mqtt_client_init(&mqtt_cfg_nvm);
 		err = mqtt_client_start();
