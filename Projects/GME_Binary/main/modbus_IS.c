@@ -413,11 +413,15 @@ C_UINT16 Modbus__GetStatus(void){
 	return ModbusDisabled;
 }
 
+// pay attention when calling this function... if you enable Modbus task when it is already enabled
+// there s a good chance that freertos will crash...
 void Modbus_Enable(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	ClearQueueMB();
 	eMBMasterEnable();
+	// avoid Modbus engine to stop
+	vMBMasterRunResRelease();
 #endif
 	ModbusDisabled = 0;
 }
