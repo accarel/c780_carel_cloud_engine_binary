@@ -227,6 +227,33 @@ void DEV_ota_task(void * pvParameter){
 	free(upgrade_data_buf);
 }
 
+void CA_ota_task(void * pvParameter)
+{
+	c_cborrequpdatecacert * myCborUpdate = (c_cborrequpdatecacert*)pvParameter;
+	https_conn_err_t err;
+
+	err = HttpsClient__UpdateCertificate(myCborUpdate);
+	err == C_SUCCESS ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);
+
+	if (err == C_SUCCESS)
+		ESP_LOGI(TAG, "Certificate upgrade succeeded");
+	else
+		ESP_LOGE(TAG, "Certificate upgrade failed");
+
+    #ifdef __DEBUG_CBOR_CAREL_LEV_1
+	printf("execute_update_ca_cert err= %d \n",err);
+    #endif
+	// restart polling if needed
+	uint8_t pe_status;
+	NVM__ReadU8Value(PE_STATUS_NVM, &pe_status);
+	if (pe_status == RUNNING)
+		PollEngine_StartEngine_CAREL();	// restart polling
+
+	Modbus_Enable();
+
+	vTaskDelete(NULL);
+}
+
 void GME_ota_task(void * pvParameter)
 {
 	c_cborrequpdgmefw * myCborUpdate = (c_cborrequpdgmefw*)pvParameter;
@@ -259,6 +286,9 @@ void GME_ota_task(void * pvParameter)
 	c_config.cert_num = cert_num;
 
     C_RES ret = https_ota(&c_config);
+
+    Modbus_Enable();
+
     if (ret == C_SUCCESS) {
     	ESP_LOGI(TAG, "Firmware Upgrades Succeeded");
     	//Send true to ota group to send the res and restart gme

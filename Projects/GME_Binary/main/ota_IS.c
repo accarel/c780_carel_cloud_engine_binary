@@ -135,17 +135,10 @@ C_RES OTA_GMEWaitCompletion(void)
 	return ret;
 }
 
-void OTA_GMEEnd(void)
+void OTA_End(EventGroupHandle_t s_ota_group)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	vEventGroupDelete(s_ota_gme_group);
-#endif
-}
-
-void OTA_DEVEnd(void)
-{
-#ifdef INCLUDE_PLATFORM_DEPENDENT
-	vEventGroupDelete(s_ota_dev_group);
+	vEventGroupDelete(s_ota_group);
 #endif
 }
 
@@ -172,6 +165,13 @@ void OTA__DEVInit(c_cborrequpddevfw update_dev_fw)
 #endif
 }
 
+void OTA__CAInit(c_cborrequpdatecacert update_ca)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	xTaskCreate(&CA_ota_task, "CA_ota_task", 8192, (void*)&update_ca, 9, NULL);
+#endif
+}
+
 void OTADEVGroup (bool ota_res){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if(true == ota_res){
@@ -179,14 +179,15 @@ void OTADEVGroup (bool ota_res){
 	}else{
 		xEventGroupSetBits(s_ota_dev_group, OTA_GME_FAIL);
 	}
-	OTA_DEVEnd();
+	OTA_End(s_ota_dev_group);
 
 	ota_res == TRUE ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);
 
 	// restart polling if needed
 	uint8_t pe_status;
-	if (C_SUCCESS != NVM__ReadU8Value(PE_STATUS_NVM, &pe_status))
-		PollEngine_StartEngine_CAREL();
+	NVM__ReadU8Value(PE_STATUS_NVM, &pe_status);
+	if (pe_status == RUNNING)
+		PollEngine_StartEngine_CAREL();	// restart polling
 #endif
 }
 
@@ -198,9 +199,13 @@ void OTAGroup (bool ota_res){
 		xEventGroupSetBits(s_ota_gme_group, OTA_GME_FAIL);
 	}
 	C_INT16 res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
-	OTA_GMEEnd();
+	OTA_End(s_ota_gme_group);
 
 	CBOR_SendAsyncResponse(res);
-
+	// restart polling if needed
+	uint8_t pe_status;
+	NVM__ReadU8Value(PE_STATUS_NVM, &pe_status);
+	if (pe_status == RUNNING)
+		PollEngine_StartEngine_CAREL();	// restart polling
 #endif
 }

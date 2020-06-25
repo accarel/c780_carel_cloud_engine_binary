@@ -36,11 +36,10 @@ C_RES uart_flush_input_IS(C_BYTE uart_num);
 C_RES https_ota(c_http_client_config_t* c_config);
 void OTA__GMEInit(c_cborrequpdgmefw update_gw_fw);
 C_RES OTA_GMEWaitCompletion(void);
-void OTA_GMEEnd(void);
-void OTA_DEVEnd(void);
+void OTA_End(EventGroupHandle_t s_ota_group);
 void OTAGroup (bool ota_res);
 void OTA__DEVInit(c_cborrequpddevfw update_dev_fw);
 void OTADEVGroup (bool ota_res);
-
+void OTA__CAInit(c_cborrequpdatecacert update_ca);
 
 #endif  //__OTA_IS

@@ -46,7 +46,7 @@ uint16_t txbuff_len = 0;
 
 C_UINT16 did;
 c_cborhreq async_req = {0};
-c_cborrequpdgmefw async_update_gw_fw = {0};
+C_UINT16 async_cid = 0;
 
 /**
  * @brief CBOR_SendAlarms
@@ -1902,7 +1902,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			err = CBOR_ReqUpdateGMEFW(cbor_stream, cbor_len, &update_gw_fw);
 			if (err == C_SUCCESS) {
 				Modbus_Disable();
-				CBOR_SaveAsyncRequest(cbor_req, &update_gw_fw);
+				CBOR_SaveAsyncRequest(cbor_req, update_gw_fw.cid);
 				OTA__GMEInit(update_gw_fw);
 			}
 			// response will be sent when ota task will come to its end
@@ -1917,7 +1917,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 			if (err == C_SUCCESS) {
-				CBOR_SaveAsyncRequest(cbor_req, &update_dev_fw);
+				CBOR_SaveAsyncRequest(cbor_req, 0);
 				OTA__DEVInit(update_dev_fw);
 				ret = 1;	// this let polling restart after update
 			}
@@ -1933,13 +1933,14 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &update_ca_config);
 			if (err == C_SUCCESS) {
-				// perform a https read file from uri, using usr and pwd authentication data
-				cbor_req.res = (execute_update_ca_cert(&update_ca_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+				//Modbus is disabled to let resource available for other tasks (not for functional reasons)
+				Modbus_Disable();
+				CBOR_SaveAsyncRequest(cbor_req, 0);
+				// start a task that performs a https read file from uri, using usr and pwd authentication data
+				OTA__CAInit(update_ca_config);
+				ret = 1;
 			}
-			// send a report of operation
-			len = CBOR_ResSimple(cbor_response, &cbor_req);
-			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			// response will be sent when update_dev task will come to its end
 		}
 		break;
 
@@ -2026,29 +2027,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	return ret;
 }
 
-C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert){
-
-	https_conn_err_t err;
-
-    #ifdef __DEBUG_CBOR_CAREL_LEV_2
-	printf("execute_update_ca_cert \n");
-    #endif
-
-	err = HttpsClient__UpdateCertificate(update_ca_cert);
-	if(CONN_OK != err)
-		return C_FAIL;
-
-    #ifdef __DEBUG_CBOR_CAREL_LEV_1
-	printf("execute_update_ca_cert err= %d \n",err);
-    #endif
-
-	return C_SUCCESS;
-}
-
-void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, void* update_gw_fw){
-	c_cborrequpdgmefw* tmp = (c_cborrequpdgmefw*)update_gw_fw;
+void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, C_UINT16 my_cid){
 	async_req = cbor_req;
-	async_update_gw_fw = *tmp;
+	async_cid = my_cid;
 }
 
 void CBOR_SendAsyncResponse(C_INT16 res){
@@ -2061,14 +2042,11 @@ void CBOR_SendAsyncResponse(C_INT16 res){
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 	if(res == SUCCESS_CMD){
 		// save cid for successive hello
-		if(async_update_gw_fw.cid != 0) {
-			NVM__WriteU32Value(MB_CID_NVM, async_update_gw_fw.cid);
+		if(async_cid != 0) {
+			NVM__WriteU32Value(MB_CID_NVM, async_cid);
 			GME__Reboot();
 		}
 	}
-
-	// it could be RUNNING or STOPPED, at least it was running and we put it again in running mode
-	Modbus_Enable();
 }
 
 
@@ -2562,7 +2540,7 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 
 C_RES execute_update_file(c_cborrequpdatefile *update_file){
 
-	https_conn_err_t err;
+	https_conn_err_t err = CONN_FAIL;
 	uint8_t cert_num = CERT_1;
 
     #ifdef __DEBUG_CBOR_CAREL_LEV_2

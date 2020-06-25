@@ -297,7 +297,6 @@ C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg);
 C_RES execute_download_devs_config(c_cborreqdwldevsconfig* download_devs_config);
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );
 C_RES execute_change_cred(c_cborreqdwldevsconfig change_cred);
-C_RES execute_update_ca_cert(c_cborrequpdatecacert *update_ca_cert);
 C_RES execute_scan_devices(C_BYTE* data_rx, C_UINT16 *add, C_INT16 * lnt);
 C_RES execute_update_file(c_cborrequpdatefile *update_file);
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv);
@@ -309,7 +308,7 @@ char* CBOR_GetPartNumber(void);
 
 //long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
 void Manage_Report_SlaveId_CAREL( C_CHAR * pucFrame, C_UINT16 * usLen);
-void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, void* update_gw_fw);
+void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, C_UINT16 cid);
 void CBOR_SendAsyncResponse(C_INT16 res);
 #ifdef __cplusplus
 }
