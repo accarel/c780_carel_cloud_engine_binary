@@ -419,6 +419,7 @@ void Modbus_Enable(void)
 	ClearQueueMB();
 	eMBMasterEnable();
 #endif
+	ModbusDisabled = 0;
 }
 
 void Modbus__ReadAddressFromNVM(void){
