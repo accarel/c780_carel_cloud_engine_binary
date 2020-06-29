@@ -294,7 +294,7 @@ void CA_ota_task(void * pvParameter)
 	if (pe_status == RUNNING)
 		PollEngine_StartEngine_CAREL();	// restart polling
 
-	Modbus_Enable();
+//	Modbus_Enable();
 
 	vTaskDelete(NULL);
 }

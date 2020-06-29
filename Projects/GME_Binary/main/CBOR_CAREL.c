@@ -1943,7 +1943,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			err = CBOR_ReqUpdateCaCertificate(cbor_stream, cbor_len, &update_ca_config);
 			if (err == C_SUCCESS) {
 				//Modbus is disabled to let resource available for other tasks (not for functional reasons)
-				Modbus_Disable();
+			//	Modbus_Disable();
 				CBOR_SaveAsyncRequest(cbor_req, 0);
 				// start a task that performs a https read file from uri, using usr and pwd authentication data
 				OTA__CAInit(update_ca_config);
