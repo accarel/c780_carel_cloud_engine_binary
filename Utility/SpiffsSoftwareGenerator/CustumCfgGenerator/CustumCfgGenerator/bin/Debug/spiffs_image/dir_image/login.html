@@ -10,8 +10,8 @@
       <img src="fav.ico" alt="Avatar" class="avatar">
     </div>
     
-    <h1 class="imgcontainer">Welcome to CAREL!</h1>
-    
+    <h1 class="imgcontainer">Welcome to <text id="lastmac"></text></h1>
+ 
   <div class="container">
    <table style="width:350px;" >
 	 <tr id="username">
@@ -37,5 +37,22 @@
   
 </form>
 
+ <script>
+	var configjs;
+    const Http = new XMLHttpRequest();
+    const url = 'login.json';
+    Http.open("GET",url);
+    Http.send();
+    console.log("Hello01");
+
+    Http.onreadystatechange=function(){
+        if(this.readyState == 4 && this.status == 200){
+            configjs = JSON.parse(Http.responseText);
+            console.log(configjs);
+			document.getElementById("lastmac").innerHTML = configjs.lastmac;
+		}
+	}
+ </script>
+ 
 </body>
 </html>

@@ -8,14 +8,8 @@
   <div class="imgcontainer">
     <img src="fav.ico" alt="Avatar" class="avatar">
   </div>
-  
-    <!-- BANNER -->
-<!--    <div style="background: red;width: 100%;">
-      <img src="home_banner.jpg" alt="Home Banner" >
-    </div>
--->
 
-  <h1 class="imgcontainer">Welcome to CAREL!</h1>
+  <h1 class="imgcontainer">Welcome to <text id="lastmac"></text></h1>
     
   <div class="container">
     <div>
@@ -215,6 +209,8 @@ var configjs;
 			
 		    document.getElementsByName('login_usr')[0].value = configjs.login_usr;
 		    document.getElementsByName('login_pswd')[0].value = configjs.login_pswd;
+			
+			document.getElementById("lastmac").innerHTML = configjs.lastmac;
         }
     }
 	
@@ -283,4 +279,5 @@ var configjs;
 	}
   </script>
 </body>
+
 </html>
