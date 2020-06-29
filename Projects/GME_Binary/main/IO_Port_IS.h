@@ -29,7 +29,11 @@
 /* ========================================================================== */
 /* general purpose I/O common to all                                          */
 /* ========================================================================== */
-#define HW_PLATFORM_DETECT_PIN  GPIO_NUM_34
+#define HW_PLATFORM_DETECT_PIN      GPIO_NUM_34
+
+//TP5
+#define HW_PLATFORM_TEST_PIN        GPIO_NUM_15
+
 
 /* ========================================================================== */
 /* bCU only related I/O                                                       */

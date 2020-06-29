@@ -43,6 +43,9 @@
 #include "SoftWDT.h"
 #include "IO_Port_IS.h"
 
+#include "test_hw_CAREL.h"
+
+
 #ifdef __DEBUG_MAIN_CAREL_LEV_2
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
 #else
@@ -57,6 +60,7 @@
 //Variables
 static gme_sm_t sm = GME_INIT;
 
+
 void app_main(void)  // main_Carel
 {
 
@@ -64,17 +68,28 @@ void app_main(void)  // main_Carel
   Sys__Delay(50); //just to stabilize the I/O
   hw_platform_detected = Check_HW_Platform_IS();
   Init_Pins();
-
   Set_Gateway_ID();
-
   Led_Task_Start();
-  Carel_Main_Task_Start();
-  //software watchdog
-  while(1)
+
+  if ((hw_platform_detected & PLATFORM_DETECTED_TEST_MODE) != 0)
   {
-	SoftWDT_Manager();
-	Sys__Delay(1000);
+	  /* test mode pin is connected to ground */
+	  test_hw();
   }
+  else
+  {
+
+
+     Carel_Main_Task_Start();
+     //software watchdog
+     while(1)
+     {
+	   SoftWDT_Manager();
+	   Sys__Delay(1000);
+     }
+
+  }
+
 }
 
 void Carel_Main_Task(void)

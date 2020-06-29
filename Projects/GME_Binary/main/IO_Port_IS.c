@@ -81,6 +81,9 @@ void Configure_IO_Check_HW_Platform_IS(void)
   #ifdef INCLUDE_PLATFORM_DEPENDENT
   gpio_pad_select_gpio(HW_PLATFORM_DETECT_PIN);
   gpio_set_direction(HW_PLATFORM_DETECT_PIN, GPIO_MODE_INPUT);
+
+  gpio_pad_select_gpio(HW_PLATFORM_TEST_PIN);
+  gpio_set_direction(HW_PLATFORM_TEST_PIN, GPIO_MODE_INPUT);
   #endif
 }
 
@@ -171,8 +174,16 @@ C_BYTE Check_HW_Platform_IS(void)
 		platform = PLATFORM_DETECTED_WIFI;
 		PRINTF_DEBUG("__USE_USR_WIFI_HW \r\n");
 	}
+
+	if (gpio_get_level(HW_PLATFORM_TEST_PIN) == 0)
+	{
+		platform = platform & PLATFORM_DETECTED_TEST_MODE;
+	}
+
+
 	#endif
 	#endif
+
   return platform;
 }
 
