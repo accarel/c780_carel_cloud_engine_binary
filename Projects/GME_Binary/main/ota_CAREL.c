@@ -227,6 +227,51 @@ void DEV_ota_task(void * pvParameter){
 	free(upgrade_data_buf);
 }
 
+void Model_ota_task(void * pvParameter)
+{
+	c_cborreqdwldevsconfig * myCborUpdate = (c_cborreqdwldevsconfig*)pvParameter;
+	https_conn_err_t err;
+	uint8_t cert_num = CERT_1;
+
+	// get current certificate number and download model
+	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+		cert_num = CERT_1;
+
+	err = HttpsClient__DownloadFile(myCborUpdate, cert_num, MODEL_FILE);
+	#ifdef __CCL_DEBUG_MODE
+	printf("execute_download_devs_config err= %d \n",err);
+	#endif
+	if(CONN_OK == err){
+		// model file has been saved, report it in nvm
+		// save also corresponding cid and did
+		// save also dev
+		if( (C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)) &&
+			(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, myCborUpdate->cid)) &&
+			(C_SUCCESS == NVM__WriteU32Value(MB_DID_NVM, myCborUpdate->did)) &&
+			(C_SUCCESS == NVM__WriteU32Value(MB_DEV_NVM, myCborUpdate->dev)) ){
+            #ifdef __CCL_DEBUG_MODE
+			printf("MODEL FILE, CID, DID AND DEV SAVED\n");
+            #endif
+			err = C_SUCCESS;
+		}else{
+            #ifdef __CCL_DEBUG_MODE
+			printf("CBOR MODEL FILE, CID, DID AND DEV NOT SAVED\n");
+            #endif
+			err = C_FAIL;
+		}
+	}else
+		err = C_FAIL;
+
+	err == C_SUCCESS ? CBOR_SendAsyncResponseDid(0, myCborUpdate->did) : CBOR_SendAsyncResponseDid(1, myCborUpdate->did);
+
+	// reboot if everything went fine
+	if ( err == C_SUCCESS )
+		GME__Reboot();
+
+	vTaskDelete(NULL);
+}
+
+
 void CA_ota_task(void * pvParameter)
 {
 	c_cborrequpdatecacert * myCborUpdate = (c_cborrequpdatecacert*)pvParameter;
@@ -240,7 +285,7 @@ void CA_ota_task(void * pvParameter)
 	else
 		ESP_LOGE(TAG, "Certificate upgrade failed");
 
-    #ifdef __DEBUG_CBOR_CAREL_LEV_1
+    #ifdef __CCL_DEBUG_MODE
 	printf("execute_update_ca_cert err= %d \n",err);
     #endif
 	// restart polling if needed

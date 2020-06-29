@@ -165,6 +165,13 @@ void OTA__DEVInit(c_cborrequpddevfw update_dev_fw)
 #endif
 }
 
+void OTA__ModelInit(c_cborreqdwldevsconfig download_devs_config)
+{
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	xTaskCreate(&Model_ota_task, "Model_ota_task", 8192, (void*)&download_devs_config, 5, NULL);
+#endif
+}
+
 void OTA__CAInit(c_cborrequpdatecacert update_ca)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT

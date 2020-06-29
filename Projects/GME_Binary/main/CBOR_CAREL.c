@@ -1801,21 +1801,30 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			cbor_req.res = ERROR_CMD;
 
 			err = CBOR_ReqSetDevsConfig(cbor_stream, cbor_len, &download_devs_config);
-			if(err == C_SUCCESS) {
+			if (err == C_SUCCESS) {
+				CBOR_SaveAsyncRequest(cbor_req, download_devs_config.cid);
 
-				// write new data to configuration file and put in res the result of operation
-				// to be implemented
-				cbor_req.res = (execute_download_devs_config(&download_devs_config) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-			}
-			// mqtt response
-			len = CBOR_ResSetDevsConfig(cbor_response, &cbor_req, download_devs_config.did);
-			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
+				// empty uri means device has to be disactivated
+				// no model must be downloaded
+				// configuration flag in nvm must be cleared
+				// save cid for successive reboot
+				if (!strcmp(download_devs_config.uri,"")) {
+					unlink(MODEL_FILE);
+					if((C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT)) &&
+						(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config.cid)) &&
+						(C_SUCCESS == NVM__WriteU32Value(MB_DID_NVM, 0)) )
+						err = C_SUCCESS;
+					else
+						err = C_FAIL;
+					err == C_SUCCESS ? CBOR_SendAsyncResponseDid(0, download_devs_config.did) : CBOR_SendAsyncResponseDid(1, download_devs_config.did);
+					if(err == C_SUCCESS)
+						GME__Reboot();
 
-			if(SUCCESS_CMD == cbor_req.res){
-				PollEngine_StopEngine_CAREL();
-				GME__Reboot();
+					break;
+				}
+				OTA__ModelInit(download_devs_config);
 			}
+			// response will be sent when ota task will come to its end
 		}
 		break;
 
@@ -2049,7 +2058,23 @@ void CBOR_SendAsyncResponse(C_INT16 res){
 	}
 }
 
+void CBOR_SendAsyncResponseDid(C_INT16 res, C_UINT16 did){
+	C_CHAR cbor_response[RESPONSE_SIZE];
+	C_MQTT_TOPIC topic;
 
+	async_req.res = res;
+	size_t len = CBOR_ResSetDevsConfig(cbor_response, &async_req, did);
+	sprintf(topic,"%s%s", "/res/", async_req.rto);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+
+	if(res == SUCCESS_CMD){
+		// save cid for successive hello
+		if(async_cid != 0) {
+			NVM__WriteU32Value(MB_CID_NVM, async_cid);
+			GME__Reboot();
+		}
+	}
+}
 C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg){
 
 	C_RES err = NVM__WriteU32Value(MB_BAUDRATE_NVM, set_line_cfg.baud);
@@ -2059,65 +2084,6 @@ C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg){
 
 	return err;
 }
-
-C_RES execute_download_devs_config(c_cborreqdwldevsconfig *download_devs_config){
-
-	https_conn_err_t err;
-	uint8_t cert_num = CERT_1;
-
-    #ifdef __DEBUG_CBOR_CAREL_LEV_2
-	printf("execute_download_devs_config \n");
-    #endif
-
-	err = NVM__WriteU32Value(MB_DEV_NVM, download_devs_config->dev);
-	if (err == C_FAIL)
-		return C_FAIL;
-
-	// empty uri means device has to be disactivated
-	// no model must be downloaded
-	// configuration flag in nvm must be cleared
-	// save cid for successive reboot
-	if (!strcmp(download_devs_config->uri,"")) {
-		unlink(MODEL_FILE);
-		if((C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT)) &&
-				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)) &&
-				(C_SUCCESS == NVM__WriteU32Value(MB_DID_NVM, 0)) )
-		return C_SUCCESS;
-		else return C_FAIL;
-	}
-
-	// get current certificate number and download model
-	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
-		cert_num = CERT_1;
-	err = HttpsClient__DownloadFile(download_devs_config, cert_num, MODEL_FILE);
-	if(CONN_OK != err)
-		return C_FAIL;
-
-    #ifdef __DEBUG_CBOR_CAREL_LEV_2
-	printf("execute_download_devs_config err= %d \n",err);
-    #endif
-	if(CONN_OK == err){
-		// model file has been saved, report it in nvm
-		// save also corresponding cid and did
-		if( (C_SUCCESS == NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, CONFIGURED)) &&
-				(C_SUCCESS == NVM__WriteU32Value(MB_CID_NVM, download_devs_config->cid)) &&
-				(C_SUCCESS == NVM__WriteU32Value(MB_DID_NVM, download_devs_config->did)) ){
-            #ifdef __DEBUG_CBOR_CAREL_LEV_2
-			printf("MODEL FILE, CID AND DID SAVED\n");
-            #endif
-			err = C_SUCCESS;
-		}else{
-            #ifdef __DEBUG_CBOR_CAREL_LEV_1
-			printf("CBOR MODEL FILE, CID AND DID NOT SAVED\n");
-            #endif
-			err = C_FAIL;
-		}
-	}else
-		return C_FAIL;
-
-	return C_SUCCESS;
-}
-
 
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 {

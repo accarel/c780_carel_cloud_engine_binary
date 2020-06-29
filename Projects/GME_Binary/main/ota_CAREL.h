@@ -76,4 +76,5 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 
 void GME_ota_task(void * pvParameter);
 void CA_ota_task(void * pvParameter);
+void Model_ota_task(void * pvParameter);
 #endif /* __OTA_CAREL_ */

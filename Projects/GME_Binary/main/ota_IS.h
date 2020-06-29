@@ -41,5 +41,6 @@ void OTAGroup (bool ota_res);
 void OTA__DEVInit(c_cborrequpddevfw update_dev_fw);
 void OTADEVGroup (bool ota_res);
 void OTA__CAInit(c_cborrequpdatecacert update_ca);
+void OTA__ModelInit(c_cborreqdwldevsconfig download_devs_config);
 
 #endif  //__OTA_IS
