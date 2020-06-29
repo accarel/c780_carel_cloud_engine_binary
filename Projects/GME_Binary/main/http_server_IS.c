@@ -140,9 +140,40 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 	cJSON_AddItemToObject(html_config, HTMLLOGIN_USR, cJSON_CreateString(login));
 	cJSON_AddItemToObject(html_config, HTMLLOGIN_PSWD, cJSON_CreateString(password));
 
+	strcpy(ap_ssid_temp, HTTPServer__SetAPDefSSID(AP_DEF_SSID));
+	cJSON_AddItemToObject(html_config, "lastmac", cJSON_CreateString(ap_ssid_temp));
+
 	/* print everything */
 	out = cJSON_Print(html_config);
 	PRINTF_DEBUG_SERVER("html_config.json:%s\n", out);
+
+    httpd_resp_set_type(req, "application/json");
+    /* Add file upload form and script which on execution sends a POST request to /upload */
+
+    httpd_resp_send_chunk(req, (const char *)out, strlen(out));
+    httpd_resp_sendstr_chunk(req, NULL);
+
+	/* free all objects under root and root itself */
+	cJSON_Delete(html_config);
+
+    return ESP_OK;
+}
+
+//Send login.json
+static C_RES http_resp_login_json(httpd_req_t *req)
+{
+    //Get config values into a json struct
+	char *out;
+	char ap_ssid_temp[30] = {0};
+	cJSON *html_config;
+	html_config = cJSON_CreateObject();
+
+	strcpy(ap_ssid_temp, HTTPServer__SetAPDefSSID(AP_DEF_SSID));
+	cJSON_AddItemToObject(html_config, "lastmac", cJSON_CreateString(ap_ssid_temp));
+
+	/* print everything */
+	out = cJSON_Print(html_config);
+	PRINTF_DEBUG_SERVER("html_login.json:%s\n", out);
 
     httpd_resp_set_type(req, "application/json");
     /* Add file upload form and script which on execution sends a POST request to /upload */
@@ -222,6 +253,9 @@ static C_RES download_get_handler(httpd_req_t *req)
 	}else{
 		if (strcmp(filename, "/config.json") == 0){
 			return http_resp_config_json(req);
+		}
+		else if (strcmp(filename, "/login.json") == 0){
+			return http_resp_login_json(req);
 		}
 
 	ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
@@ -442,6 +476,14 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 		.user_ctx  = server_data    // Pass server data as context
 	};
 	httpd_register_uri_handler(server, &get_config_json);
+
+	httpd_uri_t get_login_json = {
+		.uri       = "/login.json",  // Match all URIs of type /path/to/file
+		.method    = HTTP_GET,
+		.handler   = download_get_handler,
+		.user_ctx  = server_data    // Pass server data as context
+	};
+	httpd_register_uri_handler(server, &get_login_json);
 
 	// URI handler for uploading files to server
 	httpd_uri_t file_upload = {
