@@ -82,8 +82,10 @@ void Configure_IO_Check_HW_Platform_IS(void)
   gpio_pad_select_gpio(HW_PLATFORM_DETECT_PIN);
   gpio_set_direction(HW_PLATFORM_DETECT_PIN, GPIO_MODE_INPUT);
 
+  #if !defined(__USE_ESP_WROVER_KIT)
   gpio_pad_select_gpio(HW_PLATFORM_TEST_PIN);
   gpio_set_direction(HW_PLATFORM_TEST_PIN, GPIO_MODE_INPUT);
+  #endif
   #endif
 }
 
