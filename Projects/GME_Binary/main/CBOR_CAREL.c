@@ -614,12 +614,6 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetCidCode());
 	DEBUG_ADD(err, "cel");
 
-	// encode uci - elem11 (FOR UMTS, REMOVE?)
-	err |= cbor_encode_text_stringz(&mapEncoder, "uci");
-	C_BYTE uci[16] = {1,3,4,2,1,7,7,2,7};								// to be implemented
-	err |= cbor_encode_byte_string(&mapEncoder, uci, 16);
-	DEBUG_ADD(err, "uci");
-
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
 		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_stream);
