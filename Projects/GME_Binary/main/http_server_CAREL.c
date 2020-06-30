@@ -323,9 +323,8 @@ char* HTTPServer__SetAPDefSSID(const char* default_name){
 	 *  the name shown will be  "GME_EF4738"
 	 *
 	 */
-	sprintf(ap_ssid_def, "%s_%.2s%.2s%.2s", default_name,
-			                                Utilities__GetMACAddr()+6,
-											Utilities__GetMACAddr()+8,
+	sprintf(ap_ssid_def, "%s_%.2s%.2s", default_name,
+			                            	Utilities__GetMACAddr()+8,
 											Utilities__GetMACAddr()+10);
 
 	return ap_ssid_def;

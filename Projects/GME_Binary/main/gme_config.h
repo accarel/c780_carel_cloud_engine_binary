@@ -42,7 +42,7 @@
 #define AP_DEF_GW			"10.10.100.254"
 #define AP_DEF_NETMASK		"255.255.255.0"
 #define AP_DEF_DHCP_BASE	"10.10.100.10"
-#define AP_DEF_SSID			"CGATEM"
+#define AP_DEF_SSID			"cgatem"
 #define AP_DEF_PSSWD		"12345678"
 #define AP_DEF_SSID_HIDDEN	0
 #define AP_DEF_MAX_CONN		10
