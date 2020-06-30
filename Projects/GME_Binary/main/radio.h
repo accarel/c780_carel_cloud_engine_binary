@@ -11,5 +11,6 @@ typedef enum{
 gme_sm_t Radio__Config(void);
 void Radio__WaitConnection(void);
 connection_status_t Radio__GetStatus(void);
+int8_t Radio__GetRSSI(void);
 
 #endif

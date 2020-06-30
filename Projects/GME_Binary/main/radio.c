@@ -28,3 +28,13 @@ connection_status_t Radio__GetStatus(void){
 		return Mobile__GetStatus();
 	else return DISCONNECTED;
 }
+
+int8_t Radio__GetRSSI(void){
+	if (PLATFORM(PLATFORM_DETECTED_WIFI) ||
+			PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) ||
+			PLATFORM(PLATFORM_DETECTED_BCU))
+		return WiFi__GetRSSI();
+	else if (PLATFORM(PLATFORM_DETECTED_2G))
+		return 0;	// for 2G model, wifi is off, so no wifi power is measured
+	return 0;
+}

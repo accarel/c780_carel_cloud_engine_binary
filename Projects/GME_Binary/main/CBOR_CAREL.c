@@ -330,7 +330,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 	// encode sgn -elem6
 	err |= cbor_encode_text_stringz(&mapEncoder, "sgn");
 	int8_t rssi = 0;
-	rssi = WiFi__GetRSSI();
+	rssi = Radio__GetRSSI();
 	err |= cbor_encode_int(&mapEncoder, rssi);
 	DEBUG_ADD(err,"sgn");
 
@@ -2099,13 +2099,9 @@ C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config)
 	}
 
 	gw_config_nvm.hispeedsamplevalue = set_gw_config.hss;
-
 	gw_config_nvm.lowspeedsamplevalue = set_gw_config.lss;
-
 	gw_config_nvm.mqttKeepAliveInterval = set_gw_config.mka;
-
 	gw_config_nvm.statusPeriod = set_gw_config.pst;
-
 	gw_config_nvm.valuesPeriod = set_gw_config.pva;
 
 	C_RES err = NVM__WriteBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,sizeof(gw_config_nvm));
