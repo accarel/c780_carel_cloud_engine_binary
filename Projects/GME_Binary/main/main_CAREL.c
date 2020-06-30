@@ -266,6 +266,7 @@ void Carel_Main_Task(void)
 					waiting_conf_timer = RTC_Get_UTC_Current_Time();
 				}
         	}
+        	MQTT_PeriodicTasks();			// manage the MQTT subscribes even before configuration is done
 
         	GME__CheckHTMLConfig();
 
@@ -330,8 +331,7 @@ void Carel_Main_Task(void)
           	//TODO
               Radio__WaitConnection();
 
-              if(MQTT_GetFlags() == 1)
-              	MQTT_PeriodicTasks();			// manage the MQTT subscribes
+              MQTT_PeriodicTasks();			// manage the MQTT subscribes
 
               GME__CheckHTMLConfig();
 

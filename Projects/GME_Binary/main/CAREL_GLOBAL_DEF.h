@@ -21,8 +21,6 @@
  *        REMEMBER Only one.
  */
 
-//TODO BILATO Work in progress
-
 /* The platform is determined by an I/O pin on 2G e WiFi model so that
  * the same FW runs on both platforms.
  * ONLY for the bCU the platform must be set manually and generate a
@@ -120,6 +118,9 @@
 
 #define NTP_DEFAULT_PORT  	123
 
-#define GW_MOBILE_TIME		60	//TODO temporarily set to 60s, should be 300s
+// period for status payload transmission
+#define GW_MOBILE_TIME		60	//TODO temporarily set to 60s, should be 7200s (2 hours)
+//period for mobile payload transmission
+#define GW_STATUS_TIME		60	//TODO temporarily set to 60s, should be 7200s (2 hours)
 #endif
 

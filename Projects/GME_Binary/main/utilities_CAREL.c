@@ -77,3 +77,10 @@ void Utilities__Init(void){
 	  Utilities__CalcIMEICode();
 
 }
+
+C_UINT32 Utilities__GetStatusPeriod(void){
+
+	if(Utilities__GetGWConfigData()->statusPeriod != 0)
+		return Utilities__GetGWConfigData()->statusPeriod;
+	else return GW_STATUS_TIME;
+}

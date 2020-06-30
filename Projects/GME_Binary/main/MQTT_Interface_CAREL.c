@@ -81,9 +81,6 @@ C_RES MQTT_Start(void)
 	if(C_SUCCESS == NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED == gw_config_status){
 		size_t gw_config_len;
 		req_set_gw_config_t gw_config_nvm = {0};
-        #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-		PRINTF_DEBUG("mqtt keepalive val check ok \n");
-        #endif
 		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&gw_config_len);
 
 		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
@@ -223,15 +220,15 @@ void MQTT_Alarms(c_cboralarms alarms)
 
 void MQTT_PeriodicTasks(void)
 {
-	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU)) {
-		if(RTC_Get_UTC_Current_Time() > (mqtt_periodic_time + Utilities__GetGWConfigData()->statusPeriod)) {
-			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
-			printf("Sending STATUS CBOR \n\n");
-			#endif
-			CBOR_SendStatus();
-			mqtt_periodic_time = RTC_Get_UTC_Current_Time();
-		}
+	// send status payload on all platforms every pst seconds (configurable)
+	if(RTC_Get_UTC_Current_Time() > (mqtt_periodic_time + Utilities__GetStatusPeriod())) {
+		#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
+		printf("Sending STATUS CBOR every %d seconds\n\n", Utilities__GetStatusPeriod());
+		#endif
+		CBOR_SendStatus();
+		mqtt_periodic_time = RTC_Get_UTC_Current_Time();
 	}
+	// send mobile payload only for 2G model every GW_MOBILE_TIME seconds (fixed)
 	else if(PLATFORM(PLATFORM_DETECTED_2G)) {
 		if(RTC_Get_UTC_Current_Time() > (mqtt_periodic_time + GW_MOBILE_TIME)) {
 			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
