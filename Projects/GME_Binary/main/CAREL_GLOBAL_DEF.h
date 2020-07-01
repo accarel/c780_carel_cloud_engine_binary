@@ -97,7 +97,7 @@
 #define GW_GSM_PARTNUMBER 	"GTW000MGP0"
 
 #define GW_HW_REV  "100"
-#define GW_FW_REV  "100"
+#define GW_FW_REV  "001"
 
 /* ========================================================================== */
 /* OS related                                                                 */
@@ -119,8 +119,8 @@
 #define NTP_DEFAULT_PORT  	123
 
 // period for status payload transmission
-#define GW_MOBILE_TIME		60	//TODO temporarily set to 60s, should be 7200s (2 hours)
+#define GW_MOBILE_TIME		7200
 //period for mobile payload transmission
-#define GW_STATUS_TIME		60	//TODO temporarily set to 60s, should be 7200s (2 hours)
+#define GW_STATUS_TIME		7200
 #endif
 
