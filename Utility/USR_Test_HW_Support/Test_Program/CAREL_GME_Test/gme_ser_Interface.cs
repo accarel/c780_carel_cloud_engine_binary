@@ -14,11 +14,12 @@ namespace gme_ser_Interface
     {
         internal delegate void SerialDataReceivedEventHandlerDelegate(object sender, SerialDataReceivedEventArgs e);
         internal delegate void SerialPinChangedEventHandlerDelegate(object sender, SerialPinChangedEventArgs e);
-        private SerialPinChangedEventHandler SerialPinChangedEventHandler1;
+        private SerialPinChangedEventHandler SerialPinChangedEventHandler_ttl;
 
         //delegate void SetTextCallback(string text);
         public int SerDataAvailable;
         public string InputData = String.Empty;
+        public string CumulatedData = String.Empty;
 
         public int SerSendDataAvailable;
         public string SendData = String.Empty;
@@ -26,11 +27,14 @@ namespace gme_ser_Interface
         public String ComPrgName = "---";
         public String ComPrgBaud = "115200";
 
+        public String ComModbusSimulator = "---";
+
+
         public bool ser_is_open = false;
             
-        SerialPort ComPort = new SerialPort();
+        SerialPort SerPort_ttl = new SerialPort();
                 
-        internal void PinChanged(object sender, SerialPinChangedEventArgs e)
+        internal void PinChanged_ttl(object sender, SerialPinChangedEventArgs e)
         {
             SerialPinChange SerialPinChange1 = 0;
             bool signalState = false;
@@ -60,13 +64,14 @@ namespace gme_ser_Interface
         }
 
 
-        private void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        private void port_DataReceived_ttl(object sender, SerialDataReceivedEventArgs e)
         {
-            InputData = ComPort.ReadExisting();
+            InputData = SerPort_ttl.ReadExisting();
 
             if (InputData != String.Empty)
             {
-                SerDataAvailable = 1;               
+                SerDataAvailable = 1;
+                Console.WriteLine(InputData);
             }
         }
 
@@ -84,6 +89,10 @@ namespace gme_ser_Interface
 
             par_val = MyIni.Read("BaudPrg");
             ComPrgBaud = par_val;
+
+            par_val = MyIni.Read("PortMBSim");
+            ComModbusSimulator = par_val;
+                       
         }
 
 
@@ -100,21 +109,21 @@ namespace gme_ser_Interface
             /* serial port part */                          
             try
             {
-                ComPort.PortName = Convert.ToString(ComPrgName);
-                ComPort.BaudRate = Convert.ToInt32(@"115200");
-                ComPort.DataBits = Convert.ToInt16(@"8");
-                ComPort.StopBits = (StopBits)Enum.Parse(typeof(StopBits), @"1");
-                ComPort.Handshake = (Handshake)Enum.Parse(typeof(Handshake), @"None");
-                ComPort.Parity = (Parity)Enum.Parse(typeof(Parity), @"None");
+                SerPort_ttl.PortName = Convert.ToString(ComPrgName);
+                SerPort_ttl.BaudRate = Convert.ToInt32(@"115200");
+                SerPort_ttl.DataBits = Convert.ToInt16(@"8");
+                SerPort_ttl.StopBits = (StopBits)Enum.Parse(typeof(StopBits), @"1");
+                SerPort_ttl.Handshake = (Handshake)Enum.Parse(typeof(Handshake), @"None");
+                SerPort_ttl.Parity = (Parity)Enum.Parse(typeof(Parity), @"None");
                                
-                SerialPinChangedEventHandler1 = new SerialPinChangedEventHandler(PinChanged);
-                ComPort.PinChanged += SerialPinChangedEventHandler1;
+                SerialPinChangedEventHandler_ttl = new SerialPinChangedEventHandler(PinChanged_ttl);
+                SerPort_ttl.PinChanged += SerialPinChangedEventHandler_ttl;
                 
-                ComPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(port_DataReceived);
+                SerPort_ttl.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(port_DataReceived_ttl);
 
-                ComPort.Open();
-                ComPort.RtsEnable = true;
-                ComPort.DtrEnable = true;
+                SerPort_ttl.Open();
+                SerPort_ttl.RtsEnable = true;
+                SerPort_ttl.DtrEnable = true;
                 ser_is_open = true;
             }
             catch
@@ -122,12 +131,13 @@ namespace gme_ser_Interface
               
             }
 
+            reset_ser();
             return par_val;
         }
 
         public void DeInit_Ser_Communication_Interface()
         {
-            ComPort.Close();
+            SerPort_ttl.Close();
             ser_is_open = false;
         }
                         
@@ -144,7 +154,8 @@ namespace gme_ser_Interface
                 maxtime += 50;
                 if (SerDataAvailable == 1)
                 {
-                    resp = InputData;
+                    CumulatedData = CumulatedData + InputData;
+                    resp = CumulatedData;
                     break;
                 }
 
@@ -158,27 +169,50 @@ namespace gme_ser_Interface
         /*                 BEGIN OF IMPLEMENTATION SPECIFIC ROUTINE                */
         /* ======================================================================= */
 
+        public void reset_ser()
+        {
+            SerDataAvailable = 0;
+        }
+        
+
         public string get_mac_response()
         {
             String ret_val = @"";
             String result = @"";
             int irv=0;
+            int value;
+            int maxtime;
+            int loctimeout;
 
-            SerDataAvailable = 0;
-            
-            ret_val = serial_response(1000);
 
-            if (ret_val != "")
-            {
-                string separator = @"MAC=";
-                // Part 1: get index of separator.
-                int separatorIndex = ret_val.IndexOf(separator);
-                // Part 2: if separator exists, get substring.
-                if (separatorIndex >= 0)
+            maxtime = 0;
+            loctimeout = 5000;  //5 sec
+
+            /*
+             at startup the ESP32 emit some bootloader msg, so that 
+             we need to receive all this "spurious" data before
+             get the MAC             
+             */
+            do
+            {                         
+                ret_val = serial_response(500);                
+                value = String.Compare(ret_val, @"");                
+                if (value != 0)
                 {
-                    result = ret_val.Substring(separatorIndex + separator.Length);                   
+                    string separator = @"MAC=";
+                    // Part 1: get index of separator.
+                    int separatorIndex = ret_val.IndexOf(separator);
+                    // Part 2: if separator exists, get substring.
+                    if (separatorIndex >= 0)
+                    {
+                        result = ret_val.Substring(separatorIndex + separator.Length, 12);                   
+                    }
                 }
-            }
+
+                Thread.Sleep(50);
+                maxtime += 50;
+
+            } while (maxtime < loctimeout);
 
             return result;
         }

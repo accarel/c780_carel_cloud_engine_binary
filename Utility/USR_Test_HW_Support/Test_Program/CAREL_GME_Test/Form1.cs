@@ -364,12 +364,12 @@ namespace CodeProjectSerialComms
 
 
             My_SER.Init_Ser_Interface();           
-            if (My_IO.ComPrgName == "")
+            if (My_SER.ComPrgName == "")
             {
                 MessageBox.Show("ERROR! I/O COM PortPrg not found please check CAREL_GME_Test_CFG.ini");
                 this.Close();
             }
-            labelComPrg.Text = My_IO.ComPrgName;
+            labelComPrg.Text = My_SER.ComPrgName;
 
 
             if (My_IO.ComPrgBaud == "")
@@ -380,8 +380,18 @@ namespace CodeProjectSerialComms
             labelPrgBaud.Text = My_IO.ComPrgBaud;
 
 
-            //TODO eliminare
-            schedule_Timer();
+            if (My_SER.ComModbusSimulator == "")
+            {
+                MessageBox.Show("ERROR! I/O COM PortMBSim not set please check CAREL_GME_Test_CFG.ini");
+                this.Close();
+            }
+            label_MB_Sim_Port.Text = My_SER.ComModbusSimulator;
+         
+
+            Application.DoEvents();
+
+            //TODO launch the ModBus simulator
+            launch_modbus_simulator();
 
 
             buttonTestStart.BackColor = Color.Green;
@@ -391,6 +401,28 @@ namespace CodeProjectSerialComms
         {
             My_IO.set_rele_status(My_IO.RELE_POWER, My_IO.RELE_ON);
         }
+
+
+
+        private int launch_modbus_simulator()
+        {
+            
+            String cmdlinepars;
+            cmdlinepars = My_SER.ComModbusSimulator;
+
+            Process pProcess = new Process();
+
+            pProcess.StartInfo.FileName = @"Modbus_PC_Simulator.bat";
+            pProcess.StartInfo.Arguments = cmdlinepars;
+            pProcess.StartInfo.UseShellExecute = false;
+            pProcess.StartInfo.RedirectStandardOutput = false;
+            pProcess.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Minimized;
+            pProcess.StartInfo.CreateNoWindow = false;            //not diplay a windows
+            pProcess.Start();
+            
+            return 1;
+        }
+
 
 
 
@@ -538,6 +570,8 @@ namespace CodeProjectSerialComms
 
             display_reset();
             display_status("TEST Start!");
+
+
             /* close serial if left opened by the previous failed test */
             if (My_SER.ser_is_open == true) My_SER.DeInit_Ser_Communication_Interface();
 
@@ -547,6 +581,7 @@ namespace CodeProjectSerialComms
             My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_ON); //press prog. button
             My_IO.set_rele_status(My_IO.RELE_POWER, My_IO.RELE_ON);
 
+#if (PIPPO)
             test_pass = MessageYesNo("LED POWER TEST", "Is the power led ON ?");
             if (test_pass == false)
             {                
@@ -579,7 +614,7 @@ namespace CodeProjectSerialComms
 
             //TODO DECOMMENTARE
             
-            //test_pass = prog_device();
+            test_pass = prog_device();
 
             if (test_pass == false) 
             {
@@ -588,20 +623,22 @@ namespace CodeProjectSerialComms
                 return;
             }
 
+#endif
 
             /*
              * now we initialize the serial port previosly used for the programming
              * to get some data from the GME in test mode
              */
             My_SER.Init_Ser_Communication_Interface();
-                                   
+            
 
             MessageBox.Show("Take a look to the status led to see if blink");
 
+#if (PIPPO)
             //now we put GME in test mode            
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);            //maintain GME resetted
             Thread.Sleep(100);
-            My_IO.set_rele_status(My_IO.RELE_TP5, My_IO.RELE_ON);           //TP5 to gorund 
+            My_IO.set_rele_status(My_IO.RELE_TP5, My_IO.RELE_ON);           //TP5 to ground 
             Thread.Sleep(100);
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);            //leave GME reset
             display_status("Gateway in test mode ..");
@@ -612,13 +649,20 @@ namespace CodeProjectSerialComms
                 display_failed_test();
                 return;
             }
-            
-            
+#endif
+
             //get MAC address
             String mac_address_str;
-            mac_address_str = My_SER.get_mac_response();
+            int value;
 
-            if (mac_address_str == "")
+            mac_address_str = My_SER.get_mac_response();
+            value = String.Compare(mac_address_str, @"");
+
+            if (value != 0)
+            {
+                display_status(mac_address_str);
+            }
+            else
             {
                 display_status("FAIL to get MAC address");
                 display_failed_test();
@@ -629,22 +673,22 @@ namespace CodeProjectSerialComms
             //TODO test if connected to the AP
 
 
+            //TODO read HR n.1 
 
+            //if HR ==1234 testo ok
 
 
             //close the serial port 
             My_SER.DeInit_Ser_Communication_Interface();
 
+
             /* ============================================================== */
             /*                BEGIN OF USR CUSTOMIZATION PART                 */
             /* ============================================================== */
 
-
-            //get Serial number from factory 
-
-
-            //print label 
-
+            //TODO for USR 
+            //get Serial number from factory or do all in an external program
+            //that also print the label 
 
 
             /* ============================================================== */
@@ -655,7 +699,6 @@ namespace CodeProjectSerialComms
             /*                         END OF TEST                            */
             /* ============================================================== */
             display_status("TEST PASSED - END OF TEST ");
-
 
         }
 
@@ -672,6 +715,41 @@ namespace CodeProjectSerialComms
             
             buttonTestStart.Enabled = true;
             buttonTestStart.BackColor = Color.Green;
+        }
+
+        private void button_tp_en_Click(object sender, EventArgs e)
+        {
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);
+        }
+
+        private void button_tp_en_off_Click(object sender, EventArgs e)
+        {
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);
+        }
+
+        private void button_tp5_Click(object sender, EventArgs e)
+        {
+            My_IO.set_rele_status(My_IO.RELE_TP5, My_IO.RELE_ON);
+        }
+
+        private void button_tp5_off_Click(object sender, EventArgs e)
+        {
+            My_IO.set_rele_status(My_IO.RELE_TP5, My_IO.RELE_OFF);
+        }
+
+        private void button_button_Click(object sender, EventArgs e)
+        {
+            My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_ON);
+        }
+
+        private void button_button_off_Click(object sender, EventArgs e)
+        {
+            My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);
+        }
+
+        private void button_all_off_Click(object sender, EventArgs e)
+        {
+            My_IO.open_all_rele();
         }
     }
 
