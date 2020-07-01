@@ -20,8 +20,6 @@
 #include "mobile.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-//#include "file_system.h"
-
 #include "esp_vfs.h"
 #include "esp_spiffs.h"
 #include "esp_log.h"
