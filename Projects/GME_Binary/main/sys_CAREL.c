@@ -14,7 +14,7 @@
 
 #include "nvm_IS.h"
 
-static char certificates[CERT_MAX_NUMBRER][CERT_MAX_SIZE] = {0};
+static char certificates[CERT_MAX_NUMBER][CERT_MAX_SIZE] = {0};
 
 //********************************************************
 //					PUBLIC FUNCTIONS

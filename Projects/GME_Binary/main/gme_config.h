@@ -80,7 +80,7 @@
 /*-------------------------------
  * Certificates Allocation
  *-----------------------------*/
-#define CERT_MAX_NUMBRER	2
+#define CERT_MAX_NUMBER	2
 #define CERT_MAX_SIZE		1536
 
 
@@ -89,21 +89,8 @@
  *-----------------------------*/
 // Define port options for the master application
 #define MB_BAUDRATE     19200
-#define MB_PORTNUM      2
 #define MB_PORTNUM_485  2
 #define MB_PORTNUM_TTL  0
 #define MB_PARITY       UART_PARITY_DISABLE
-
-
-//Time to wait after a null alarm
-#define NULL_ALARM_TIMER 	(90) //Sec
-
-/*------------------------------
- * Firmware Version
- *-----------------------------*/
-#define	FW_VER_XX	90
-#define FW_VER_YY	00
-#define FW_VER_ZZ	00
-
 
 #endif /* MAIN_GME_CONFIG_H_ */
