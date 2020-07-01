@@ -20,6 +20,15 @@
 /* general purpose                                                            */
 /* ========================================================================== */
 
+enum{
+	TEST_PRINT_MACADDR,
+	TEST_TRY_CONNECT,
+	TEST_WAIT_RESP_CONNECT,
+	TEST_PRINT_RESP_CONNECT,
+	TEST_PRINT_MODBUS,
+	TEST_END,
+	TEST_NUM_OF_STEP
+};
 
 
 /* ========================================================================== */
