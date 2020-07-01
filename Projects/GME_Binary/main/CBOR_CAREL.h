@@ -48,7 +48,6 @@
 #define VAL_SIZE				10
 #define A_SIZE					30
 #define B_SIZE					30
-#define ENTRY_PER_PKT			VLS_NUMBER //TODO
 
 #define REPORT_SLAVE_ID_SIZE	256
 #define ADU_SIZE				512
@@ -234,19 +233,6 @@ typedef struct C_CBORALARMS{
 	C_TIME et;
 }c_cboralarms;
 #pragma pack()
-
-#define VLS_NUMBER 		30
-typedef struct C_CBORVALS{
-	C_CHAR alias[ALIAS_SIZE];
-	C_CHAR values[ALIAS_SIZE];
-}c_cborvals;
-
-typedef struct db_values{
-	C_TIME t;
-	c_cborvals vls[VLS_NUMBER];
-}db_values;
-
-
 
 /*----------------------------------------------------------------------------------------*/
 size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms);

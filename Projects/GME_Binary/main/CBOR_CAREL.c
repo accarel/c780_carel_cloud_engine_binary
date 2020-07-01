@@ -2322,21 +2322,16 @@ C_INT16 getBitMask(C_INT16 len)
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 {
 	C_RES result = C_FAIL;
-	// todo da gestire tutte le conversioni di tipo nei vari casi
-
 	C_CHAR num_reg;
 	C_FLOAT val_to_write;
 	C_INT32 ivalue;
 
-        // only for Nibble management
+    // only for Nibble management
 	hr_ir_low_high_poll_t hr_to_read = {0};
 	long double conv_value = 0;
 
-        uint16_t tmp, mask;
-
-	//
-
-	double res;
+    uint16_t tmp, mask;
+    double res;
 
 	res = atof((C_SCHAR*)cbor_wv.val);
 

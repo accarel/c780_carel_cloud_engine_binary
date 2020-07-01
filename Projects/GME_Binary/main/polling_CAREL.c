@@ -60,11 +60,6 @@ static coil_di_poll_tables_t 	DILowPollTab = {.reg = NULL,};
 static coil_di_poll_tables_t 	DIHighPollTab = {.reg = NULL,};
 static coil_di_alarm_tables_t 	*DIAlarmPollTab = NULL;
 
-static mb_parameter_descriptor_t *MBParameters = NULL;
-//static mb_param_char_t			 MBParamChar = {.p_ch = NULL,};
-static mb_param_char_t			 *MBParamChar = NULL;
-
-
 static poll_req_num_t low_n, high_n, alarm_n;
 static uint16_t  cid_counter=0;
 
@@ -91,12 +86,7 @@ static uint16_t values_buffer_len = 0;
 // Pointer to the values buffer
 static values_buffer_t *values_buffer = NULL;
 
-//Engine flags
-static passing_mode_fsm_t PassMode_FSM = START_TIMER;
-static uint32_t PassModeTimer = 0;
-static uint8_t PassMode_CmdStatus = NOT_RECEIVED;
 static uint32_t MB_BaudRate = 0;
-static uint16_t NullTimerAlarm = 0;
 
 // useful for a MODBUS READING AND QWRITING
 
