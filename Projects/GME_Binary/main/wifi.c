@@ -68,25 +68,6 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
 	uint16_t apCount;
 	switch(event->event_id) {
-	    case SYSTEM_EVENT_WIFI_READY:
-	    case SYSTEM_EVENT_STA_STOP:
-	    case SYSTEM_EVENT_STA_AUTHMODE_CHANGE:
-	    case SYSTEM_EVENT_STA_LOST_IP           :
-	    case SYSTEM_EVENT_STA_WPS_ER_FAILED     :
-	    case SYSTEM_EVENT_STA_WPS_ER_TIMEOUT    :
-	    case SYSTEM_EVENT_STA_WPS_ER_PIN        :
-	    case SYSTEM_EVENT_STA_WPS_ER_PBC_OVERLAP:
-	    case SYSTEM_EVENT_AP_STOP               :
-	    case SYSTEM_EVENT_AP_PROBEREQRECVED     :
-	    case SYSTEM_EVENT_GOT_IP6               :
-	    case SYSTEM_EVENT_ETH_START             :
-	    case SYSTEM_EVENT_ETH_STOP              :
-	    case SYSTEM_EVENT_ETH_CONNECTED         :
-	    case SYSTEM_EVENT_ETH_DISCONNECTED      :
-	    case SYSTEM_EVENT_ETH_GOT_IP            :
-	    case SYSTEM_EVENT_MAX                   :
-	    break;
-
 
 //AP MODE
 		case SYSTEM_EVENT_AP_START:
@@ -624,8 +605,7 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 	dhcps_lease_t optValue;
 	optValue.enable = true;
 
-	//optValue.start_ip.addr = "10.10.100.254";//ipaddr_addr(config.ap_dhcp_ip);// End IP Address
-	optValue.start_ip.addr = inet_addr("10.10.100.254");
+	optValue.start_ip.addr = inet_addr(AP_DEF_IP);
 
 	end_ip = optValue.start_ip.addr & 0x00FFFFFF;
 	temp = optValue.start_ip.addr >> 24;
