@@ -1728,16 +1728,6 @@ C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR nu
 		return C_FAIL;
 }
 
-
-
-
-
-
-
-
-
-
-
 /**
  * @brief PollEngine__Write_COIL_Req
  *        function that write a Coil register via Modbus
@@ -1767,124 +1757,6 @@ C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 f
 		return C_FAIL;
 }
 
-
-uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx){
-
-//	mbc_master_suspend();   // CHIEBAO
-
-	uint8_t data_rx_len;
-
-	PRINTF_POLL_ENG(("ADU Request Packet:  "))
-
-	for(int i=0; i<send_mb_adu->adu_len; i++)
-	{
-		uart_write_bytes(modbusPort, (const char *) &send_mb_adu->adu[i], 1);  // MB_PORTNUM
-	}
-
-	data_rx_len = uart_read_bytes(modbusPort, data_rx, 255,  MB_RESPONSE_TIMEOUT(send_mb_adu->adu_len)); // MB_PORTNUM
-
-
-	if(PollEngine__GetPollEnginePrintMsgs() == 1){
-
-		#ifdef __DEBUG_POLLING_CAREL_LEV_2
-		PRINTF_DEBUG("\nuart_read_bytes len = %d\n\n",data_rx_len);
-
-		for(int i=0; i<data_rx_len; i++){
-			PRINTF_DEBUG("[%d]=%02X  ",i,data_rx[i]);
-		}
-		PRINTF_DEBUG("\n");
-        #endif
-	}
-
-	uart_flush_input(modbusPort);    // MB_PORTNUM
-	uart_flush(modbusPort);          // MB_PORTNUM
-
-//	ClearQueueMB();			// CHIEBAO
-//	mbc_master_resume();	// CHIEBAO
-
-	Sys__Delay(1000);
-
-	return data_rx_len;
-
-
-}
-
-
-
-static uint8_t test1=0;
-static uint8_t test2=0;
-static uint8_t test3=0;
-static uint8_t test4=0;
-
-void PollEngine__PassModeFSM(void){
-#if 0
-	//PRINTF_DEBUG("PollEngine_Status.engine = %d, PassMode_FSM = %d\n", PollEngine_Status.engine,PassMode_FSM );
-	if(STOPPED == PollEngine_Status.engine){// && STOPPED == PollEngine_Status.polling
-
-		switch(PassMode_FSM){
-		case START_TIMER:
-			{
-
-				PassModeTimer =	RTC_Get_UTC_Current_Time();
-				PassMode_FSM = WAIT_MQTT_CMD;
-
-				PRINTF_DEBUG("\nPassModeFSM 	START_TIMER\n");
-			}
-			break;
-
-		case WAIT_MQTT_CMD:
-			{
-				if(RECEIVED == PollEngine__GetPassModeCMD()){
-					PassMode_FSM = RESET_TIMER;
-				}else if(RTC_Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
-						PassMode_FSM = DEACTIVATE_PASS_MODE;
-				}
-
-				if(test1==0){PRINTF_DEBUG("\nPassModeFSM 	WAIT_MQTT_CMD\n"); test1=1;}
-			}
-			break;
-
-		case RESET_TIMER:
-			{
-				PassModeTimer =	RTC_Get_UTC_Current_Time();
-				PassMode_FSM = EXECUTE_CMD;
-
-				if(test2==0){PRINTF_DEBUG("\nPassModeFSM	RESET_TIMER\n"); test2=1;}
-			}
-			break;
-
-		case EXECUTE_CMD:
-			{
-				if(EXECUTED == PollEngine__GetPassModeCMD() ||
-					RTC_Get_UTC_Current_Time() > (PassModeTimer + PASS_MODE_TIMER)){
-
-					PassMode_FSM = DEACTIVATE_PASS_MODE;
-				}
-
-				if(test3==0){PRINTF_DEBUG("\nPassModeFSM 	EXECUTE_CMD\n"); test3=3;}
-			}
-			break;
-
-		case DEACTIVATE_PASS_MODE:
-			{
-				PassMode_FSM = START_TIMER;
-				PollEngine_Status.passing_mode = DEACTIVATED;
-				PollEngine_Status.engine = RUNNING;
-				PollEngine__SetPassModeCMD(NOT_RECEIVED);
-
-
-				if(test4==0){PRINTF_DEBUG("PassModeFSM 	DEACTIVATE_PASS_MODE\n"); test4=3;}
-			}
-			break;
-		default:
-			break;
-		}
-
-	}
-#endif
-}
-
-
 void PollEngine_StartEngine_CAREL(void){
 	PollEngine_Status.engine = RUNNING;
 }
@@ -1900,32 +1772,6 @@ uint8_t PollEngine_GetEngineStatus_CAREL(void){
 uint8_t PollEngine_GetPollingStatus_CAREL(void){
 	return PollEngine_Status.polling;
 }
-
-/*
- * PASS MODE
- */
-
-void PollEngine__ActivatePassMode(void){
-	PollEngine_Status.passing_mode = ACTIVATED;
-}
-
-void PollEngine__DeactivatePassMode(void){
-	PollEngine_Status.passing_mode = DEACTIVATED;
-}
-
-uint8_t PollEngine__GetPassModeStatus(void){
-	return PollEngine_Status.passing_mode;
-}
-
-
-void PollEngine__SetPassModeCMD(uint8_t status){
-	PassMode_CmdStatus = status;
-}
-
-uint8_t PollEngine__GetPassModeCMD(void){
-	return PassMode_CmdStatus;
-}
-
 
 values_buffer_t* PollEngine__GetValuesBuffer(void){
 	return values_buffer;

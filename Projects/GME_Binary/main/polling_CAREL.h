@@ -38,7 +38,7 @@
 #ifdef __CCL_DEBUG_MODE
 
 //this define enable the output of the communications errors
-#define __DEBUG_POLLING_CAREL_LEV_1
+//#define __DEBUG_POLLING_CAREL_LEV_1
 
 //this define enable the output of others debug informations
 //#define __DEBUG_POLLING_CAREL_LEV_2
@@ -324,32 +324,16 @@ void PollEngine__MBInit(void);
 
 void create_values_buffers(void);
 
-// commands
-//void PollEngine__MBDestroy(void);
 void PollEngine_StartEngine_CAREL(void);
 void PollEngine_StopEngine_CAREL(void);
 uint8_t PollEngine_GetEngineStatus_CAREL(void);
 uint8_t PollEngine_GetPollingStatus_CAREL(void);
 
-void PollEngine__PassModeFSM(void);
-void PollEngine__ActivatePassMode(void);
-void PollEngine__DeactivatePassMode(void);
-uint8_t PollEngine__GetPassModeStatus(void);
-void PollEngine__SetPassModeCMD(uint8_t status);
-uint8_t PollEngine__GetPassModeCMD(void);
-
-
-//uint8_t PollEngine__SendMBAdu(c_cbor_send_mb_adu *send_mb_adu, uint8_t* data_rx);
 C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr,C_BYTE dim , C_UINT16* read_value);
-
 C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_value);
-
 C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 fun);
-
 C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun);
-
 C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun);
-
 
 values_buffer_t* PollEngine__GetValuesBuffer(void);
 uint16_t PollEngine__GetValuesBufferCount(void);
