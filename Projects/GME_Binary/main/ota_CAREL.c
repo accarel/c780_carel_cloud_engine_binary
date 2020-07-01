@@ -191,8 +191,8 @@ void DEV_ota_task(void * pvParameter){
 			http_client_close_IS(client);
 			http_client_cleanup_IS(client);
 
-			uart_flush_input_IS(modbusPort);   // MB_PORTNUM
-			uart_flush_IS(modbusPort);         // MB_PORTNUM
+			uart_flush_input_IS(modbusPort);
+			uart_flush_IS(modbusPort);
 
 			if (data_read_len == 0) {
 				err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);

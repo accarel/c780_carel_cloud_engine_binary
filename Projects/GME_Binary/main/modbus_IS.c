@@ -81,12 +81,12 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)  /
 
      if(port == MB_PORTNUM_485)
      {
-   	    err = uart_set_pin(port, Get_TEST_TXD(), Get_TEST_RXD(), Get_TEST_RTS(), -1);   // MB_PORTNUM
+   	    err = uart_set_pin(port, Get_TEST_TXD(), Get_TEST_RXD(), Get_TEST_RTS(), -1);
    	    PRINTF_DEBUG("RS485 selected\n");
      }
    	 else
    	 {
-        err = uart_set_pin(port, Get_TTL_TXD(), Get_TTL_RXD(), Get_TTL_RTS(), -1); 		// MB_PORTNUM
+        err = uart_set_pin(port, Get_TTL_TXD(), Get_TTL_RXD(), Get_TTL_RTS(), -1);
     	PRINTF_DEBUG("TTL selected\n");
    	 }
 
