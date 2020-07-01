@@ -71,6 +71,7 @@ namespace gme_ser_Interface
             if (InputData != String.Empty)
             {
                 SerDataAvailable = 1;
+                CumulatedData = CumulatedData + InputData;
                 Console.WriteLine(InputData);
             }
         }
@@ -94,8 +95,7 @@ namespace gme_ser_Interface
             ComModbusSimulator = par_val;
                        
         }
-
-
+        
         public string Init_Ser_Communication_Interface()
         {
             String cfg_file;
@@ -153,8 +153,7 @@ namespace gme_ser_Interface
                 Thread.Sleep(50);
                 maxtime += 50;
                 if (SerDataAvailable == 1)
-                {
-                    CumulatedData = CumulatedData + InputData;
+                {                    
                     resp = CumulatedData;
                     break;
                 }
@@ -171,6 +170,7 @@ namespace gme_ser_Interface
 
         public void reset_ser()
         {
+            CumulatedData = String.Empty;
             SerDataAvailable = 0;
         }
         
@@ -205,7 +205,8 @@ namespace gme_ser_Interface
                     // Part 2: if separator exists, get substring.
                     if (separatorIndex >= 0)
                     {
-                        result = ret_val.Substring(separatorIndex + separator.Length, 12);                   
+                        result = ret_val.Substring(separatorIndex + separator.Length, 12);
+                        break;
                     }
                 }
 
@@ -216,6 +217,122 @@ namespace gme_ser_Interface
 
             return result;
         }
+
+
+        public bool get_ap_connection_response()
+        {
+            String ret_val = @"";
+            String result = @"";
+            int irv = 0;
+            int value;
+            int maxtime;
+            int loctimeout;
+            bool res = false;
+
+
+            maxtime = 0;
+            loctimeout = 5000;  //5 sec
+
+            /*
+             at startup the ESP32 emit some bootloader msg, so that 
+             we need to receive all this "spurious" data before
+             get the MAC             
+             */
+            String searchfor = @"CONNECTED";
+
+            do
+            {
+                value = String.Compare(CumulatedData, @"STA=");
+                               
+                if (value != 0)
+                {
+                    if (CumulatedData.Length >= (value + searchfor.Length))
+                    {
+                        string separator = @"STA=";
+                        // Part 1: get index of separator.
+                        int separatorIndex = CumulatedData.IndexOf(separator);
+                        // Part 2: if separator exists, get substring.
+                        if (separatorIndex >= 0)
+                        {
+                            result = CumulatedData.Substring(separatorIndex + separator.Length, searchfor.Length);
+                            break;
+                        }
+                    }
+                }
+
+                Thread.Sleep(50);
+                maxtime += 50;
+
+            } while (maxtime < loctimeout);
+
+            if (String.Equals(result, searchfor)) 
+            {
+                res = true;
+            }
+      
+            return res;
+        }
+
+
+
+        public bool get_modbus_hr_response()
+        {
+            String ret_val = @"";
+            String result = @"";
+            int irv = 0;
+            int value;
+            int maxtime;
+            int loctimeout;
+            bool res = false;
+
+
+            maxtime = 0;
+            loctimeout = 5000;  //5 sec
+
+            /*
+             at startup the ESP32 emit some bootloader msg, so that 
+             we need to receive all this "spurious" data before
+             get the MAC             
+             */
+            String searchfor = @"1234";
+
+            do
+            {
+                value = String.Compare(CumulatedData, @"HR=");
+
+                if (value != 0)
+                {
+                    if (CumulatedData.Length >= (value + searchfor.Length))
+                    { 
+                      string separator = @"HR=";
+                      // Part 1: get index of separator.
+                      int separatorIndex = CumulatedData.IndexOf(separator);
+                      // Part 2: if separator exists, get substring.
+                      if (separatorIndex >= 0)
+                      {
+                        result = CumulatedData.Substring(separatorIndex + separator.Length, searchfor.Length);
+                        break;
+                      }
+
+                    }
+
+                }
+
+                Thread.Sleep(50);
+                maxtime += 50;
+
+            } while (maxtime < loctimeout);
+
+            if (String.Equals(result, searchfor))
+            {
+                res = true;
+            }
+
+            return res;
+        }
+
+
+
     }
 
 

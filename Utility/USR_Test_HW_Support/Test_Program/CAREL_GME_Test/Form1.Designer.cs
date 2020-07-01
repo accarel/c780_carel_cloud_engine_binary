@@ -38,6 +38,8 @@
             this.tabControl_Info_Setup = new System.Windows.Forms.TabControl();
             this.tabPage2_parameters = new System.Windows.Forms.TabPage();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.label_MB_Sim_Port = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.labelPrgBaud = new System.Windows.Forms.Label();
             this.textBox_debug = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -47,17 +49,16 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tabPage1_Info = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button_all_off = new System.Windows.Forms.Button();
+            this.button_button_off = new System.Windows.Forms.Button();
+            this.button_button = new System.Windows.Forms.Button();
+            this.button_tp5 = new System.Windows.Forms.Button();
+            this.button_tp5_off = new System.Windows.Forms.Button();
+            this.button_tp_en_off = new System.Windows.Forms.Button();
+            this.button_tp_en = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.buttonTestStart = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label_MB_Sim_Port = new System.Windows.Forms.Label();
-            this.button_tp_en = new System.Windows.Forms.Button();
-            this.button_tp_en_off = new System.Windows.Forms.Button();
-            this.button_tp5_off = new System.Windows.Forms.Button();
-            this.button_tp5 = new System.Windows.Forms.Button();
-            this.button_button = new System.Windows.Forms.Button();
-            this.button_button_off = new System.Windows.Forms.Button();
-            this.button_all_off = new System.Windows.Forms.Button();
+            this.button_test_result = new System.Windows.Forms.Button();
             this.tabControl_Info_Setup.SuspendLayout();
             this.tabPage2_parameters.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -83,7 +84,7 @@
             this.rtbIncoming.Location = new System.Drawing.Point(13, 96);
             this.rtbIncoming.Margin = new System.Windows.Forms.Padding(4);
             this.rtbIncoming.Name = "rtbIncoming";
-            this.rtbIncoming.Size = new System.Drawing.Size(330, 568);
+            this.rtbIncoming.Size = new System.Drawing.Size(330, 506);
             this.rtbIncoming.TabIndex = 1;
             this.rtbIncoming.Text = "";
             // 
@@ -117,6 +118,7 @@
             this.button_Clear.TabIndex = 36;
             this.button_Clear.Text = "Clear";
             this.button_Clear.UseVisualStyleBackColor = true;
+            this.button_Clear.Visible = false;
             this.button_Clear.Click += new System.EventHandler(this.button_Clear_Click);
             // 
             // button_pwr_off
@@ -177,6 +179,24 @@
             this.groupBox3.Size = new System.Drawing.Size(369, 562);
             this.groupBox3.TabIndex = 50;
             this.groupBox3.TabStop = false;
+            // 
+            // label_MB_Sim_Port
+            // 
+            this.label_MB_Sim_Port.AutoSize = true;
+            this.label_MB_Sim_Port.Location = new System.Drawing.Point(140, 88);
+            this.label_MB_Sim_Port.Name = "label_MB_Sim_Port";
+            this.label_MB_Sim_Port.Size = new System.Drawing.Size(23, 17);
+            this.label_MB_Sim_Port.TabIndex = 8;
+            this.label_MB_Sim_Port.Text = "---";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(4, 85);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(122, 17);
+            this.label4.TabIndex = 7;
+            this.label4.Text = "MS Sim interface :";
             // 
             // labelPrgBaud
             // 
@@ -273,6 +293,76 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "GME";
             // 
+            // button_all_off
+            // 
+            this.button_all_off.Location = new System.Drawing.Point(229, 136);
+            this.button_all_off.Name = "button_all_off";
+            this.button_all_off.Size = new System.Drawing.Size(92, 28);
+            this.button_all_off.TabIndex = 55;
+            this.button_all_off.Text = "ALL OFF";
+            this.button_all_off.UseVisualStyleBackColor = true;
+            this.button_all_off.Click += new System.EventHandler(this.button_all_off_Click);
+            // 
+            // button_button_off
+            // 
+            this.button_button_off.Location = new System.Drawing.Point(229, 55);
+            this.button_button_off.Name = "button_button_off";
+            this.button_button_off.Size = new System.Drawing.Size(92, 28);
+            this.button_button_off.TabIndex = 54;
+            this.button_button_off.Text = "Button OFF";
+            this.button_button_off.UseVisualStyleBackColor = true;
+            this.button_button_off.Click += new System.EventHandler(this.button_button_off_Click);
+            // 
+            // button_button
+            // 
+            this.button_button.Location = new System.Drawing.Point(229, 21);
+            this.button_button.Name = "button_button";
+            this.button_button.Size = new System.Drawing.Size(92, 28);
+            this.button_button.TabIndex = 53;
+            this.button_button.Text = "Button ON";
+            this.button_button.UseVisualStyleBackColor = true;
+            this.button_button.Click += new System.EventHandler(this.button_button_Click);
+            // 
+            // button_tp5
+            // 
+            this.button_tp5.Location = new System.Drawing.Point(7, 102);
+            this.button_tp5.Name = "button_tp5";
+            this.button_tp5.Size = new System.Drawing.Size(92, 28);
+            this.button_tp5.TabIndex = 52;
+            this.button_tp5.Text = "TP_5 ON";
+            this.button_tp5.UseVisualStyleBackColor = true;
+            this.button_tp5.Click += new System.EventHandler(this.button_tp5_Click);
+            // 
+            // button_tp5_off
+            // 
+            this.button_tp5_off.Location = new System.Drawing.Point(7, 136);
+            this.button_tp5_off.Name = "button_tp5_off";
+            this.button_tp5_off.Size = new System.Drawing.Size(92, 28);
+            this.button_tp5_off.TabIndex = 51;
+            this.button_tp5_off.Text = "TP_5 OFF";
+            this.button_tp5_off.UseVisualStyleBackColor = true;
+            this.button_tp5_off.Click += new System.EventHandler(this.button_tp5_off_Click);
+            // 
+            // button_tp_en_off
+            // 
+            this.button_tp_en_off.Location = new System.Drawing.Point(120, 55);
+            this.button_tp_en_off.Name = "button_tp_en_off";
+            this.button_tp_en_off.Size = new System.Drawing.Size(92, 28);
+            this.button_tp_en_off.TabIndex = 50;
+            this.button_tp_en_off.Text = "TP_EN OFF";
+            this.button_tp_en_off.UseVisualStyleBackColor = true;
+            this.button_tp_en_off.Click += new System.EventHandler(this.button_tp_en_off_Click);
+            // 
+            // button_tp_en
+            // 
+            this.button_tp_en.Location = new System.Drawing.Point(120, 21);
+            this.button_tp_en.Name = "button_tp_en";
+            this.button_tp_en.Size = new System.Drawing.Size(92, 28);
+            this.button_tp_en.TabIndex = 49;
+            this.button_tp_en.Text = "TP_EN ON";
+            this.button_tp_en.UseVisualStyleBackColor = true;
+            this.button_tp_en.Click += new System.EventHandler(this.button_tp_en_Click);
+            // 
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(6, 21);
@@ -289,103 +379,25 @@
             this.buttonTestStart.Name = "buttonTestStart";
             this.buttonTestStart.Size = new System.Drawing.Size(325, 51);
             this.buttonTestStart.TabIndex = 49;
-            this.buttonTestStart.Text = "TEST START";
+            this.buttonTestStart.Text = "PRESS TO START THE TEST";
             this.buttonTestStart.UseVisualStyleBackColor = true;
             this.buttonTestStart.Click += new System.EventHandler(this.buttonTestStart_Click);
             // 
-            // label4
+            // button_test_result
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(4, 85);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(122, 17);
-            this.label4.TabIndex = 7;
-            this.label4.Text = "MS Sim interface :";
-            // 
-            // label_MB_Sim_Port
-            // 
-            this.label_MB_Sim_Port.AutoSize = true;
-            this.label_MB_Sim_Port.Location = new System.Drawing.Point(140, 88);
-            this.label_MB_Sim_Port.Name = "label_MB_Sim_Port";
-            this.label_MB_Sim_Port.Size = new System.Drawing.Size(23, 17);
-            this.label_MB_Sim_Port.TabIndex = 8;
-            this.label_MB_Sim_Port.Text = "---";
-            // 
-            // button_tp_en
-            // 
-            this.button_tp_en.Location = new System.Drawing.Point(120, 21);
-            this.button_tp_en.Name = "button_tp_en";
-            this.button_tp_en.Size = new System.Drawing.Size(92, 28);
-            this.button_tp_en.TabIndex = 49;
-            this.button_tp_en.Text = "TP_EN ON";
-            this.button_tp_en.UseVisualStyleBackColor = true;
-            this.button_tp_en.Click += new System.EventHandler(this.button_tp_en_Click);
-            // 
-            // button_tp_en_off
-            // 
-            this.button_tp_en_off.Location = new System.Drawing.Point(120, 55);
-            this.button_tp_en_off.Name = "button_tp_en_off";
-            this.button_tp_en_off.Size = new System.Drawing.Size(92, 28);
-            this.button_tp_en_off.TabIndex = 50;
-            this.button_tp_en_off.Text = "TP_EN OFF";
-            this.button_tp_en_off.UseVisualStyleBackColor = true;
-            this.button_tp_en_off.Click += new System.EventHandler(this.button_tp_en_off_Click);
-            // 
-            // button_tp5_off
-            // 
-            this.button_tp5_off.Location = new System.Drawing.Point(7, 136);
-            this.button_tp5_off.Name = "button_tp5_off";
-            this.button_tp5_off.Size = new System.Drawing.Size(92, 28);
-            this.button_tp5_off.TabIndex = 51;
-            this.button_tp5_off.Text = "TP_5 OFF";
-            this.button_tp5_off.UseVisualStyleBackColor = true;
-            this.button_tp5_off.Click += new System.EventHandler(this.button_tp5_off_Click);
-            // 
-            // button_tp5
-            // 
-            this.button_tp5.Location = new System.Drawing.Point(7, 102);
-            this.button_tp5.Name = "button_tp5";
-            this.button_tp5.Size = new System.Drawing.Size(92, 28);
-            this.button_tp5.TabIndex = 52;
-            this.button_tp5.Text = "TP_5 ON";
-            this.button_tp5.UseVisualStyleBackColor = true;
-            this.button_tp5.Click += new System.EventHandler(this.button_tp5_Click);
-            // 
-            // button_button
-            // 
-            this.button_button.Location = new System.Drawing.Point(229, 21);
-            this.button_button.Name = "button_button";
-            this.button_button.Size = new System.Drawing.Size(92, 28);
-            this.button_button.TabIndex = 53;
-            this.button_button.Text = "Button ON";
-            this.button_button.UseVisualStyleBackColor = true;
-            this.button_button.Click += new System.EventHandler(this.button_button_Click);
-            // 
-            // button_button_off
-            // 
-            this.button_button_off.Location = new System.Drawing.Point(229, 55);
-            this.button_button_off.Name = "button_button_off";
-            this.button_button_off.Size = new System.Drawing.Size(92, 28);
-            this.button_button_off.TabIndex = 54;
-            this.button_button_off.Text = "Button OFF";
-            this.button_button_off.UseVisualStyleBackColor = true;
-            this.button_button_off.Click += new System.EventHandler(this.button_button_off_Click);
-            // 
-            // button_all_off
-            // 
-            this.button_all_off.Location = new System.Drawing.Point(229, 136);
-            this.button_all_off.Name = "button_all_off";
-            this.button_all_off.Size = new System.Drawing.Size(92, 28);
-            this.button_all_off.TabIndex = 55;
-            this.button_all_off.Text = "ALL OFF";
-            this.button_all_off.UseVisualStyleBackColor = true;
-            this.button_all_off.Click += new System.EventHandler(this.button_all_off_Click);
+            this.button_test_result.Location = new System.Drawing.Point(13, 609);
+            this.button_test_result.Name = "button_test_result";
+            this.button_test_result.Size = new System.Drawing.Size(325, 51);
+            this.button_test_result.TabIndex = 50;
+            this.button_test_result.Text = "---------";
+            this.button_test_result.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(850, 710);
+            this.Controls.Add(this.button_test_result);
             this.Controls.Add(this.buttonTestStart);
             this.Controls.Add(this.tabControl_Info_Setup);
             this.Controls.Add(this.button_help);
@@ -396,7 +408,7 @@
             this.Controls.Add(this.btnGetSerialPorts);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "CAREL GME HW Test V.1.0";
+            this.Text = "CAREL GME HW Test V.1.0.1";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl_Info_Setup.ResumeLayout(false);
             this.tabPage2_parameters.ResumeLayout(false);
@@ -440,6 +452,7 @@
         private System.Windows.Forms.Button button_all_off;
         private System.Windows.Forms.Button button_button_off;
         private System.Windows.Forms.Button button_button;
+        private System.Windows.Forms.Button button_test_result;
     }
 }
 

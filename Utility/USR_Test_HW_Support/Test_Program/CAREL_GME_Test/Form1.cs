@@ -83,13 +83,7 @@ namespace CodeProjectSerialComms
 
         public void send_cmd(string tx_string)
         {
-            rtbIncoming.ForeColor = Color.Green;
-            rtbIncoming.Text = tx_string;
-            rtbIncoming.ForeColor = Color.Black;
 
-            #if RUNNING_MODE
-            //ComPort.Write(tx_string);
-            #endif
         }
 
 
@@ -195,40 +189,10 @@ namespace CodeProjectSerialComms
 
         private void button_force_tx_Click(object sender, EventArgs e)
         {
-            string tx_string;
-            int idx;
-
-
-            //idx = comboBox_band.SelectedIndex;
-            //tx_string += idx.ToString() + ",";
-
-
-            //TODO ARCFN check
-            //GSM900: 0~124, 975~1023
-            //GSM1800: 512~885
-            //GSM1900: 512~810
-            //GSM850: 128~251            
-            //tx_string += textBox_arfcn.Text + ",";
-
-            //idx = comboBox_timeslot.SelectedIndex;
-            //tx_string += idx.ToString() + ",";
-            
-            //tx_string += textBox_pcl.Text + ",";
-
-            //idx = Int16.Parse(textBox_afc.Text);
-            //tx_string += idx.ToString() + ",";
-
-            //idx = comboBox_burst_type.SelectedIndex;
-            //tx_string += idx.ToString() + "\r"; 
-
-            rtbIncoming.ForeColor = Color.Green;
-            //rtbIncoming.Text = tx_string;
-            rtbIncoming.ForeColor = Color.Black;
         }
 
         private void groupBox1_Enter(object sender, EventArgs e)
         {
-
         }
 
         private void comboBox_band_SelectedIndexChanged(object sender, EventArgs e)
@@ -268,34 +232,14 @@ namespace CodeProjectSerialComms
 
         private void button_force_tx_stop_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("You need to [Power OFF]\r\nthe device to STOP the test mode");
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            #if RUNNING_MODE
-            //ComPort.Write("AT+CFUN=0\r");
-            #endif
         }
 
         private void button_dummy_Click(object sender, EventArgs e)
         {
-            String tx_string;
-
-            #if RUNNING_MODE
-            
-            rtbIncoming.ForeColor = Color.Green;
-            //rtbIncoming.Text = tx_string;
-            rtbIncoming.ForeColor = Color.Black;
-            //ComPort.Write(tx_string);
-            Thread.Sleep(1000);
-
-                       
-            rtbIncoming.ForeColor = Color.Green;
-            //rtbIncoming.Text = tx_string;
-            rtbIncoming.ForeColor = Color.Black;
-            //ComPort.Write(tx_string);            
-            #endif
         }
 
         private void button_Clear_Click(object sender, EventArgs e)
@@ -305,39 +249,12 @@ namespace CodeProjectSerialComms
 
         private void button_setpower_Click(object sender, EventArgs e)
         {
-            String tx_string;
-            String band = "900";
-
-            #if RUNNING_MODE
-            tx_string = "AT+CDETXPW=";
-
-            //switch (comboBox_band.SelectedIndex)
-            //{
-            //    case 0: band = "900"; break;
-            //    case 1: band = "1800"; break;
-            //    case 2: band = "1900"; break;
-            //    case 3: band = "850"; break;
-            //}
-
-            tx_string += band + ",";
-
-            //tx_string += comboBox_txslot.SelectedIndex.ToString() + ",";
-            //tx_string += textBox_pcl.Text + ",";
-            //tx_string += comboBox_power_rollbk.SelectedIndex.ToString() + "\r";
-
-
-            rtbIncoming.ForeColor = Color.Green;
-            rtbIncoming.Text = tx_string;
-            rtbIncoming.ForeColor = Color.Black;
-            //ComPort.Write(tx_string);
-            #endif
+           
         }
 
         private void button1_Click_1(object sender, EventArgs e)
         {
-            String tx_string;
-            //tx_string = textBox_send_at.Text + "\r";
-            //send_cmd(tx_string);
+
         }
 
         private void button_pwr_off_Click(object sender, EventArgs e)
@@ -387,14 +304,12 @@ namespace CodeProjectSerialComms
             }
             label_MB_Sim_Port.Text = My_SER.ComModbusSimulator;
          
-
             Application.DoEvents();
-
-            //TODO launch the ModBus simulator
+           
             launch_modbus_simulator();
 
 
-            buttonTestStart.BackColor = Color.Green;
+            buttonTestStart.BackColor = Color.LightGray;
         }
 
         private void button1_Click_2(object sender, EventArgs e)
@@ -486,13 +401,9 @@ namespace CodeProjectSerialComms
 
         private void button2_Click(object sender, EventArgs e)
         {
-
-
+            
         }
-
-
-
-
+                     
         private void textBox_debug_TextChanged(object sender, EventArgs e)
         {
 
@@ -561,6 +472,24 @@ namespace CodeProjectSerialComms
 
 
 
+        private void test_result_indicator(bool result)
+        {
+            if (result == true)
+            {
+                button_test_result.Text = "TEST PASSED";
+                button_test_result.BackColor = Color.Green;
+            }
+            else 
+            {
+                button_test_result.Text = "TEST FAIL";
+                button_test_result.BackColor = Color.Red;
+            }
+        
+        
+        }
+
+
+
         private void test_sequence()
         {
             /* ============================================================== */
@@ -581,11 +510,12 @@ namespace CodeProjectSerialComms
             My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_ON); //press prog. button
             My_IO.set_rele_status(My_IO.RELE_POWER, My_IO.RELE_ON);
 
-#if (PIPPO)
+
             test_pass = MessageYesNo("LED POWER TEST", "Is the power led ON ?");
             if (test_pass == false)
             {                
                 display_failed_test();
+                test_result_indicator(false);
                 return;
             }
                        
@@ -602,6 +532,7 @@ namespace CodeProjectSerialComms
             else 
             {
                 display_failed_test();
+                test_result_indicator(false);
                 return;
             }
 
@@ -612,18 +543,18 @@ namespace CodeProjectSerialComms
             Thread.Sleep(100);
             display_status("Gateway ready to program ..");
 
-            //TODO DECOMMENTARE
-            
-            test_pass = prog_device();
+            //TODO DECOMMENTARE            
+            //test_pass = prog_device();
 
             if (test_pass == false) 
             {
                 display_status("Gateway programming FAILED!");
                 display_failed_test();
+                test_result_indicator(false);
                 return;
             }
 
-#endif
+
 
             /*
              * now we initialize the serial port previosly used for the programming
@@ -634,7 +565,7 @@ namespace CodeProjectSerialComms
 
             MessageBox.Show("Take a look to the status led to see if blink");
 
-#if (PIPPO)
+
             //now we put GME in test mode            
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);            //maintain GME resetted
             Thread.Sleep(100);
@@ -647,9 +578,10 @@ namespace CodeProjectSerialComms
             if (test_pass == false)
             {
                 display_failed_test();
+                test_result_indicator(false);
                 return;
             }
-#endif
+
 
             //get MAC address
             String mac_address_str;
@@ -667,15 +599,47 @@ namespace CodeProjectSerialComms
                 display_status("FAIL to get MAC address");
                 display_failed_test();
                 My_SER.DeInit_Ser_Communication_Interface();
+                test_result_indicator(false);
                 return;
             }
-            
-            //TODO test if connected to the AP
 
 
-            //TODO read HR n.1 
+            /* the GME take a while to connect to the AP */
+            Thread.Sleep(2000);
 
-            //if HR ==1234 testo ok
+            bool res;
+            //test if connected to the AP
+            res = My_SER.get_ap_connection_response();
+            if (res == true)
+            {
+                display_status("AP Connected TEST PASSED !");
+            }
+            else
+            {
+                display_status("FAIL to connect the SSID=TEST_AP PWD=12345678 ");
+                display_failed_test();
+                My_SER.DeInit_Ser_Communication_Interface();
+                test_result_indicator(false);
+                return;
+            }
+
+
+
+            //read HR n.1 
+            res = My_SER.get_modbus_hr_response();
+            if (res == true)
+            {
+                display_status("Read HR through RS485 TEST PASSED !");
+            }
+            else
+            {
+                display_status("FAIL to read HR through RS485 port");
+                display_failed_test();
+                My_SER.DeInit_Ser_Communication_Interface();
+                test_result_indicator(false);
+                return;
+            }
+
 
 
             //close the serial port 
@@ -698,7 +662,9 @@ namespace CodeProjectSerialComms
             /* ============================================================== */
             /*                         END OF TEST                            */
             /* ============================================================== */
-            display_status("TEST PASSED - END OF TEST ");
+            button_test_result.Text = "TEST PASSED";
+            button_test_result.BackColor = Color.Green;
+            display_status("END OF TEST ");
 
         }
 
@@ -709,12 +675,19 @@ namespace CodeProjectSerialComms
         {
             buttonTestStart.Enabled = false;
             buttonTestStart.BackColor = Color.Red;
+            buttonTestStart.Text = "TEST RUNNING WAIT";
+
+            button_test_result.Text = "--------";
+            button_test_result.BackColor = Color.LightGray;
+
+
             Application.DoEvents();
 
             test_sequence();
-            
+
+            buttonTestStart.Text = "PRESS TO START THE TEST";
             buttonTestStart.Enabled = true;
-            buttonTestStart.BackColor = Color.Green;
+            buttonTestStart.BackColor = Color.LightGray;
         }
 
         private void button_tp_en_Click(object sender, EventArgs e)
