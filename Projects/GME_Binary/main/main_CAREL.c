@@ -235,6 +235,8 @@ void Carel_Main_Task(void)
 				 CONFIGURED == line_config_status &&
 				 CONFIGURED == devs_config_status))
 			{
+				// GME configured, switch on leds accordingly
+				Update_Led_Status(LED_STAT_MODEL_CFG, LED_STAT_ON);
 				sm = GME_SYSTEM_PREPARATION;
 			}else{
                 PRINTF_DEBUG("gw_config_status = %d \nline_config_status= %d \ndevs_config_status = %d\n", gw_config_status, line_config_status, devs_config_status);

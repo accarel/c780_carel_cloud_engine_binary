@@ -65,11 +65,7 @@ void Utilities__Init(void){
 	Modbus__ReadAddressFromNVM();
 	Modbus__ReadDelayFromNVM();
 	CBOR_ReadDidFromNVM();
-
-	if (BinaryModel_Init() == C_SUCCESS)
-	{
-	  Update_Led_Status(LED_STAT_MODEL_CFG, LED_STAT_ON);
-	}
+	BinaryModel_Init();
 
 	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
 	  Utilities__CalcMACAddr();

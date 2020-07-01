@@ -548,7 +548,7 @@ MQTT connected           ON          ON
 
   if ((led_current_status & LED_STAT_MQTT_CONN) && (model_cfg_status==0))
   {
-   	 Led_Status_Update(LED_ON, LED_RED);
+	 Led_Status_Update(LED_ON, LED_RED);
   }		
   else
   {
@@ -567,20 +567,15 @@ MQTT connected           ON          ON
 	{	
        if (led_current_status & LED_STAT_MODEL_CFG)
 	   {
-		   Led_Status_Update(LED_ON, LED_GREEN);
-	   }		
+    	   Led_Status_Update(LED_ON, LED_GREEN);
+	   }
+       else
+       {
+    	   Led_Status_Update(LED_OFF, LED_GREEN);
+       }
 	}
 	else
-	{
-	       if (led_current_status & LED_STAT_MODEL_CFG)
-		   {
-			   Led_Status_Update(LED_BLINK_SLOW, LED_GREEN);
-		   }
-	       else
-	       {
-		     Led_Status_Update(LED_OFF, LED_GREEN);
-	       }
-	}
+	    Led_Status_Update(LED_OFF, LED_GREEN);
 }
 
 void Update_Led_RS485_wifi(C_BYTE rs485_status)
