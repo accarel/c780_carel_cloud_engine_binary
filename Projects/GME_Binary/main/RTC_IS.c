@@ -42,7 +42,6 @@ C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
   sntp_setservername(0, ntp_server);
   sntp_init();
-  //sntp_esp_cli_commands_init();  
   #endif
   
   return C_SUCCESS;
