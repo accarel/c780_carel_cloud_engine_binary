@@ -34,6 +34,12 @@
 //this define enable the output of others debug informations
 #define __DEBUG_CBOR_CAREL_LEV_2
 
+//this define enable the output of others debug informations
+//this option enable the cbor packet dump so a lot of serial traffic
+//#define __DEBUG_CBOR_CAREL_LEV_3
+
+// the define __DEBUG_CBOR_CAREL_LEV_4 enable DEBUG_ENC/DEBUG_ADD/DEBUG_DEC output
+//#define __DEBUG_CBOR_CAREL_LEV_4
 #endif
 
 
@@ -93,19 +99,18 @@ typedef enum CloudtoGME_Commands_l{
 }cloud_req_commands_t;
 
 
-#define CAREL_DEBUG
-
-
-#ifdef CAREL_DEBUG
-
+#ifdef __DEBUG_CBOR_CAREL_LEV_4
 
 #define DEBUG_ENC(err, a) if(err != CborNoError) printf("%s: %s %s, error %d\n", __func__, "cannot encode", a, err);
 #define DEBUG_ADD(err, a) if(err != CborNoError) printf("%s: %s %s, error %d\n", __func__, "cannot add", a, err);
 #define DEBUG_DEC(err, a) if(err != CborNoError) printf("%s: %s %s, error %d\n", __func__, "cannot decode", a, err);
+
 #else
+
 #define DEBUG_ENC(err, a)
 #define DEBUG_ADD(err, a)
 #define DEBUG_DEC(err, a)
+
 #endif
 
 /* Exported types ------------------------------------------------------------*/
@@ -233,6 +238,9 @@ typedef struct C_CBORALARMS{
 	C_TIME et;
 }c_cboralarms;
 #pragma pack()
+
+
+
 
 /*----------------------------------------------------------------------------------------*/
 size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms);

@@ -14,6 +14,13 @@
 #include "binary_model.h"
 #include "nvm_CAREL.h"
 
+/**
+ * @brief encrypt
+ *        coding a block of data to be placed in SPIFFS
+ *
+ * @param data[]the data, key the encryption key
+ * @return none
+ */
 void encrypt(char data[],int key)
 {
     unsigned int i;
@@ -23,7 +30,13 @@ void encrypt(char data[],int key)
     }
 }
 
-
+/**
+ * @brief decrypt
+ *        decode a block of data placed in SPIFFS
+ *
+ * @param data[]the data, key the decryption key
+ * @return none
+ */
 void decrypt(char data[],int key)
 {
     unsigned int i;
@@ -33,6 +46,13 @@ void decrypt(char data[],int key)
     }
 }
 
+/**
+ * @brief filesize
+ *        return the size of a file
+ *
+ * @param fname the fully qualified file name
+ * @return the size of the file
+ */
 long filesize(const char *fname)
 {
   long sz = -1;
@@ -49,6 +69,14 @@ long filesize(const char *fname)
   return sz;
 }
 
+
+/**
+ * @brief FS_CheckFile
+ *        check is a file exist or not
+ *
+ * @param fname the fully qualified file name
+ * @return C_SUCCESS/C_FAIL
+ */
 C_RES FS_CheckFile(char* filename){
 	C_RES err = C_FAIL;
 	struct stat file_stat;
@@ -65,6 +93,8 @@ C_RES FS_CheckFile(char* filename){
 	return err;
 }
 
+
+
 C_RES FS_CheckFiles(void){
 
 	C_RES err = C_SUCCESS;
@@ -76,6 +106,14 @@ C_RES FS_CheckFiles(void){
    	return err;
 }
 
+/**
+ * @brief FS_ReadFile
+ *
+ *
+ * @param filename  the fully qualified file name
+ * @param file_ptr  a pointer to the file handle
+ * @return the file size
+ */
 long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 		FILE *input_file_ptr;
 		size_t sz_read;
@@ -117,8 +155,15 @@ long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 }
 
 
-
-C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filename){
+/**
+ * @brief FS_SaveFile
+ *        save a data block to a file
+ * @param data_to_save data to be stored
+ * @param data_size
+ * @param filename  the fully qualified file name
+ * @return the file size
+ */
+C_RES FS_SaveFile(const char* data_to_save, size_t data_size, const char* filename){
 
 		 FILE *file;
 
@@ -128,13 +173,21 @@ C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filena
 			return C_FAIL;
 		}else{
 			PRINTF_DEBUG("%s - File found\n",filename);
-			fwrite(file_to_save , 1 , file_size , file );
+			fwrite(data_to_save , 1 , data_size , file );
 			fclose(file);
 			return C_SUCCESS;
 		}
 
 }
 
+
+
+/**
+ * @brief SaveCfgDefDataToNVM
+ *        save some data in Non Volatile Memory
+ * @param none
+ * @return C_SUCCESS/C_FAIL
+ */
 C_RES SaveCfgDefDataToNVM(void) {
 
 	C_UINT16 calcCrc, spiffsCrc;
@@ -174,51 +227,139 @@ C_RES SaveCfgDefDataToNVM(void) {
 }
 
 
+
+
+/**
+ * @brief GetNtpServer
+ *        retrieve the NTP URL from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_ntp_server buffer to store the URL
+ * @return the same buffer pointer
+ */
 char* GetNtpServer(char* tmp_ntp_server){
 	size_t len = 0;
-	NVM__ReadString(NTP_SERVER, tmp_ntp_server, &len);
+
+	if (C_FAIL == NVM__ReadString(NTP_SERVER, tmp_ntp_server, &len))
+	{
+	   *tmp_ntp_server='\0'; //return empty string
+	}
+
 	return tmp_ntp_server;
 }
 
-
+/**
+ * @brief GetMqttBroker
+ *        retrieve the MQTT broker URL from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_mqtt_broker buffer to store the value
+ * @return the same buffer pointer
+ */
 char* GetMqttBroker(char* tmp_mqtt_broker){
 	size_t len = 0;
-	NVM__ReadString(MQTT_BROKER, tmp_mqtt_broker, &len);
+
+	if (C_FAIL== NVM__ReadString(MQTT_BROKER, tmp_mqtt_broker, &len))
+	{
+		*tmp_mqtt_broker = '\x0';//return empty string
+	}
 	return tmp_mqtt_broker;
 }
 
+/**
+ * @brief GetMqttPort
+ *        retrieve the MQTT Port from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_mqtt_port bbuffer to store the value
+ * @return the same buffer pointer
+ */
 char* GetMqttPort(char* tmp_mqtt_port){
 	size_t len = 0;
-	NVM__ReadString(MQTT_PORT, tmp_mqtt_port, &len);
+
+	if (C_FAIL == NVM__ReadString(MQTT_PORT, tmp_mqtt_port, &len))
+	{
+		*tmp_mqtt_port='\x0'; //return empty string
+	}
 	return tmp_mqtt_port;
 }
 
+
+
+/**
+ * @brief GetMqttUser
+ *        retrieve the MQTT user from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_mqtt_port buffer to store the value
+ * @return the same buffer pointer
+ */
 char* GetMqttUser(char* tmp_mqtt_user){
 	size_t len = 0;
-	NVM__ReadString(MQTT_USER, tmp_mqtt_user, &len);
+	if (C_FAIL == NVM__ReadString(MQTT_USER, tmp_mqtt_user, &len))
+	{
+		*tmp_mqtt_user='\0'; //return empty string
+	}
 	return tmp_mqtt_user;
 }
 
+/**
+ * @brief GetMqttPassword
+ *        retrieve the MQTT pwd from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_mqtt_password buffer to store the value
+ * @return the same buffer pointer
+ */
 char* GetMqttPassword(char* tmp_mqtt_password){
 	size_t len = 0;
-	NVM__ReadString(MQTT_PASSWORD, tmp_mqtt_password, &len);
+	if (C_FAIL == NVM__ReadString(MQTT_PASSWORD, tmp_mqtt_password, &len))
+	{
+		*tmp_mqtt_password='\0';  //return empty string
+	}
 	return tmp_mqtt_password;
 }
 
+/**
+ * @brief GetApnName
+ *        retrieve the APN name from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_apn_name buffer to store the value
+ * @return the same buffer pointer
+ */
 char* GetApnName(char* tmp_apn_name){
 	size_t len = 0;
-	NVM__ReadString(APN_NAME, tmp_apn_name, &len);
+	if (C_FAIL ==  NVM__ReadString(APN_NAME, tmp_apn_name, &len))
+	{
+		*tmp_apn_name='\0';		//return empty string
+	}
 	return tmp_apn_name;
 }
 
+/**
+ * @brief GetApnUserName
+ *        retrieve the APN user name from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_apn_username buffer to store the value
+ * @return the same buffer pointer
+ */
 char* GetApnUserName(char* tmp_apn_username){
 	size_t len = 0;
-	NVM__ReadString(APN_USERNAME, tmp_apn_username, &len);
+	if (C_FAIL == NVM__ReadString(APN_USERNAME, tmp_apn_username, &len))
+	{
+		*tmp_apn_username='\0';
+	}
 	return tmp_apn_username;
 }
 
+
+/**
+ * @brief GetApnPassword
+ *        retrieve the APN pwd from the Non Volatile Memory
+ *        null string in case of reading error
+ * @param tmp_apn_password buffer to store the value
+ * @return the same buffer pointer
+ */
 char* GetApnPassword(char* tmp_apn_password){
 	size_t len = 0;
-	NVM__ReadString(APN_PASSWORD, tmp_apn_password, &len);
+	if (C_FAIL == NVM__ReadString(APN_PASSWORD, tmp_apn_password, &len))
+	{
+		*tmp_apn_password='\0';
+	}
 	return tmp_apn_password;
 }

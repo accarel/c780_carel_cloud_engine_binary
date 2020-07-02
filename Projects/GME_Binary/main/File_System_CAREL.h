@@ -23,8 +23,7 @@
 long filesize(const char *fname);
 C_RES FS_CheckFiles(void);
 long FS_ReadFile(const char* filename, uint8_t* cert_ptr);
-C_RES FS_SaveFile(const char* file_to_save, size_t file_size, const char* filename);
-
+C_RES FS_SaveFile(const char* data_to_save, size_t data_size, const char* filename);
 C_RES SaveCfgDefDataToNVM(void);
 
 char* GetNtpServer(char* tmp_ntp_server);

@@ -155,10 +155,10 @@ void CBOR_SendHello(void)
 	freespace -= 1000;
 	txbuff_len = (uint16_t)freespace;
 
-	// only to test fragmentation
+	//only to test fragmentation enable the below line
 	//txbuff_len = 110;
 
-	txbuff = malloc(txbuff_len);						// malloc
+	txbuff = malloc(txbuff_len);
 	memset((void*)txbuff, 0, txbuff_len);
 
 	size_t len = CBOR_Hello(txbuff);
@@ -263,6 +263,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
         #endif
 		len = -1;
 	}
+
 	//for(int i=0; i<len; i++)
 	//printf("%x\n", cbor_stream[i]);
 	return len;
@@ -383,14 +384,15 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 	printf("\n");
     #endif
 
-//TODO Bilato eliminabile ?
-#if 0
+
+#ifdef __DEBUG_CBOR_CAREL_LEV_3
 	printf("values pkt binary: \n");
 	for (int i=0;i<len;i++){
 			printf(" "BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(txbuff[i]));
 	}
 	printf("\n");
 #endif
+
 	printf("CBOR_SendValues mqtt publish start\n");
 	C_RES err = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
 printf("CBOR_SendValues mqtt publish result: %d\n", err);
@@ -564,7 +566,8 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 	// encode gup - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "gup");
-	C_INT32 gup = Mobile__GetConnTime();  // TODO valutare se usare RTC_Get_UTC_MQTTConnect_Time(); è sbagliato perché prende l'ora prima di essersi connesso all'ntp
+	// TODO valutare se usare RTC_Get_UTC_MQTTConnect_Time(); è sbagliato perché prende l'ora prima di essersi connesso all'ntp
+	C_INT32 gup = Mobile__GetConnTime();
 	if (gup == 0) gup = -1;
 	printf("mobile payload, gup=%d\n", gup);
 	err |= cbor_encode_int(&mapEncoder, gup);
@@ -613,6 +616,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 	err |= cbor_encode_text_stringz(&mapEncoder, "cel");
 	err |= cbor_encode_text_stringz(&mapEncoder, Mobile__GetCidCode());
 	DEBUG_ADD(err, "cel");
+
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 	if(err == CborNoError)
@@ -1009,7 +1013,8 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "header request map");
 
-	C_UINT16 tmp = 0;
+	int64_t tmp = 0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1018,7 +1023,7 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 		if (strncmp(tag, "ver", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_req->ver = tmp;
+			cbor_req->ver = (C_INT16)tmp;
 			DEBUG_DEC(err, "header: ver");
 		}
 		else if (strncmp(tag, "rto", 3) == 0)
@@ -1031,7 +1036,7 @@ CborError CBOR_ReqHeader(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborhreq* cbo
 		else if (strncmp(tag, "cmd", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_req->cmd = tmp;
+			cbor_req->cmd = (C_INT16)tmp;
 			DEBUG_DEC(err, "header: cmd");
 		}
 		else
@@ -1069,7 +1074,8 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborr
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set lines config request map");
 
-	C_UINT32 tmp = 0;
+	int64_t tmp = 0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1078,19 +1084,19 @@ CborError CBOR_ReqSetLinesConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborr
 		if (strncmp(tag, "bau", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			set_line_cfg->baud = tmp;
+			set_line_cfg->baud = (C_UINT32)tmp;
 			DEBUG_DEC(err, "req_set_lines_config: bau");
 		}
 		else if (strncmp(tag, "con", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			set_line_cfg->conn = tmp;
+			set_line_cfg->conn = (C_BYTE)tmp;
 			DEBUG_DEC(err, "req_set_lines_config: con");
 		}
 		else if (strncmp(tag, "del", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			set_line_cfg->del = tmp;
+			set_line_cfg->del = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_lines_config: del");
 		}
 		else
@@ -1130,7 +1136,8 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set devs config request map");
 
-	C_UINT16 tmp = 0;
+	int64_t tmp = 0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1157,25 +1164,25 @@ CborError CBOR_ReqSetDevsConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborre
 		else if (strncmp(tag, "cid", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			download_devs_config->cid = tmp;
+			download_devs_config->cid = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_devs_config: cid");
 		}
 		else if (strncmp(tag, "crc", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			download_devs_config->crc = tmp;
+			download_devs_config->crc = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_devs_config: crc");
 		}
 		else if (strncmp(tag, "dev", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			download_devs_config->dev = tmp;
+			download_devs_config->dev = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_devs_config: dev");
 		}
 		else if (strncmp(tag, "did", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			download_devs_config->did = tmp;
+			download_devs_config->did = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_devs_config: did");
 		}
 		else if (strncmp(tag, "fil", 3) == 0)
@@ -1220,6 +1227,8 @@ CborError CBOR_ReqScanLine(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16 *dev
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "scan line request map");
 
+	int64_t tmp;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1227,7 +1236,8 @@ CborError CBOR_ReqScanLine(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16 *dev
 
 		if (strncmp(tag, "dev", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, device);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			*device = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_scan_line: dev");
 		}
 		else
@@ -1265,7 +1275,8 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "write values request map");
 
-	C_UINT16 tmp = 0;
+	int64_t tmp = 0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1288,31 +1299,31 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 		else if (strncmp(tag, "fun", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_rwv->func = tmp;
+			cbor_rwv->func = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_rdwr_values: fun");
 		}
 		else if (strncmp(tag, "adr", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_rwv->addr = tmp;
+			cbor_rwv->addr = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_rdwr_values: adr");
 		}
 		else if (strncmp(tag, "dim", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_rwv->dim = tmp;
+			cbor_rwv->dim = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_rdwr_values: dim");
 		}
 		else if (strncmp(tag, "pos", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_rwv->pos = tmp;
+			cbor_rwv->pos = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_rdwr_values: pos");
 		}
 		else if (strncmp(tag, "len", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_rwv->len = tmp;
+			cbor_rwv->len = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_rdwr_values: len");
 		}
 		else if (strncmp(tag, "a", 3) == 0)
@@ -1332,7 +1343,7 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 		else if (strncmp(tag, "flg", 3) == 0)
 		{
 			flag_t ftmp = {0};
-			err |= CBOR_ExtractInt(&recursed, &ftmp);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
 			cbor_rwv->flags = ftmp;
 			DEBUG_DEC(err, "req_rdwr_values: flg");
 		}
@@ -1387,7 +1398,8 @@ CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqs
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set gw config request map");
 
-	C_UINT16 tmp = 0;
+	int64_t tmp = 0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1396,31 +1408,31 @@ CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqs
 		if (strncmp(tag, "pva", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_setgwconfig->pva = tmp;
+			cbor_setgwconfig->pva = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_gw_config: pva");
 		}
 		else if (strncmp(tag, "pst", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_setgwconfig->pst = tmp;
+			cbor_setgwconfig->pst = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_gw_config: pst");
 		}
 		else if (strncmp(tag, "mka", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_setgwconfig->mka = tmp;
+			cbor_setgwconfig->mka = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_gw_config: mka");
 		}
 		else if (strncmp(tag, "lss", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_setgwconfig->lss = tmp;
+			cbor_setgwconfig->lss = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_gw_config: lss");
 		}
 		else if (strncmp(tag, "hss", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			cbor_setgwconfig->hss = tmp;
+			cbor_setgwconfig->hss = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_gw_config: hss");
 		}
 		else
@@ -1461,6 +1473,8 @@ CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* se
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "send mb adu request map");
 
+	C_UINT64 tmp = 0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1468,7 +1482,8 @@ CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* se
 
 		if (strncmp(tag, "seq", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, seq);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			*seq = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_send_mb_adu: seq");
 		}
 		else if (strncmp(tag, "adu", 3) == 0)
@@ -1509,6 +1524,8 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "send_mb_pass_through request map");
 
+	C_UINT64 tmp = 0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1516,7 +1533,8 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 
 		if (strncmp(tag, "pas", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, cbor_pass);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			*cbor_pass = (C_UINT16)tmp;
 			DEBUG_DEC(err, "send_mb_pass_through: pas");
 		}
 		else
@@ -1554,6 +1572,8 @@ CborError CBOR_ReqReboot(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cid)
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "reboot request map");
 
+	int64_t tmp=0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1561,7 +1581,8 @@ CborError CBOR_ReqReboot(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cid)
 
 		if (strncmp(tag, "cid", 3) == 0)
 		{
-			err |= CBOR_ExtractInt(&recursed, cid);
+			err |= CBOR_ExtractInt(&recursed, &tmp);
+			*cid = (C_UINT16)tmp;
 			DEBUG_DEC(err, "reboot: cid");
 		}
 		else
@@ -1647,7 +1668,8 @@ CborError CBOR_ReqUpdateDevFW(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborrequ
 	err |= cbor_value_enter_container(&it, &recursed);
 	DEBUG_DEC(err, "set devs config request map");
 
-	C_UINT16 tmp;
+	int64_t tmp=0;
+
 	while (!cbor_value_at_end(&recursed)) {
 		stlen = TAG_SIZE;
 		memset(tag,'0',sizeof(tag));
@@ -1674,19 +1696,19 @@ CborError CBOR_ReqUpdateDevFW(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborrequ
 		else if (strncmp(tag, "fid", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			update_dev_fw->fid = tmp;
+			update_dev_fw->fid = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_devs_config: fid");
 		}
 		else if (strncmp(tag, "wet", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			update_dev_fw->wet = tmp;
+			update_dev_fw->wet = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_devs_config: wet");
 		}
 		else if (strncmp(tag, "cid", 3) == 0)
 		{
 			err |= CBOR_ExtractInt(&recursed, &tmp);
-			update_dev_fw->cid = tmp;
+			update_dev_fw->cid = (C_UINT16)tmp;
 			DEBUG_DEC(err, "req_set_devs_config: cid");
 		}
 		else
@@ -1723,7 +1745,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 	C_MQTT_TOPIC topic;
 	C_GATEWAY_ID dev_id;
-	Get_Gateway_ID(&dev_id);
+
+	Get_Gateway_ID((C_SBYTE *)(&dev_id));
+
 	strcpy((char*)topic,(char*)dev_id);
 
 	err = CBOR_ReqHeader(cbor_stream, cbor_len, &cbor_req);
@@ -1848,7 +1872,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqScanLine(cbor_stream, cbor_len, &device);
 			if (err == C_SUCCESS) {
-				cbor_req.res = (execute_scan_devices(&answer, &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+				cbor_req.res = (execute_scan_devices((C_BYTE *)(&answer), &device, &length) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			}
 			if (cbor_req.res == ERROR_CMD)
 				device = 0;
@@ -2322,16 +2346,18 @@ C_INT16 getBitMask(C_INT16 len)
 C_RES parse_write_values(c_cborreqrdwrvalues cbor_wv)
 {
 	C_RES result = C_FAIL;
+	// TODO da gestire tutte le conversioni di tipo nei vari casi
+
 	C_CHAR num_reg;
 	C_FLOAT val_to_write;
 	C_INT32 ivalue;
 
     // only for Nibble management
 	hr_ir_low_high_poll_t hr_to_read = {0};
-	long double conv_value = 0;
 
     uint16_t tmp, mask;
-    double res;
+
+	double res;
 
 	res = atof((C_SCHAR*)cbor_wv.val);
 
@@ -2523,9 +2549,18 @@ C_RES execute_update_file(c_cborrequpdatefile *update_file){
 
 void CBOR_ReadDidFromNVM (void)
 {
-	if (C_SUCCESS != NVM__ReadU32Value(MB_DID_NVM, &did))
+	C_UINT32 val;
+
+	if (C_SUCCESS != NVM__ReadU32Value(MB_DID_NVM, &val))
+	{
 		did = 0;
+	}
+	else
+	{
+		did = (C_UINT16)val;
+	}
 }
+
 
 C_UINT16 CBOR_GetDid (void)
 {
