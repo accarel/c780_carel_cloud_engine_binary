@@ -1,7 +1,13 @@
+/**
+ * @file binary_model.c
+ * @author carel
+ * @date   9 Sep 2019
+ * @brief  functions implementations specific related to the managment of the
+ *         binary model used to pooling the connected device
+ */
 
-
-#ifndef _MAIN_H
-#define _MAIN_H
+#ifndef _BINARY_MODEL_H
+#define _BINARY_MODEL_H
 
 #include "CAREL_GLOBAL_DEF.h"
 #include <stdint.h>
@@ -22,7 +28,10 @@
 
 #endif
 
-
+/**
+ * @brief GME_MODEL
+ *        device model signature
+ */
 #define GME_MODEL			"GME_MBT\x0"
 #define HEADER_VERSION 		256
 #define GME_MODEL_MAX_SIZE	2048
@@ -148,10 +157,6 @@ uint16_t BinaryModel_GetCrc(void);
 C_RES BinaryModel_CheckCrc(void);
 
 bool CheckModelValidity(void);
-
-
-
-
 
 
 

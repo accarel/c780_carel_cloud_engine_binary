@@ -1,24 +1,34 @@
+/**
+ * @file binary_model.c
+ * @author carel
+ * @date   9 Sep 2019
+ * @brief  functions implementations specific related to the managment of the
+ *         binary model used to pooling the connected device
+ */
 
+/* this define to cross compile if needed in visual studio */
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
-
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-//#include "types.h"
 #include "binary_model.h"
-#include "File_System_CAREL.h"
 
+#include "File_System_CAREL.h"
 #include "polling_CAREL.h"
 #include "nvm_CAREL.h"
 #include "main_CAREL.h"
 
-#include "data_types_CAREL.h"
-
 // locale define
+
+/**
+ * @brief WANT_DUMP_MODEL
+ *        set 1 to obtain in debug mode the dump of the device model through the serial
+ *        monitoring serial port
+ */
 #define WANT_DUMP_MODEL	0
 
 //#define __DEBUG_BYNARY_MODEL
@@ -54,6 +64,7 @@ static  uint8_t   *p_ir_alarm_sect;
 
 uint16_t Crc;
 bool valid_model;
+
 
 #if WANT_DUMP_MODEL
 
@@ -365,10 +376,15 @@ uint16_t CRC16(const uint8_t *nData, uint16_t wLength)
 }
 
 
-
+/**
+ * @brief get_model_pointers
+ *        return the pointers to the model structure in memory
+ *
+ * @param none
+ * @return none
+ */
 static void get_model_pointers(uint8_t *val)
 {
-
 	uint8_t* model_data_begin;
 
 	ptmyLowPoll   = (struct NumOfPoll*)(val + sizeof(H_HeaderModel));
@@ -426,8 +442,14 @@ static void dump_all_values(void)
 }
 #endif
 
-/* Print Model info on console */
 
+/**
+ * @brief GetDeviceInfo
+ *        Print Model info on console
+ *
+ * @param *val pointer to memory area that contains the model
+ * @return none
+ */
 static void GetDeviceInfo(uint8_t *val)
 {
 	ptmyHeaderModel = (struct HeaderModel *)val;
@@ -469,6 +491,15 @@ static void GetDeviceInfo(uint8_t *val)
 	// end show
 }
 
+
+/**
+ * @brief BinaryModel_GetChunk
+ *        retrieve the model from Flash File System an put it in memory
+ *
+ * @param  long sz the chunk size
+ * @return pointer to the memory area that contains the chunk
+ * @info   remember that this function allocate heap memory
+ */
 uint8_t* BinaryModel_GetChunk(long sz){
 
 	FILE *input_file_ptr;
@@ -499,6 +530,13 @@ uint8_t* BinaryModel_GetChunk(long sz){
 	return chunk;
 }
 
+
+/**
+ * @brief BinaryModel_GetCrc
+ *        calculate the CRC of the binary model
+ * @param none
+ * @return the crc value
+ */
 uint16_t BinaryModel_GetCrc(void){
 	
 	long sz = filesize(MODEL_FILE);
@@ -507,7 +545,6 @@ uint16_t BinaryModel_GetCrc(void){
 
 	uint8_t* chunk = BinaryModel_GetChunk(sz);
 
-	// calcolo del crc
 	Crc = CRC16(chunk, sz-2);
 
 	free(chunk);
@@ -515,6 +552,12 @@ uint16_t BinaryModel_GetCrc(void){
 	return Crc;
 }
 
+/**
+ * @brief BinaryModel_CheckCrc
+ *        check the CRC of the binary model
+ * @param none
+ * @return C_SUCCESS/C_FAIL
+ */
 C_RES BinaryModel_CheckCrc(void){
 
 	long sz = filesize(MODEL_FILE);
@@ -536,6 +579,13 @@ C_RES BinaryModel_CheckCrc(void){
 		return C_FAIL;
 }
 
+
+/**
+ * @brief BinaryModel_Init
+ *        initialize the system to use the binary model
+ * @param none
+ * @return C_SUCCESS/C_FAIL
+ */
 int BinaryModel_Init (void)
 {
 	uint8_t* chunk;
@@ -593,11 +643,24 @@ int BinaryModel_Init (void)
 
 }
 
+
+/**
+ * @brief CheckModelValidity
+ *
+ * @param none
+ * @return TRUE/FALSE
+ */
 bool CheckModelValidity(void){
 	return valid_model;
 }
 
 
+/**
+ * @brief BinaryModel__GetNum
+ *        return the number of COILs/HR/DI/IR presente in the model
+ * @param arr[MAX_POLLING][MAX_REG]
+ * @return none
+ */
 void BinaryModel__GetNum(uint8_t arr[MAX_POLLING][MAX_REG]){
 
 	for (int d = 0; d < MAX_POLLING; d++)
@@ -621,8 +684,13 @@ void BinaryModel__GetNum(uint8_t arr[MAX_POLLING][MAX_REG]){
 
 
 
-
-
+/**
+ * @brief BinaryModel__GetPtrSec
+ *        return the point to the ALARM_POLLING/HIGH_POLLING/LOW_POLLING section for each
+ *        type COIL/HR/DI/IR present in the model
+ * @param polling_type, reg_type
+ * @return none
+ */
 uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type){
 
 	uint8_t* temp;
