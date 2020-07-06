@@ -12,6 +12,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
+
+/**
+ * @brief Carel_Main_Task_Start
+ *		  Call the Carel_Main_Task in main_CAREL.c
+ *
+ * @param  none
+ * @return none
+ */
 void Carel_Main_Task_Start(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -19,6 +27,12 @@ void Carel_Main_Task_Start(void)
 #endif
 }
 
+/**
+ * @brief GME_Reboot_IS
+ *		  Call the ESP32 specific function to restart the module
+ * @param  none
+ * @return none
+ */
 void GME_Reboot_IS(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT

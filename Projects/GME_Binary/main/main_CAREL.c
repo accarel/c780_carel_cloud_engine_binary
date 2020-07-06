@@ -60,7 +60,13 @@
 //Variables
 static gme_sm_t sm = GME_INIT;
 
-
+/**
+ * @brief app_main
+ *		  main application of the project
+ *
+ * @param  none
+ * @return none
+ */
 void app_main(void)  // main_Carel
 {
 
@@ -71,15 +77,13 @@ void app_main(void)  // main_Carel
   Set_Gateway_ID();
   Led_Task_Start();
 
-  if ((hw_platform_detected & PLATFORM_DETECTED_TEST_MODE) != 0)
+  if ((hw_platform_detected & PLATFORM_DETECTED_TEST_MODE) == PLATFORM_DETECTED_TEST_MODE)
   {
 	  /* test mode pin is connected to ground */
 	  test_hw();
   }
   else
   {
-
-
      Carel_Main_Task_Start();
      //software watchdog
      while(1)
@@ -92,6 +96,14 @@ void app_main(void)  // main_Carel
 
 }
 
+
+/**
+ * @brief Carel_Main_Task
+ *		  Main task of the project (main loop)
+ *
+ * @param  none
+ * @return none
+ */
 void Carel_Main_Task(void)
 {
   C_RES retval;
@@ -361,7 +373,14 @@ void Carel_Main_Task(void)
 //					PRIVATE FUNCTIONS
 //********************************************************
 
-//If we received a new WiFi configuration during system running (Re-Configure)
+
+/**
+ * @brief GME__CheckHTMLConfig
+ *		  If we received a new WiFi configuration during system running (Re-Configure)
+ *
+ * @param  none
+ * @return none
+ */
 void GME__CheckHTMLConfig(void){
 	if(IsConfigReceived() || IsWpsMode()){
 		PRINTF_DEBUG("IsConfigReceived\n");
@@ -370,6 +389,13 @@ void GME__CheckHTMLConfig(void){
 	}
 }
 
+/**
+ * @brief GME__Reboot
+ *		  execute a reboot of the GME with a 5 sec countdown
+ *
+ * @param  none
+ * @return none
+ */
 void GME__Reboot(void){
 
 	Do_Led_Test_Routine();
@@ -406,8 +432,6 @@ gme_sm_t GetsmStatus(void)
 {
 	return sm;
 }
-
-
 
 H_HeaderModel * GME__GetHEaderInfo(void)
 {
