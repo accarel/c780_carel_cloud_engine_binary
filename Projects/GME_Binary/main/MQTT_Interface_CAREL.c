@@ -52,8 +52,8 @@ C_RES MQTT_Start(void)
     #endif
 
 	mqtt_config_t mqtt_cfg_nvm = {0};
-	size_t pass_len = 0, user_len = 0;
-	uint8_t gw_config_status, mqtt_url;
+
+	uint8_t gw_config_status;
 	uint8_t cert_num;
 
 	char tmp_mqtt_broker[SERVER_SIZE];
@@ -119,7 +119,10 @@ C_RES MQTT_Start(void)
 
     err = mqtt_client_start();
 
-    //TODO Bilato da gestire
+    //
+    // NB:
+    // currently used only during debugging
+    //
     switch (err)
     {
        case	ESP_OK:
@@ -163,7 +166,12 @@ C_RES MQTT_Start(void)
     return err;
 }
 
-
+/**
+ * @brief MQTT_Stop
+ *
+ * @param none
+ * @return none
+ */
 void MQTT_Stop(void)
 {
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
@@ -173,6 +181,13 @@ void MQTT_Stop(void)
 	vEventGroupDelete(s_mqtt_event_group);
 }
 
+/**
+ * @brief CBOR_CreateSendValues
+ *
+ * @param values_buffer_t *values_buffer
+ * @param uint16_t values_buffer_count
+ * @return none
+ */
 void CBOR_CreateSendValues(values_buffer_t *values_buffer, uint16_t values_buffer_count)
 {
 	uint32_t i, vals_for_ts, firstval_for_ts;
@@ -205,6 +220,12 @@ void CBOR_CreateSendValues(values_buffer_t *values_buffer, uint16_t values_buffe
 	}
 }
 
+/**
+ * @brief MQTT_FlushValues
+ *
+ * @param  none
+ * @return none
+ */
 void MQTT_FlushValues(void){
 
 	if (MQTT_GetFlags() == 1) {
@@ -213,11 +234,24 @@ void MQTT_FlushValues(void){
 	}
 }
 
+/**
+ * @brief MQTT_Alarms
+ *
+ * @param  c_cboralarms alarms
+ * @return none
+ */
 void MQTT_Alarms(c_cboralarms alarms)
 {
 	CBOR_SendAlarms(alarms);
 }
 
+/**
+ * @brief MQTT_PeriodicTasks
+ *	      Manage the status and mobile MQTT message
+ *
+ * @param  none
+ * @return none
+ */
 void MQTT_PeriodicTasks(void)
 {
 	// send status payload on all platforms every pst seconds (configurable)
@@ -240,6 +274,13 @@ void MQTT_PeriodicTasks(void)
 	}
 }
 
+/**
+ * @brief MQTT_PeriodicTasks
+ *	      Manage the status and mobile MQTT message
+ *
+ * @param  C_SCHAR* topic
+ * @return none
+ */
 C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
 {
 	
@@ -256,6 +297,13 @@ C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
 	return (C_MQTT_TOPIC*)mqtt_topic;
 }
 
+/**
+ * @brief EventHandler
+ *
+ *
+ * @param  mqtt_event_handle_t event
+ * @return none
+ */
 C_RES EventHandler(mqtt_event_handle_t event)
 {
 
@@ -389,6 +437,12 @@ C_RES EventHandler(mqtt_event_handle_t event)
 	return C_SUCCESS;
 }
 
+/**
+ * @brief MQTT_GetFlags
+ *
+ * @param  none
+ * @return C_BYTE mqtt_init
+ */
 C_BYTE MQTT_GetFlags(void){
 	return mqtt_init;
 }

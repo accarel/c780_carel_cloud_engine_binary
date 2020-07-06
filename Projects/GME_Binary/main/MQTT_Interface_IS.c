@@ -153,9 +153,14 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 	return mqtt_client;	
 }
 
+/**
+ * @brief mqtt_client_reinit
+ *        Re-initialize all the data request by the MQTT client engine
+ * @param None
+ * @return none
+ */
 void mqtt_client_reinit(void)
-{ /* TO BE implemented */
-
+{
 	/* The below routine must be called to reinit MQTT after an offline	with proper ts */
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 		RTC_Set_UTC_MQTTConnect_Time();
@@ -167,11 +172,15 @@ void mqtt_client_reinit(void)
 		.lwt_msg_len = conn_len,
 	};
 #endif
-	return;
 }
 
 
-
+/**
+ * @brief MQTT__GetClient
+ *
+ * @param None
+ * @return mqtt_client_handle_t mqtt_client
+ */
 mqtt_client_handle_t MQTT__GetClient (void)
 {
 	return mqtt_client;
