@@ -133,7 +133,13 @@ void Update_Led_Status(C_UINT16 set_status, C_BYTE status)
 
 }
 
-
+/**
+ * @brief Task_Led_Status
+ *        TAsk that manage the led status
+ *
+ * @param  none
+ * @return none
+ */
 void Task_Led_Status(void)
 {
 
@@ -190,11 +196,16 @@ void Task_Led_Status(void)
 	{
 		Update_Led_Fact_Def_B(0);
 	}
-
-	
 }
 
-
+/**
+ * @brief Led_Status_Update
+ *        This function is usefull to change the status led
+ *
+ * @param  Led_Show_Status_t status
+ *         int led
+ * @return none
+ */
 void Led_Status_Update(Led_Show_Status_t status, int led){
   static Led_Show_Status_t blink_status = LED_OFF;
   static C_INT32 blink_timer = 0;
@@ -325,14 +336,11 @@ void Led_Status_Update(Led_Show_Status_t status, int led){
 //#ifdef __USE_CAREL_BCU_HW
 
 /**
- * @brief Led_init
- *        Initialize the I/O pin related to the leds for a specific platform
+ * @brief Update_Led_Model_Cfg_bcu
  *
- * @param none
+ * @param  C_BYTE model_cfg_status
  * @return none
  */
-
-
 void Update_Led_Model_Cfg_bcu(C_BYTE model_cfg_status)
 {
 
@@ -353,6 +361,12 @@ void Update_Led_Model_Cfg_bcu(C_BYTE model_cfg_status)
 
 }
 
+/**
+ * @brief Update_Led_MQTT_Conn_bcu
+ *
+ * @param  C_BYTE mqtt_conn_status
+ * @return none
+ */
 void Update_Led_MQTT_Conn_bcu(C_BYTE mqtt_conn_status)
 {
 	  if ((mqtt_conn_status==1) && (led_current_status & LED_STAT_MODEL_CFG))
@@ -371,6 +385,12 @@ void Update_Led_MQTT_Conn_bcu(C_BYTE mqtt_conn_status)
 	  }
 }
 
+/**
+ * @brief Update_Led_RS485_bcu
+ *
+ * @param  C_BYTE rs485_status
+ * @return none
+ */
 void Update_Led_RS485_bcu(C_BYTE rs485_status)
 {
 /*
@@ -379,11 +399,23 @@ void Update_Led_RS485_bcu(C_BYTE rs485_status)
 */
 }
 
+/**
+ * @brief Update_Led_Fact_Def_A_bcu
+ *
+ * @param  C_BYTE fact_def_a_status
+ * @return none
+ */
 void Update_Led_Fact_Def_A_bcu(C_BYTE fact_def_a_status)
 {
 //do nothing no led available
 }
 
+/**
+ * @brief Update_Led_Fact_Def_B_bcu
+ *
+ * @param  C_BYTE fact_def_a_status
+ * @return none
+ */
 void Update_Led_Fact_Def_B_bcu(C_BYTE fact_def_a_status)
 {
 //do nothing no led available
@@ -394,7 +426,12 @@ void Update_Led_Fact_Def_B_bcu(C_BYTE fact_def_a_status)
 
 
 
-
+/**
+ * @brief Update_Led_Model_Cfg_2g
+ *
+ * @param  C_BYTE model_cfg_status
+ * @return none
+ */
 void Update_Led_Model_Cfg_2g(C_BYTE model_cfg_status)
 {
 /*
@@ -411,6 +448,12 @@ Model configured         ON
   }
 }
 
+/**
+ * @brief Update_Led_MQTT_Conn_2g
+ *
+ * @param  C_BYTE mqtt_conn_status
+ * @return none
+ */
 void Update_Led_MQTT_Conn_2g(C_BYTE mqtt_conn_status)
 {
 /*
@@ -428,6 +471,12 @@ MQTT connected          ON
 
 }
 
+/**
+ * @brief Update_Led_RS485_2g
+ *
+ * @param  C_BYTE rs485_status
+ * @return none
+ */
 void Update_Led_RS485_2g(C_BYTE rs485_status)
 {
 /*
@@ -444,6 +493,12 @@ void Update_Led_RS485_2g(C_BYTE rs485_status)
   }
 }
 
+/**
+ * @brief Update_Led_Fact_Def_A_2g
+ *
+ * @param  C_BYTE fact_def_a_status
+ * @return none
+ */
 void Update_Led_Fact_Def_A_2g(C_BYTE fact_def_a_status)
 {
 	if (fact_def_a_status == 1)
@@ -452,6 +507,12 @@ void Update_Led_Fact_Def_A_2g(C_BYTE fact_def_a_status)
 	}
 }
 
+/**
+ * @brief Update_Led_Fact_Def_B_2g
+ *
+ * @param  C_BYTE fact_def_a_status
+ * @return none
+ */
 void Update_Led_Fact_Def_B_2g(C_BYTE fact_def_a_status)
 {
 	if (fact_def_a_status == 1)
@@ -466,6 +527,12 @@ void Update_Led_Fact_Def_B_2g(C_BYTE fact_def_a_status)
 
 //#ifdef __USE_ESP_WROVER_KIT
 
+/**
+ * @brief Update_Led_Model_Cfg_esp_wrover_kit
+ *
+ * @param  C_BYTE model_cfg_status
+ * @return none
+ */
 void Update_Led_Model_Cfg_esp_wrover_kit(C_BYTE model_cfg_status)
 {
 /*
@@ -483,6 +550,12 @@ Model configured         ON
   }
 }
 
+/**
+ * @brief Update_Led_MQTT_Conn_esp_wrover_kit
+ *
+ * @param  C_BYTE mqtt_conn_status
+ * @return none
+ */
 void Update_Led_MQTT_Conn_esp_wrover_kit(C_BYTE mqtt_conn_status)
 {
 /*
@@ -499,6 +572,12 @@ MQTT connected          ON
 	}
 }
 
+/**
+ * @brief Update_Led_RS485_esp_wrover_kit
+ *
+ * @param  C_BYTE rs485_status
+ * @return none
+ */
 void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
 {
 /*
@@ -515,6 +594,12 @@ void Update_Led_RS485_esp_wrover_kit(C_BYTE rs485_status)
   }
 }
 
+/**
+ * @brief Update_Led_Fact_Def_A_esp_wrover_kit
+ *
+ * @param  C_BYTE fact_def_a_status
+ * @return none
+ */
 void Update_Led_Fact_Def_A_esp_wrover_kit(C_BYTE fact_def_a_status)
 {
 	if (fact_def_a_status == 1)
@@ -523,6 +608,12 @@ void Update_Led_Fact_Def_A_esp_wrover_kit(C_BYTE fact_def_a_status)
 	}
 }
 
+/**
+ * @brief Update_Led_Fact_Def_B_esp_wrover_kit
+ *
+ * @param  C_BYTE fact_def_b_status
+ * @return none
+ */
 void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
 {
 	if (fact_def_b_status == 1)
@@ -533,6 +624,15 @@ void Update_Led_Fact_Def_B_esp_wrover_kit(C_BYTE fact_def_b_status)
 
 //#endif
 
+
+
+/**
+ * @brief Update_Led_Model_Cfg_wifi
+ *        This function used to see the led configuration of Wifi model
+ *
+ * @param  C_BYTE model_cfg_status
+ * @return none
+ */
 void Update_Led_Model_Cfg_wifi(C_BYTE model_cfg_status)
 {
 /*
@@ -556,6 +656,13 @@ MQTT connected           ON          ON
   }		
 }
 
+/**
+ * @brief Update_Led_MQTT_Conn_wifi
+ *        This function used to see the led connection of Wifi model
+ *
+ * @param  C_BYTE mqtt_conn_status
+ * @return none
+ */
 void Update_Led_MQTT_Conn_wifi(C_BYTE mqtt_conn_status)
 {
 /*
@@ -578,6 +685,14 @@ MQTT connected           ON          ON
 	    Led_Status_Update(LED_OFF, LED_GREEN);
 }
 
+/**
+ * @brief Update_Led_RS485_wifi
+ *        right now for the WiFi model there isn't any RS485
+ *	 	  activity indicator, so do nothing
+ *
+ * @param  C_BYTE rs485_status
+ * @return none
+ */
 void Update_Led_RS485_wifi(C_BYTE rs485_status)
 {
 /*
@@ -586,6 +701,13 @@ void Update_Led_RS485_wifi(C_BYTE rs485_status)
 */
 }
 
+/**
+ * @brief Update_Led_Fact_Def_A_wifi
+ *        This function used to see the led factory default of Wifi model
+ *
+ * @param  C_BYTE fact_def_a_status
+ * @return none
+ */
 void Update_Led_Fact_Def_A_wifi(C_BYTE fact_def_a_status)
 {
 
@@ -596,6 +718,13 @@ void Update_Led_Fact_Def_A_wifi(C_BYTE fact_def_a_status)
 	}
 }
 
+/**
+ * @brief Update_Led_Fact_Def_B_wifi
+ *        This function used to see the led factory default of Wifi model
+ *
+ * @param  C_BYTE fact_def_b_status
+ * @return none
+ */
 void Update_Led_Fact_Def_B_wifi(C_BYTE fact_def_b_status)
 {
 	if (fact_def_b_status == 1)
@@ -612,6 +741,14 @@ void Update_Led_Fact_Def_B_wifi(C_BYTE fact_def_b_status)
 /*                          TASK MANAGER                               */
 /* ------------------------------------------------------------------- */
 
+/**
+ * @brief Led_Pin_Init
+ *        This function used to initialize the led pin architecture
+ *        depending on the hardware
+ *
+ * @param  none
+ * @return none
+ */
 void Led_Pin_Init(void){
 
 	if PLATFORM(PLATFORM_DETECTED_BCU){
@@ -634,6 +771,13 @@ void Led_Pin_Init(void){
 	}
 }
 
+/**
+ * @brief Led_init
+ *        Main function used to initialize the led pin
+ *
+ * @param  none
+ * @return none
+ */
 void Led_init(void)
 {
     #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -663,6 +807,14 @@ void Led_init(void)
 
 }
 
+
+/**
+ * @brief Do_Led_Test_Routine
+ *        Led test routine
+ *
+ * @param  none
+ * @return none
+ */
 void Do_Led_Test_Routine(void){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	C_BYTE count;
@@ -690,6 +842,14 @@ void Do_Led_Test_Routine(void){
 }
 
 
+/**
+ * @brief Update_Led_Model_Cfg
+ *        Used inside the task to turn on or off the led cfg
+ *
+ * @param  C_BYTE model_cfg_status
+ *
+ * @return none
+ */
 void Update_Led_Model_Cfg(C_BYTE model_cfg_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Model_Cfg_bcu(model_cfg_status);
@@ -703,6 +863,14 @@ void Update_Led_Model_Cfg(C_BYTE model_cfg_status){
 #endif
 }
 
+/**
+ * @brief Update_Led_MQTT_Conn
+ *        Used inside the task to turn on or off the led MQTT_Conn
+ *
+ * @param  C_BYTE mqtt_conn_status
+ *
+ * @return none
+ */
 void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
   if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_MQTT_Conn_bcu(mqtt_conn_status);
@@ -716,6 +884,14 @@ void Update_Led_MQTT_Conn(C_BYTE mqtt_conn_status){
 #endif
 }
 
+/**
+ * @brief Update_Led_RS485
+ *        Used inside the task to turn on or off the led RS485
+ *
+ * @param  C_BYTE rs485_status
+ *
+ * @return none
+ */
 void Update_Led_RS485(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_RS485_bcu(rs485_status);
@@ -730,7 +906,14 @@ void Update_Led_RS485(C_BYTE rs485_status){
 }
 
 
-
+/**
+ * @brief Update_Led_Fact_Def_A
+ *        Used inside the task to turn on or off the led Fact_Def
+ *
+ * @param  C_BYTE rs485_status
+ *
+ * @return none
+ */
 void Update_Led_Fact_Def_A(C_BYTE rs485_status){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if PLATFORM(PLATFORM_DETECTED_BCU) Update_Led_Fact_Def_A_bcu(rs485_status);
@@ -787,6 +970,7 @@ void Led_task(void)
  * @brief Led_Task_Start this routine launch an OS task to update
  * cyclically the leds, or in a megaloop system this routine is not required 
  * put in the main loop the contente of Led_task
+ *
  * @param none
  * @return none
  */
