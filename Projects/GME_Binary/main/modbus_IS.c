@@ -40,7 +40,13 @@
 static C_SBYTE GetStopBitTable(C_SBYTE stp);
 static C_SBYTE GetParityTable(C_SBYTE prt);
 
-// TO DO...implementatiotion depend on the sistem chip in use!!!
+
+/**
+ * @brief xMBMasterPortSerialTxPoll
+ *        implementatiotion depend on the sistem chip in use!!!
+ *        for a better explanation see freeModbus in esp-idf
+ *
+ */
 extern BOOL xMBMasterPortSerialTxPoll(void);
 
 
@@ -62,16 +68,21 @@ extern USHORT usMBFileTransferLen;
 //#define __DEBUG_MODBUS_CAREL
 
 
-
-
 /**
  * @brief Modbus_Init
  *        Initialize the modbus protocol
  *
- * @param none
- * @return C_SUCCESS or C_FAIL
+ *        C_BYTE port are passed but not used
+ *        the library of idf-esp  set UART_STOP_BITS_1 in portserial_m.c (riga 244)
+ *
+ *
+ * @param C_INT32 baud
+ * @param C_SBYTE parity
+ * @param C_SBYTE stopbit
+ * @param C_BYTE port
+ * @return C_RES
  */
-C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)  // TODO stop bit da capire
+C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)
 {
      eMBErrorCode eStatus;
      esp_err_t err = C_FAIL;
@@ -123,10 +134,16 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)  /
 }
 
 
-//
-// table translation for esp32 uart setting
-//
 
+/**
+ * @brief GetStopBitTable
+ *        translate the data passed by Iot into a
+ *        esp-idf library proper value
+ *
+ *
+ * @param  C_SBYTE stp
+ * @return C_SBYTE
+ */
 static C_SBYTE GetStopBitTable(C_SBYTE stp)
 {
    C_SBYTE val;
@@ -150,6 +167,15 @@ static C_SBYTE GetStopBitTable(C_SBYTE stp)
    return val;
 }
 
+/**
+ * @brief GetParityTable
+ *        translate the data passed by Iot into a
+ *        esp-idf library proper value
+ *
+ *
+ * @param  C_SBYTE prt
+ * @return C_SBYTE
+ */
 static C_SBYTE GetParityTable(C_SBYTE prt)
 {
 	   C_SBYTE val;
@@ -175,7 +201,7 @@ static C_SBYTE GetParityTable(C_SBYTE prt)
 
 /**
  * @brief Modbus_Task
- *        Start the modbus comunication
+ *        Main task of the modbus comunication
  *
  * @param none
  * @return none
@@ -215,7 +241,6 @@ void Modbus_Task(void)
  */
 void Modbus_Task_Start(void)
 {
-	// to be implemented by USR
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	xTaskCreate(&Modbus_Task, "MODBUS_START", 2*2048, NULL, 10, MODBUS_TASK );
 #endif
@@ -224,8 +249,19 @@ void Modbus_Task_Start(void)
 
 
 
-// 0x01 //single or multi-coils
-int app_coil_read(const uint8_t addr, const int func, const int index, const int num)
+
+
+/**
+ * @brief app_coil_read
+ *       execute the read function - 0x01 (single or multi-coils)
+ *
+ * @param  const uint8_t addr
+ * @param  const int index
+ * @param  const int num
+ *
+ * @return int result
+ */
+int app_coil_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -240,8 +276,17 @@ int app_coil_read(const uint8_t addr, const int func, const int index, const int
 }
 
 
-//  0x02 //single or multi-coils
-int app_coil_discrete_input_read(const uint8_t addr, const int func, const int index, const int num)
+/**
+ * @brief app_coil_discrete_input_read
+ *       execute the read function - 0x02 (discrete input)
+ *
+ * @param  const uint8_t addr
+ * @param  const int index
+ * @param  const int num
+ *
+ * @return int result
+ */
+int app_coil_discrete_input_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
 
@@ -257,8 +302,17 @@ int app_coil_discrete_input_read(const uint8_t addr, const int func, const int i
 }
 
 
-//  0x03 //single or multi-coils
-int app_holding_register_read(const uint8_t addr, const int func, const int index, const int num)
+/**
+ * @brief app_holding_register_read
+ *       execute the read function - 0x03 (holding register)
+ *
+ * @param  const uint8_t addr
+ * @param  const int index
+ * @param  const int num
+ *
+ * @return int result
+ */
+int app_holding_register_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
 
@@ -274,8 +328,17 @@ int app_holding_register_read(const uint8_t addr, const int func, const int inde
 }
 
 
-//  0x04 //single or multi-coils
-int app_input_register_read(const uint8_t addr, const int func, const int index, const int num)
+/**
+ * @brief app_holding_register_read
+ *       execute the read function - 0x04 (input register)
+ *
+ * @param  const uint8_t addr
+ * @param  const int index
+ * @param  const int num
+ *
+ * @return int result
+ */
+int app_input_register_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
 
@@ -291,7 +354,18 @@ int app_input_register_read(const uint8_t addr, const int func, const int index,
 }
 
 
-// app_coil_write
+
+/**
+ * @brief app_coil_write
+ *       execute the write function - (coil)
+ *
+ * @param  const uint8_t addr
+ * @param  const int index
+ * @param  short newData
+ * @param  int multi
+ *
+ * @return int result
+ */
 int app_coil_write(const uint8_t addr, const int index, short newData, int multi)
 {
 	C_RES result = C_SUCCESS;
@@ -310,7 +384,18 @@ int app_coil_write(const uint8_t addr, const int index, short newData, int multi
     return result;
 }
 
-// app_hr_write
+
+/**
+ * @brief app_hr_write
+ *       execute the write function - (holding)
+ *
+ * @param  const uint8_t addr
+ * @param  const int index
+ * @param  short newData
+ * @param  int multi
+ *
+ * @return int result
+ */
 int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 * newData, int multi)
 {
 	C_RES result = C_SUCCESS;
@@ -318,7 +403,6 @@ int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 *
 #ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
-    const USHORT saddr = index;
 
     if (multi == SINGLE)
     	errorCode = eMBMasterReqWriteHoldingRegister( addr, index, *newData, timeout );
@@ -333,9 +417,13 @@ int app_hr_write(const uint8_t addr, const int index, C_CHAR num_of , C_UINT16 *
 
 
 
-
-
-// app_report_slave_id_read
+/**
+ * @brief app_report_slave_id_read
+ *       execute the report slave id function
+ *
+ * @param  const uint8_t addr
+ * @return int result
+ */
 C_RES app_report_slave_id_read(const uint8_t addr)
 {
    C_RES result = C_SUCCESS;
@@ -351,6 +439,15 @@ C_RES app_report_slave_id_read(const uint8_t addr)
     return result;
 }
 
+/**
+ * @brief app_file_transfer
+ *        execute the rfile transfer function
+ *
+ * @param  unsigned char* data_tx
+ * @param  uint8_t packet_len
+ *
+ * @return int result
+ */
 C_RES app_file_transfer(unsigned char* data_tx, uint8_t packet_len)
 {
    C_RES result = C_SUCCESS;
@@ -402,6 +499,14 @@ C_RES app_file_transfer(unsigned char* data_tx, uint8_t packet_len)
     return result;
 }
 
+
+/**
+ * @brief Modbus_Disable
+ *        stop the modbus engine
+ *
+ * @param  none
+ * @return none
+ */
 void Modbus_Disable(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -409,12 +514,28 @@ void Modbus_Disable(void)
 #endif
 	ModbusDisabled = 1;
 }
+
+/**
+ * @brief Modbus__GetStatus
+ *        return the modbus engine state
+ *
+ * @param  none
+ * @return C_UINT16 ModbusDisabled
+ */
 C_UINT16 Modbus__GetStatus(void){
 	return ModbusDisabled;
 }
 
-// pay attention when calling this function... if you enable Modbus task when it is already enabled
-// there s a good chance that freertos will crash...
+
+
+/**
+ * @brief Modbus_Enable
+ *        pay attention when calling this function... if you enable Modbus task when it is already enabled
+ *		  there s a good chance that freertos will crash...
+ *
+ * @param  none
+ * @return C_UINT16 ModbusDisabled
+ */
 void Modbus_Enable(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -426,6 +547,13 @@ void Modbus_Enable(void)
 	ModbusDisabled = 0;
 }
 
+/**
+ * @brief Modbus__ReadAddressFromNVM
+ *		  retrieve the device address from the NVM storage
+ *
+ * @param  none
+ * @return none
+ */
 void Modbus__ReadAddressFromNVM(void){
 	C_UINT32 dev_addr;
 	if(C_SUCCESS == NVM__ReadU32Value(MB_DEV_NVM, &dev_addr))
@@ -434,6 +562,13 @@ void Modbus__ReadAddressFromNVM(void){
 		MB_Device = 1;
 }
 
+/**
+ * @brief Modbus__ReadDelayFromNVM
+ *		  retrieve the modbus request delay from the NVM storage
+ *
+ * @param  none
+ * @return none
+ */
 void Modbus__ReadDelayFromNVM(void){
 	C_UINT32 delay;
 	if(C_SUCCESS == NVM__ReadU32Value(MB_DELAY_NVM, &delay))
@@ -443,10 +578,24 @@ void Modbus__ReadDelayFromNVM(void){
 	PRINTF_DEBUG("MB_Delay %d\n", MB_Delay);
 }
 
+/**
+ * @brief Modbus__GetAddress
+ *		  get the modbus request delay already read from NVS storage
+ *
+ * @param  none
+ * @return none
+ */
 C_UINT16 Modbus__GetAddress(void){
 	return MB_Device;
 }
 
+/**
+ * @brief Modbus__Delay
+ *		  execute the dalay between two request
+ *
+ * @param  none
+ * @return none
+ */
 void Modbus__Delay(void){
 	Sys__Delay(MB_Delay);
 }

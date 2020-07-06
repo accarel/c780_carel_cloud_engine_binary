@@ -21,7 +21,6 @@
 
 #include "SoftWDT.h"
 
-//#include ""binary_model_CAREL.h  // TODO
 #include "binary_model.h" 
 
 #include "RTC_IS.h"
@@ -108,6 +107,14 @@ static void save_hr_ir_value(hr_ir_low_high_poll_t *arr, void* instance_ptr);
 static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* instance_ptr);
 static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_ptr);
 
+/**
+ * @brief SetAllErrors
+ *        this function manage the error and set the error field
+ *        if during the read somenthing happens
+ *
+ * @param  eMBMasterReqErrCode error
+ * @return none
+ */
 static void SetAllErrors(eMBMasterReqErrCode error){
 	int i=0;
 
@@ -145,7 +152,6 @@ static void SetAllErrors(eMBMasterReqErrCode error){
  * @param  none
  * @return none
  */
-
 void PollEngine__CreateTables(void){
 
 	BinaryModel__GetNum(DeviceParamCount);
@@ -295,6 +301,7 @@ void PollEngine__CreateTables(void){
 	SetAllErrors(MB_MRE_TIMEDOUT);
 	create_modbus_tables();
 }
+
 /**
  * @brief create_modbus_tables
  *        this function extracts the information of how many
@@ -329,7 +336,12 @@ void create_modbus_tables(void)
 	cid_counter = low_n.total + high_n.total + alarm_n.total;
 }
 
-
+/**
+ * @brief create_values_buffers
+ *
+ * @param  none
+ * @return none
+ */
 void create_values_buffers(void){
 	//Allocate values buffer
 	uint32_t  freespace = uxTaskGetStackHighWaterMark(NULL);
@@ -349,6 +361,14 @@ void create_values_buffers(void){
 }
 
 
+/**
+ * @brief get_type_a
+ *		  return a data of type A
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 float get_type_a(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 
 	float temp, read= 0.0;
@@ -358,6 +378,14 @@ float get_type_a(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 }
 
 
+/**
+ * @brief get_type_b
+ *		  return a data of type B
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 
 	float temp, read= 0.0;
@@ -366,7 +394,14 @@ float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	return read;
 }
 
-
+/**
+ * @brief get_type_c_signed
+ *		  return a data of type c signed
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	int32_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((int32_t*)(&arr->c_value.value))) : (temp = *((int32_t*)(&arr->p_value.value)));
@@ -375,6 +410,14 @@ int32_t get_type_c_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 }
 
 
+/**
+ * @brief get_type_c_unsigned
+ *		  return a data of type c unsigned
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint32_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint32_t*)(&arr->c_value.value))) : (temp = *((uint32_t*)(&arr->p_value.value)));
@@ -382,7 +425,14 @@ uint32_t get_type_c_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	return read;
 }
 
-
+/**
+ * @brief get_type_d
+ *		  return a data of type d signed
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
@@ -392,7 +442,14 @@ uint8_t get_type_d(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	return (uint8_t)read;
 }
 
-
+/**
+ * @brief get_type_e
+ *		  return a data of type e
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 int16_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp , read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
@@ -400,7 +457,14 @@ int16_t get_type_e(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
     return (int16_t)read;
 }
 
-
+/**
+ * @brief get_type_f_signed
+ *		  return a data of type f signed
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	int16_t temp, read= 0;
 
@@ -410,7 +474,14 @@ int16_t get_type_f_signed(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	return read;
 }
 
-
+/**
+ * @brief get_type_f_unsigned
+ *		  return a data of type f unsigned
+ *
+ * @param  hr_ir_low_high_poll_t *arr
+ * @param  uint8_t read_kind
+ * @return none
+ */
 uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 	uint16_t temp, read= 0;
 	read_kind == CURRENT ? (temp = *((uint16_t*)(&arr->c_value.value))) : (temp = *((uint16_t*)(&arr->p_value.value)));
@@ -420,8 +491,14 @@ uint16_t get_type_f_unsigned(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 }
 
 
-/*	Descriptions: Routine to check if the values buffer has a free space or not
- *					If yes, increments the index, otherwise flush the buffer via mqtt
+
+/**
+ * @brief check_increment_values_buff_len
+ *		  Routine to check if the values buffer has a free space or not
+ *		  If yes, increments the index, otherwise flush the buffer via mqtt
+ *
+ * @param  uint16_t *values_buffer_idx
+ * @return none
  */
 static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
 	if(*values_buffer_idx < (values_buffer_len - 1)){
@@ -434,13 +511,18 @@ static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
 }
 
 
-/*	Descriptions: Comparing the current read with previous IR and HR registers reads
+/**
+ * @brief check_hr_ir_read_val
+ *		  Comparing the current read with previous IR and HR registers reads
  * 					accoring to its type (Look carel registers type).
  *					If there is a diff >= hysteresis, writes the read value + reg info
  *					in values buffer, then increment the values buffer index
  *
- *					arr: is the HR or IR table
- *					arr_len: the table length
+ * @param  hr_ir_poll_tables_t *arr (is the HR or IR table)
+ * @param  uint8_t arr_len          (the table length)
+ * @param  uint8_t first_run
+ *
+ * @return none
  */
 static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint8_t first_run)
 {
@@ -651,14 +733,20 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 }
 
 
-/*	Descriptions: Comparing the current read with previous COIL and IR reads
+/**
+ * @brief check_coil_di_read_val
+ *		 Comparing the current read with previous COIL and IR reads
  * 					accoring to its type (Look carel registers type).
  *					If there is a diff >= hysteresis, writes the read value + reg info
  *					in values buffer, then increment the values buffer index
  *
- *					arr: is the COIL or DI table
- *					arr_len: the table length
+ * @param  coil_di_poll_tables_t *arr (is the COIL or DI table)
+ * @param  uint8_t arr_len            (the table length)
+ * @param  uint8_t first_run
+ *
+ * @return none
  */
+
 static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, uint8_t first_run)
 {
 	for(uint8_t i=0; i<arr_len; i++){
@@ -691,17 +779,25 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 }
 
 
-/*	Descriptions: Routine that manages the hole comparison phase of CURRENT / PREVIOUS reads
- * 					according to polling type if HIGH or LOW
- * 					Then updates the values and time buffers
- * 					Should be called directly after finishing the polling routine
- */
 
+/**
+ * @brief compare_prev_curr_reads
+ *		 Routine that manages the hole comparison phase of CURRENT / PREVIOUS reads
+ * 		 according to polling type if HIGH or LOW
+ * 		 Then updates the values and time buffers
+ * 		 Should be called directly after finishing the polling routine
+ *
+ * @param  PollType_t poll_type
+ * @param  uint8_t first
+ *
+ * @return none
+ */
 static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 {
 	//get current index of values buffer
-	uint16_t index_temp =  values_buffer_count;
     #ifdef __DEBUG_POLLING_CAREL_LEV_2
+	uint16_t index_temp =  values_buffer_count;
+
 	PRINTF_DEBUG("START index_temp = %d, values_buffer_index = %d\n", index_temp, values_buffer_index);
     #endif
 
@@ -731,6 +827,13 @@ static void compare_prev_curr_reads(PollType_t poll_type, uint8_t first)
 }
 
 
+/**
+ * @brief check_hr_ir_reg_type
+ *
+ * @param  r_hr_ir info
+ *
+ * @return hr_ir_read_type_t
+ */
 hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
 {
 	hr_ir_read_type_t type;
@@ -760,13 +863,16 @@ hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
 		}
 	}
 	return type;
-
 }
 
 
-
-/*
- *	Description: Updating the previous read with the current one.
+/**
+ * @brief update_current_previous_tables
+ *		  Updating the previous read with the current one.
+ *
+ * @param  RegType_t poll_type
+ *
+ * @return none
  */
 static void update_current_previous_tables(RegType_t poll_type){
 	int i=0;
@@ -837,8 +943,9 @@ static void update_current_previous_tables(RegType_t poll_type){
  * @brief save_coil_di_value
  *        Save the value into the relative tab
  *
- * @param coil_di_low_high_t *arr
- *        void* instance_ptr
+ * @param  coil_di_low_high_t *arr
+ * @param  void* instance_ptr
+ *
  * @return void
  */
 static void save_coil_di_value(coil_di_low_high_t *arr, void* instance_ptr){
@@ -859,7 +966,9 @@ static void save_coil_di_value(coil_di_low_high_t *arr, void* instance_ptr){
  * @brief save_hr_ir_value
  *        Save the value into the relative tab
  *
- * @param hr_ir_low_high_poll_t *arr, void* instance_ptr
+ * @param hr_ir_low_high_poll_t *arr
+ * @param void* instance_ptr
+ *
  * @return void
  */
 static void save_hr_ir_value(hr_ir_low_high_poll_t *arr, void* instance_ptr){
@@ -885,13 +994,14 @@ static void save_hr_ir_value(hr_ir_low_high_poll_t *arr, void* instance_ptr){
  *        Save the value into the relative tab
  *
  * @param coil_di_alarm_tables_t *alarm
- *        void* instance_ptr
+ * @param void* instance_ptr
+ *
  * @return void
  */
 static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* instance_ptr)
 {
 	uint16_t temp, read_val = 0;
-	uint8_t reg, bit=0;
+	uint8_t  bit=0;
 
 	bit = alarm->info.Addr % 16;
 	read_val = *((uint16_t*)(instance_ptr));
@@ -917,13 +1027,13 @@ static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* insta
  *        Save the value into the relative tab
  *
  * @param hr_ir_alarm_tables_t *alarm
- *        void* instance_ptr
+ * @param void* instance_ptr
+ *
  * @return void
  */
 static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_ptr)
 {
 	uint16_t temp, read_val = 0;
-	uint8_t  bit=0;
 
 	read_val = *((uint16_t*)(instance_ptr));
 	temp = read_val & (uint16_t)(1 << alarm->info.dim);
@@ -945,8 +1055,15 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 	}
 }
 
-/* Description: send JSON msg via MQTT if any alarm's value is changed */
-
+/**
+ * @brief send_cbor_alarm
+ *          Description: send JSON msg via MQTT if any alarm's value is changed
+ *
+ * @param uint16_t alias
+ * @param alarm_read_t *data
+ *
+ * @return void
+ */
 static void send_cbor_alarm(uint16_t alias, alarm_read_t *data){
 	c_cboralarms cbor_al;
 	cbor_al.st = data->start_time;
@@ -958,6 +1075,16 @@ static void send_cbor_alarm(uint16_t alias, alarm_read_t *data){
 }
 
 
+/**
+ * @brief send_cbor_offalarm
+ *          Description: send JSON msg via MQTT to turn-off the allarm
+ *
+ * @param uint16_t alias
+ * @param uint32_t st
+ * @param uint32_t et
+ *
+ * @return void
+ */
 static void send_cbor_offalarm(uint16_t alias, uint32_t st, uint32_t et){
 	c_cboralarms cbor_al;
 
@@ -970,8 +1097,15 @@ static void send_cbor_offalarm(uint16_t alias, uint32_t st, uint32_t et){
 	MQTT_Alarms(cbor_al);
 }
 
-/* Description: Check if any alarm's value is changed, activated or deactivated */
 
+/**
+ * @brief check_alarms_change
+*          Description: Check if any alarm's value is changed, activated or deactivated
+*
+ * @param void
+ *
+ * @return void
+ */
 static void check_alarms_change(void)
 {
 	uint16_t i;
@@ -995,7 +1129,6 @@ static void check_alarms_change(void)
 		if (1 == DIAlarmPollTab[i].data.send_flag){
 			send_cbor_alarm(DIAlarmPollTab[i].info.Alias, &DIAlarmPollTab[i].data);
 
-            //TODO BILATO non ho capito a cosa serve eliminabile ?
             #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_POLL_ENG(("DI Alarm changed num %d \n ",i))	  
             #endif
@@ -1040,6 +1173,8 @@ void print_ValuesTable(void){
 	}
 }
 #endif
+
+
 /****************************
 * MODBUS POLLING
 *****************************/
@@ -1047,7 +1182,18 @@ void print_ValuesTable(void){
 eMBErrorCode GetResult(void) 	 {  return 	retError; }
 void SetResult(eMBErrorCode val) { retError = val;    }
 
-
+/**
+ * @brief DoPolling
+*         Execute the modbus reading function (Coil, Di, Hr, Ir) based on a model table
+*
+ * @param coil_di_poll_tables_t *Coil
+ * @param coil_di_poll_tables_t *Di
+ * @param hr_ir_poll_tables_t *Hr
+ * @param hr_ir_poll_tables_t *Ir
+ * @param PollType_t type
+ *
+ * @return C_RES
+ */
 static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, hr_ir_poll_tables_t *Hr, hr_ir_poll_tables_t *Ir, PollType_t type)
 {
 	uint8_t addr = 0;
@@ -1076,7 +1222,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		addr = (Coil->reg[i].info.Addr);
 
 		do {
-			errorReq = app_coil_read(Modbus__GetAddress(), 1, addr, 1);
+			errorReq = app_coil_read(Modbus__GetAddress(), addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1111,7 +1257,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		addr = (Di->reg[i].info.Addr);
 
 		do {
-			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), 1, addr, 1);
+			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1151,7 +1297,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		  numOf = 2;
 
 		do {
-			errorReq = app_holding_register_read(Modbus__GetAddress(), 1, addr, numOf);
+			errorReq = app_holding_register_read(Modbus__GetAddress(), addr, numOf);  // ,1
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1190,7 +1336,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		  numOf = 2;
 
 		do {
-			errorReq = app_input_register_read(Modbus__GetAddress(), 1, addr, numOf);
+			errorReq = app_input_register_read(Modbus__GetAddress(), addr, numOf);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1232,9 +1378,8 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
  *        coil_di_poll_tables_t *Di
  *        hr_ir_poll_tables_t *Hr
  *	      hr_ir_poll_tables_t *Ir
- * @return none
+ * @return C_RES
  */
-
 
 static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t *Di, hr_ir_alarm_tables_t *Hr, hr_ir_alarm_tables_t *Ir)
 {
@@ -1250,7 +1395,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 		addr = (Coil[i].info.Addr);
 		do {
-			errorReq = app_coil_read(Modbus__GetAddress(), 1, addr, 1);
+			errorReq = app_coil_read(Modbus__GetAddress(), addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1289,7 +1434,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		addr = (Di[i].info.Addr);
 
 		do {
-			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), 1, addr, 1);
+			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 
@@ -1325,7 +1470,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		addr = (Hr[i].info.Addr);
 
 		do {
-			errorReq = app_holding_register_read(Modbus__GetAddress(), 1, addr, 1);
+			errorReq = app_holding_register_read(Modbus__GetAddress(), addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 		Hr->data.error = errorReq;
@@ -1358,7 +1503,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		addr = (Ir[i].info.Addr);
 
 		do {
-			errorReq = app_input_register_read(Modbus__GetAddress(), 1, addr, 1);
+			errorReq = app_input_register_read(Modbus__GetAddress(), addr, 1);
 			retry++;
 		} while(errorReq != MB_MRE_NO_REG && retry < 3);
 		Ir->data.error = errorReq;
@@ -1412,14 +1557,7 @@ uint8_t IsForced(PollType_t type)
 
 //CHIEBAO A.
 
-/**
- * @brief DoPolling
- *        function with the timing to apply for low check and high check
- *		  check also the allarm
- *
- * @param  req_set_gw_config_t* polling_times
- * @return none
- */
+
 static uint32_t timeout = 0;
 static uint32_t start_offline = 0;
 static uint32_t end_offline = 0;
@@ -1449,6 +1587,14 @@ bool IsOffline(void) {
 	else return false;
 }
 
+/**
+ * @brief DoPolling_CAREL
+ *        function with the timing to apply for low check and high check
+ *		  check also the allarm
+ *
+ * @param  req_set_gw_config_t * polling_times
+ * @return none
+ */
 void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 {
 	C_RES poll_done = C_FAIL;
@@ -1526,7 +1672,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				FlushValues(HIGH_POLLING);
 				if (PollEngine__GetValuesBufferCount()) {
 					MQTT_FlushValues();
-					something_sent = 1; // forse va dentro la MQTT_FlushValues dopo aver verificato che sia su la connessione mqtt TODO
+					something_sent = 1;
 				}
 				high_trigger = 0;
 				low_trigger = 0;
@@ -1552,7 +1698,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				FlushValues(HIGH_POLLING);
 				if (PollEngine__GetValuesBufferCount()) {
 					MQTT_FlushValues();
-					something_sent = 1; // forse va dentro la MQTT_FlushValues dopo aver verificato che sia su la connessione mqtt TODO
+					something_sent = 1;
 				}
 				high_trigger = 0;
 			}
@@ -1581,6 +1727,17 @@ void FlushValues(PollType_t type){
 }
 // CHIEBAO A.
 
+/**
+ * @brief PollEngine__Read_HR_IR_Req
+ *        function that read a HR/IR register via Modbus
+ *
+ * @param  C_FLOAT write_value
+ * @param  uint16_t addr
+ * @param  C_BYTE dim
+ * @param  C_UINT16* read_value
+ *
+ * @return C_RES
+ */
 C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UINT16* read_value)
 {
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
@@ -1590,9 +1747,9 @@ C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UIN
 	RET_DIM(dim,len);
 
 	if(func == mbR_HR)
-		errorReq = app_holding_register_read(Modbus__GetAddress(), NULL, addr, len);
+		errorReq = app_holding_register_read(Modbus__GetAddress(), addr, len);
 	else // mbR_IR
-		errorReq = app_input_register_read(Modbus__GetAddress(), NULL, addr, len);
+		errorReq = app_input_register_read(Modbus__GetAddress(), addr, len);
 
 	if(errorReq == MB_MRE_NO_ERR)
 	{
@@ -1607,15 +1764,24 @@ C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UIN
 
 
 
-
+/**
+ * @brief PollEngine__Read_COIL_DI_Req
+ *        function that read a Coil/Di register via Modbus
+ *
+ * @param  C_FLOAT write_value
+ * @param  uint16_t addr
+ * @param  C_UINT16* read_value
+ *
+ * @return C_RES
+ */
 C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_value){
 
 	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
 	if(func == mbR_COIL)
-	   errorReq = app_coil_read(Modbus__GetAddress(), 1, addr, 1);
+	   errorReq = app_coil_read(Modbus__GetAddress(), addr, 1);
 	else // mbR_DI
-	   errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), 1, addr, 1);
+	   errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), addr, 1);
 
 	if(errorReq == MB_MRE_NO_ERR)
 	{
@@ -1631,7 +1797,12 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
  * @brief PollEngine__Write_HR_Req
  *        function that write a holding register via Modbus
  *
- * @param  C_FLOAT write_value, uint16_t addr, C_CHAR num
+ * @param  C_FLOAT write_value
+ * @param  uint16_t addr
+ * @param  C_CHAR num
+ * @param  C_BYTE is_big_end
+ * @param  C_UINT16 fun
+ *
  * @return C_RES
  */
 C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun){
@@ -1675,9 +1846,14 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C
 
 /**
  * @brief PollEngine__Write_HR_Req_Int
- *        function that write a holding register via Modbus
+ *        function that write a holding register via Modbus (integer)
  *
- * @param  C_INT32 write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end,
+ * @param  C_INT32 write_value
+ * @param  uint16_t addr
+ * @param  C_CHAR num
+ * @param  C_BYTE is_big_end
+ * @param  C_UINT16 fun
+ *
  * @return C_RES
  */
 C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun){
@@ -1722,7 +1898,10 @@ C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR nu
  * @brief PollEngine__Write_COIL_Req
  *        function that write a Coil register via Modbus
  *
- * @param  uint16_t write_value, uint16_t addr
+ * @param  uint16_t write_value
+ * @param  uint16_t addr
+ * @param  uint16_t fun
+ *
  * @return C_RES
  */
 C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 fun){
@@ -1747,32 +1926,80 @@ C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 f
 		return C_FAIL;
 }
 
+/**
+ * @brief PollEngine_StartEngine_CAREL
+ *        Set the polling engine to RUNNING
+ *
+ * @param  none
+ * @return none
+ */
 void PollEngine_StartEngine_CAREL(void){
 	PollEngine_Status.engine = RUNNING;
 }
 
+/**
+ * @brief PollEngine_StopEngine_CAREL
+ *        Set the polling engine to STOPPED
+ *
+ * @param  none
+ * @return none
+ */
 void PollEngine_StopEngine_CAREL(void){
 	PollEngine_Status.engine = STOPPED;
 }
 
+/**
+ * @brief PollEngine_GetEngineStatus_CAREL
+ *        Get the polling engine status of the engine
+ *
+ * @param  none
+ * @return uint8_t
+ */
 uint8_t PollEngine_GetEngineStatus_CAREL(void){
 	return PollEngine_Status.engine;
 }
 
+/**
+ * @brief PollEngine_GetEngineStatus_CAREL
+ *        Get the polling engine status of the polling
+ *
+ * @param  none
+ * @return uint8_t
+ */
 uint8_t PollEngine_GetPollingStatus_CAREL(void){
 	return PollEngine_Status.polling;
 }
 
+/**
+ * @brief PollEngine__GetValuesBuffer
+ *
+ *
+ * @param  none
+ * @return alues_buffer_t*
+ */
 values_buffer_t* PollEngine__GetValuesBuffer(void){
 	return values_buffer;
 }
 
-
+/**
+ * @brief PollEngine__GetValuesBufferCount
+ *
+ *
+ * @param  none
+ * @return uint16_t
+ */
 uint16_t PollEngine__GetValuesBufferCount(void){
 //	PRINTF_DEBUG("values_buffer_count: %d\n", values_buffer_count);
 	return values_buffer_count;
 }
 
+/**
+ * @brief PollEngine__ResetValuesBuffer
+ *
+ *
+ * @param  none
+ * @return void
+ */
 void PollEngine__ResetValuesBuffer(void){
 	//Reset Values Buffer
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
@@ -1780,21 +2007,47 @@ void PollEngine__ResetValuesBuffer(void){
 	values_buffer_index = 0;
 }
 
+/**
+ * @brief PollEngine__GetMBBaudrate
+ *
+ *
+ * @param  none
+ * @return uint32_t
+ */
 uint32_t PollEngine__GetMBBaudrate(void){
 	assert(MB_BaudRate > 0);
 	return MB_BaudRate;
 }
 
-
+/**
+ * @brief PollEngine__GetPollEnginePrintMsgs
+ *
+ *
+ * @param  none
+ * @return uint8_t
+ */
 uint8_t PollEngine__GetPollEnginePrintMsgs(void){
 	return PollEnginePrint;
 }
 
-
+/**
+ * @brief PollEngine__SetPollEnginePrintMsgs
+ *
+ *
+ * @param  uint8_t status
+ * @return none
+ */
 void PollEngine__SetPollEnginePrintMsgs(uint8_t status){
 	PollEnginePrint = status;
 }
 
+/**
+ * @brief PollEngine__ReadBaudRateFromNVM
+ *
+ *
+ * @param  none
+ * @return none
+ */
 void PollEngine__ReadBaudRateFromNVM(void){
 	C_UINT32 baud_rate;
 	if(C_SUCCESS == NVM__ReadU32Value(MB_BAUDRATE_NVM, &baud_rate))
@@ -1803,6 +2056,13 @@ void PollEngine__ReadBaudRateFromNVM(void){
 	    MB_BaudRate = MB_BAUDRATE;
 }
 
+/**
+ * @brief Get_SamplingTime
+ *
+ *
+ * @param  C_UINT16 index
+ * @return C_TIME
+ */
 C_TIME Get_SamplingTime(C_UINT16 index) {
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("Get_SamplingTime index: %d, t:%d\n", index, values_buffer[index].t);
@@ -1810,6 +2070,14 @@ C_TIME Get_SamplingTime(C_UINT16 index) {
 	return values_buffer[index].t;
 }
 
+/**
+ * @brief Get_Alias
+ *
+ *
+ * @param  C_UINT16 index
+ * @param  char* alias_tmp
+ * @return C_CHAR*
+ */
 C_CHAR* Get_Alias(C_UINT16 index, char* alias_tmp) {
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("Get_Alias index: %d, alias:%d\n", index, values_buffer[index].alias);
@@ -1819,6 +2087,15 @@ C_CHAR* Get_Alias(C_UINT16 index, char* alias_tmp) {
 	return alias_tmp;
 }
 
+/**
+ * @brief Get_Value
+ *
+ *
+ * @param  C_UINT16 index
+ * @param  char* value_tmp
+ *
+ * @return C_CHAR*
+ */
 C_CHAR* Get_Value(C_UINT16 index, char* value_tmp) {
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 	PRINTF_DEBUG("Get_Value index: %d, vls:%Lf\n", index, values_buffer[index].value);

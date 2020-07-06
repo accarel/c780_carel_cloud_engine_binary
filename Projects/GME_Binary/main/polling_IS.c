@@ -31,7 +31,7 @@ static xTaskHandle xPollingEngine;
 
 /**
  * @brief Polling_Engine_Init_IS
- *        init function of the polling engine machine
+ *        Init function of the polling engine machine
  *
  * @param  none
  * @return none
@@ -73,7 +73,7 @@ void Polling_Engine_Init_IS(void)
 /**
  * @brief CarelEngineMB_Init
  *        task to run Polling_Engine_Init
- *        TO DO...depends on the operating system in use
+ *        NB: depends on the operating system in use
  *
  * @param  none
  * @return none
@@ -86,6 +86,13 @@ void PollEngine_MBStart_IS(void){
    #endif
 }
 
+/**
+ * @brief PollEngine_MBResume_IS
+ *        resume the task  Polling_Engine
+ *
+ * @param  none
+ * @return none
+ */
 void PollEngine_MBResume_IS(void){
   #ifdef INCLUDE_PLATFORM_DEPENDENT
 
@@ -95,6 +102,14 @@ void PollEngine_MBResume_IS(void){
   #endif
 }
 
+
+/**
+ * @brief PollEngine_MBSuspend_IS
+ *        suspend the task  Polling_Engine
+ *
+ * @param  none
+ * @return none
+ */
 void PollEngine_MBSuspend_IS(void){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
