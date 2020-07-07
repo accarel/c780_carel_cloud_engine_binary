@@ -2,10 +2,10 @@ String inputString = "";         // a String to hold incoming data
 bool stringComplete = false;  // whether the string is complete
 int VoltageValue;
 
-#define RELE_1  13
-#define RELE_2  13
-#define RELE_3  13
-#define RELE_4  13
+#define RELE_1  7
+#define RELE_2  6
+#define RELE_3  5
+#define RELE_4  4
 
 
 void set_rele(char status, int rele)
@@ -24,6 +24,7 @@ void set_rele(char status, int rele)
 void setup() {
   // initialize serial:
   Serial.begin(115200);
+  Serial.println("CAREL GME TEST IO BOARD V.1.1");
   
   // reserve 100 bytes for the inputString:
   inputString.reserve(100);
@@ -33,12 +34,14 @@ void setup() {
   pinMode(RELE_2, OUTPUT);
   pinMode(RELE_3, OUTPUT);
   pinMode(RELE_4, OUTPUT);
+
+
 }
 
 void loop() {
    //Voltage is continously polled  
-   VoltageValue = analogRead(A0);
-  
+  VoltageValue = analogRead(A0);
+  delay(1);     
   if (stringComplete) {
     switch (inputString[0])
     { 
