@@ -12,6 +12,16 @@
 #include "mbedtls/aes.h"
 static nvs_handle my_handle;
 
+
+/**
+ * @brief NVM_Init
+ *        call a "nvs_flash_init" function,
+ *        for more details see esp-idf manual.
+ *
+ * @param  none
+ *
+ * @return C_RES
+ */
 C_RES NVM_Init(void)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -59,6 +69,15 @@ C_RES NVM_Init(void)
 
 }
 
+/**
+ * @brief NVM__Open
+ *        call a "nvs_open" function,
+ *        for more details see esp-idf manual.
+ *
+ * @param  none
+ *
+ * @return C_RES
+ */
 C_RES NVM__Open(void)
 {
 	PRINTF_DEBUG_NVM("Opening Non-Volatile Storage (NVS) handle... ");
@@ -74,10 +93,29 @@ C_RES NVM__Open(void)
 	return err;
 }
 
+/**
+ * @brief NVM__Close
+ *        call a "nvs_close" function,
+ *        for more details see esp-idf manual.
+ *
+ * @param  none
+ *
+ * @return C_RES
+ */
 void NVM__Close(void){
 	nvs_close(my_handle);
 }
 
+/**
+ * @brief NVM__SetU8
+ *        call a "nvs_set_u8(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  C_BYTE val
+ *
+ * @return C_RES
+ */
 C_RES NVM__SetU8(const C_CHAR* var, C_BYTE val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -89,6 +127,16 @@ C_RES NVM__SetU8(const C_CHAR* var, C_BYTE val){
 	return err;
 }
 
+/**
+ * @brief NVM__SetU32
+ *        call a "nvs_set_u32(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  C_UINT32 val
+ *
+ * @return C_RES
+ */
 C_RES NVM__SetU32(const C_CHAR* var, C_UINT32 val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -100,6 +148,16 @@ C_RES NVM__SetU32(const C_CHAR* var, C_UINT32 val){
 	return err;
 }
 
+/**
+ * @brief NVM__SetString
+ *        call a "nvs_set_str(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  char* str
+ *
+ * @return C_RES
+ */
 C_RES NVM__SetString(const C_CHAR* var, char* str){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -111,6 +169,17 @@ C_RES NVM__SetString(const C_CHAR* var, char* str){
 	return err;
 }
 
+/**
+ * @brief NVM__SetBlob
+ *        call a "nvs_set_blob(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  void* vec
+ * @param  size_t len
+ *
+ * @return C_RES
+ */
 C_RES NVM__SetBlob(const C_CHAR* var, void* vec, size_t len){
 	C_RES err = C_FAIL;
 
@@ -129,6 +198,16 @@ C_RES NVM__SetBlob(const C_CHAR* var, void* vec, size_t len){
 	return err;
 }
 
+/**
+ * @brief NVM__GetU8
+ *        call a "nvs_get_u8(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  C_BYTE* val
+ *
+ * @return C_RES
+ */
 C_RES NVM__GetU8(const C_CHAR* var, C_BYTE* val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -147,6 +226,16 @@ C_RES NVM__GetU8(const C_CHAR* var, C_BYTE* val){
 	return err;
 }
 
+/**
+ * @brief NVM__GetU32
+ *        call a "nvs_get_u32(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  C_UINT32* val
+ *
+ * @return C_RES
+ */
 C_RES NVM__GetU32(const C_CHAR* var, C_UINT32* val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -165,6 +254,17 @@ C_RES NVM__GetU32(const C_CHAR* var, C_UINT32* val){
 	return err;
 }
 
+/**
+ * @brief NVM__GetString
+ *        call a "nvs_get_str(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  char* str
+ * @param  size_t* len
+ *
+ * @return C_RES
+ */
 C_RES NVM__GetString(const C_CHAR* var, char* str, size_t* len){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -189,6 +289,17 @@ C_RES NVM__GetString(const C_CHAR* var, char* str, size_t* len){
 	return err;
 }
 
+/**
+ * @brief NVM__GetBlob
+ *        call a "nvs_get_blob(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ * @param  void* vec
+ * @param  size_t* len
+ *
+ * @return C_RES
+ */
 C_RES NVM__GetBlob(const C_CHAR* var, void* vec, size_t* len){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -214,6 +325,15 @@ C_RES NVM__GetBlob(const C_CHAR* var, void* vec, size_t* len){
 
 }
 
+/**
+ * @brief NVM__EraseK
+ *        call a "nvs_erase_key(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  const C_CHAR* var
+ *
+ * @return C_RES
+ */
 C_RES NVM__EraseK(const C_CHAR* var){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -228,6 +348,15 @@ C_RES NVM__EraseK(const C_CHAR* var){
 	return err;
 }
 
+/**
+ * @brief NVM__Erase
+ *        call a "nvs_erase_all(...)" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  none
+ *
+ * @return C_RES
+ */
 C_RES NVM__Erase(void){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT

@@ -10,6 +10,16 @@
 #include "nvm_CAREL.h"
 #include "nvm_IS.h"
 
+
+/**
+ * @brief NVM__ReadU8Value
+ *        read a data of 8bit value from non volatile memory
+ *
+ * @param  const C_CHAR* var
+ * @param  C_BYTE* val
+ *
+ * @return C_RES
+ */
 C_RES NVM__ReadU8Value(const C_CHAR* var, C_BYTE* val)
 {
 	C_RES err =	NVM__Open();
@@ -22,7 +32,15 @@ C_RES NVM__ReadU8Value(const C_CHAR* var, C_BYTE* val)
     return err;
 }
 
-
+/**
+ * @brief NVM__ReadU32Value
+ *        read a data of 32bit value from non volatile memory
+ *
+ * @param  const C_CHAR* var
+ * @param  C_UINT32* val
+ *
+ * @return C_RES
+ */
 C_RES NVM__ReadU32Value(const C_CHAR* var, C_UINT32* val)
 {
 	C_RES err =	NVM__Open();
@@ -35,6 +53,16 @@ C_RES NVM__ReadU32Value(const C_CHAR* var, C_UINT32* val)
 	return err;
 }
 
+/**
+ * @brief NVM__ReadString
+ *        read a string value from non volatile memory
+ *
+ * @param  const C_CHAR* var
+ * @param  C_CHAR* str
+ * @param  size_t* len
+ *
+ * @return C_RES
+ */
 C_RES NVM__ReadString(const C_CHAR* var, C_CHAR* str, size_t* len)
 {
 	C_RES err =	NVM__Open();
@@ -47,7 +75,15 @@ C_RES NVM__ReadString(const C_CHAR* var, C_CHAR* str, size_t* len)
     return err;
 }
 
-
+/**
+ * @brief NVM__WriteU8Value
+ *        write a data of 8bit value into non volatile memory
+ *
+ * @param  const C_CHAR* var
+ * @param  C_BYTE val
+ *
+ * @return C_RES
+ */
 C_RES NVM__WriteU8Value(const C_CHAR* var, C_BYTE val)
 {
 	C_RES err =	NVM__Open();
@@ -58,6 +94,15 @@ C_RES NVM__WriteU8Value(const C_CHAR* var, C_BYTE val)
     return err;
 }
 
+/**
+ * @brief NVM__WriteU32Value
+ *        write a data of 32bit value into non volatile memory
+ *
+ * @param  const C_CHAR* var
+ * @param  C_BYTE val
+ *
+ * @return C_RES
+ */
 C_RES NVM__WriteU32Value(const C_CHAR* var, C_UINT32 val)
 {
 	C_RES err =	NVM__Open();
@@ -68,6 +113,15 @@ C_RES NVM__WriteU32Value(const C_CHAR* var, C_UINT32 val)
 	return err;
 }
 
+/**
+ * @brief NVM__WriteString
+ *        write a string value into non volatile memory
+ *
+ * @param  const C_CHAR* var
+ * @param  C_CHAR* str
+ *
+ * @return C_RES
+ */
 C_RES NVM__WriteString(const C_CHAR* var, C_CHAR* str)
 {
 	C_RES err =	NVM__Open();
@@ -78,6 +132,14 @@ C_RES NVM__WriteString(const C_CHAR* var, C_CHAR* str)
 	return err;
 }
 
+/**
+ * @brief NVM__EraseKey
+ *        Erase the key value in a non volatile memory
+ *
+ * @param  const C_CHAR* var
+ *
+ * @return C_RES
+ */
 C_RES NVM__EraseKey(const C_CHAR* var)
 {
 	C_RES err = NVM__Open();
@@ -88,6 +150,14 @@ C_RES NVM__EraseKey(const C_CHAR* var)
 	return err;
 }
 
+/**
+ * @brief NVM__EraseAll
+ *        Erase All ???
+ *
+ * @param  none
+ *
+ * @return C_RES
+ */
 C_RES NVM__EraseAll(void)
 {
 	C_RES err = NVM__Open();
@@ -98,6 +168,17 @@ C_RES NVM__EraseAll(void)
 	return err;
 }
 
+
+/**
+ * @brief NVM__ReadBlob
+ *        Read a chunk of data from the non volatile memory
+ *
+ * @param  const C_CHAR* var,
+ * @param  void* vec
+ * @param  size_t* len
+ *
+ * @return C_RES
+ */
 C_RES NVM__ReadBlob(const C_CHAR* var, void* vec, size_t* len)
 {
 	C_RES err = NVM__Open();
@@ -109,6 +190,17 @@ C_RES NVM__ReadBlob(const C_CHAR* var, void* vec, size_t* len)
     return err;
 }
 
+
+/**
+ * @brief NVM__WriteBlob
+ *        write a chunk of data to the non volatile memory
+ *
+ * @param  const C_CHAR* var,
+ * @param  void* vec
+ * @param  size_t* len
+ *
+ * @return C_RES
+ */
 C_RES NVM__WriteBlob (const C_CHAR* var, void* vec, size_t len)
 {
 	C_RES err = NVM__Open();
