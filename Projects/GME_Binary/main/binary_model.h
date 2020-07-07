@@ -18,6 +18,10 @@
 /* ========================================================================== */
 /* typedefs and defines                                                       */
 /* ========================================================================== */
+/**
+ * @brief __CCL_DEBUG_MODE
+ *        enable the debug message via TTL port disable it before release
+ */
 #ifdef __CCL_DEBUG_MODE
 
 //this define enable the output of the communications errors

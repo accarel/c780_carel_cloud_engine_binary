@@ -18,9 +18,18 @@ static const char *TAG = "HTTP_CLIENT_IS";
 
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-/*Description : http task events handler
- *              all the functions in this files are using the same event handler
- * TODO BILATO  da trasformare in eliminabile automaticamente
+
+/**
+ * @brief _http_event_handler
+all the functions in this files are using the same event handler
+ *
+ * @param   download_devs_config : the connection data uri/password/username
+ *
+ * @param   esp_http_client_event_t *evt
+ *          the event
+ *
+ * @return  ESP_OK/ESP_FAIL
+ *
  */
 static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
@@ -54,6 +63,10 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
         case HTTP_EVENT_DISCONNECTED:
             ESP_LOGD(TAG, "HTTP_EVENT_DISCONNECTED");
             break;
+
+        default:
+        	ESP_LOGD(TAG, "HTTP EVENT UNKNOW");
+        	break;
     }
     return ESP_OK;
 }

@@ -12,6 +12,10 @@
 
 #include"gme_config.h"
 
+/**
+ * @brief _gme_sm enum
+ *        GME state machine status
+ */
 typedef enum _gme_sm{
 	GME_INIT = 0,
 	GME_CHECK_FILES,
@@ -32,6 +36,10 @@ typedef enum _gme_sm{
 }gme_sm_t;
 
 
+/**
+ * @brief _config_sm enum
+ *        GME configuration state machine status
+ */
 typedef enum _config_sm{
 	CHECK_FOR_CONFIG = 0,
 	SET_DEFAULT_CONFIG,
@@ -41,11 +49,13 @@ typedef enum _config_sm{
 	GME_MAX,
 }config_sm_t;
 
+
 typedef enum _conf{
 	DEFAULT = 0,
 	TO_RECONFIGURE = 1,
 	CONFIGURED = 2,
 }configuration_t;
+
 
 enum _wifi_interface{
 	AP_MODE = 0,

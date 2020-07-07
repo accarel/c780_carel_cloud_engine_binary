@@ -21,7 +21,14 @@
 /* ========================================================================== */
 /* debugging purpose                                                          */
 /* ========================================================================== */
-
+#ifdef __CCL_DEBUG_MODE
+/**
+ * @brief _DEBUG_HTTPS_CLIENT_CAREL
+ *        if defined print on the debug console some debugger message but only if
+ *        global __CCL_DEBUG_MODE is defined
+ */
+#define _DEBUG_HTTPS_CLIENT_CAREL
+#endif
 
 /* ========================================================================== */
 /* typedefs and defines                                                       */
@@ -35,8 +42,6 @@ typedef enum https_conn_err_s{
 	WRONG_CRC,
 	WRONG_FILE,
 }https_conn_err_t;
-
-
 
 
 

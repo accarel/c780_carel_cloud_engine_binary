@@ -40,7 +40,17 @@ static html_login_cred_t HTMLLogin = {
 static char ap_ssid_def[30] = {0};
 bool login_done = FALSE;
 
-//Private Functions Declaration
+/* ==========================================================================
+ * Private Functions Declaration
+ * ========================================================================== */
+
+/**
+ * @brief url_decoder
+ *        decode the contents of the passed URL
+ * @param char *buf
+ *        pointer to the buffer that contains the URL
+ * @return none
+ */
 void url_decoder(char *buf) {
 
     char eStr[3] = "00"; /* for a hex code */
@@ -73,8 +83,17 @@ void url_decoder(char *buf) {
 }
 
 
-/* Copies the full path into destination buffer and returns
- * pointer to path (skipping the preceding base path) */
+/**
+ * @brief get_path_from_uri
+ *     Copies the full path into destination buffer and returns
+ *     pointer to path (skipping the preceding base path)
+ * @param char *dest
+ * @param const char *base_path
+ * @param const char *uri
+ * @param size_t destsize
+ *
+ * @return pointer to (dest + base_pathlen)
+ */
 const char* get_path_from_uri(char *dest, const char *base_path, const char *uri, size_t destsize)
 {
 	PRINTF_DEBUG_SERVER("base_path: %s \n", base_path);
@@ -103,6 +122,17 @@ const char* get_path_from_uri(char *dest, const char *base_path, const char *uri
     return dest + base_pathlen;
 }
 
+
+/**
+ * @brief get_value_from_string
+ *
+ * @param char* received_buf
+ * @param const char* value_key
+ * @param unsigned short value_key_len
+ * @param char* req_value
+ *
+ * @return none
+ */
 static void get_value_from_string(char* received_buf, const char* value_key, unsigned short value_key_len, char* req_value)
 {
 	char *key_buff = strstr(received_buf, value_key);
@@ -121,6 +151,15 @@ static void get_value_from_string(char* received_buf, const char* value_key, uns
 }
 
 
+/**
+ * @brief get_html_change_credentials
+ *        set the new credential and store it in NVM
+ *
+ * @param char* sent_parameters
+ *
+ * @return 0 == FAIL
+ *         1 == SUCCESS
+ */
 int get_html_change_credentials(char* sent_parameters){
 
     char data_value[100];
@@ -146,9 +185,13 @@ int get_html_change_credentials(char* sent_parameters){
     	err1 = NVM__WriteString(HTMLLOGIN_USR, html_login.login_usr);
     	err2 = NVM__WriteString(HTMLLOGIN_PSWD, html_login.login_pswd);
 
-    	if(ESP_OK == err1 && ESP_OK == err2){
-    		NVM__WriteU8Value(HTMLLOGIN_CONF_NVM, CONFIGURED);
-    		return 1;
+    	if (ESP_OK == err1 && ESP_OK == err2){
+
+    		if (C_SUCCESS == NVM__WriteU8Value(HTMLLOGIN_CONF_NVM, CONFIGURED))
+    			return 1;
+    		else
+    			return 0;
+
     	}else{
     		return 0;
     	}
@@ -157,12 +200,34 @@ int get_html_change_credentials(char* sent_parameters){
     return 0;
 }
 
+
+
+/**
+ * @brief HTTPServer__ParseCredfromNVM
+ *
+ * @param none
+ * @return none
+ */
 void HTTPServer__ParseCredfromNVM(void){
 	size_t len = 0;
 	NVM__ReadString(HTMLLOGIN_USR,HTMLLogin.login_usr,&len);
 	NVM__ReadString(HTMLLOGIN_PSWD,HTMLLogin.login_pswd,&len);
+	/* note retuned value not checked due to the fact that in case of
+	 * error the system return anyway invalid credential
+	 * */
 }
 
+
+/**
+ * @brief check_html_credentials
+ *         the credential to check
+ *
+ * @param char* sent_parameters
+ *        the credential to check
+ *
+ * @return 0 == FAIL
+ *         1 == SUCCESS
+ */
 int check_html_credentials(char* sent_parameters){
 
     char data_value[100];
@@ -170,7 +235,6 @@ int check_html_credentials(char* sent_parameters){
     PRINTF_DEBUG_SERVER("\nSTART PARSING\n");
 
     html_login_cred_t html_login;
-
 
     //username
     get_value_from_string(sent_parameters, HTMLLOGIN_USR, (unsigned short)(strlen(HTMLLOGIN_USR)), &data_value[0]);
@@ -188,14 +252,26 @@ int check_html_credentials(char* sent_parameters){
     	return 1;
     }
 
-
     return 0;
 }
 
 
-void get_html_config_received_data(char* sent_parameters){
 
+/**
+ * @brief get_html_config_received_data
+ *
+ * @param char* sent_parameters
+ *        the data
+ *
+ * @return C_FAIL / C_SUCCESS
+ */
+C_RES get_html_config_received_data(char* sent_parameters){
     char data_value[100];
+	esp_err_t err;
+    C_RES retval;
+
+    retval = C_SUCCESS;
+
     memset(data_value,0,strlen(data_value)*sizeof(char));
 
     PRINTF_DEBUG_SERVER("\nSTART PARSING\n");
@@ -277,9 +353,10 @@ void get_html_config_received_data(char* sent_parameters){
     get_value_from_string(sent_parameters, HTMLCONF_NTP_SRVR_ADDR, (unsigned short)(strlen(HTMLCONF_NTP_SRVR_ADDR)), &data_value[0]);
     strcpy(HTMLConfig.ntp_server_addr,data_value);
     PRINTF_DEBUG_SERVER("ntp_server_addr: %s\n",HTMLConfig.ntp_server_addr);
+
     if (strlen(HTMLConfig.ntp_server_addr) > 0){
-        	esp_err_t err;
         	err = NVM__WriteString(NTP_SERVER, HTMLConfig.ntp_server_addr);
+        	if (err != ESP_OK) retval = C_FAIL;
        }
 
     get_value_from_string(sent_parameters, HTMLLOGIN_USR, (unsigned short)(strlen(HTMLLOGIN_USR)), &data_value[0]);
@@ -291,11 +368,15 @@ void get_html_config_received_data(char* sent_parameters){
     PRINTF_DEBUG_SERVER("login_pswd: %s\n",HTMLConfig.login_pswd);
 
     if ((strlen(HTMLConfig.login_usr) > 0) && (strlen(HTMLConfig.login_pswd) > 0)){
-     	esp_err_t err1, err2;
-     	err1 = NVM__WriteString(HTMLLOGIN_USR, HTMLConfig.login_usr);
-     	err2 = NVM__WriteString(HTMLLOGIN_PSWD, HTMLConfig.login_pswd);
+     	err = NVM__WriteString(HTMLLOGIN_USR, HTMLConfig.login_usr);
+     	if (err != ESP_OK) retval = C_FAIL;
+     	err = NVM__WriteString(HTMLLOGIN_PSWD, HTMLConfig.login_pswd);
+     	if (err != ESP_OK) retval = C_FAIL;
     }
+
+    return retval;
 }
+
 
 
 html_config_param_t HTTPServer__GetCustomConfig (void){
@@ -314,6 +395,7 @@ void SetWpsParameters(wifi_config_t wifi_config_temp){
 	HTMLConfig.sta_dhcp_mode = 1;
 	return;
 }
+
 
 char* HTTPServer__SetAPDefSSID(const char* default_name){
 

@@ -29,7 +29,11 @@ struct file_server_data {
 
 
 C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path);
-C_RES HTTPServer__StopServer(httpd_handle_t server);
+
+#ifdef __CCL_DEBUG_MODE
+esp_err_t HTTPServer__StopServer(httpd_handle_t server);
+#endif
+
 void SetConfigReceived(void);
 C_BYTE IsConfigReceived(void);
 

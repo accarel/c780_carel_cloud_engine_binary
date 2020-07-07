@@ -104,7 +104,7 @@ void url_decoder(char *buf);
 const char* get_path_from_uri(char *dest, const char *base_path, const char *uri, size_t destsize);
 void HTTPServer__ParseCredfromNVM(void);
 int check_html_credentials(char* sent_parameters);
-void get_html_config_received_data(char* sent_parameters);
+C_RES get_html_config_received_data(char* sent_parameters);
 void HTTPServer__ParseCredfromNVM(void);
 int get_html_change_credentials(char* sent_parameters);
 html_config_param_t HTTPServer__GetCustomConfig (void);
@@ -117,3 +117,5 @@ void GetLoginUsr(char*);
 void GetLoginPsw(char*);
 
 #endif /* MAIN_HTTP_SERVER_H_ */
+
+

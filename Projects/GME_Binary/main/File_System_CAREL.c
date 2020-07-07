@@ -127,7 +127,7 @@ long FS_ReadFile(const char* filename, uint8_t* file_ptr){
 		if (input_file_ptr == NULL)
 		{
 			PRINTF_DEBUG("Unable to open file! \n");
-			return NULL;
+			return 0;
 		}
 
 		PRINTF_DEBUG("Read File %s ok \n", filename);
@@ -189,8 +189,6 @@ C_RES FS_SaveFile(const char* data_to_save, size_t data_size, const char* filena
  * @return C_SUCCESS/C_FAIL
  */
 C_RES SaveCfgDefDataToNVM(void) {
-
-	C_UINT16 calcCrc, spiffsCrc;
 	C_RES err = C_SUCCESS;
 
 	FILE *file_ptr_1 = NULL;

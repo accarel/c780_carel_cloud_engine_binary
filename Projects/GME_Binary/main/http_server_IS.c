@@ -1,4 +1,10 @@
 
+/**
+ * @file   https_server_IS.c
+ * @author carel
+ * @date   9 Jan 2020
+ * @brief  functions to manage http server
+ */
 
 #include "esp_spiffs.h"
 #include "esp_http_server.h"
@@ -17,13 +23,19 @@ static html_pages LastPageSent = 0;
 
 static C_RES set_content_type_from_file(httpd_req_t *req, const char *filename);
 
-// Handler to respond with file requested.
+/**
+ * @brief file_get_handler
+ *        Handler to respond with file requested.
+ * @param httpd_req_t *req
+ * @param const char* filename
+ *
+ * @return none C_FAIL/C_SUCCESS
+ */
 static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 {
 
 	struct stat file_stat;
 	FILE *fd = NULL;
-
 
 	fd = fopen(filename, "r");
 
@@ -76,6 +88,16 @@ static C_RES file_get_handler(httpd_req_t *req, const char* filename)
     return ESP_OK;
 }
 
+
+
+
+/**
+ * @brief http_resp_config_json
+ *
+ * @param httpd_req_t *req
+ *
+ * @return none C_FAIL/C_SUCCESS
+ */
 //Send config.json
 static C_RES http_resp_config_json(httpd_req_t *req)
 {
@@ -159,6 +181,14 @@ static C_RES http_resp_config_json(httpd_req_t *req)
     return ESP_OK;
 }
 
+
+/**
+ * @brief http_resp_config_json
+ *
+ * @param httpd_req_t *req
+ *
+ * @return none C_FAIL/C_SUCCESS
+ */
 //Send login.json
 static C_RES http_resp_login_json(httpd_req_t *req)
 {
@@ -187,7 +217,15 @@ static C_RES http_resp_login_json(httpd_req_t *req)
     return ESP_OK;
 }
 
-/* Set HTTP response content type according to file extension */
+
+/**
+ * @brief set_content_type_from_file
+ *        Set HTTP response content type according to file extension
+ * @param httpd_req_t *req
+ * @param const char *filename
+ *
+ * @return none C_FAIL/C_SUCCESS
+ */
 static C_RES set_content_type_from_file(httpd_req_t *req, const char *filename)
 {
     if (IS_FILE_EXT(filename, ".html")) {
@@ -207,8 +245,15 @@ static C_RES set_content_type_from_file(httpd_req_t *req, const char *filename)
 }
 
 
-/* Handler to download a file kept on the server */
-static C_RES download_get_handler(httpd_req_t *req)
+
+/**
+ * @brief download_get_handler
+ *        Handler to download a file kept on the server
+ *
+ * @param httpd_req_t *req
+ * @return none C_FAIL/C_SUCCESS
+ */
+static esp_err_t download_get_handler(httpd_req_t *req)
 {
     char filepath[FILE_PATH_MAX];
     FILE *fd = NULL;
@@ -281,10 +326,16 @@ static C_RES download_get_handler(httpd_req_t *req)
 }
 
 
-// Handler to upload a file onto the server
-static C_RES upload_post_handler(httpd_req_t *req)
-{
 
+/**
+ * @brief upload_post_handler
+ *        Handler to upload a file onto the server
+ *
+ * @param httpd_req_t *req
+ * @return none C_FAIL/C_SUCCESS
+ */
+static esp_err_t upload_post_handler(httpd_req_t *req)
+{
     bool send_config = false;
 
     static char sent_parameters[HTTPD_MAX_URI_LEN + 1] = {0};
@@ -352,8 +403,16 @@ static C_RES upload_post_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-/* Handler to delete a file from the server */
-static C_RES delete_post_handler(httpd_req_t *req)
+
+
+/**
+ * @brief upload_post_handler
+ *        Handler to delete a file from the server
+ *
+ * @param httpd_req_t *req
+ * @return none C_FAIL/C_SUCCESS
+ */
+static esp_err_t delete_post_handler(httpd_req_t *req)
 {
     char filepath[FILE_PATH_MAX];
     struct stat file_stat;
@@ -395,7 +454,20 @@ static C_RES delete_post_handler(httpd_req_t *req)
 }
 
 
-//Public Functions
+
+
+
+
+
+/**
+ * @brief HTTPServer__StartFileServer
+ *
+ * @param httpd_handle_t server
+ *
+ * @param const char *base_path
+ *              of the files
+ * @return none ESP_ERR_INVALID_ARG/ESP_ERR_INVALID_STATE/ESP_FAIL/ESP_OK
+ */
 C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 {
 	uint8_t cred_conf = DEFAULT;
@@ -504,33 +576,89 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 	httpd_register_uri_handler(server, &file_delete);
 
 
-	if(ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
+	if (ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
 		HTTPServer__ParseCredfromNVM();
 	}
+	else
+	{
+		return ESP_FAIL;
+	}
+
 	return ESP_OK;
 }
 
-C_RES HTTPServer__StopServer(httpd_handle_t server){
+
+
+/**
+ * @brief HTTPServer__StopServer
+ *        stop the server
+ *        this function is currently not in use so leave here
+ *        for future references
+ * @param httpd_handle_t server
+ * @return ESP_OK : Server stopped successfully
+ *         ESP_ERR_INVALID_ARG null pointer passed
+ *
+ */
+#ifdef __CCL_DEBUG_MODE
+esp_err_t HTTPServer__StopServer(httpd_handle_t server){
     // Stop the httpd server
     esp_err_t err = httpd_stop(server);
     return err;
 }
+#endif
 
+
+/**
+ * @brief SetConfigReceived
+ *        set the flag ReceivedConfig
+ * @param none
+ * @return none
+ *
+ */
 void SetConfigReceived(void){
 	ReceivedConfig = 1;
 }
 
+
+/**
+ * @brief IsConfigReceived
+ *        return the flag ReceivedConfig
+ * @param none
+ * @return C_BYTE 1 = config received
+ *
+ */
 C_BYTE IsConfigReceived(void){
     return ReceivedConfig;
 }
 
+
+/**
+ * @brief SetWpsMode
+ *
+ * @param none
+ * @return none
+ */
 void SetWpsMode(void){
 	WpsMode = 1;
 }
 
+
+/**
+ * @brief UnSetWpsMode
+ *
+ * @param none
+ * @return none
+ */
 void UnSetWpsMode(void){
 	WpsMode = 0;
 }
+
+/**
+ * @brief IsWpsMode
+ *
+ * @param none
+ * @return 1 = wps active 0 = NOT active
+ */
 
 C_BYTE IsWpsMode(void){
     return WpsMode;

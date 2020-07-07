@@ -20,6 +20,7 @@
 #include "mobile.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
+
 #include "esp_vfs.h"
 #include "esp_spiffs.h"
 #include "esp_log.h"
@@ -29,6 +30,14 @@ static const char *TAG = "spiffs";
 /* Functions Implementation --------------------------------------------------*/
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
+
+/**
+ * @brief init_spiffs
+ * initialize the SPI Flash File System remember max 5 files opened at the same time
+ *
+ * @param  none
+ * @return C_SUCCESS / C_FAIL
+ */
 esp_err_t init_spiffs(void)
 {
     ESP_LOGI(TAG, "Initializing SPIFFS");
@@ -36,7 +45,7 @@ esp_err_t init_spiffs(void)
     esp_vfs_spiffs_conf_t conf = {
       .base_path = "/spiffs",
       .partition_label = NULL,
-      .max_files = 5,   // This decides the maximum number of files that can be created on the storage
+      .max_files = 5,   //the maximum number of files that could be opened at the same time
       .format_if_mount_failed = true
     };
 
@@ -59,8 +68,6 @@ esp_err_t init_spiffs(void)
         return ESP_FAIL;
     }
     ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
-
-
 
     return ESP_OK;
 }
@@ -85,10 +92,11 @@ C_RES File_System_Init(void)
 }
 
 /**
- * @brief Get_Gateway_ID
- *        Gets MAC address of the WiFi device or IMEI of the 2G module
+ * @brief Set_Gateway_ID
+ *        Sets the MAC address of the WiFi device at the same value of
+ *        the default
  *
- * @param C_BYTE* contaning the MAC or the IMEI mqtt portbroker
+ * @param  none
  * @return C_SUCCESS
  */
 C_RES Set_Gateway_ID(void)
@@ -103,7 +111,9 @@ C_RES Set_Gateway_ID(void)
 		esp_err_t retval;
 		uint8_t s_id_tmp[6];
 		retval = esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
+		if (retval != ESP_OK) return C_FAIL;
 		retval = esp_base_mac_addr_set(&s_id_tmp[0]);
+		if (retval != ESP_OK) return C_FAIL;
     #endif
 	}
 
@@ -121,13 +131,20 @@ C_RES Set_Gateway_ID(void)
  */
 C_RES Get_Gateway_ID(C_SBYTE *s_id)
 { /* TO BE implemented */
+	C_RES rv;
+
+	rv = C_FAIL;
 
 	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU)) {
 		/* this function returns the MAC address of the WiFi appliance */
 
 		#ifdef INCLUDE_PLATFORM_DEPENDENT
 		uint8_t s_id_tmp[6];
-		esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
+		esp_err_t retval ;
+
+		retval = esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
+
+		if (retval == ESP_OK) rv = C_SUCCESS;
 
 		sprintf(s_id,"%02X%02X%02X%02X%02X%02X",
 				s_id_tmp[0],
@@ -142,6 +159,8 @@ C_RES Get_Gateway_ID(C_SBYTE *s_id)
 	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
 		/* this function returns the IMEI of the GSM module*/
 		strcpy(s_id, Mobile__GetImeiCode());
+		rv = C_SUCCESS;
 	}
-	return C_SUCCESS;
+
+	return rv;
 }

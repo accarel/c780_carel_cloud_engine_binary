@@ -21,18 +21,7 @@
  */
 #define MAX_HTTP_RECV_BUFFER 2048
 
-
-#ifdef __CCL_DEBUG_MODE 
-/**
- * @brief _DEBUG_HTTPS_CLIENT_CAREL 
- *        if defined print on the debug console some debugger message but only if 
- *        global __CCL_DEBUG_MODE is defined
- */
-#define _DEBUG_HTTPS_CLIENT_CAREL 
-#endif
-
 static const char *TAG = "HTTP_CLIENT_CAREL";
-
 
 
 /**
@@ -46,7 +35,6 @@ static const char *TAG = "HTTP_CLIENT_CAREL";
  * @param   filename : the name of the file that will be updated
  * @return 
  */
-
 https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, uint8_t cert_num, const char *filename)
 {	
 	https_conn_err_t err = CONN_FAIL;
@@ -189,7 +177,6 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
  * @param   cert_num : the index of certificate to be used to log in 
  * @return 
  */
-
 https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert)
 {
 	C_CHAR filename[32];
@@ -220,7 +207,16 @@ https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca
 
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-//Description: Task called from cmdline to test carel server
+#ifdef __CCL_DEBUG_MODE
+/**
+ * @brief HTTPClient__TestTask
+ *        Task called from cmdline to test carel server
+ *        Only for debug
+ *
+ * @param  pvParameters :
+ *
+ * @return none
+ */
 void HTTPClient__TestTask(void *pvParameters)
 {
     ESP_LOGI(TAG, "Connected to AP, begin http example");
@@ -230,4 +226,5 @@ void HTTPClient__TestTask(void *pvParameters)
     PollEngine_MBResume_IS();
     vTaskDelete(NULL);
 }
+#endif
 #endif
