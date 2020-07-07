@@ -18,13 +18,25 @@ static const char *TAG = "OTA_CAREL";
 */
 #define MODBUS_RX_BUFFER_SIZE  256
 
+/**
+ * @brief UpdateDevFirmware
+ *        function that execute the modbus file transfer
+ *        over the device attached to the GME.
+ *
+ * @param  C_BYTE *fw_chunk
+ * @param  C_UINT16 ch_size
+ * @param  C_UINT16 file_no
+ * @param  C_UINT16 starting_reg
+ *
+ * @return C_RES
+ */
 C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_UINT16 starting_reg){
 
 	C_RES err = C_SUCCESS;
 	
-	C_BYTE data_rx[MODBUS_RX_BUFFER_SIZE] = {0};
+//	C_BYTE data_rx[MODBUS_RX_BUFFER_SIZE] = {0};
 	
-	C_INT16 data_rx_len = 0;
+//	C_INT16 data_rx_len = 0;
 	C_BYTE *data_tx;
 	C_BYTE packet_len;
 
@@ -84,6 +96,16 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 
 }
 
+/**
+ * @brief DEV_ota_task
+ *        This task connect the GME in a secure way to a https server and
+ *        download the fw update. Chunk by chunck download it to a device
+ *        attached to the GME via modbus file transfer.
+ *
+ * @param  void * pvParameter
+ *
+ * @return none
+ */
 void DEV_ota_task(void * pvParameter){
 
 	c_cborrequpddevfw * dev_fw_config = (c_cborrequpddevfw*)pvParameter;
@@ -227,6 +249,16 @@ void DEV_ota_task(void * pvParameter){
 	free(upgrade_data_buf);
 }
 
+
+/**
+ * @brief Model_ota_task
+ *        This task download via OTA the model
+ *        used by GME to start polling the modbus variables.
+ *
+ * @param  void * pvParameter
+ *
+ * @return none
+ */
 void Model_ota_task(void * pvParameter)
 {
 	c_cborreqdwldevsconfig * myCborUpdate = (c_cborreqdwldevsconfig*)pvParameter;
@@ -271,7 +303,15 @@ void Model_ota_task(void * pvParameter)
 	vTaskDelete(NULL);
 }
 
-
+/**
+ * @brief CA_ota_task
+ *        This task download via OTA the new certificate
+ *        used to connect in a secure way into the Iot services.
+ *
+ * @param  void * pvParameter
+ *
+ * @return none
+ */
 void CA_ota_task(void * pvParameter)
 {
 	c_cborrequpdatecacert * myCborUpdate = (c_cborrequpdatecacert*)pvParameter;
@@ -299,6 +339,17 @@ void CA_ota_task(void * pvParameter)
 	vTaskDelete(NULL);
 }
 
+/**
+ * @brief GME_ota_task
+ *        This task download via OTA through an https
+ *        server the GME firmware update.
+ *		  Refer to the function "https_ota(...)" in ota_IS.c
+ *		  for more details.
+ *
+ * @param  void * pvParameter
+ *
+ * @return none
+ */
 void GME_ota_task(void * pvParameter)
 {
 	c_cborrequpdgmefw * myCborUpdate = (c_cborrequpdgmefw*)pvParameter;
