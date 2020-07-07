@@ -72,7 +72,7 @@ void app_main(void)  // main_Carel
 
   Configure_IO_Check_HW_Platform_IS();
   Sys__Delay(50); //just to stabilize the I/O
-  hw_platform_detected = Check_HW_Platform_IS();
+  hw_platform_detected = (C_BYTE)Check_HW_Platform_IS();
   Init_Pins();
   Set_Gateway_ID();
   Led_Task_Start();
@@ -80,6 +80,7 @@ void app_main(void)  // main_Carel
   if ((hw_platform_detected & PLATFORM_DETECTED_TEST_MODE) == PLATFORM_DETECTED_TEST_MODE)
   {
 	  /* test mode pin is connected to ground */
+	  printf("HARDWARE TEST MODE SELECTED\r\n");
 	  test_hw();
   }
   else

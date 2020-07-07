@@ -156,7 +156,7 @@ C_BYTE modbusPort; // can be uart2 or uart0 if rs485 or TTL
 
 /* to check easily the running platform */
 
-#define PLATFORM(a)  (hw_platform_detected == (a))
+#define PLATFORM(a)  ((hw_platform_detected &(0x0F)) == (a))
 
 
 #endif   /* #ifndef __CAREL_TYPES_H */

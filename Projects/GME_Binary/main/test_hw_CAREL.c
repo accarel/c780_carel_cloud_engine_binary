@@ -50,8 +50,8 @@ static html_config_param_t WiFiConfig = {
 		.ap_pswd = AP_DEF_PSSWD,
 		.ap_ssid_hidden = AP_DEF_SSID_HIDDEN,
 		.ap_ip = AP_DEF_IP,
-		.sta_ssid = "AndroidAP1941",
-		.sta_encryption = "psk2",
+		.sta_ssid = "TEST_AP",
+		.sta_encryption = "wpa2",
 		.sta_pswd= "12345678",
 		.sta_dhcp_mode = 1,
 		.sta_static_ip = "",
@@ -76,8 +76,6 @@ void test_hw(void)
 				// 1) read and print MAC-ADDR
 
 			    C_GATEWAY_ID dev_id;
-//				Get_Gateway_ID((C_SBYTE*)&dev_id);
-//				printf("MAC=%s\r\n", dev_id);
 
 				uint8_t s_id_tmp[6];
 				esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
@@ -145,13 +143,13 @@ void test_hw(void)
 				uint8_t addr = 0;
 			    uint8_t numOf = 0;
 			    uint8_t retry = 0;
-			    uint8_t is_offline = 0;
 			    eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
 
 			    // 3) TRY TO POLL MODBUS via RS485
 				Modbus_Init(19200, UART_PARITY_DISABLE, 1, MB_PORTNUM_485);
-				Modbus_Task_Start();
+				Sys__Delay(1000);
 
+				Modbus_Task_Start();
 				Sys__Delay(2000);
 
 				errorReq = MB_MRE_NO_REG;
@@ -159,11 +157,14 @@ void test_hw(void)
 				addr = 0;
 				numOf = 1;
 
+				Modbus__ReadDelayFromNVM();
 
 				do {
-					errorReq = app_holding_register_read(1, 1, addr, numOf);
+					errorReq = app_holding_register_read(1, addr, numOf);
 					retry++;
-				} while(errorReq != MB_MRE_NO_REG && retry < 3);
+				} while(errorReq != MB_MRE_NO_REG && retry < 10);
+
+				Sys__Delay(1000);
 
 				read_value = param_buffer[0];
 

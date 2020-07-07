@@ -81,11 +81,11 @@ void Configure_IO_Check_HW_Platform_IS(void)
   #ifdef INCLUDE_PLATFORM_DEPENDENT
   gpio_pad_select_gpio(HW_PLATFORM_DETECT_PIN);
   gpio_set_direction(HW_PLATFORM_DETECT_PIN, GPIO_MODE_INPUT);
+  #endif
 
-  #if !defined(__USE_ESP_WROVER_KIT)
+  #ifndef __USE_ESP_WROVER_KIT
   gpio_pad_select_gpio(HW_PLATFORM_TEST_PIN);
   gpio_set_direction(HW_PLATFORM_TEST_PIN, GPIO_MODE_INPUT);
-  #endif
   #endif
 }
 
@@ -179,7 +179,7 @@ C_BYTE Check_HW_Platform_IS(void)
 
 	if (gpio_get_level(HW_PLATFORM_TEST_PIN) == 0)
 	{
-		platform = platform & PLATFORM_DETECTED_TEST_MODE;
+		platform = platform | PLATFORM_DETECTED_TEST_MODE;
 	}
 
 

@@ -31,7 +31,7 @@
 #define PLATFORM_DETECTED_2G    2
 #define PLATFORM_DETECTED_BCU   3
 #define PLATFORM_DETECTED_ESP_WROVER_KIT  4
-#define PLATFORM_DETECTED_TEST_MODE 0x8000
+#define PLATFORM_DETECTED_TEST_MODE 0x80
 
 /* ========================================================================== */
 /* uncomment for development platform                                         */
