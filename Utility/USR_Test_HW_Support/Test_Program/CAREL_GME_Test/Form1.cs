@@ -47,8 +47,7 @@ namespace CodeProjectSerialComms
             { 
             
             }
-
-           
+          
 
             /* ============================= */
             /*       cyclic activities       */
@@ -80,187 +79,11 @@ namespace CodeProjectSerialComms
             //mytimer.Start();
         }
 
-
-        public void send_cmd(string tx_string)
-        {
-
-        }
-
-
-        private void btnGetSerialPorts_Click(object sender, EventArgs e)
-        {
-            string[] ArrayComPortsNames = null;
-            int index = -1;
-            string ComPortName = null;
-           
-//Com Ports
-            ArrayComPortsNames = SerialPort.GetPortNames();
-            do
-            {
-                index += 1;
-                cboPorts.Items.Add(ArrayComPortsNames[index]);
-               
-              
-            } while (!((ArrayComPortsNames[index] == ComPortName) || (index == ArrayComPortsNames.GetUpperBound(0))));
-            Array.Sort(ArrayComPortsNames);
-           
-            if (index == ArrayComPortsNames.GetUpperBound(0))
-            {
-                //ComPortName = ArrayComPortsNames[0];
-            }
-            //get first item print in text
-            cboPorts.Text = ArrayComPortsNames[0];
-                           
-                       
-
-        }
-
-    
-        private void SetText(string text)
-        {
-            this.rtbIncoming.Text += text;
-        }
-
-
-        private void btnTest_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void btnPortState_Click(object sender, EventArgs e)
-        {
-          
-            if (btnPortState.Text == "Connect")
-            {
-                btnPortState.Text = "Disconnect";
-            }
-            else if (btnPortState.Text == "Disconnect")
-            {
-                btnPortState.Text = "Connect";
-                //ComPort.Close();               
-            }
-        }
-        private void rtbOutgoing_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            if (e.KeyChar == (char)13) // enter key  
-            {
-                //ComPort.Write("\r\n");
-                //rtbOutgoing.Text = "";
-            }
-            else if (e.KeyChar < 32 || e.KeyChar > 126)
-            {
-                e.Handled = true; // ignores anything else outside printable ASCII range  
-            }
-            else
-            {
-                //ComPort.Write(e.KeyChar.ToString());
-            }
-        }
-        private void btnHello_Click(object sender, EventArgs e)
-        {
-            //ComPort.Write("ATI\r");
-        }
-
-        private void btnHyperTerm_Click(object sender, EventArgs e)
-        {
-            string Command1 = @"";
-            string CommandSent;
-            int Length, j = 0;
-
-            Length = Command1.Length;
-
-            for (int i = 0; i < Length; i++)
-            {
-                CommandSent = Command1.Substring(j, 1);
-                //ComPort.Write(CommandSent);
-                j++;
-            }
-
-        }
-
-        private void button_ati_Click(object sender, EventArgs e)
-        {            
-            //ComPort.Write("ATI\r");
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button_force_tx_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-        }
-
-        private void comboBox_band_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void textBox_afc_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox_burst_type_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox_pcl_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox_timeslot_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox_arfcn_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label8_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void button_force_tx_stop_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void button_dummy_Click(object sender, EventArgs e)
-        {
-        }
-
-        private void button_Clear_Click(object sender, EventArgs e)
-        {
-            rtbIncoming.Text = "";
-        }
-
-        private void button_setpower_Click(object sender, EventArgs e)
-        {
-           
-        }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void button_pwr_off_Click(object sender, EventArgs e)
         {
             My_IO.set_rele_status(My_IO.RELE_POWER, My_IO.RELE_OFF);
-
         }
 
         private void button_help_Click(object sender, EventArgs e)
@@ -271,6 +94,9 @@ namespace CodeProjectSerialComms
         private void Form1_Load(object sender, EventArgs e)
         {
             My_IO.Init_IO_Interface();
+            My_SER.Init_Ser_Interface();
+
+            launch_modbus_simulator();
 
             if (My_IO.ComName == "")
             {
@@ -280,7 +106,7 @@ namespace CodeProjectSerialComms
             label_com_name.Text = My_IO.ComName;
 
 
-            My_SER.Init_Ser_Interface();           
+                     
             if (My_SER.ComPrgName == "")
             {
                 MessageBox.Show("ERROR! I/O COM PortPrg not found please check CAREL_GME_Test_CFG.ini");
@@ -306,9 +132,6 @@ namespace CodeProjectSerialComms
          
             Application.DoEvents();
            
-            launch_modbus_simulator();
-
-
             buttonTestStart.BackColor = Color.LightGray;
         }
 
@@ -344,8 +167,8 @@ namespace CodeProjectSerialComms
         private int call_esp_programmer()
         {
             String cmdlinepars;
-            cmdlinepars = My_IO.ComPrgName + " " + My_IO.ComPrgBaud;
-            
+            cmdlinepars = My_SER.ComPrgName + " " + My_SER.ComPrgBaud;
+
             /* delete previous prgout.txt */
             try
             {
@@ -478,11 +301,13 @@ namespace CodeProjectSerialComms
             {
                 button_test_result.Text = "TEST PASSED";
                 button_test_result.BackColor = Color.Green;
+                My_IO.open_all_rele();
             }
             else 
             {
                 button_test_result.Text = "TEST FAIL";
                 button_test_result.BackColor = Color.Red;
+                My_IO.open_all_rele();
             }
         
         
@@ -506,10 +331,12 @@ namespace CodeProjectSerialComms
 
             My_IO.open_all_rele();
             display_status("Power ON !");
-            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);     //maintain GME resetted
             My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_ON); //press prog. button
+            Thread.Sleep(500);
             My_IO.set_rele_status(My_IO.RELE_POWER, My_IO.RELE_ON);
-
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON); //press prog. button
+            
 
             test_pass = MessageYesNo("LED POWER TEST", "Is the power led ON ?");
             if (test_pass == false)
@@ -526,7 +353,7 @@ namespace CodeProjectSerialComms
 
             if ((irv >= My_IO.volt_min) && (irv <= My_IO.volt_max))
             {
-                display_status("Voltage = " + (((irv*My_IO.volt_a))+My_IO.volt_b));
+                display_status("Voltage = " + (((((float)irv)*My_IO.volt_a))+My_IO.volt_b));
                 display_status("Test OK");
             }
             else 
@@ -538,13 +365,13 @@ namespace CodeProjectSerialComms
 
             //now start programming the device 
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
-            Thread.Sleep(100);
+            Thread.Sleep(1000);
             My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
-            Thread.Sleep(100);
+            Thread.Sleep(1000);
             display_status("Gateway ready to program ..");
 
             //TODO DECOMMENTARE            
-            //test_pass = prog_device();
+            test_pass = prog_device();
 
             if (test_pass == false) 
             {
@@ -568,10 +395,10 @@ namespace CodeProjectSerialComms
 
             //now we put GME in test mode            
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);            //maintain GME resetted
-            Thread.Sleep(100);
+            Thread.Sleep(500);
             My_IO.set_rele_status(My_IO.RELE_TP5, My_IO.RELE_ON);           //TP5 to ground 
-            Thread.Sleep(100);
-            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);            //leave GME reset
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);            //leave GME reset
             display_status("Gateway in test mode ..");
 
             test_pass = MessageYesNo("LED STATUS TEST", "The status led have blinked green/red ?");
@@ -662,8 +489,7 @@ namespace CodeProjectSerialComms
             /* ============================================================== */
             /*                         END OF TEST                            */
             /* ============================================================== */
-            button_test_result.Text = "TEST PASSED";
-            button_test_result.BackColor = Color.Green;
+            test_result_indicator(true);
             display_status("END OF TEST ");
 
         }
@@ -723,6 +549,17 @@ namespace CodeProjectSerialComms
         private void button_all_off_Click(object sender, EventArgs e)
         {
             My_IO.open_all_rele();
+        }
+
+        private void button_put_in_programming_Click(object sender, EventArgs e)
+        {
+            My_IO.open_all_rele();
+            My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_ON);
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_POWER, My_IO.RELE_ON);
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);
+            Thread.Sleep(500);
         }
     }
 

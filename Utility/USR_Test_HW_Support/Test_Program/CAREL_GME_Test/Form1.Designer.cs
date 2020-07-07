@@ -28,11 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnGetSerialPorts = new System.Windows.Forms.Button();
             this.rtbIncoming = new System.Windows.Forms.RichTextBox();
-            this.cboPorts = new System.Windows.Forms.ComboBox();
-            this.btnPortState = new System.Windows.Forms.Button();
-            this.button_Clear = new System.Windows.Forms.Button();
             this.button_pwr_off = new System.Windows.Forms.Button();
             this.button_help = new System.Windows.Forms.Button();
             this.tabControl_Info_Setup = new System.Windows.Forms.TabControl();
@@ -49,6 +45,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tabPage1_Info = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button_put_in_programming = new System.Windows.Forms.Button();
             this.button_all_off = new System.Windows.Forms.Button();
             this.button_button_off = new System.Windows.Forms.Button();
             this.button_button = new System.Windows.Forms.Button();
@@ -66,19 +63,6 @@
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // btnGetSerialPorts
-            // 
-            this.btnGetSerialPorts.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnGetSerialPorts.Location = new System.Drawing.Point(714, 669);
-            this.btnGetSerialPorts.Margin = new System.Windows.Forms.Padding(4);
-            this.btnGetSerialPorts.Name = "btnGetSerialPorts";
-            this.btnGetSerialPorts.Size = new System.Drawing.Size(100, 28);
-            this.btnGetSerialPorts.TabIndex = 0;
-            this.btnGetSerialPorts.Text = "COM search";
-            this.btnGetSerialPorts.UseVisualStyleBackColor = true;
-            this.btnGetSerialPorts.Visible = false;
-            this.btnGetSerialPorts.Click += new System.EventHandler(this.btnGetSerialPorts_Click);
-            // 
             // rtbIncoming
             // 
             this.rtbIncoming.Location = new System.Drawing.Point(13, 96);
@@ -87,39 +71,6 @@
             this.rtbIncoming.Size = new System.Drawing.Size(330, 506);
             this.rtbIncoming.TabIndex = 1;
             this.rtbIncoming.Text = "";
-            // 
-            // cboPorts
-            // 
-            this.cboPorts.FormattingEnabled = true;
-            this.cboPorts.Location = new System.Drawing.Point(614, 673);
-            this.cboPorts.Margin = new System.Windows.Forms.Padding(4);
-            this.cboPorts.Name = "cboPorts";
-            this.cboPorts.Size = new System.Drawing.Size(92, 24);
-            this.cboPorts.TabIndex = 2;
-            this.cboPorts.Visible = false;
-            // 
-            // btnPortState
-            // 
-            this.btnPortState.Location = new System.Drawing.Point(506, 669);
-            this.btnPortState.Margin = new System.Windows.Forms.Padding(4);
-            this.btnPortState.Name = "btnPortState";
-            this.btnPortState.Size = new System.Drawing.Size(100, 28);
-            this.btnPortState.TabIndex = 13;
-            this.btnPortState.Text = "Connect";
-            this.btnPortState.UseVisualStyleBackColor = true;
-            this.btnPortState.Visible = false;
-            this.btnPortState.Click += new System.EventHandler(this.btnPortState_Click);
-            // 
-            // button_Clear
-            // 
-            this.button_Clear.Location = new System.Drawing.Point(119, 671);
-            this.button_Clear.Name = "button_Clear";
-            this.button_Clear.Size = new System.Drawing.Size(98, 30);
-            this.button_Clear.TabIndex = 36;
-            this.button_Clear.Text = "Clear";
-            this.button_Clear.UseVisualStyleBackColor = true;
-            this.button_Clear.Visible = false;
-            this.button_Clear.Click += new System.EventHandler(this.button_Clear_Click);
             // 
             // button_pwr_off
             // 
@@ -277,6 +228,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button_put_in_programming);
             this.groupBox1.Controls.Add(this.button_all_off);
             this.groupBox1.Controls.Add(this.button_button_off);
             this.groupBox1.Controls.Add(this.button_button);
@@ -292,6 +244,16 @@
             this.groupBox1.TabIndex = 50;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "GME";
+            // 
+            // button_put_in_programming
+            // 
+            this.button_put_in_programming.Location = new System.Drawing.Point(229, 293);
+            this.button_put_in_programming.Name = "button_put_in_programming";
+            this.button_put_in_programming.Size = new System.Drawing.Size(92, 32);
+            this.button_put_in_programming.TabIndex = 56;
+            this.button_put_in_programming.Text = "ProgModeOn";
+            this.button_put_in_programming.UseVisualStyleBackColor = true;
+            this.button_put_in_programming.Click += new System.EventHandler(this.button_put_in_programming_Click);
             // 
             // button_all_off
             // 
@@ -401,14 +363,10 @@
             this.Controls.Add(this.buttonTestStart);
             this.Controls.Add(this.tabControl_Info_Setup);
             this.Controls.Add(this.button_help);
-            this.Controls.Add(this.button_Clear);
-            this.Controls.Add(this.btnPortState);
-            this.Controls.Add(this.cboPorts);
             this.Controls.Add(this.rtbIncoming);
-            this.Controls.Add(this.btnGetSerialPorts);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "CAREL GME HW Test V.1.0.1";
+            this.Text = "CAREL GME HW Test V.1.0.2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl_Info_Setup.ResumeLayout(false);
             this.tabPage2_parameters.ResumeLayout(false);
@@ -421,12 +379,7 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Button btnGetSerialPorts;
         private System.Windows.Forms.RichTextBox rtbIncoming;
-        private System.Windows.Forms.ComboBox cboPorts;
-        private System.Windows.Forms.Button btnPortState;
-        private System.Windows.Forms.Button button_Clear;
         private System.Windows.Forms.Button button_pwr_off;
         private System.Windows.Forms.Button button_help;
         private System.Windows.Forms.TabControl tabControl_Info_Setup;
@@ -453,6 +406,7 @@
         private System.Windows.Forms.Button button_button_off;
         private System.Windows.Forms.Button button_button;
         private System.Windows.Forms.Button button_test_result;
+        private System.Windows.Forms.Button button_put_in_programming;
     }
 }
 

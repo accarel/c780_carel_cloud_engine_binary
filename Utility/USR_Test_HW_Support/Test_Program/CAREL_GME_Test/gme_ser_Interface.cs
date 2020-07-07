@@ -231,7 +231,7 @@ namespace gme_ser_Interface
 
 
             maxtime = 0;
-            loctimeout = 5000;  //5 sec
+            loctimeout = 20000;  //20 sec
 
             /*
              at startup the ESP32 emit some bootloader msg, so that 

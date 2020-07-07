@@ -25,6 +25,7 @@ namespace IO_Interface
 
         public string RELE_OFF = @"0";
         public string RELE_ON  = @"1";
+
         public string RELE_POWER = @"A";
         public string RELE_BUTTON = @"B";
         public string RELE_TP5 = @"C";
@@ -37,8 +38,8 @@ namespace IO_Interface
 
         public int volt_min;
         public int volt_max;
-        public int volt_a;
-        public int volt_b;
+        public float volt_a;
+        public float volt_b;
 
                
         SerialPort ComPort = new SerialPort();
@@ -116,10 +117,10 @@ namespace IO_Interface
             volt_max = Int32.Parse(par_val);
 
             par_val = MyIni.Read("VOLT_A");
-            volt_a = Int32.Parse(par_val);
+            volt_a = float.Parse(par_val);
 
             par_val = MyIni.Read("VOLT_B");
-            volt_b = Int32.Parse(par_val);
+            volt_b = float.Parse(par_val);
 
                         
             /* serial port part */
