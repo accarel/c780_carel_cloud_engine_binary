@@ -56,6 +56,8 @@
             this.button1 = new System.Windows.Forms.Button();
             this.buttonTestStart = new System.Windows.Forms.Button();
             this.button_test_result = new System.Windows.Forms.Button();
+            this.button_read_v = new System.Windows.Forms.Button();
+            this.textBox_read_v = new System.Windows.Forms.TextBox();
             this.tabControl_Info_Setup.SuspendLayout();
             this.tabPage2_parameters.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -228,6 +230,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.textBox_read_v);
+            this.groupBox1.Controls.Add(this.button_read_v);
             this.groupBox1.Controls.Add(this.button_put_in_programming);
             this.groupBox1.Controls.Add(this.button_all_off);
             this.groupBox1.Controls.Add(this.button_button_off);
@@ -354,6 +358,27 @@
             this.button_test_result.Text = "---------";
             this.button_test_result.UseVisualStyleBackColor = true;
             // 
+            // button_read_v
+            // 
+            this.button_read_v.Location = new System.Drawing.Point(7, 195);
+            this.button_read_v.Name = "button_read_v";
+            this.button_read_v.Size = new System.Drawing.Size(92, 28);
+            this.button_read_v.TabIndex = 57;
+            this.button_read_v.Text = "Read V";
+            this.button_read_v.UseVisualStyleBackColor = true;
+            this.button_read_v.Click += new System.EventHandler(this.button_read_v_Click);
+            // 
+            // textBox_read_v
+            // 
+            this.textBox_read_v.HideSelection = false;
+            this.textBox_read_v.Location = new System.Drawing.Point(105, 195);
+            this.textBox_read_v.Name = "textBox_read_v";
+            this.textBox_read_v.ReadOnly = true;
+            this.textBox_read_v.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox_read_v.Size = new System.Drawing.Size(216, 22);
+            this.textBox_read_v.TabIndex = 58;
+            this.textBox_read_v.Text = "---";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -366,7 +391,7 @@
             this.Controls.Add(this.rtbIncoming);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "CAREL GME HW Test V.1.0.2";
+            this.Text = "CAREL GME HW Test V.1.0.3";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl_Info_Setup.ResumeLayout(false);
             this.tabPage2_parameters.ResumeLayout(false);
@@ -374,6 +399,7 @@
             this.groupBox3.PerformLayout();
             this.tabPage1_Info.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -407,6 +433,8 @@
         private System.Windows.Forms.Button button_button;
         private System.Windows.Forms.Button button_test_result;
         private System.Windows.Forms.Button button_put_in_programming;
+        private System.Windows.Forms.TextBox textBox_read_v;
+        private System.Windows.Forms.Button button_read_v;
     }
 }
 

@@ -561,6 +561,21 @@ namespace CodeProjectSerialComms
             My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);
             Thread.Sleep(500);
         }
+
+        private void button_read_v_Click(object sender, EventArgs e)
+        {
+            int irv;
+            String value;
+
+            irv = My_IO.get_voltage_level();
+
+            float fv = (((((float)irv) * My_IO.volt_a)) + My_IO.volt_b);
+            value = fv.ToString() + @"V (raw= " + irv.ToString() + @")";
+
+            textBox_read_v.Text = value;
+        }
+
     }
+
 
 }
