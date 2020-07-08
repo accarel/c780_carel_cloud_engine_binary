@@ -2,7 +2,9 @@
  * @file   sys_IS.c
  * @author carel
  * @date 20 Nov 2019
- * @brief ... TODO
+ * @brief  Contain a system util function
+ *         related to the type of operating system in use and
+ *         related to the chip.
  *        
  */ 
 #include "CAREL_GLOBAL_DEF.h"
@@ -133,7 +135,15 @@ void Sys__ResetCheck(void){
 	return;
 }
 
-
+/**
+* @brief Sys__GetFreeHeapSize
+*      this function call  esp_get_free_heap_size(),
+*      refer to esp-idf for more details.
+*
+*
+* @param  none
+* @return C_UINT32
+*/
 C_UINT32 Sys__GetFreeHeapSize(void){
 	C_UINT32 freemem = 0;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -142,6 +152,15 @@ C_UINT32 Sys__GetFreeHeapSize(void){
 	return freemem;
 }
 
+
+/**
+* @brief Sys__Delay
+*      this function call a delay (in millisecond)
+*	   it depends on the operating system in use.
+*
+* @param  C_UINT32 delay
+* @return none
+*/
 void Sys__Delay(C_UINT32 delay){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	vTaskDelay(delay / portTICK_PERIOD_MS); //portTICK_PERIOD_MS 10

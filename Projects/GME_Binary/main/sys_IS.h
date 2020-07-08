@@ -2,7 +2,9 @@
  * @file   sys_CAREL.h
  * @author carel
  * @date 20 Nov 2019
- * @brief ... TODO
+ * @brief  Contain a system util function
+ *         related to the type of operating system in use and
+ *         related to the chip.
  *        
  */ 
 
