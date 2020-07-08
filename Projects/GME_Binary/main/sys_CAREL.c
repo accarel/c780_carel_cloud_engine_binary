@@ -2,7 +2,7 @@
  * @file   sys_CAREL.c
  * @author carel
  * @date 20 Nov 2019
- * @brief ... TODO
+ * @brief   contain some routine that manage global resource like NVM, certificates, and so on
  *        
  */ 
  
@@ -52,7 +52,6 @@ C_RES Sys__Init (void)
  * @param  none
  * @return C_RES
  */
-
 void Sys__CertAlloc(void)
 {
 	FS_ReadFile(CERT1_SPIFFS, (uint8_t*)certificates[0]);
@@ -65,7 +64,6 @@ void Sys__CertAlloc(void)
  * @brief Sys__GetCert
  *      Get certificatoins pointer 
  *
- *
  * @param  none
  * @return C_RES
  */
@@ -76,8 +74,4 @@ C_SBYTE* Sys__GetCert(C_BYTE cert_num){
 		return certificates[CERT_1];
 	}
 }
-
-
-
-
 

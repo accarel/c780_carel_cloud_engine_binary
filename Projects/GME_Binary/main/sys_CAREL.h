@@ -2,8 +2,7 @@
  * @file   sys_CAREL.h
  * @author carel
  * @date 20 Nov 2019
- * @brief ... TODO
- *        
+ * @brief   contain some routine that manage global resource like NVM, certificates, and so on
  */ 
 
 #ifndef SYS_CAREL_H_

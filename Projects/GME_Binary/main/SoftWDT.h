@@ -1,13 +1,14 @@
-/*
-  File  : SoftWDT
-  
-  Scope : all the routine that manage the SW watchdog
-
-*/
+/**
+ * @file   SoftWDT.c
+ * @author carel
+ * @date   9 Sep 2019
+ * @brief  a softwd implementation to monitor the system
+ *
+ */
 
 /* Define to prevent recursive inclusion */
-#ifndef _SOFTWDT
-#define _SOFTWDT
+#ifndef _SOFTWDT_H
+#define _SOFTWDT_H
 
 /* ==== Include ==== */
 
@@ -21,11 +22,14 @@ typedef struct tag_softwdt_struct
 
 
 /* ==== Define customizable ==== */
-
-//#define SWWDT_DEFAULT_TIME      3000  /* millisec. */
+/**
+ * @brief SWWDT_DEFAULT_TIME
+ *        the time in sec. of the SW WD timers
+*/
 #define SWWDT_DEFAULT_TIME        20    /*       sec. */
 
 
+/* the monitored FW zones */
 #define SWWDT_PCO_EXCHANGE 0
 #define SWWDT_MAIN_DEVICE  1
 #define SWWDT_MODBUS_RTU   2

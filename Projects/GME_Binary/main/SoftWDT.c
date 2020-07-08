@@ -1,4 +1,10 @@
-
+/**
+ * @file   SoftWDT.c
+ * @author carel
+ * @date   9 Sep 2019
+ * @brief  a softwd implementation to monitor the system
+ *
+ */
 
 /* decomment to enable output debug */
 //#define __SWWDT_ENABLE_DEBUG_PRINT
@@ -13,6 +19,15 @@ static C_INT32 step_count = 0;
 volatile softwdt_struct softwdt_items[MAX_SOFTWDT];
 
 
+/**
+ * @brief SoftWDT_Init
+ *        configure the one of the available softwdt
+ *
+ * @param uint8_t  which_one
+ * @param uint16_t value
+ *
+ * @return none
+ */
 void SoftWDT_Init(uint8_t which_one, uint16_t value){  
   
   if (which_one >= MAX_SOFTWDT) {
@@ -24,6 +39,15 @@ void SoftWDT_Init(uint8_t which_one, uint16_t value){
   softwdt_items[which_one].is_enabled = 1;
 }
 
+
+/**
+ * @brief SoftWDT_DeInit
+ *        remove one of the available softwdt
+ *
+ * @param uint8_t  which_one
+ *
+ * @return none
+ */
 void SoftWDT_DeInit(uint8_t which_one){  
   
   if (which_one >= MAX_SOFTWDT) {
@@ -34,8 +58,14 @@ void SoftWDT_DeInit(uint8_t which_one){
 }
 
 
-
-
+/**
+ * @brief SoftWDT_Reset
+ *        reset one of the available softwdt
+ *
+ * @param uint8_t  which_one
+ *
+ * @return none
+ */
 void SoftWDT_Reset(uint8_t which_one){
   if (which_one >= MAX_SOFTWDT) 
     return; //it trigger some other error
@@ -44,7 +74,13 @@ void SoftWDT_Reset(uint8_t which_one){
     softwdt_items[which_one].wdt_counter_value = softwdt_items[which_one].wdt_counter_preset;
 }
 
-
+/**
+ * @brief SoftWDT_Manager
+ *
+ * @param none
+ *
+ * @return none
+ */
 void SoftWDT_Manager(void){
     uint8_t count;
     uint8_t softwdt_fired;
@@ -79,9 +115,12 @@ void SoftWDT_Manager(void){
   }
 
 
-/*
-    called by task_wdt_isr function (ISR for when TWDT times out)
-*/
+/**
+ * @brief esp_task_wdt_isr_user_handler
+ *        called by task_wdt_isr function (ISR for when TWDT times out)
+ * @param none
+ * @return none
+ */
 void esp_task_wdt_isr_user_handler(void)
 {
 	/* restart firmware */

@@ -1,3 +1,10 @@
+/**
+ * @file   radio.h
+ * @author carel
+ * @date   9 Sep 2019
+ * @brief  high level functions related to the radio management platform independent
+ *
+ */
 #ifndef MAIN_RADIO_H_
 #define MAIN_RADIO_H_
 

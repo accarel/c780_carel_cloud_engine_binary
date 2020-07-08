@@ -28,6 +28,7 @@ EventGroupHandle_t s_ota_dev_group;
 const int OTA_GME_OK = BIT0;
 const int OTA_GME_FAIL = BIT1;
 
+
 static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 {
     switch(evt->event_id) {
@@ -52,6 +53,9 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
         case HTTP_EVENT_DISCONNECTED:
             ESP_LOGD(TAG, "HTTP_EVENT_DISCONNECTED");
             break;
+        default:
+        	ESP_LOGD(TAG, "HTTP EVENT UNKNOW %d", evt->event_id);
+        	break;
     }
     return ESP_OK;
 }
@@ -102,6 +106,13 @@ C_RES uart_flush_input_IS(C_BYTE uart_num)
   return retval; 	
 }
 
+/**
+ * @brief https_ota
+ * @param c_http_client_config_t* c_config
+ *
+ * @return C_SUCCESS/C_FAIL
+ *
+ */
 C_RES https_ota(c_http_client_config_t* c_config)
 {
 	C_RES ret = C_FAIL;
@@ -124,6 +135,13 @@ C_RES https_ota(c_http_client_config_t* c_config)
 }
 
 
+/**
+ * @brief OTA_GMEWaitCompletion
+ * @param none
+ *
+ * @return C_SUCCESS/C_FAIL
+ *
+ */
 C_RES OTA_GMEWaitCompletion(void)
 {
 	C_RES ret = C_FAIL;
@@ -144,7 +162,7 @@ void OTA_End(EventGroupHandle_t s_ota_group)
 
 /**
  * @brief OTA__GMEInit Create a task for ota GME upgrade
- * @param c_cborrequpdgmefw
+ * @param c_cborrequpdgmefw update_gw_fw
  *
  * @return
  *     void
@@ -157,6 +175,16 @@ void OTA__GMEInit(c_cborrequpdgmefw update_gw_fw)
 #endif
 }
 
+
+
+
+/**
+ * @brief OTA__DEVInit Create a task for ota DEV upgrade
+ * @param c_cborrequpddevfw update_dev_fw
+ *
+ * @return
+ *     void
+ */
 void OTA__DEVInit(c_cborrequpddevfw update_dev_fw)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -165,6 +193,13 @@ void OTA__DEVInit(c_cborrequpddevfw update_dev_fw)
 #endif
 }
 
+/**
+ * @brief OTA__ModelInit Create a task for ota model upgrade
+ * @param c_cborreqdwldevsconfig download_devs_config
+ *
+ * @return
+ *     void
+ */
 void OTA__ModelInit(c_cborreqdwldevsconfig download_devs_config)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -172,6 +207,13 @@ void OTA__ModelInit(c_cborreqdwldevsconfig download_devs_config)
 #endif
 }
 
+/**
+ * @brief OTA__CAInit Create a task for ota CA upgrade
+ * @param c_cborreqdwldevsconfig download_devs_config
+ *
+ * @return
+ *     void
+ */
 void OTA__CAInit(c_cborrequpdatecacert update_ca)
 {
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -179,6 +221,16 @@ void OTA__CAInit(c_cborrequpdatecacert update_ca)
 #endif
 }
 
+
+/**
+ * @brief OTADEVGroup
+ *        signal the end of the OTA DEV transfer and restart polling if needed
+ *
+ * @param bool ota_res
+ *
+ * @return
+ *     void
+ */
 void OTADEVGroup (bool ota_res){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if(true == ota_res){
@@ -198,6 +250,17 @@ void OTADEVGroup (bool ota_res){
 #endif
 }
 
+
+
+/**
+ * @brief OTAGroup
+ *        signal the end of the OTA GME transfer and restart polling if needed
+ *
+ * @param bool ota_res
+ *
+ * @return
+ *     void
+ */
 void OTAGroup (bool ota_res){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if(true == ota_res){
