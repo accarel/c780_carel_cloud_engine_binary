@@ -370,7 +370,7 @@ namespace CodeProjectSerialComms
             Thread.Sleep(1000);
             display_status("Gateway ready to program ..");
 
-            //TODO DECOMMENTARE            
+                        
             test_pass = prog_device();
 
             if (test_pass == false) 

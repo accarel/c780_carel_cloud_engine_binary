@@ -45,6 +45,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.tabPage1_Info = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.textBox_read_v = new System.Windows.Forms.TextBox();
+            this.button_read_v = new System.Windows.Forms.Button();
             this.button_put_in_programming = new System.Windows.Forms.Button();
             this.button_all_off = new System.Windows.Forms.Button();
             this.button_button_off = new System.Windows.Forms.Button();
@@ -56,8 +58,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.buttonTestStart = new System.Windows.Forms.Button();
             this.button_test_result = new System.Windows.Forms.Button();
-            this.button_read_v = new System.Windows.Forms.Button();
-            this.textBox_read_v = new System.Windows.Forms.TextBox();
             this.tabControl_Info_Setup.SuspendLayout();
             this.tabPage2_parameters.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -249,6 +249,27 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "GME";
             // 
+            // textBox_read_v
+            // 
+            this.textBox_read_v.HideSelection = false;
+            this.textBox_read_v.Location = new System.Drawing.Point(105, 195);
+            this.textBox_read_v.Name = "textBox_read_v";
+            this.textBox_read_v.ReadOnly = true;
+            this.textBox_read_v.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox_read_v.Size = new System.Drawing.Size(216, 22);
+            this.textBox_read_v.TabIndex = 58;
+            this.textBox_read_v.Text = "---";
+            // 
+            // button_read_v
+            // 
+            this.button_read_v.Location = new System.Drawing.Point(7, 195);
+            this.button_read_v.Name = "button_read_v";
+            this.button_read_v.Size = new System.Drawing.Size(92, 28);
+            this.button_read_v.TabIndex = 57;
+            this.button_read_v.Text = "Read V";
+            this.button_read_v.UseVisualStyleBackColor = true;
+            this.button_read_v.Click += new System.EventHandler(this.button_read_v_Click);
+            // 
             // button_put_in_programming
             // 
             this.button_put_in_programming.Location = new System.Drawing.Point(229, 293);
@@ -358,27 +379,6 @@
             this.button_test_result.Text = "---------";
             this.button_test_result.UseVisualStyleBackColor = true;
             // 
-            // button_read_v
-            // 
-            this.button_read_v.Location = new System.Drawing.Point(7, 195);
-            this.button_read_v.Name = "button_read_v";
-            this.button_read_v.Size = new System.Drawing.Size(92, 28);
-            this.button_read_v.TabIndex = 57;
-            this.button_read_v.Text = "Read V";
-            this.button_read_v.UseVisualStyleBackColor = true;
-            this.button_read_v.Click += new System.EventHandler(this.button_read_v_Click);
-            // 
-            // textBox_read_v
-            // 
-            this.textBox_read_v.HideSelection = false;
-            this.textBox_read_v.Location = new System.Drawing.Point(105, 195);
-            this.textBox_read_v.Name = "textBox_read_v";
-            this.textBox_read_v.ReadOnly = true;
-            this.textBox_read_v.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_read_v.Size = new System.Drawing.Size(216, 22);
-            this.textBox_read_v.TabIndex = 58;
-            this.textBox_read_v.Text = "---";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -391,7 +391,7 @@
             this.Controls.Add(this.rtbIncoming);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "CAREL GME HW Test V.1.0.3";
+            this.Text = "CAREL GME HW Test V.1.0.4";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl_Info_Setup.ResumeLayout(false);
             this.tabPage2_parameters.ResumeLayout(false);
