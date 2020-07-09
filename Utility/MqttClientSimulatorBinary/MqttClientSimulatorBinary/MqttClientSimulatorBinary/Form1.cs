@@ -333,6 +333,16 @@ namespace MqttClientSimulatorBinary
         }
 
 
+
+        byte qos_selected()
+        {
+            byte retval = MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE; ;
+            if (radioButton_qos1.Checked == true) retval = MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE;
+            
+            return retval;
+        }
+
+
         private void PublishTestFile(string testfilepath)
         {
             string textFile = null;
@@ -352,7 +362,7 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, fileBytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                ushort msgId = client.Publish(val_req_post, fileBytes, qos_selected(), false);
 
                 textBoxPublish.Text = textFile;
             }
@@ -460,6 +470,10 @@ namespace MqttClientSimulatorBinary
                 buttonConnect.BackColor = Color.Green;
                 textBox_SubTopic.Enabled = true;
                 textBox_Target.Enabled = true;
+
+                radioButton_qos1.Enabled = true;
+                radioButton_qos0.Enabled = true;
+
                 return;
             }
 
@@ -473,7 +487,10 @@ namespace MqttClientSimulatorBinary
 
             textBox_SubTopic.Enabled = false;
             textBox_Target.Enabled = false;
-                                          
+            radioButton_qos1.Enabled = false;
+            radioButton_qos0.Enabled = false;
+
+
 
 
             // create client instance 
@@ -539,7 +556,7 @@ namespace MqttClientSimulatorBinary
             //client.Subscribe(new string[] { PUB_VAL_carel }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
 
 
-            client.Subscribe(new string[] { VAL_RESP_carel_ALL }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE });
+            client.Subscribe(new string[] { VAL_RESP_carel_ALL }, new byte[] { qos_selected() });
 
             MQTT_Connect = true;
             buttonConnect.Text = "Disconnect";
@@ -657,7 +674,7 @@ namespace MqttClientSimulatorBinary
                               
             try
             {
-                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
                 //textBoxPublish.Text = textFile;
             }
             catch (System.NullReferenceException)
@@ -764,7 +781,7 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);                
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);                
             }
             catch (System.NullReferenceException)
             {
@@ -852,7 +869,7 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
              
             }
             catch (System.NullReferenceException)
@@ -942,7 +959,7 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
 
             }
             catch (System.NullReferenceException)
@@ -1031,7 +1048,7 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
 
             }
             catch (System.NullReferenceException)
@@ -1122,7 +1139,7 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, cbor_bytes, MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
                 //textBoxPublish.Text = textFile;
             }
             catch (System.NullReferenceException)
@@ -1524,6 +1541,25 @@ namespace MqttClientSimulatorBinary
 
         }
 
+
+
+        private void radioButton_qos0_Clik(object sender, EventArgs e)
+        {
+        }
+
+
+        private void radioButton_qos0_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void radioButton_qos1_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void radioButton_qos1_CheckedChanged(object sender, EventArgs e)
+        {
+        }
+
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
         {
             const string template_name = @"test-send_mb_adu-req.json";
@@ -1546,7 +1582,7 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE, false);
+                ushort msgId = client.Publish(val_req_post, Encoding.UTF8.GetBytes(textFile), qos_selected(), false);
                 textBoxPublish.Text = textFile;
             }
             catch (System.NullReferenceException)

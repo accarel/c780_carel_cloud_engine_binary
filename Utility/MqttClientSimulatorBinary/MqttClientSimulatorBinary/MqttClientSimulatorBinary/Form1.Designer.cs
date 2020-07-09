@@ -199,6 +199,9 @@
             this.textBox_MQTT_ID = new System.Windows.Forms.TextBox();
             this.textBox_MQTT_PWD = new System.Windows.Forms.TextBox();
             this.label53 = new System.Windows.Forms.Label();
+            this.radioButton_qos0 = new System.Windows.Forms.RadioButton();
+            this.groupBox11 = new System.Windows.Forms.GroupBox();
+            this.radioButton_qos1 = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -209,6 +212,7 @@
             this.groupBox10.SuspendLayout();
             this.groupBox8.SuspendLayout();
             this.groupBox9.SuspendLayout();
+            this.groupBox11.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtConsole
@@ -248,18 +252,18 @@
             // 
             // textBoxPublish
             // 
-            this.textBoxPublish.Location = new System.Drawing.Point(27, 139);
+            this.textBoxPublish.Location = new System.Drawing.Point(27, 210);
             this.textBoxPublish.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPublish.Multiline = true;
             this.textBoxPublish.Name = "textBoxPublish";
             this.textBoxPublish.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxPublish.Size = new System.Drawing.Size(457, 260);
+            this.textBoxPublish.Size = new System.Drawing.Size(457, 189);
             this.textBoxPublish.TabIndex = 6;
             // 
             // labelPublish
             // 
             this.labelPublish.AutoSize = true;
-            this.labelPublish.Location = new System.Drawing.Point(23, 119);
+            this.labelPublish.Location = new System.Drawing.Point(30, 183);
             this.labelPublish.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPublish.Name = "labelPublish";
             this.labelPublish.Size = new System.Drawing.Size(54, 17);
@@ -278,7 +282,7 @@
             // 
             // buttonClear
             // 
-            this.buttonClear.Location = new System.Drawing.Point(301, 95);
+            this.buttonClear.Location = new System.Drawing.Point(300, 158);
             this.buttonClear.Margin = new System.Windows.Forms.Padding(4);
             this.buttonClear.Name = "buttonClear";
             this.buttonClear.Size = new System.Drawing.Size(57, 42);
@@ -1792,7 +1796,7 @@
             // 
             // button_JSON_Validate_Pub
             // 
-            this.button_JSON_Validate_Pub.Location = new System.Drawing.Point(367, 95);
+            this.button_JSON_Validate_Pub.Location = new System.Drawing.Point(366, 158);
             this.button_JSON_Validate_Pub.Margin = new System.Windows.Forms.Padding(4);
             this.button_JSON_Validate_Pub.Name = "button_JSON_Validate_Pub";
             this.button_JSON_Validate_Pub.Size = new System.Drawing.Size(119, 42);
@@ -1806,7 +1810,7 @@
             this.checkBox_ShowMsg.AutoSize = true;
             this.checkBox_ShowMsg.Checked = true;
             this.checkBox_ShowMsg.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_ShowMsg.Location = new System.Drawing.Point(12, 95);
+            this.checkBox_ShowMsg.Location = new System.Drawing.Point(27, 154);
             this.checkBox_ShowMsg.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_ShowMsg.Name = "checkBox_ShowMsg";
             this.checkBox_ShowMsg.Size = new System.Drawing.Size(94, 21);
@@ -2076,12 +2080,50 @@
             this.label53.TabIndex = 70;
             this.label53.Text = "PWD";
             // 
+            // radioButton_qos0
+            // 
+            this.radioButton_qos0.AutoSize = true;
+            this.radioButton_qos0.Checked = true;
+            this.radioButton_qos0.Location = new System.Drawing.Point(6, 15);
+            this.radioButton_qos0.Name = "radioButton_qos0";
+            this.radioButton_qos0.Size = new System.Drawing.Size(37, 21);
+            this.radioButton_qos0.TabIndex = 71;
+            this.radioButton_qos0.TabStop = true;
+            this.radioButton_qos0.Text = "0";
+            this.radioButton_qos0.UseVisualStyleBackColor = true;
+            this.radioButton_qos0.CheckedChanged += new System.EventHandler(this.radioButton_qos0_CheckedChanged);
+            this.radioButton_qos0.Click += new System.EventHandler(this.radioButton_qos0_Clik);
+            // 
+            // groupBox11
+            // 
+            this.groupBox11.Controls.Add(this.radioButton_qos1);
+            this.groupBox11.Controls.Add(this.radioButton_qos0);
+            this.groupBox11.Location = new System.Drawing.Point(312, 95);
+            this.groupBox11.Name = "groupBox11";
+            this.groupBox11.Size = new System.Drawing.Size(91, 39);
+            this.groupBox11.TabIndex = 72;
+            this.groupBox11.TabStop = false;
+            this.groupBox11.Text = "QOS";
+            // 
+            // radioButton_qos1
+            // 
+            this.radioButton_qos1.AutoSize = true;
+            this.radioButton_qos1.Location = new System.Drawing.Point(44, 15);
+            this.radioButton_qos1.Name = "radioButton_qos1";
+            this.radioButton_qos1.Size = new System.Drawing.Size(37, 21);
+            this.radioButton_qos1.TabIndex = 72;
+            this.radioButton_qos1.Text = "1";
+            this.radioButton_qos1.UseVisualStyleBackColor = true;
+            this.radioButton_qos1.CheckedChanged += new System.EventHandler(this.radioButton_qos1_CheckedChanged);
+            this.radioButton_qos1.Click += new System.EventHandler(this.radioButton_qos1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1768, 745);
+            this.Controls.Add(this.groupBox11);
             this.Controls.Add(this.label53);
             this.Controls.Add(this.textBox_MQTT_PWD);
             this.Controls.Add(this.textBox_MQTT_ID);
@@ -2123,7 +2165,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.1";
+            this.Text = "IoT Server Simulator Binary Edition V.2.2";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2144,6 +2186,8 @@
             this.groupBox8.PerformLayout();
             this.groupBox9.ResumeLayout(false);
             this.groupBox9.PerformLayout();
+            this.groupBox11.ResumeLayout(false);
+            this.groupBox11.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2320,6 +2364,9 @@
         private System.Windows.Forms.Button button_ReqDBGInfo;
         private System.Windows.Forms.Button button_SetFlags;
         private System.Windows.Forms.Button button_SetFlags_IR;
+        private System.Windows.Forms.RadioButton radioButton_qos0;
+        private System.Windows.Forms.GroupBox groupBox11;
+        private System.Windows.Forms.RadioButton radioButton_qos1;
     }
 }
 
