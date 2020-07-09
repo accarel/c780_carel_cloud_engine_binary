@@ -71,11 +71,12 @@ void test_hw(void)
 	{
 		switch(stm)
 		{
+		    default:
 			case TEST_PRINT_MACADDR:
 			{
 				// 1) read and print MAC-ADDR
 
-			    C_GATEWAY_ID dev_id;
+//			    C_GATEWAY_ID dev_id;
 
 				uint8_t s_id_tmp[6];
 				esp_read_mac(&s_id_tmp[0], ESP_MAC_WIFI_STA);
@@ -176,7 +177,10 @@ void test_hw(void)
 
 			case TEST_END:
 			{
+				//
 				// DO nothing...just wait to power off the GME
+				// the system reboots due to the WDT
+				//
 				break;
 			}
 
