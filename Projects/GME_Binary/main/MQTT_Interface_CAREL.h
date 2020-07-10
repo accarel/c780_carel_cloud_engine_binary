@@ -40,7 +40,7 @@
 #define __DEBUG_MQTT_INTERFACE_LEV_1
 
 //this define enable the output of others debug informations
-//#define __DEBUG_MQTT_INTERFACE_LEV_2
+#define __DEBUG_MQTT_INTERFACE_LEV_2
 #endif
 
 

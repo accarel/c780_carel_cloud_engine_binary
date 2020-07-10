@@ -27,13 +27,13 @@ static mqtt_client_handle_t mqtt_client;
  * @param param2 Quality of service level
  * @return C_FAIL ie. not connected etc.  C_SUCCESS
  */
-C_RES mqtt_client_subscribe(C_SCHAR *topic, C_INT16 qos)
+C_INT32 mqtt_client_subscribe(C_SCHAR *topic, C_INT16 qos)
 {
-	C_RES err;
+	C_INT32 msg_id = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	err = esp_mqtt_client_subscribe(MQTT__GetClient(), (C_SCHAR*)MQTT_GetUuidTopic("/req"), qos);
+	msg_id = esp_mqtt_client_subscribe(MQTT__GetClient(), (C_SCHAR*)MQTT_GetUuidTopic("/req"), qos);
 #endif
-	return C_SUCCESS;
+	return msg_id;
 }
 
 /**
@@ -65,13 +65,13 @@ C_RES mqtt_client_unsubscribe(C_SCHAR *topic)
  * @param param5 retain- indicate if the publish topic is of retain type 
  * @return C_FAIL ie. not connected etc.  C_SUCCESS
  */
-C_RES mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qos, C_INT16 retain)
+C_INT32 mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qos, C_INT16 retain)
 {
-	C_RES err = C_SUCCESS;
+	C_INT32 msg_id = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	err = esp_mqtt_client_publish(MQTT__GetClient(), topic, (C_SCHAR*)data, len, qos, retain);
+	msg_id = esp_mqtt_client_publish(MQTT__GetClient(), topic, (C_SCHAR*)data, len, qos, retain);
 #endif
-	return err;	
+	return msg_id;
 }
 
 /**
