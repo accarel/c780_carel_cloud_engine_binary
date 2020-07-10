@@ -47,8 +47,10 @@ void Polling_Engine_Init_IS(void)
 	//if GME is properly configured...
 	if (BinaryModel_CheckCrc() == C_SUCCESS) {
 		uint8_t pe_status;
-		if (C_SUCCESS != NVM__ReadU8Value(PE_STATUS_NVM, &pe_status))
+		if (C_SUCCESS != NVM__ReadU8Value(PE_STATUS_NVM, &pe_status)) {
 			PollEngine_StartEngine_CAREL();	// first time here, then start polling
+			NVM__WriteU8Value(PE_STATUS_NVM, RUNNING); // and save current status to nvm
+		}
 		else {
 			if (pe_status == RUNNING)
 				PollEngine_StartEngine_CAREL();	// start polling
