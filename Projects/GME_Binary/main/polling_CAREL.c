@@ -96,6 +96,9 @@ static uint8_t PollEnginePrint = POLL_ENGINE_PRINTF_DEFAULT;
 static uint8_t first_high = 1;
 static uint8_t first_low = 1;
 
+// this helps us in deciding whether we should send an empty values payload
+static C_BYTE something_sent = 0;
+
 /*Static Function*/
 
 static void check_increment_values_buff_len(uint16_t *values_buffer_idx);
@@ -558,8 +561,6 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #endif
 
 				if(temp > arr->tab[i].info.Hyster || first_run){
-					to_values_buff = true;
-
 					arr->tab[i].p_value = arr->tab[i].c_value;
 
 					value = (long double)c_read;
@@ -1598,7 +1599,6 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 	C_BYTE low_trigger = 0;
 	C_BYTE high_trigger = 0;
 	C_BYTE pva_trigger = 0;
-	C_BYTE something_sent = 0;
 
 	#ifdef __DEBUG_POLLING_CAREL_LEV_1
 	C_UINT32 cronometro;
@@ -1710,10 +1710,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 					MQTT_FlushValues();
 				}
 				else if(something_sent == 1)
+				// in previous pva seconds at least one values message was sent, then send nothing
 					something_sent = 0;
-				    //TODO CPPCHECK sfugge a cosa serve questa riga di codice something_sent è locale e non è dentro un ciclo
-				    //quindi quale era lo scopo ?
-
 			}
 		}
 		PollEngine_Status.polling = STOPPED;
