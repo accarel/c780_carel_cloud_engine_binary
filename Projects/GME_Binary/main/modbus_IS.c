@@ -118,6 +118,8 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)
     		else
     		  err = uart_set_mode(port, UART_MODE_RS485_HALF_DUPLEX);
 
+    		if (ESP_FAIL == err) return C_FAIL;
+
     		return C_SUCCESS;
     	}
     	else{
@@ -458,6 +460,11 @@ C_RES app_file_transfer(unsigned char* data_tx, uint8_t packet_len)
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
     errorCode = eMBMAsterReqFileTransfer(1, data_tx, packet_len, timeout);
     result = errorCode;
+
+    //TODO CPPCHECK result non è testato maglio testare
+    //errorcode che torna   MB_MRE_ILL_ARG / MB_MRE_MASTER_BUSY / più significativo
+    //sopratutto se un giorno implementiamo ADU .... Brrrrivido
+
 
     char data_rx[260];
     uint16_t data_rx_len = usMBFileTransferLen + 3;

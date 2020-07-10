@@ -46,16 +46,22 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 	int total_read_len = 0;
     int read_len = 0;
 	int content_length;
-	
+
 	char *buffer = malloc(MAX_HTTP_RECV_BUFFER + 1);
 	uint16_t url_len = strlen(download_devs_config->uri) + strlen(download_devs_config->pwd) + strlen(download_devs_config->usr);
 	char *url = malloc(url_len+5);
 
     if (buffer == NULL) 
+    {
+        if (url != NULL) free(url);
 		return NO_HEAP_MEMORY;
+    }
 	
-	if (url == NULL) 
+	if (url == NULL)
+	{
+		free(buffer);
 		return NO_HEAP_MEMORY;
+	}
 
 	memset((void*)url, 0, url_len);    
 	sprintf(url,"%.*s%s:%s@%s",8,download_devs_config->uri,download_devs_config->usr,download_devs_config->pwd,download_devs_config->uri+8);

@@ -60,6 +60,7 @@ void CBOR_SendAlarms(c_cboralarms cbor_alarms)
 {
 	size_t len = CBOR_Alarms(txbuff, cbor_alarms);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
+	//TODO CPPCHECK valore di ritorno non testato
 }
 
 /**
@@ -163,6 +164,7 @@ void CBOR_SendHello(void)
 
 	size_t len = CBOR_Hello(txbuff);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/hello"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
+	//TODO CPPCHECK valore di ritorno non testato
 }
 
 /**
@@ -281,6 +283,7 @@ void CBOR_SendStatus(void)
 {
 	size_t len = CBOR_Status(txbuff);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/status"), (C_SBYTE*)txbuff, len, QOS_0, NO_RETAIN);
+	//TODO CPPCHECK valore di ritorno non testato
 }
 
 /**
@@ -395,7 +398,8 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 
 	printf("CBOR_SendValues mqtt publish start\n");
 	C_RES err = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
-printf("CBOR_SendValues mqtt publish result: %d\n", err);
+	//TODO CPPCHECK valore di ritorno non testato
+    printf("CBOR_SendValues mqtt publish result: %d\n", err);
 }
 
 /**
@@ -539,6 +543,7 @@ void CBOR_SendMobile(void)
 {
 	size_t len = CBOR_Mobile(txbuff);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/mobile"), (C_SBYTE*)txbuff, len, QOS_0, NO_RETAIN);
+	//TODO CPPCHECK valore di ritorno non testato
 }
 
 /**
@@ -1769,7 +1774,9 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
+
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 
 			if(SUCCESS_CMD == cbor_req.res){
 				PollEngine_StopEngine_CAREL();
@@ -1791,6 +1798,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -1810,6 +1818,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -1859,6 +1868,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -1880,6 +1890,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResScanLine(cbor_response, &cbor_req, device, answer, length);
             sprintf(topic,"%s%s", "/res/", cbor_req.rto);
             mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+            //TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -1916,6 +1927,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			// send response with result
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 
 		}
 		break;
@@ -1987,6 +1999,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -2003,6 +2016,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -2020,6 +2034,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -2038,6 +2053,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		}
 		break;
 
@@ -2047,6 +2063,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
 			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+			//TODO CPPCHECK valore di ritorno non testato
 		break;
 
 	}
@@ -2093,6 +2110,8 @@ void CBOR_SendAsyncResponseDid(C_INT16 res, C_UINT16 did){
 		}
 	}
 }
+
+
 C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg){
 
 	C_RES err = NVM__WriteU32Value(MB_BAUDRATE_NVM, set_line_cfg.baud);

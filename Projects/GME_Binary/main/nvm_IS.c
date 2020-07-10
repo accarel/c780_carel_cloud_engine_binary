@@ -120,9 +120,11 @@ C_RES NVM__SetU8(const C_CHAR* var, C_BYTE val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	// Write
-	err = nvs_set_u8(my_handle, var, val);
-	//Commit
-	err = nvs_commit(my_handle);
+
+	if (ESP_OK == nvs_set_u8(my_handle, var, val))
+	{
+	  err = nvs_commit(my_handle);
+	}
 #endif
 	return err;
 }
@@ -141,9 +143,10 @@ C_RES NVM__SetU32(const C_CHAR* var, C_UINT32 val){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	// Write
-	err = nvs_set_u32(my_handle, var, val);
-	//Commit
+	if (ESP_OK == nvs_set_u32(my_handle, var, val))
+	{
 	err = nvs_commit(my_handle);
+	}
 #endif
 	return err;
 }
@@ -162,9 +165,10 @@ C_RES NVM__SetString(const C_CHAR* var, char* str){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	// Write
-	err = nvs_set_str(my_handle, var, str);
-	//Commit
-	err = nvs_commit(my_handle);
+	if (ESP_OK == nvs_set_str(my_handle, var, str))
+	{
+	   err = nvs_commit(my_handle);
+	}
 #endif
 	return err;
 }
@@ -184,15 +188,18 @@ C_RES NVM__SetBlob(const C_CHAR* var, void* vec, size_t len){
 	C_RES err = C_FAIL;
 
 	PRINTF_DEBUG_NVM("Updating %s in NVS ... ",var);
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_set_blob(my_handle, var, vec, len);
+
 	PRINTF_DEBUG_NVM((err != ESP_OK) ? "Failed!" : "Done");
 	PRINTF_DEBUG_NVM(" ..... Value = err = 0x%X\n",err);
 
-	//Commit
-	PRINTF_DEBUG_NVM("Committing updates in NVS ... ");
-	err = nvs_commit(my_handle);
-	PRINTF_DEBUG_NVM((err != ESP_OK) ? "Failed!\n" : "Done\n");
+	if (ESP_OK == err){
+	  PRINTF_DEBUG_NVM("Committing updates in NVS ... ");
+	  err = nvs_commit(my_handle);
+	  PRINTF_DEBUG_NVM((err != ESP_OK) ? "Failed!\n" : "Done\n");
+	}
 #endif
 
 	return err;
@@ -268,12 +275,14 @@ C_RES NVM__GetU32(const C_CHAR* var, C_UINT32* val){
 C_RES NVM__GetString(const C_CHAR* var, char* str, size_t* len){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	err = nvs_get_str(my_handle, var, NULL, len);
+
+	nvs_get_str(my_handle, var, NULL, len); //return value tested with len
 	if (*len == 0){
 		PRINTF_DEBUG_NVM("Nothing to allocate\n");
 		return C_FAIL;
 	}
-	char* temp = malloc(*len);
+
+	char *temp = malloc(*len);
 	if (temp == NULL){
 		PRINTF_DEBUG_NVM("No more space to allocate\n");
 		return C_FAIL;
@@ -284,6 +293,7 @@ C_RES NVM__GetString(const C_CHAR* var, char* str, size_t* len){
 		PRINTF_DEBUG_NVM("Reading %s, is %s  ....  length = %d \n",var ,temp, *len);
 		strcpy(str,temp);
 	}
+
 	free(temp);
 #endif
 	return err;
@@ -303,11 +313,13 @@ C_RES NVM__GetString(const C_CHAR* var, char* str, size_t* len){
 C_RES NVM__GetBlob(const C_CHAR* var, void* vec, size_t* len){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	err = nvs_get_blob(my_handle, var, NULL, len);
+
+	nvs_get_blob(my_handle, var, NULL, len); //return value tested with len
 	if (*len == 0){
 		PRINTF_DEBUG_NVM("Nothing to allocate\n");
 		return C_FAIL;
 	}
+
 	char* temp = malloc(*len);
 	if (temp == NULL){
 		PRINTF_DEBUG_NVM("No more space to allocate");
@@ -336,9 +348,13 @@ C_RES NVM__GetBlob(const C_CHAR* var, void* vec, size_t* len){
  */
 C_RES NVM__EraseK(const C_CHAR* var){
 	C_RES err = C_FAIL;
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_erase_key(my_handle, var);
 	PRINTF_DEBUG_NVM((err != ESP_OK) ? "Erasing Failed!\n" : "Erasing Done\n");
+
+	if (ESP_OK != err) return err;
+	//TODO CPPCHECK prima non era gestito e err dopo viene sovrascritto
 
 	//Commit
 	PRINTF_DEBUG_NVM("Committing updates in NVS ... ");
@@ -362,6 +378,9 @@ C_RES NVM__Erase(void){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = nvs_erase_all(my_handle);
 	PRINTF_DEBUG_NVM((err != ESP_OK) ? "Erasing Failed!\n" : "Erasing Done\n");
+
+	if (ESP_OK != err) return err;
+	//TODO CPPCHECK prima non era gestito e err dopo viene sovrascritto
 
 	//Commit
 	PRINTF_DEBUG_NVM("Committing updates in NVS ... ");

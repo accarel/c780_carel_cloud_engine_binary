@@ -81,12 +81,13 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
     #ifdef __CCL_DEBUG_MODE
 	printf("\nuart_transmit_bytes len = %d\n",packet_len);
 		
-	for(int i=0; i<packet_len; i++){
-		printf("%02X ",data_tx[i]);
+	for(int idx=0; idx < packet_len; idx++){
+		printf("%02X ",data_tx[idx]);
 	}
 	
 	printf("\n\n");
     #endif
+
 	err = app_file_transfer(data_tx, packet_len);
 	printf("app_file_transfer err %d\n", err);
 
@@ -155,9 +156,10 @@ void DEV_ota_task(void * pvParameter){
 
 	upgrade_data_buf = (C_BYTE *)malloc(DEV_OTA_BUF_SIZE);
 
+	//TODO CPPCHECK da rivedere completamente dopo NULL check poi procede e non fa return e' sbagliato
 	if (upgrade_data_buf == NULL)
 	{
-		free(url);
+		free(url); //TODO CPPCHECK questa viene chiamata 2 volte vedi riga 142
 		printf("cannot alloc upgrade_data_buf\n");
 		OTADEVGroup(false);
 		vTaskDelete(NULL);

@@ -410,6 +410,8 @@ gme_sm_t WiFi__Config (config_sm_t sm)
                 PRINTF_DEBUG("Configuration Received\n");
 
             	WiFi__WriteCustomConfigInNVM(HTTPServer__GetCustomConfig());
+            	//TODO CPPCHECK meglio se questa routine ritorna C_SUCCESS o C_FAIL e poi gestiamo la mancata
+            	//scrittura qui sotto non facendo procedere la macchina a stati che dite ?
 
                 if(C_SUCCESS == NVM__WriteU8Value("wifi_conf", (uint8_t)CONFIGURED)){
                 	config_sm = CONFIGURE_GME;
@@ -632,6 +634,8 @@ void WiFi__ReadCustomConfigFromNVM(void){
  * @return none
  */
 void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
+	//TODO CPPCHECK valori di ritorno non testati che succede se sbagliamo a scrivere la es. la pwd
+	//ne scriviamo una sporca e poi ciccia non si ricollegano più ?
 
     NVM__WriteString(HTMLCONF_AP_SSID, config.ap_ssid);
     NVM__WriteU8Value(HTMLCONF_AP_SSID_HIDDEN, config.ap_ssid_hidden);

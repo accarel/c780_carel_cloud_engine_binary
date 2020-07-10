@@ -39,9 +39,13 @@ static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 
 	fd = fopen(filename, "r");
 
+	if (NULL == fd) return ESP_FAIL;
+
+
 	if(stat(filename, &file_stat) == -1){
 		ESP_LOGE(TAG, "Failed to stat dir : %s", filename);
 		httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Directory does not exist");
+		fclose(fd);
 		return ESP_FAIL;
 	}else{
 
@@ -322,6 +326,9 @@ static esp_err_t download_get_handler(httpd_req_t *req)
 
     /* Respond with an empty chunk to signal HTTP response completion */
     httpd_resp_send_chunk(req, NULL, 0);
+
+    //TODO CPPCHECK BILATO a cosa serviva aprire il file fd che poi non è usato ?
+    fclose(fd);
     return ESP_OK;
 }
 

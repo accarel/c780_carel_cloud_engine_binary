@@ -62,7 +62,7 @@ static  uint8_t  *p_di_alarm_sect;
 static  uint8_t   *p_hr_alarm_sect;
 static  uint8_t   *p_ir_alarm_sect;
 
-uint16_t Crc;
+
 bool valid_model;
 
 
@@ -516,6 +516,7 @@ uint8_t* BinaryModel_GetChunk(long sz){
 	if (input_file_ptr == NULL)
 	{
 		PRINTF_DEBUG("Unable to open file! \n");
+		free(chunk);     //free the unused memory
 		return NULL;
 	}
 
@@ -538,6 +539,7 @@ uint8_t* BinaryModel_GetChunk(long sz){
  * @return the crc value
  */
 uint16_t BinaryModel_GetCrc(void){
+	uint16_t Crc;
 	
 	long sz = filesize(MODEL_FILE);
 	if(sz <= 0)
@@ -559,6 +561,7 @@ uint16_t BinaryModel_GetCrc(void){
  * @return C_SUCCESS/C_FAIL
  */
 C_RES BinaryModel_CheckCrc(void){
+	uint16_t Crc;
 
 	long sz = filesize(MODEL_FILE);
 	if(sz <= 0)
@@ -606,6 +609,13 @@ int BinaryModel_Init (void)
 		return C_FAIL;
 	}
 	chunk = BinaryModel_GetChunk(sz);
+
+	if (chunk == NULL)
+	{
+		valid_model = FALSE;
+		return C_FAIL;
+	}
+
 	struct HeaderModel* tmpHeaderModel;
 	tmpHeaderModel = (struct HeaderModel *)chunk;
 	// Check model crc

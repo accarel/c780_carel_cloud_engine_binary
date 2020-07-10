@@ -318,7 +318,7 @@ void Carel_Main_Task(void)
 
           	    // in case of bcu only use ttl, pass proper parameter or force it somehow... TODO
           	    retval = Modbus_Init(NVMBaudrate, GME__GetHEaderInfo()->Rs485Parity, GME__GetHEaderInfo()->Rs485Stop, modbusPort);
-
+                //TODO CPPCHECK test the return value
 
           	    CAREL_CHECK(retval, "UART");
 

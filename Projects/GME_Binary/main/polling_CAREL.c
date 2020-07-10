@@ -125,10 +125,10 @@ static void SetAllErrors(eMBMasterReqErrCode error){
 	for(i=0;i<low_n.di;i++)
 		DILowPollTab.reg[i].error = error;
 	//HR
-	for(int i=0;i<low_n.hr;i++)
+	for(i=0;i<low_n.hr;i++)
 		HRLowPollTab.tab[i].error = error;
 	//IR
-	for(int i=0;i<high_n.ir;i++)
+	for(i=0;i<high_n.ir;i++)
 		IRLowPollTab.tab[i].error = error;
 	//Coil
 	for(i=0;i<high_n.coil;i++)
@@ -137,10 +137,10 @@ static void SetAllErrors(eMBMasterReqErrCode error){
 	for(i=0;i<high_n.di;i++)
 		DIHighPollTab.reg[i].error = error;
 	//HR
-	for(int i=0;i<high_n.hr;i++)
+	for(i=0;i<high_n.hr;i++)
 		HRHighPollTab.tab[i].error = error;
 	//IR
-	for(int i=0;i<high_n.ir;i++)
+	for(i=0;i<high_n.ir;i++)
 		IRHighPollTab.tab[i].error = error;
 }
 
@@ -526,7 +526,6 @@ static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
  */
 static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint8_t first_run)
 {
-	bool to_values_buff = false;
 	long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
 		if( arr->tab[i].error != arr->tab[i].p_error && ( (arr->tab[i].error != 0) /*|| (arr->tab[i].p_error != 0)*/ )){
@@ -891,14 +890,14 @@ static void update_current_previous_tables(RegType_t poll_type){
 			DILowPollTab.reg[i].p_error = DILowPollTab.reg[i].error;
 		}
 		//HR
-		for(int i=0;i<low_n.hr;i++){
+		for(i=0;i<low_n.hr;i++){
 			//HRLowPollTab.tab[i].p_value.value = HRLowPollTab.tab[i].c_value.value;
 			HRLowPollTab.tab[i].c_value.value = 0;
 			HRLowPollTab.tab[i].p_error = HRLowPollTab.tab[i].error;
 
 		}
 		//IR
-		for(int i=0;i<high_n.ir;i++){
+		for(i=0;i<high_n.ir;i++){
 			//IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
 			IRLowPollTab.tab[i].c_value.value = 0;
 			IRLowPollTab.tab[i].p_error = IRLowPollTab.tab[i].error;
@@ -919,14 +918,14 @@ static void update_current_previous_tables(RegType_t poll_type){
 			DIHighPollTab.reg[i].p_error = DIHighPollTab.reg[i].error;
 		}
 		//HR
-		for(int i=0;i<high_n.hr;i++){
+		for(i=0;i<high_n.hr;i++){
 			//HRHighPollTab.tab[i].p_value.value = HRHighPollTab.tab[i].c_value.value;
 			HRHighPollTab.tab[i].c_value.value = 0;
 			HRHighPollTab.tab[i].p_error = HRHighPollTab.tab[i].error;
 		}
 
 		//IR
-		for(int i=0;i<high_n.ir;i++){
+		for(i=0;i<high_n.ir;i++){
 			//IRHighPollTab.tab[i].p_value.value = IRHighPollTab.tab[i].c_value.value;
 			IRHighPollTab.tab[i].c_value.value = 0;
 			IRHighPollTab.tab[i].p_error = IRHighPollTab.tab[i].error;
@@ -1498,7 +1497,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 	// Polling the Ir register
 	for (uint16_t i = 0; i < alarm_n.ir; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_REG;  //TODO CPPCHECK di fatto non serve a nulla viene assegnata sotto
 		retry = 0;
 		addr = (Ir[i].info.Addr);
 
@@ -1511,7 +1510,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		{
 			// reset to the default for the next reading
 			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			errorReq = MB_MRE_NO_REG; //TODO CPPCHECK di fatto non serve a nulla
 
 			save_alarm_hr_ir_value(&Ir[i], param_buffer);
 		}else
@@ -1715,6 +1714,9 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				}
 				else if(something_sent == 1)
 					something_sent = 0;
+				    //TODO CPPCHECK sfugge a cosa serve questa riga di codice something_sent è locale e non è dentro un ciclo
+				    //quindi quale era lo scopo ?
+
 			}
 		}
 		PollEngine_Status.polling = STOPPED;

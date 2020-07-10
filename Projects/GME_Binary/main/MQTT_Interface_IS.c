@@ -67,7 +67,7 @@ C_RES mqtt_client_unsubscribe(C_SCHAR *topic)
  */
 C_RES mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qos, C_INT16 retain)
 {
-	C_RES err;
+	C_RES err = C_SUCCESS;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = esp_mqtt_client_publish(MQTT__GetClient(), topic, (C_SCHAR*)data, len, qos, retain);
 #endif
@@ -82,7 +82,7 @@ C_RES mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qo
  */
 C_RES mqtt_client_start(void)
 {
-	C_RES err;
+	C_RES err = C_SUCCESS;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	err = esp_mqtt_client_start(MQTT__GetClient());
 #endif
@@ -97,7 +97,8 @@ C_RES mqtt_client_start(void)
  */
 C_RES mqtt_client_stop(void)
 {
-	C_RES err;
+	C_RES err = C_SUCCESS;
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT	
 	err = esp_mqtt_client_destroy(MQTT__GetClient());
 #endif
