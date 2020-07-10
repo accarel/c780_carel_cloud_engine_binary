@@ -53,10 +53,25 @@ static html_config_param_t WiFiConfig = {
 		.sta_secondary_dns = "",
 };
 
+/**
+ * @brief SaveAvailableAPs
+ *        Save the access point name
+ *
+ * @param  uint8_t* ssid
+ * @param  uint8_t index
+ * @return none
+ */
 void SaveAvailableAPs(uint8_t* ssid, uint8_t index){
 	strcpy(AAP[index],(char*)ssid);
 }
 
+/**
+ * @brief GetAvailableAPs
+ *       return the access point name
+ *
+ * @param  uint8_t index
+ * @return char*
+ */
 char* GetAvailableAPs(uint8_t index){
 	return AAP[index];
 }
@@ -64,6 +79,14 @@ char* GetAvailableAPs(uint8_t index){
 static C_INT32 TimerForAPConnection = 0;
 static uint16_t connect_attempt = 0;
 
+/**
+ * @brief event_handler
+ *        manage the access point event
+ *
+ * @param  void *ctx
+ * @param  system_event_t *event
+ * @return esp_err_t
+ */
 static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
 	uint16_t apCount;
@@ -253,12 +276,28 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 }
 
 
-
+/**
+ * @brief StartTimerForAPConnection
+ *        catch the started time of AP connection
+ *
+ * @param  none
+ * @return none
+ *
+ */
 void StartTimerForAPConnection(void){
 	PRINTF_DEBUG("TimerForAPConnection Started\n");
 	TimerForAPConnection = RTC_Get_UTC_Current_Time();
 }
 
+/**
+ * @brief IsTimerForAPConnectionExpired
+ *        check if the AP connection are done in a
+ *
+ *
+ * @param  none
+ * @return none
+ *
+ */
 void IsTimerForAPConnectionExpired(void){
 	if(TimerForAPConnection != 0){
 		if(RTC_Get_UTC_Current_Time() >= TimerForAPConnection + 120){
@@ -317,8 +356,6 @@ void WiFi_SetConfigSM(config_sm_t config_state){
  *
  *
  * */
-
-
 gme_sm_t WiFi__Config (config_sm_t sm)
 {
     config_sm = sm;
@@ -414,7 +451,16 @@ gme_sm_t WiFi__Config (config_sm_t sm)
 }
 
 
-
+/**
+ * @brief SetAPConfig
+ *        Set the AccessPoint configuration
+ *
+ * @param  onst char* ip
+ * @param  const char* gw
+ * @param  const char* netmask
+ *
+ * @return none
+ */
 static void SetAPConfig(const char* ip, const char* gw, const char* netmask){
 
 	tcpip_adapter_ip_info_t ap_ip;
@@ -426,7 +472,18 @@ static void SetAPConfig(const char* ip, const char* gw, const char* netmask){
 	ESP_ERROR_CHECK(tcpip_adapter_dhcps_start(TCPIP_ADAPTER_IF_AP));
 }
 
-
+/**
+ * @brief SetSTAStaticIP
+ *        Set the Station static IP
+ *
+ * @param  const char* ip
+ * @param  const char* gw
+ * @param  const char* netmask
+ * @param  const char* pri_dns
+ * #param  const char* sec_dns
+ *
+ * @return none
+ */
 static void SetSTAStaticIP(const char* ip, const char* gw, const char* netmask, const char* pri_dns, const char* sec_dns)
 {
 	tcpip_adapter_ip_info_t sta_ip;
@@ -446,6 +503,15 @@ static void SetSTAStaticIP(const char* ip, const char* gw, const char* netmask, 
 	ESP_ERROR_CHECK(tcpip_adapter_set_dns_info(TCPIP_ADAPTER_IF_STA, TCPIP_ADAPTER_DNS_BACKUP, &sta_secondary_dns));
 }
 
+/**
+ * @brief WiFi__SetDefaultConfig
+ *        if no custom config are already done
+ *        the wifi start with a default configuration.
+ *
+ * @param  none
+ *
+ * @return int
+ */
 int WiFi__SetDefaultConfig(void)
 {
 	char* ap_ssid_def;
@@ -489,13 +555,29 @@ int WiFi__SetDefaultConfig(void)
 }
 
 
-
+/**
+ * @brief WiFi__StartWiFi
+ *        start the wifi module.
+ *        call a "esp_wifi_start()" function
+ *        for more details see esp-idf manual.
+ *
+ * @param  none
+ *
+ * @return int
+ */
 int WiFi__StartWiFi(void){
     ESP_ERROR_CHECK(esp_wifi_start());
     return 1;
 }
 
-
+/**
+ * @brief WiFi__ReadCustomConfigFromNVM
+ *        Read from the NVM all the info
+ *        useful for the wifi connection
+ *
+ * @param  none
+ * @return none
+ */
 void WiFi__ReadCustomConfigFromNVM(void){
     
 	size_t len = 0;
@@ -541,7 +623,14 @@ void WiFi__ReadCustomConfigFromNVM(void){
 }
 
 
-
+/**
+ * @brief WiFi__ReadCustomConfigFromNVM
+ *        Read from the NVM all the info
+ *        useful for the wifi connection
+ *
+ * @param  none
+ * @return none
+ */
 void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
 
     NVM__WriteString(HTMLCONF_AP_SSID, config.ap_ssid);
@@ -562,14 +651,36 @@ void WiFi__WriteCustomConfigInNVM(html_config_param_t config){
 
 }
 
+/**
+ * @brief WiFi__GetCustomConfig
+ *        Return the info
+ *        of the wifi configuration
+ *
+ * @param  none
+ * @return html_config_param_t
+ */
 html_config_param_t WiFi__GetCustomConfig (void){
     return WiFiConfig;
 }
 
+/**
+ * @brief WiFi__GetCustomConfigPTR
+ *
+ *
+ * @param  none
+ * @return html_config_param_t*
+ */
 html_config_param_t* WiFi__GetCustomConfigPTR (void){
     return &WiFiConfig;
 }
 
+/**
+ * @brief WiFi__SetCustomConfig
+ *
+ *
+ * @param  html_config_param_t config
+ * @return esp_err_t
+ */
 esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
     
     s_wifi_event_group = xEventGroupCreate();
@@ -655,21 +766,49 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
     return ESP_OK;
 }
 
-
+/**
+ * @brief WiFi__WaitConnection
+ *
+ *
+ * @param  none
+ * @return none
+ */
 void WiFi__WaitConnection(void)
 {
     xEventGroupWaitBits(s_wifi_event_group, CONNECTED_BIT, false, true, 30000/portTICK_RATE_MS); // wait for a limited time,
     																							 // state machine will come back here over and over
 }
 
+/**
+ * @brief WIFI__SetSTAStatus
+ *		  set the status of the wifi
+ *
+ * @param  connection_status_t status
+ * @return none
+ */
 void WIFI__SetSTAStatus(connection_status_t status){
 	STAStatus = status;
 }
+
+/**
+ * @brief WIFI__GetSTAStatus
+ *	      return the wifi status
+ *
+ * @param  none
+ * @return connection_status_t
+ */
 connection_status_t WIFI__GetSTAStatus(void){
 	return STAStatus;
 }
 
-
+/**
+ * @brief WiFi__GetMac
+ *	      return the wifi macaddr and save it
+ *	      to the passed parameter
+ *
+ * @param  uint8_t* wifi_mac_address_gw
+ * @return C_RES
+ */
 C_RES WiFi__GetMac(uint8_t* wifi_mac_address_gw){
 	C_RES err = C_FAIL;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
@@ -678,6 +817,13 @@ C_RES WiFi__GetMac(uint8_t* wifi_mac_address_gw){
 	return err;
 }
 
+/**
+ * @brief WiFi__GetRSSI
+ *	      return the wifi RSSI signal
+ *
+ * @param  none
+ * @return int8_t
+ */
 int8_t WiFi__GetRSSI(void){
 	int8_t rssi = 0;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
