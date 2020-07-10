@@ -171,6 +171,7 @@ void mqtt_client_reinit(void)
 		.lwt_msg = conn_buf,
 		.lwt_msg_len = conn_len,
 	};
+	esp_mqtt_set_config(MQTT__GetClient(), &mqtt_cfg);
 #endif
 }
 
