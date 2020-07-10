@@ -148,7 +148,8 @@ C_RES MQTT_Start(void)
 
     if( ( MQTT_BITS & MQTT_DISCONNECTED_BIT ) != 0 ){
 
-    	err = mqtt_client_stop();
+    	mqtt_client_stop(); //return value not checked anyway the MQTT is stopped in our system we have only one instance
+
     	// try connecting using the other certificate
     	cert_num = (cert_num == CERT_1) ? CERT_2 : CERT_1;
 		mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
@@ -337,6 +338,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
             PRINTF_DEBUG("\n");
             #endif
 
+            //TODO CPPCHECK probailmente già sistemato in quanto non è più msg_id
             msg_id = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/connected"), conn_buf, conn_len, QOS_1, RETAIN);
 
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
