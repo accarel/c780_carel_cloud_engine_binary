@@ -584,7 +584,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #endif
 
 				if(temp > arr->tab[i].info.Hyster || first_run){
-					to_values_buff = true;
+
 
 					arr->tab[i].p_value = arr->tab->c_value;
 
@@ -612,7 +612,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #endif
 
 				if(temp > arr->tab[i].info.Hyster || first_run){
-					to_values_buff = true;
+
 
 					arr->tab[i].p_value = arr->tab[i].c_value;
 
@@ -631,7 +631,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
                 #endif
 				if(temp > arr->tab[i].info.Hyster || first_run){
-					to_values_buff = true;
+
 
 					arr->tab[i].p_value = arr->tab[i].c_value;
 
@@ -646,7 +646,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				c_read = get_type_d(&arr->tab[i], CURRENT);
 				p_read = get_type_d(&arr->tab[i], PREVIOUS);
 				if(c_read != p_read  || first_run){
-					to_values_buff = true;
+
 					value = (long double)c_read;
 				}
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
@@ -662,7 +662,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				p_read = get_type_e(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
 				if(temp > arr->tab[i].info.Hyster || first_run){
-					to_values_buff = true;
+
 
 					arr->tab[i].p_value = arr->tab[i].c_value;
 
@@ -685,8 +685,6 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
                 #endif
 				if(temp > arr->tab[i].info.Hyster || first_run){
-					to_values_buff = true;
-
 					arr->tab[i].p_value = arr->tab[i].c_value;
 
 					value = (long double)c_read;
@@ -704,7 +702,6 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
                 #endif
 				if(temp > arr->tab[i].info.Hyster || first_run){
-					to_values_buff = true;
 
 					arr->tab[i].p_value = arr->tab[i].c_value;
 
