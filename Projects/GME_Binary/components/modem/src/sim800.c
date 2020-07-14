@@ -109,6 +109,8 @@ static esp_err_t sim800_handle_atd_ppp(modem_dce_t *dce, const char *line)
     esp_err_t err = ESP_FAIL;
     if (strstr(line, MODEM_RESULT_CODE_CONNECT)) {
         err = esp_modem_process_command_done(dce, MODEM_STATE_SUCCESS);
+    } else if (strstr(line, MODEM_RESULT_CODE_NO_CARRIER)) {
+            err = esp_modem_process_command_done(dce, MODEM_STATE_SUCCESS);
     } else if (strstr(line, MODEM_RESULT_CODE_ERROR)) {
         err = esp_modem_process_command_done(dce, MODEM_STATE_FAIL);
     }
@@ -372,10 +374,10 @@ static esp_err_t sim800_set_working_mode(modem_dce_t *dce, modem_mode_t mode)
     switch (mode) {
     case MODEM_COMMAND_MODE:
         dce->handle_line = sim800_handle_exit_data_mode;
-        //DCE_CHECK(dte->send_cmd(dte, "+++", MODEM_COMMAND_TIMEOUT_MODE_CHANGE) == ESP_OK, "send command failed", err);
-        //DCE_CHECK(dce->state == MODEM_STATE_SUCCESS, "enter command mode failed", err);
-        dte->send_cmd(dte, "+++", MODEM_COMMAND_TIMEOUT_MODE_CHANGE);
-
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+        DCE_CHECK(dte->send_cmd(dte, "+++", MODEM_COMMAND_TIMEOUT_MODE_CHANGE) == ESP_OK, "send command failed", err);
+        vTaskDelay(2000/portTICK_PERIOD_MS);
+        DCE_CHECK(dce->state == MODEM_STATE_SUCCESS, "enter command mode failed", err);
         ESP_LOGD(DCE_TAG, "enter command mode ok");
         dce->mode = MODEM_COMMAND_MODE;
         break;
@@ -388,7 +390,9 @@ static esp_err_t sim800_set_working_mode(modem_dce_t *dce, modem_mode_t mode)
         break;
     case MODEM_PPP_MODE_AGAIN:
         dce->handle_line = sim800_handle_atd_ppp;
+   //     vTaskDelay(2000/portTICK_PERIOD_MS);
 	    DCE_CHECK(dte->send_cmd(dte, "ATO\r", MODEM_COMMAND_TIMEOUT_MODE_CHANGE) == ESP_OK, "send command failed", err);
+	    vTaskDelay(2000/portTICK_PERIOD_MS);
 	    DCE_CHECK(dce->state == MODEM_STATE_SUCCESS, "enter ppp mode failed", err);
 	    ESP_LOGD(DCE_TAG, "enter ppp mode ok");
 	    dce->mode = MODEM_PPP_MODE;
