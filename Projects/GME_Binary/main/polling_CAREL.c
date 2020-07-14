@@ -1199,7 +1199,6 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
     uint8_t is_offline = 0;
     eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
     uint8_t ncoil, ndi, nhr, nir;
-    Update_Led_Status(LED_STAT_RS485, LED_STAT_OFF);
     if (type == LOW_POLLING) {
     	ncoil = low_n.coil;
     	ndi = low_n.di;
@@ -1359,7 +1358,6 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
 
-	Update_Led_Status(LED_STAT_RS485, LED_STAT_ON);
 	return C_SUCCESS;
 }
 
@@ -1524,7 +1522,6 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
-	Update_Led_Status(LED_STAT_RS485, LED_STAT_ON);
 	return C_SUCCESS;
 
 }
@@ -1561,6 +1558,7 @@ static uint32_t end_offline = 0;
 
 void SendOffline(C_RES poll_done) {
 	if (poll_done == C_FAIL) {
+		Update_Led_Status(LED_STAT_RS485, LED_STAT_OFF);
 		if (start_offline == 0) {
 			start_offline = RTC_Get_UTC_Current_Time();
 			send_cbor_offalarm("", start_offline, 0);
@@ -1569,6 +1567,7 @@ void SendOffline(C_RES poll_done) {
 			vMBMasterRunResRelease();
 		}
 	}else{
+		Update_Led_Status(LED_STAT_RS485, LED_STAT_ON);
 		if (start_offline != 0) {
 			end_offline = RTC_Get_UTC_Current_Time();
 			send_cbor_offalarm("", start_offline, end_offline);
