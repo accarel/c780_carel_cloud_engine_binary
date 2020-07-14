@@ -22,6 +22,8 @@ static char gsm_lac_gw_str[LAC_LENGTH] = {0};
 static char gsm_cellid_gw_str[CELLID_LENGTH] = {0};
 
 static C_TIME MobConnTime = 0;
+static modem_dte_t *dte;
+static modem_dce_t *dce;
 
 static void modem_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
@@ -66,16 +68,21 @@ gme_sm_t Mobile__Config(void){
     /* create dte object */
     esp_modem_dte_config_t config = ESP_MODEM_DTE_DEFAULT_CONFIG(CONFIG_UART_MODEM_PORT);
     esp_uart_t uart_pins = {Get_Modem_TX(), Get_Modem_RX(), Get_Modem_RTS(), Get_Modem_CTS()};
-    modem_dte_t *dte = esp_modem_dte_init(&config, uart_pins);
+    dte = esp_modem_dte_init(&config, uart_pins);
+
+    // TODO manage the case dte cannot be created
 
     /* Register event handler */
     ESP_ERROR_CHECK(esp_modem_add_event_handler(dte, modem_event_handler, NULL));
     /* create dce object */
 #if CONFIG_MODEM_DEVICE_SIM800
-    modem_dce_t *dce = sim800_init(dte);
+    dce = sim800_init(dte);
 #elif CONFIG_MODEM_DEVICE_BG96
-    modem_dce_t *dce = bg96_init(dte);
+    dce = bg96_init(dte);
 #endif
+
+    // TODO manage the case dce cannot be created/initialized ---> try again? otherwise it will not work...
+
     ESP_ERROR_CHECK(dce->set_flow_ctrl(dce, MODEM_FLOW_CONTROL_NONE));
     ESP_ERROR_CHECK(dce->store_profile(dce));
 
