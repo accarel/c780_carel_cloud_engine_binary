@@ -7,6 +7,7 @@
 #include "utilities_CAREL.h"
 #include "IO_Port_IS.h"
 #include "radio.h"
+#include "sys_IS.h"
 
 static EventGroupHandle_t mobile_event_group = NULL;
 static const int CONNECT_BIT = BIT0;
@@ -95,7 +96,12 @@ gme_sm_t Mobile__Config(void){
     Mobile__SaveImeiCode(dce->imei);
     Mobile__SaveImsiCode(dce->imsi);
 
-    ESP_ERROR_CHECK(dce->get_qeng(dce));
+    // TODO in case this info cannot get recovered, we stay here forever...
+    // but at times first get_qeng does not work
+    do{
+    	Sys__Delay(1000);
+    	dce->get_qeng(dce);
+    }while(strcmp(dce->mcc, "x") == 0);
 
     ESP_LOGI(TAG, "MCC: %s", dce->mcc);
     ESP_LOGI(TAG, "MNC: %s", dce->mnc);
