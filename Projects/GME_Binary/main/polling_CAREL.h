@@ -107,12 +107,12 @@ typedef struct coil_di_poll_tables_s{
 //Register: Coil and DI alarm polling tables
 #pragma pack(1)
 typedef struct alarm_read_s{
+	uint32_t	start_time;
+	uint32_t	stop_time;
 	uint8_t 	value:1;
 	uint8_t		error:3;
 	uint8_t 	send_flag:1;
-	// TODO...DA PADDARE OCIO AI BUSI
-	uint32_t	start_time;
-	uint32_t	stop_time;
+	uint8_t 	dummy:3;
 }alarm_read_t;
 #pragma pack()
 
@@ -177,11 +177,12 @@ typedef struct hr_ir_poll_tables_s{
 //struct for HR and IR alarm polling
 #pragma pack(1)
 typedef struct hr_ir_alarm_s{
+	uint32_t	start_time;
+	uint32_t	stop_time;
 	uint8_t 	value:1;
 	uint8_t		error:3;
 	uint8_t 	send_flag:1;
-	uint32_t	start_time;
-	uint32_t	stop_time;
+	uint8_t 	dummy:3;
 }hr_ir_alarm_t;
 #pragma pack()
 
