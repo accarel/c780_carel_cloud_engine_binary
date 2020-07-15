@@ -219,7 +219,7 @@ void Mobile_QuerySignalQuality(void){
 	uint32_t rssi = 0, ber = 0;
 	C_RES err = C_FAIL;
 
-	mqtt_client_stop();
+	printf("Set COMMAND mode at %d\n", RTC_Get_UTC_Current_Time());
 	Mobile_SetCommandMode(1);
 	err = dte->change_mode(dte,MODEM_COMMAND_MODE);
 	printf ("COMMAND mode result: %d\n", err);
@@ -229,14 +229,12 @@ void Mobile_QuerySignalQuality(void){
 	if(err == C_FAIL) {
 		printf("no, really\n");
 		Mobile_SetCommandMode(0);
-		mqtt_client_start();
 		return;
 	}
 	else if(err == 2){ // NO CARRIER in response to AT ---> not currently captured... TODO
 		err = dte->change_mode(dte,MODEM_PPP_MODE); // maybe better to reboot...
 		printf("try to reconnect %d\n", err);
 		Mobile_SetCommandMode(0);
-		mqtt_client_start();
 		return;
 	}
 	else
@@ -252,7 +250,6 @@ void Mobile_QuerySignalQuality(void){
 	Mobile_SetSignalQuality(rssi);
 
 	printf("Read %d rssi, %d ber\n", rssi, ber);
-	mqtt_client_start();
 
 	return;
 }
