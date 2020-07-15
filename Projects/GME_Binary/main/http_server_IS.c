@@ -586,10 +586,6 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 	if (ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
 		HTTPServer__ParseCredfromNVM();
 	}
-	else
-	{
-		return ESP_FAIL;
-	}
 
 	return ESP_OK;
 }
