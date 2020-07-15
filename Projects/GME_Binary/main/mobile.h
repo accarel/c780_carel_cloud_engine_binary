@@ -33,5 +33,10 @@ char* Mobile__GetCidCode(void);
 
 void Mobile__SetConnTime(void);
 C_TIME Mobile__GetConnTime(void);
+C_INT16 Mobile_GetSignalQuality(void);
+void Mobile_SetSignalQuality(uint16_t rssi);
+void Mobile_QuerySignalQuality(void);
 
+uint8_t Mobile_GetCommandMode(void);
+void Mobile_SetCommandMode(uint8_t mode);
 #endif

@@ -33,6 +33,7 @@
 #include "utilities_CAREL.h"
 
 #include "Led_Manager_IS.h"
+#include "mobile.h"
 
 #define RET_DIM(x,l)     (x == 16 ? (l = 1) : (l = 2))
 
@@ -1604,7 +1605,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
     #endif
 
 
-		if(RUNNING == PollEngine_Status.engine)
+		if(RUNNING == PollEngine_Status.engine && Mobile_GetCommandMode() == 0)
 		{
 		SoftWDT_Reset(SWWDT_POLLING);
 

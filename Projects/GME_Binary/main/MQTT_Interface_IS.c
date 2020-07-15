@@ -89,13 +89,29 @@ C_RES mqtt_client_start(void)
 	return err;	
 }
 
+C_RES mqtt_client_stop(void)
+{
+	C_RES err = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	err = esp_mqtt_client_stop(MQTT__GetClient());
+#endif
+	/*
+		if you using an operating system be sure to wait that all the action
+		related to MQTT are in a safe state before to stop
+		ie. message are sent and the acknowledge receive etc.
+		For this reason a timeout mechanism must be implemented in this routine
+	*/
+	return err;
+}
+
 /**
- * @brief mqtt_client_stop
- *        stop the MQTT client engine    
+ * @brief mqtt_client_destroy
+ *        stop the MQTT client engine and destroy handle
  * @param None
  * @return C_FAIL ie. timeout on wait to action completation / C_SUCCESS
  */
-C_RES mqtt_client_stop(void)
+C_RES mqtt_client_destroy(void)
 {
 	C_RES err = C_SUCCESS;
 
@@ -172,7 +188,9 @@ void mqtt_client_reinit(void)
 		.lwt_msg = conn_buf,
 		.lwt_msg_len = conn_len,
 	};
+	esp_mqtt_client_stop(MQTT__GetClient());
 	esp_mqtt_set_config(MQTT__GetClient(), &mqtt_cfg);
+	esp_mqtt_client_start(MQTT__GetClient());
 #endif
 }
 

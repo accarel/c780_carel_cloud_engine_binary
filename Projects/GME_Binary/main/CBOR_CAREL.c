@@ -396,10 +396,8 @@ void CBOR_SendValues(C_UINT16 index, C_UINT16 number, C_INT16 frame)
 	printf("\n");
 #endif
 
-	printf("CBOR_SendValues mqtt publish start\n");
 	C_RES err = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/values"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
 	//TODO CPPCHECK valore di ritorno non testato
-    printf("CBOR_SendValues mqtt publish result: %d\n", err);
 }
 
 /**
@@ -580,7 +578,7 @@ size_t CBOR_Mobile(C_CHAR* cbor_stream)
 
 	// encode sig - elem3
 	err |= cbor_encode_text_stringz(&mapEncoder, "sig");
-	C_INT16 sig = -75;											// to be implemented
+	C_INT16 sig = Mobile_GetSignalQuality();
 	err |= cbor_encode_int(&mapEncoder, sig);
 	DEBUG_ADD(err, "sig");
 

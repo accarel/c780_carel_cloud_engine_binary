@@ -48,6 +48,7 @@ C_INT32 mqtt_client_subscribe(C_SCHAR *topic, C_INT16 qos);
 C_RES mqtt_client_unsubscribe(C_SCHAR *topic);
 C_INT32 mqtt_client_publish(C_SCHAR *topic, C_SBYTE *data, C_INT16 len, C_INT16 qos, C_INT16 retain);
 C_RES mqtt_client_start(void);
+C_RES mqtt_client_destroy(void);
 C_RES mqtt_client_stop(void);
 void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm);
 mqtt_client_handle_t MQTT__GetClient (void);

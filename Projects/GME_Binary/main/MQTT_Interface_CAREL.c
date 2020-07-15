@@ -35,7 +35,9 @@ const int MQTT_DISCONNECTED_BIT = BIT1;
 
 static C_BYTE mqtt_init = 0;
 static C_MQTT_TOPIC mqtt_topic;
-static uint32_t mqtt_periodic_time;
+static uint32_t mqtt_status_time = 0;
+static uint32_t mqtt_mobile_time = 0;
+static uint32_t query_rssi = 0;
 static EventBits_t MQTT_BITS;
 
 /**
@@ -148,7 +150,7 @@ C_RES MQTT_Start(void)
 
     if( ( MQTT_BITS & MQTT_DISCONNECTED_BIT ) != 0 ){
 
-    	mqtt_client_stop(); //return value not checked anyway the MQTT is stopped in our system we have only one instance
+    	mqtt_client_destroy(); //return value not checked anyway the MQTT is stopped in our system we have only one instance
 
     	// try connecting using the other certificate
     	cert_num = (cert_num == CERT_1) ? CERT_2 : CERT_1;
@@ -178,7 +180,7 @@ void MQTT_Stop(void)
     #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
 	PRINTF_DEBUG("mqtt_stop\n");
     #endif
-	mqtt_client_stop();
+	mqtt_client_destroy();
 	vEventGroupDelete(s_mqtt_event_group);
 }
 
@@ -256,22 +258,29 @@ void MQTT_Alarms(c_cboralarms alarms)
 void MQTT_PeriodicTasks(void)
 {
 	// send status payload on all platforms every pst seconds (configurable)
-	if(RTC_Get_UTC_Current_Time() > (mqtt_periodic_time + Utilities__GetStatusPeriod())) {
+	if(RTC_Get_UTC_Current_Time() > (mqtt_status_time + Utilities__GetStatusPeriod())) {
 		#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 		printf("Sending STATUS CBOR every %d seconds\n\n", Utilities__GetStatusPeriod());
 		#endif
 		CBOR_SendStatus();
-		mqtt_periodic_time = RTC_Get_UTC_Current_Time();
+		mqtt_status_time = RTC_Get_UTC_Current_Time();
 	}
 	// send mobile payload only for 2G model every GW_MOBILE_TIME seconds (fixed)
-	else if(PLATFORM(PLATFORM_DETECTED_2G)) {
-		if(RTC_Get_UTC_Current_Time() > (mqtt_periodic_time + GW_MOBILE_TIME)) {
+	if(PLATFORM(PLATFORM_DETECTED_2G)) {
+		if(RTC_Get_UTC_Current_Time() > (mqtt_mobile_time + GW_MOBILE_TIME)) {
 			#ifdef __DEBUG_MQTT_INTERFACE_LEV_2
 			printf("Sending MOBILE CBOR \n\n");
 			#endif
 			CBOR_SendMobile();
-			mqtt_periodic_time = RTC_Get_UTC_Current_Time();
+			mqtt_mobile_time = RTC_Get_UTC_Current_Time();
 		}
+#ifdef GW_QUERY_RSSI
+		if(RTC_Get_UTC_Current_Time() > (query_rssi + GW_CSQ_TIME)) {
+			Sys__Delay(3000);	//this delay to hopefully complete previos qos1 publish
+			Mobile_QuerySignalQuality();
+			query_rssi = RTC_Get_UTC_Current_Time();
+		}
+#endif
 	}
 }
 
@@ -327,6 +336,8 @@ C_RES EventHandler(mqtt_event_handle_t event)
             if(2 == mqtt_init){
             	mqtt_client_reinit();
             	mqtt_init = 1;
+            	// switch mqtt status led on again after a reconnect
+            	Update_Led_Status(LED_STAT_MQTT_CONN, LED_STAT_ON);
             }
             C_CHAR conn_buf[25];
             size_t conn_len = CBOR_Connected(conn_buf, 1);
@@ -351,8 +362,9 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
 				CBOR_SendHello();
 				MQTT_PeriodicTasks();
+				mqtt_status_time = RTC_Get_UTC_Current_Time();
+				mqtt_mobile_time = RTC_Get_UTC_Current_Time();
 				mqtt_init = 1;
-				mqtt_periodic_time = RTC_Get_UTC_Current_Time();
 			}
 
         	break;
@@ -362,7 +374,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
         	if(mqtt_init != 0)	// change state only if gme was already connected
         		mqtt_init = 2;
         	xEventGroupSetBits(s_mqtt_event_group, MQTT_DISCONNECTED_BIT);
-            #ifdef __DEBUG_MQTT_INTERFACE_LEV_1
+            #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_DISCONNECTED");
             #endif
             break;

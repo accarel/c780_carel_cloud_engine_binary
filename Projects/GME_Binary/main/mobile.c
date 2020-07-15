@@ -26,6 +26,9 @@ static C_TIME MobConnTime = 0;
 static modem_dte_t *dte;
 static modem_dce_t *dce;
 
+static int16_t rssibuf[GW_SAMPLES_MOBILE] = {0};
+static uint8_t command_mode = 0;
+
 static void modem_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
     switch (event_id) {
@@ -117,6 +120,7 @@ gme_sm_t Mobile__Config(void){
     uint32_t rssi = 0, ber = 0;
     ESP_ERROR_CHECK(dce->get_signal_quality(dce, &rssi, &ber));
     ESP_LOGI(TAG, "rssi: %d, ber: %d", rssi, ber);
+    Mobile_SetSignalQuality(rssi);
     /* Get battery voltage */
     uint32_t voltage = 0, bcs = 0, bcl = 0;
     ESP_ERROR_CHECK(dce->get_battery_status(dce, &bcs, &bcl, &voltage));
@@ -209,4 +213,75 @@ C_TIME Mobile__GetConnTime(void){
 		return -1;
 	else
 		return (RTC_Get_UTC_Current_Time() - MobConnTime);
+}
+
+void Mobile_QuerySignalQuality(void){
+	uint32_t rssi = 0, ber = 0;
+	C_RES err = C_FAIL;
+
+	mqtt_client_stop();
+	Mobile_SetCommandMode(1);
+	err = dte->change_mode(dte,MODEM_COMMAND_MODE);
+	printf ("COMMAND mode result: %d\n", err);
+
+	printf("did we enter command mode?\n");
+	err = dce->sync(dce);
+	if(err == C_FAIL) {
+		printf("no, really\n");
+		Mobile_SetCommandMode(0);
+		mqtt_client_start();
+		return;
+	}
+	else if(err == 2){ // NO CARRIER in response to AT ---> not currently captured... TODO
+		err = dte->change_mode(dte,MODEM_PPP_MODE); // maybe better to reboot...
+		printf("try to reconnect %d\n", err);
+		Mobile_SetCommandMode(0);
+		mqtt_client_start();
+		return;
+	}
+	else
+		printf("it seems we are in command mode\n");
+
+	printf("Get signal quality\n");
+	err = dce->get_signal_quality(dce, &rssi, &ber);
+	printf("Get signal quality result %d\n", err);
+	printf("Set PPP mode\n");
+	err = dte->change_mode(dte,MODEM_PPP_MODE_AGAIN);
+	Mobile_SetCommandMode(0);
+	printf("PPP mode result: %d\n", err);
+	Mobile_SetSignalQuality(rssi);
+
+	printf("Read %d rssi, %d ber\n", rssi, ber);
+	mqtt_client_start();
+
+	return;
+}
+
+void Mobile_SetSignalQuality(uint16_t rssi){
+	static uint16_t count=0;
+	printf("Mobile_SetSignalQuality element %d has rssi %d\n", count, rssi);
+	rssibuf[count++] = rssi;
+	count %= 4;
+}
+
+int16_t Mobile_GetSignalQuality(void){
+	int16_t rssi_mean = 0;
+	int l=0;
+	printf("Mobile_GetSignalQuality\n");
+	for (int i=0; i < GW_SAMPLES_MOBILE; i++) {
+		rssi_mean += rssibuf[i];
+		if(rssibuf[i] != 0)
+			l++;
+		printf("rssibuf[i]:%d\n", rssibuf[i]);
+	}
+	rssi_mean = (rssi_mean / l);
+	rssi_mean = (-113 + 2*rssi_mean);
+	return rssi_mean;
+}
+
+uint8_t Mobile_GetCommandMode(void){
+	return command_mode;
+}
+void Mobile_SetCommandMode(uint8_t mode){
+	command_mode = mode;
 }
