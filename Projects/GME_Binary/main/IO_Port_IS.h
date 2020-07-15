@@ -105,9 +105,9 @@
 #define TTL_DIR_2G				GPIO_NUM_1
 
 // leds
-#define LED_GREEN_2G     		GPIO_NUM_27
-#define LED_RED_2G       		GPIO_NUM_5
-#define LED_BLU_2G       		GPIO_NUM_33
+#define LED_GREEN_2G     		GPIO_NUM_5		// WORK
+#define LED_RED_2G       		GPIO_NUM_27		// LINKA
+#define LED_BLU_2G       		GPIO_NUM_33		// LINKB
 
 // M95 port
 #define CONFIG_UART_MODEM_PORT 		1
