@@ -532,7 +532,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 {
 	long double value = 0;
 	for(uint8_t i=0; i<arr_len; i++){
-		if( arr->tab[i].error != arr->tab[i].p_error && ( (arr->tab[i].error != 0) /*|| (arr->tab[i].p_error != 0)*/ )){
+		if( arr->tab[i].error != arr->tab[i].p_error && ( (arr->tab[i].error != 0) )){
 			values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 			values_buffer[values_buffer_index].value = 0;
 			values_buffer[values_buffer_index].info_err = arr->tab[i].error;
@@ -542,7 +542,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 			if (values_buffer_count > values_buffer_len)
 				values_buffer_count = values_buffer_len;
 		}
-		else{
+		else if (arr->tab[i].error == 0){	// manage read values only if there is no error
 			// reinit value otherwise all variables will be considered changed
 			value = 0;
 			switch(arr->tab[i].read_type){
@@ -761,8 +761,8 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 				values_buffer_count = values_buffer_len;
 
 		}
-		//value changed
-		else if(arr->reg[i].c_value != arr->reg[i].p_value || (first_run)){
+		//value changed and no error
+		else if((arr->reg[i].error == 0) && (arr->reg[i].c_value != arr->reg[i].p_value || (first_run))){
 			//send values to values buffer
 			values_buffer[values_buffer_index].alias = arr->reg[i].info.Alias;
 			values_buffer[values_buffer_index].value = (long double)arr->reg[i].c_value;
