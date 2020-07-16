@@ -125,6 +125,7 @@
 //period for status payload transmission
 #define GW_STATUS_TIME		7200
 // comment below if no periodic power query is required
-#define GW_QUERY_RSSI
+//
+//#define GW_QUERY_RSSI
 #endif
 
