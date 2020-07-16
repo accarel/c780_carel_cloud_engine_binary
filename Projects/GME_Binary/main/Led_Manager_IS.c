@@ -146,6 +146,7 @@ void Task_Led_Status(void)
     if (led_current_status & LED_STAT_TEST)
 	{
 		Do_Led_Test_Routine();
+		led_current_status &= ~LED_STAT_TEST;
 	}
 
 
@@ -807,7 +808,6 @@ void Led_init(void)
 
 }
 
-
 /**
  * @brief Do_Led_Test_Routine
  *        Led test routine
@@ -819,23 +819,27 @@ void Do_Led_Test_Routine(void){
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	C_BYTE count;
 	C_BYTE led_test = 3;
-	if PLATFORM(PLATFORM_DETECTED_2G) led_test = 1;
+	C_UINT16 led_delay = LED_TEST_DELAY;
+	if PLATFORM(PLATFORM_DETECTED_2G) {
+		led_test = 1;
+		led_delay = LED_TEST_DELAY_2G;
+	}
 
 	for (count=0; count < led_test; count++) {
 		Led_Status_Update(LED_ON, LED_RED);
-		Sys__Delay(LED_TEST_DELAY);
+		Sys__Delay(led_delay);
 		Led_Status_Update(LED_OFF, LED_RED);
-		Sys__Delay(LED_TEST_DELAY);
+		Sys__Delay(led_delay);
 
 		Led_Status_Update(LED_ON, LED_GREEN);
-		Sys__Delay(LED_TEST_DELAY);
+		Sys__Delay(led_delay);
 		Led_Status_Update(LED_OFF, LED_GREEN);
-		Sys__Delay(LED_TEST_DELAY);
+		Sys__Delay(led_delay);
 
 		Led_Status_Update(LED_ON, LED_BLU);
-		Sys__Delay(LED_TEST_DELAY);
+		Sys__Delay(led_delay);
 		Led_Status_Update(LED_OFF, LED_BLU);
-		Sys__Delay(LED_TEST_DELAY);
+		Sys__Delay(led_delay);
 	}
 #endif
 

@@ -399,7 +399,9 @@ void GME__CheckHTMLConfig(void){
  */
 void GME__Reboot(void){
 
-	Do_Led_Test_Routine();
+	Update_Led_Status(LED_STAT_ALL_OFF, LED_STAT_OFF);
+	Sys__Delay(500);
+	Update_Led_Status(LED_STAT_TEST, LED_STAT_ON);
 
 	if (PLATFORM(PLATFORM_DETECTED_2G)) {
 		PRINTF_DEBUG("Powering down 2G module... power key\n");

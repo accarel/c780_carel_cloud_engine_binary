@@ -38,11 +38,11 @@
 #define LED_STAT_ON    1
 
 /* this are the possible leds status */
-#define LED_STAT_ALL_OFF      0x0000
 #define LED_STAT_MODEL_CFG    0x0001
 #define LED_STAT_MQTT_CONN    0x0002
 #define LED_STAT_RS485        0x0004
-//#define LED_STAT_
+#define LED_STAT_ALL_OFF      LED_STAT_MODEL_CFG | LED_STAT_MQTT_CONN | LED_STAT_RS485
+
 #define LED_STAT_TEST         0x0080 
 #define LED_STAT_FACT_DEF_A   0x0100
 #define LED_STAT_FACT_DEF_B   0x0200
