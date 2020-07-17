@@ -91,7 +91,7 @@ static uint32_t MB_BaudRate = 0;
 // useful for a MODBUS READING AND QWRITING
 
 USHORT param_buffer[2];				// max 32 bits
-eMBErrorCode retError = MB_ENOREG;
+eMBErrorCode retError = MB_ENOERR;
 
 static uint8_t PollEnginePrint = POLL_ENGINE_PRINTF_DEFAULT;
 static uint8_t first_high = 1;
@@ -1198,7 +1198,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
     uint8_t numOf = 0;
     uint8_t retry = 0;
     uint8_t is_offline = 0;
-    eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+    eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
     uint8_t ncoil, ndi, nhr, nir;
     if (type == LOW_POLLING) {
     	ncoil = low_n.coil;
@@ -1215,19 +1215,19 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 	// Polling the Coil register
 	for (uint16_t i = 0; i < ncoil; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_ERR;
 		addr = (Coil->reg[i].info.Addr);
 
 		do {
 			errorReq = app_coil_read(Modbus__GetAddress(), addr, 1);
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Coil->reg[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR;
 			save_coil_di_value(&Coil->reg[i] , param_buffer);
 		}
 		else
@@ -1249,20 +1249,20 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 	// Polling the Di register
 	for (uint16_t i = 0; i < ndi; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_ERR;
 		retry = 0;
 		addr = (Di->reg[i].info.Addr);
 
 		do {
 			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), addr, 1);
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Di->reg[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR;
 			save_coil_di_value(&Di->reg[i] , param_buffer);
 		}
 		else
@@ -1284,7 +1284,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 	// Polling the Hr register
 	for (uint16_t i = 0; i < nhr; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_ERR;
 		retry = 0;
 		addr = Hr->tab[i].info.Addr;
 
@@ -1296,13 +1296,13 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		do {
 			errorReq = app_holding_register_read(Modbus__GetAddress(), addr, numOf);  // ,1
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Hr->tab[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR;
 			save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
 		}
 		else
@@ -1323,7 +1323,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 	// POlling the Ir register
 	for (uint16_t i = 0; i < nir; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_ERR;
 		retry = 0;
 		addr = Ir->tab[i].info.Addr;
 
@@ -1335,13 +1335,13 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		do {
 			errorReq = app_input_register_read(Modbus__GetAddress(), addr, numOf);
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Ir->tab[i].error = errorReq;
 		if(errorReq == 0) {
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR;
 			save_hr_ir_value(&Ir->tab[i], param_buffer);
 		}
 		else
@@ -1382,25 +1382,25 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 	uint8_t addr = 0;
 	uint8_t retry = 0;
 	uint8_t is_offline = 0;
-	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
 
 	// Polling the Coil register
 	for (uint16_t i = 0; i < alarm_n.coil; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_ERR;
 
 		addr = (Coil[i].info.Addr);
 		do {
 			errorReq = app_coil_read(Modbus__GetAddress(), addr, 1);
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
         Coil->data.error = errorReq;
 		if(errorReq == 0)
 		{
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR;
 			is_offline = 0;
 			save_alarm_coil_di_value(&Coil[i], param_buffer);
 		}
@@ -1425,22 +1425,22 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 	// Polling the Di register
 	for (uint16_t i = 0; i < alarm_n.di; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_ERR;
 		retry = 0;
 		addr = (Di[i].info.Addr);
 
 		do {
 			errorReq = app_coil_discrete_input_read(Modbus__GetAddress(), addr, 1);
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Di->data.error = errorReq;
 
 		if(errorReq == 0)
 		{
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR;
 
 			save_alarm_coil_di_value(&Di[i], param_buffer);
 		}
@@ -1461,20 +1461,20 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 	// Polling the Hr register
 	for (uint16_t i = 0; i < alarm_n.hr; i++)
 	{
-		errorReq = MB_MRE_NO_REG;
+		errorReq = MB_MRE_NO_ERR;
 		retry = 0;
 		addr = (Hr[i].info.Addr);
 
 		do {
 			errorReq = app_holding_register_read(Modbus__GetAddress(), addr, 1);
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 		Hr->data.error = errorReq;
 		if(errorReq == 0)
 		{
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG;
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR;
 
 			save_alarm_hr_ir_value(&Hr[i], param_buffer);
 		}else
@@ -1494,20 +1494,20 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 	// Polling the Ir register
 	for (uint16_t i = 0; i < alarm_n.ir; i++)
 	{
-		errorReq = MB_MRE_NO_REG;  //TODO CPPCHECK di fatto non serve a nulla viene assegnata sotto
+		errorReq = MB_MRE_NO_ERR;  //TODO CPPCHECK di fatto non serve a nulla viene assegnata sotto
 		retry = 0;
 		addr = (Ir[i].info.Addr);
 
 		do {
 			errorReq = app_input_register_read(Modbus__GetAddress(), addr, 1);
 			retry++;
-		} while(errorReq != MB_MRE_NO_REG && retry < 3);
+		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 		Ir->data.error = errorReq;
 		if(errorReq == 0)
 		{
 			// reset to the default for the next reading
-			SetResult(MB_ENOREG);
-			errorReq = MB_MRE_NO_REG; //TODO CPPCHECK di fatto non serve a nulla
+			SetResult(MB_ENOERR);
+			errorReq = MB_MRE_NO_ERR; //TODO CPPCHECK di fatto non serve a nulla
 
 			save_alarm_hr_ir_value(&Ir[i], param_buffer);
 		}else
@@ -1737,7 +1737,7 @@ void FlushValues(PollType_t type){
  */
 C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UINT16* read_value)
 {
-	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
 
 	C_CHAR len = 0;
 
@@ -1773,7 +1773,7 @@ C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UIN
  */
 C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_value){
 
-	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
 
 	if(func == mbR_COIL)
 	   errorReq = app_coil_read(Modbus__GetAddress(), addr, 1);
@@ -1804,7 +1804,7 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
  */
 C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun){
 
-	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
 
     data_f data;
     C_UINT16 val[2];
@@ -1833,6 +1833,8 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C
 		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, SINGLE);
 	else if (fun == mbW_HRS)
 		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, MULTI);
+	else
+		errorReq = MB_MRE_ILL_ARG;	// invalid fun
 
 	if(errorReq == MB_MRE_NO_ERR)
 		return C_SUCCESS;
@@ -1855,7 +1857,7 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C
  */
 C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR num, C_BYTE is_big_end, C_UINT16 fun){
 
-	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
 
 	data_int_f data;
     C_UINT16 val[2];
@@ -1884,6 +1886,8 @@ C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR nu
 		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, SINGLE);
 	else if (fun == mbW_HRS)
 		errorReq = app_hr_write(Modbus__GetAddress(), addr, num, &val, MULTI);
+	else
+		errorReq = MB_MRE_ILL_ARG; 	// invalid fun
 
 	if(errorReq == MB_MRE_NO_ERR)
 		return C_SUCCESS;
@@ -1903,7 +1907,7 @@ C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR nu
  */
 C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 fun){
 
-	eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+	eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
 
 	uint16_t value = 0;
 
@@ -1916,6 +1920,8 @@ C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 f
 		errorReq = app_coil_write(Modbus__GetAddress(), addr, value, SINGLE);
 	else if (fun == mbW_COILS)
 		errorReq = app_coil_write(Modbus__GetAddress(), addr, write_value, MULTI);
+	else
+		errorReq = MB_MRE_ILL_ARG;	// invalid fun
 
 	if(errorReq == MB_MRE_NO_ERR)
 		return C_SUCCESS;
