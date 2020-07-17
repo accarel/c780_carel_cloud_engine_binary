@@ -4,7 +4,8 @@
 
 #include "main_IS.h"
 #include "main_CAREL.h"
-
+#include "esp_modem.h"
+#include "sim800.h"
 #include "gme_types.h"
 #include "data_types_CAREL.h"
 #include "modbus_IS.h"
@@ -62,16 +63,37 @@ static html_config_param_t WiFiConfig = {
 };
 
 
-void test_hw(void)
+char* SendATCommandAndWaitAnswer(char* command, char* data) {
+
+	size_t length;
+	int len = uart_write_bytes(CONFIG_UART_MODEM_PORT, command, strlen(command));
+	do {
+		uart_get_buffered_data_len(CONFIG_UART_MODEM_PORT, &length);
+	} while (length==0);
+	length = MIN(256, length);
+	len = uart_read_bytes(CONFIG_UART_MODEM_PORT, (uint8_t*)data, length, -1);
+
+	return data;
+}
+
+void test_hw(C_BYTE platform)
 {
 	C_RES wifi_condition;
 	static uint8_t t;
+
+	if PLATFORM(PLATFORM_DETECTED_WIFI)
+			stm = TEST_PRINT_MACADDR;
+	else if PLATFORM(PLATFORM_DETECTED_2G)
+			stm = TEST_PRINT_IMSI;
+	else {
+		printf("cannot proceed with test: unrecognized platform\n");
+		return;
+	}
 
 	while(1)
 	{
 		switch(stm)
 		{
-		    default:
 			case TEST_PRINT_MACADDR:
 			{
 				// 1) read and print MAC-ADDR
@@ -153,9 +175,9 @@ void test_hw(void)
 				Modbus_Task_Start();
 				Sys__Delay(2000);
 
-				errorReq = MB_MRE_NO_REG;
+				errorReq = MB_MRE_NO_ERR;
 			    retry = 0;
-				addr = 0;
+				addr = 1;
 				numOf = 1;
 
 				Modbus__ReadDelayFromNVM();
@@ -163,15 +185,77 @@ void test_hw(void)
 				do {
 					errorReq = app_holding_register_read(1, addr, numOf);
 					retry++;
-				} while(errorReq != MB_MRE_NO_REG && retry < 10);
+				} while(errorReq != MB_MRE_NO_ERR && retry < 10);
 
 				Sys__Delay(1000);
 
 				read_value = param_buffer[0];
-
-				printf("HR=%d\r\n", read_value);
+				if(errorReq != MB_MRE_NO_ERR)
+					printf("HR=FAIL\n");
+				else
+					printf("HR=%d\r\n", read_value);
 
 				stm = TEST_END;
+				break;
+			}
+
+			case TEST_PRINT_IMSI:
+			{
+				Init_IO_IS();
+
+				printf("GSM_POWER_SUPPLY_ON\n");
+				GSM_Module_Pwr_Supply_On_Off(GSM_POWER_SUPPLY_ON);
+				printf("GSM_PWRKEY_ON\n");
+				GSM_Module_PwrKey_On_Off(GSM_PWRKEY_ON);
+				Sys__Delay(16000);
+
+				/* Config UART */
+				uart_config_t uart_config = {
+						.baud_rate = 115200,
+						.data_bits = UART_DATA_8_BITS,
+						.parity = UART_PARITY_DISABLE,
+						.stop_bits = UART_STOP_BITS_1,
+						.flow_ctrl = MODEM_FLOW_CONTROL_NONE
+				};
+				uart_param_config(CONFIG_UART_MODEM_PORT, &uart_config);
+				uart_set_pin(CONFIG_UART_MODEM_PORT, Get_Modem_TX(), Get_Modem_RX(), UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+				uart_driver_install(CONFIG_UART_MODEM_PORT, CONFIG_UART_RX_BUFFER_SIZE, CONFIG_UART_TX_BUFFER_SIZE, 0, NULL, 0);
+
+				char* data = (char*) malloc(256);
+				memset(data,0,256);
+
+				// sync M95
+				SendATCommandAndWaitAnswer("AT\r", data);
+				char* ret = strstr(data, "OK");
+				if (ret == NULL){
+					printf("M95=FAIL\n");
+					stm = TEST_END;
+					break;
+				}
+				else printf("M95=OK\n");
+				// get imei
+				memset(data,0,256);
+				SendATCommandAndWaitAnswer("AT+CGSN\r", data);
+				char imei[MODEM_IMEI_LENGTH] = {0};
+				memcpy(imei, &data[2], 15);
+				printf("IMEI=%.15s\n", imei);
+ 				// check sim
+				memset(data,0,256);
+				SendATCommandAndWaitAnswer("AT+CIMI?\r", data);
+				char imsi[MODEM_IMSI_LENGTH] = {0};
+				strcpy(imsi, data);
+				//printf("imsi: %s\n", imsi);
+				ret = strstr(data, "ERROR");
+				if (ret != NULL) printf("SIM=FAIL\n");
+				else printf("SIM=OK\n");
+				// get operator
+				memset(data,0,256);
+				SendATCommandAndWaitAnswer("AT+COPS?\r", data);
+				char operator[256] = {0};
+				strcpy(operator, data);
+				printf("GSM=%s\n", operator);
+
+				stm = TEST_PRINT_MODBUS;
 				break;
 			}
 
@@ -184,9 +268,14 @@ void test_hw(void)
 				break;
 			}
 
+			default:
+			{
+				printf("cannot proceed with test: unrecognized step\n");
+				break;
+			}
+
 
 		}
 	}
 }
-
 

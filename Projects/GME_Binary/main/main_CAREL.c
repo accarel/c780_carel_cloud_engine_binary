@@ -81,7 +81,7 @@ void app_main(void)  // main_Carel
   {
 	  /* test mode pin is connected to ground */
 	  printf("HARDWARE TEST MODE SELECTED\r\n");
-	  test_hw();
+	  test_hw(hw_platform_detected);
   }
   else
   {

@@ -26,6 +26,7 @@ enum{
 	TEST_WAIT_RESP_CONNECT,
 	TEST_PRINT_RESP_CONNECT,
 	TEST_PRINT_MODBUS,
+	TEST_PRINT_IMSI,
 	TEST_END,
 	TEST_NUM_OF_STEP
 };
@@ -43,6 +44,6 @@ enum{
 /* ========================================================================== */
 
 
-void test_hw(void);
+void test_hw(C_BYTE platform);
 
 #endif
