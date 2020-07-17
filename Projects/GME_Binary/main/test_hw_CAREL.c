@@ -264,13 +264,11 @@ void test_hw(C_BYTE platform)
 				if PLATFORM(PLATFORM_DETECTED_2G) {
 					GSM_Module_PwrKey_On_Off(GSM_PWRKEY_OFF);
 					Sys__Delay(12000);
-					PRINTF_DEBUG("Powering down 2G module... power down\n");
 				}
-				//
-				// For wifi do nothing...just wait to power off the GME
-				// the system reboots due to the WDT
-				//
-				while(1);
+				// test is complete, wait for switch off from test machine
+				printf("TEST COMPLETED\n");
+				while(1)
+						Sys__Delay(1000);
 				break;
 			}
 
