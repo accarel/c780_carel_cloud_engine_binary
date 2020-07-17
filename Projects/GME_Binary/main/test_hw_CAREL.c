@@ -166,7 +166,7 @@ void test_hw(C_BYTE platform)
 				uint8_t addr = 0;
 			    uint8_t numOf = 0;
 			    uint8_t retry = 0;
-			    eMBMasterReqErrCode errorReq = MB_MRE_NO_REG;
+			    eMBMasterReqErrCode errorReq = MB_MRE_NO_ERR;
 
 			    // 3) TRY TO POLL MODBUS via RS485
 				Modbus_Init(19200, UART_PARITY_DISABLE, 1, MB_PORTNUM_485);
