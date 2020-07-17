@@ -1224,10 +1224,9 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Coil->reg[i].error = errorReq;
-		if(errorReq == 0) {
+		if(errorReq == MB_MRE_NO_ERR) {
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR;
 			save_coil_di_value(&Coil->reg[i] , param_buffer);
 		}
 		else
@@ -1259,10 +1258,9 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Di->reg[i].error = errorReq;
-		if(errorReq == 0) {
+		if(errorReq == MB_MRE_NO_ERR) {
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR;
 			save_coil_di_value(&Di->reg[i] , param_buffer);
 		}
 		else
@@ -1299,10 +1297,9 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Hr->tab[i].error = errorReq;
-		if(errorReq == 0) {
+		if(errorReq == MB_MRE_NO_ERR) {
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR;
 			save_hr_ir_value(&Hr->tab[i], param_buffer);   // &HRLowPollTab.tab[i]
 		}
 		else
@@ -1338,10 +1335,9 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
 		Ir->tab[i].error = errorReq;
-		if(errorReq == 0) {
+		if(errorReq == MB_MRE_NO_ERR) {
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR;
 			save_hr_ir_value(&Ir->tab[i], param_buffer);
 		}
 		else
@@ -1396,12 +1392,11 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 
         Coil->data.error = errorReq;
-		if(errorReq == 0)
+		if(errorReq == MB_MRE_NO_ERR)
 		{
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR;
-			is_offline = 0;
+			//is_offline = 0;
 			save_alarm_coil_di_value(&Coil[i], param_buffer);
 		}
 		else
@@ -1436,12 +1431,10 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 		Di->data.error = errorReq;
 
-		if(errorReq == 0)
+		if(errorReq == MB_MRE_NO_ERR)
 		{
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR;
-
 			save_alarm_coil_di_value(&Di[i], param_buffer);
 		}
 		else
@@ -1470,12 +1463,10 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 			retry++;
 		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 		Hr->data.error = errorReq;
-		if(errorReq == 0)
+		if(errorReq == MB_MRE_NO_ERR)
 		{
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR;
-
 			save_alarm_hr_ir_value(&Hr[i], param_buffer);
 		}else
 		{
@@ -1503,12 +1494,10 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 			retry++;
 		} while(errorReq != MB_MRE_NO_ERR && retry < 3);
 		Ir->data.error = errorReq;
-		if(errorReq == 0)
+		if(errorReq == MB_MRE_NO_ERR)
 		{
 			// reset to the default for the next reading
 			SetResult(MB_ENOERR);
-			errorReq = MB_MRE_NO_ERR; //TODO CPPCHECK di fatto non serve a nulla
-
 			save_alarm_hr_ir_value(&Ir[i], param_buffer);
 		}else
 		{
