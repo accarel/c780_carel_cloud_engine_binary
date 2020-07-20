@@ -10,6 +10,8 @@
 #include "ota_IS.h"
 #include "ota_CAREL.h"
 #include "modbus_IS.h"
+#include "https_client_CAREL.h"
+#include "radio.h"
 
 static const char *TAG = "OTA_CAREL";
 
@@ -264,7 +266,7 @@ void DEV_ota_task(void * pvParameter){
 void Model_ota_task(void * pvParameter)
 {
 	c_cborreqdwldevsconfig * myCborUpdate = (c_cborreqdwldevsconfig*)pvParameter;
-	https_conn_err_t err;
+	C_RES err;
 	uint8_t cert_num = CERT_1;
 
 	// get current certificate number and download model
@@ -317,7 +319,7 @@ void Model_ota_task(void * pvParameter)
 void CA_ota_task(void * pvParameter)
 {
 	c_cborrequpdatecacert * myCborUpdate = (c_cborrequpdatecacert*)pvParameter;
-	https_conn_err_t err;
+	C_RES err;
 
 	err = HttpsClient__UpdateCertificate(myCborUpdate);
 	err == C_SUCCESS ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);

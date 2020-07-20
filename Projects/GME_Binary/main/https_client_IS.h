@@ -63,7 +63,7 @@ typedef esp_http_client_handle_t http_client_handle_t;
 #endif
 
 #ifndef INCLUDE_PLATFORM_DEPENDENT
-typedef  (YOU MUST INSERT HERE YOUR CLIENT STRUCTURE ACCORDING WITH YOUR LIBRARY) http_client_handle_t;
+typedef void* http_client_handle_t;
 #endif
 
 

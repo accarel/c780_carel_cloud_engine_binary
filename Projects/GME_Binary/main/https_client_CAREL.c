@@ -35,9 +35,9 @@ static const char *TAG = "HTTP_CLIENT_CAREL";
  * @param   filename : the name of the file that will be updated
  * @return 
  */
-https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, uint8_t cert_num, const char *filename)
+C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, uint8_t cert_num, const char *filename)
 {	
-	https_conn_err_t err = CONN_FAIL;
+	C_RES err = CONN_FAIL;
 	c_http_client_config_t c_config;
 		
     C_RES err2;
@@ -153,13 +153,13 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
 		
 	}
 
-
+#ifdef INCLUDE_PLATFORM_DEPENDENT
     #ifdef _DEBUG_HTTPS_CLIENT_CAREL 
 	ESP_LOGI(TAG, "HTTP Stream reader Status = %d, content_length = %d",
      				esp_http_client_get_status_code(client),
 					esp_http_client_get_content_length(client));
     #endif					
-
+#endif
 
 	free(buffer);
 	free(url);
@@ -183,10 +183,10 @@ https_conn_err_t HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs
  * @param   cert_num : the index of certificate to be used to log in 
  * @return 
  */
-https_conn_err_t HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert)
+C_RES HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert)
 {
 	C_CHAR filename[32];
-	https_conn_err_t err;
+	C_RES err;
 	C_BYTE cert_num;
 	
 	// get current certificate number
