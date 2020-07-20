@@ -64,7 +64,8 @@ C_RES NVM_Init(void)
   #else
         return nvs_flash_init();   // old initialization without encryption
   #endif
-
+ #else
+        return C_FAIL;				// implement your non volatile memory init
  #endif
 
 }
