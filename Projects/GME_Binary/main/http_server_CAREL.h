@@ -19,7 +19,7 @@
 #define HTMLLOGIN_USR			"login_usr"
 #define HTMLLOGIN_PSWD			"login_pswd"
 
-// Config HTML responce tags
+// Config HTML response tags
 //#define HTMLCONF_GATEWAY_MODE	"gateway_mode"
 
 #define HTMLCONF_AP_SSID		"ap_ssid"
