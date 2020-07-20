@@ -11,9 +11,8 @@
 #include "MQTT_Interface_CAREL.h"
 
 #include "polling_CAREL.h"
-
+#include "nvm_CAREL.h"
 #ifdef INCLUDE_PLATFORM_DEPENDENT
-	#include "nvm_CAREL.h"
 	#include "esp_log.h"
 	#include "driver/gpio.h"
 	#include "mb_m.h"
