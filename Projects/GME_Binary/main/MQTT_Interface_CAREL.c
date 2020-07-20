@@ -307,6 +307,7 @@ C_MQTT_TOPIC* MQTT_GetUuidTopic(C_SCHAR* topic)
 	return (C_MQTT_TOPIC*)mqtt_topic;
 }
 
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 /**
  * @brief EventHandler
  *
@@ -450,6 +451,7 @@ C_RES EventHandler(mqtt_event_handle_t event)
     	
 	return C_SUCCESS;
 }
+#endif
 
 /**
  * @brief MQTT_GetFlags

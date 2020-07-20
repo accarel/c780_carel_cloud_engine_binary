@@ -51,7 +51,9 @@ C_RES mqtt_client_start(void);
 C_RES mqtt_client_destroy(void);
 C_RES mqtt_client_stop(void);
 void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm);
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 mqtt_client_handle_t MQTT__GetClient (void);
+#endif
 
 void mqtt_client_reinit(void);
 

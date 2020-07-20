@@ -16,8 +16,9 @@
 #include "MQTT_Interface_CAREL.h"
 #include "utilities_CAREL.h"
 
-
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 static mqtt_client_handle_t mqtt_client;
+#endif
 /* Functions implementations ------------------------------------------------------- */
 
 /**
@@ -166,8 +167,11 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 	};
 	
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
+
+	return mqtt_client;
+#else
+	return NULL;
 #endif
-	return mqtt_client;	
 }
 
 /**
@@ -201,8 +205,10 @@ void mqtt_client_reinit(void)
  * @param None
  * @return mqtt_client_handle_t mqtt_client
  */
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 mqtt_client_handle_t MQTT__GetClient (void)
 {
 	return mqtt_client;
 }
+#endif
 
