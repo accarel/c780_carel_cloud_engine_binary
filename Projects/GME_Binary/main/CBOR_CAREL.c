@@ -35,9 +35,10 @@
 #endif
 
 /* Exported types ------------------------------------------------------------*/
+#ifdef INCLUDE_PLATFORM_DEPENDENT
 extern  CHAR     ucMBSlaveID[256];
 extern  USHORT   usMBSlaveIDLen;
-
+#endif
 
 /* Exported constants --------------------------------------------------------*/
 
@@ -950,47 +951,6 @@ size_t CBOR_ResRdWrValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_CHAR* a
 	return len;
 }
 
-#if 0
-/* below code was just sketched, to be checked and tested */
-/**
- * @brief CBOR_ResSendMbPassThrough
- *
- * Prepares CBOR encoded message containing result of send_mb_pass_through message
- *
- * @param Pointer to the CBOR-encoded payload
- * @param Pointer to the structure containing received request
- * @param Status of pass through mode
- * @return void
- */
-size_t CBOR_ResSendMbPassThrough(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT16 cbor_pass)
-{
-	size_t len;
-	CborEncoder encoder, mapEncoder;
-	CborError err;
-
-	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
-
-	// encode pas - elem4
-	err = cbor_encode_text_stringz(&mapEncoder, "pas");
-	err |= cbor_encode_int(&mapEncoder, cbor_pass);
-	DEBUG_ADD(err, "pas");
-
-	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
-
-	if(err == CborNoError)
-		len = cbor_encoder_get_buffer_size(&encoder, (unsigned char*)cbor_response);
-	else
-	{
-        #ifdef __DEBUG_CBOR_CAREL_LEV_1
-		printf("%s: invalid CBOR stream\n",  __func__); 
-        #endif
-		len = -1;
-	}
-
-	return len;
-}
-#endif
-
 /**
  * @brief CBOR_ReqHeader
  *
@@ -1451,108 +1411,6 @@ CborError CBOR_ReqSetGwConfig(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqs
 	return err;
 }
 
-#if 0
-/* below code was just sketched, to be checked and tested */
-/**
- * @brief CBOR_ReqSendMbAdu
- *
- * Interprets CBOR send mb adu
- *
- * @param Pointer to the CBOR stream
- * @param Length of the CBOR stream
- * @param Pointer to the field seq used to detect wrong order in message de-queueing
- * @param Pointer to the buffer containing modbus request
- * @return CborError
- */
-CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* seq, C_CHAR* adu)
-{
-	CborError err = CborNoError;
-	size_t stlen;
-	char tag[TAG_SIZE];
-	CborValue it, recursed;
-	CborParser parser;
-
-	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
-	err |= cbor_value_enter_container(&it, &recursed);
-	DEBUG_DEC(err, "send mb adu request map");
-
-	C_UINT64 tmp = 0;
-
-	while (!cbor_value_at_end(&recursed)) {
-		stlen = TAG_SIZE;
-		memset(tag,'0',sizeof(tag));
-		err = cbor_value_copy_text_string(&recursed, tag, &stlen, &recursed);
-
-		if (strncmp(tag, "seq", 3) == 0)
-		{
-			err |= CBOR_ExtractInt(&recursed, &tmp);
-			*seq = (C_UINT16)tmp;
-			DEBUG_DEC(err, "req_send_mb_adu: seq");
-		}
-		else if (strncmp(tag, "adu", 3) == 0)
-		{
-			stlen = ADU_SIZE;
-			err |= cbor_value_copy_text_string(&recursed, (char*)adu, &stlen, &recursed);
-			DEBUG_DEC(err, "req_send_mb_adu: adu");
-		}
-		else
-		{
-			err |= CBOR_DiscardElement(&recursed);
-			DEBUG_DEC(err, "req_send_mb_adu: discard element");
-		}
-	}
-	err = cbor_value_leave_container(&it, &recursed);
-	return err;
-}
-
-/**
- * @brief CBOR_ReqSendMbPassThrough
- *
- * Interprets CBOR send mb adu request
- *
- * @param Pointer to the CBOR stream
- * @param Length of the CBOR stream
- * @param Pointer to pass through mode status
- * @return CborError
- */
-CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cbor_pass)
-{
-	CborError err = CborNoError;
-	size_t stlen;
-	char tag[TAG_SIZE];
-	CborValue it, recursed;
-	CborParser parser;
-
-	err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
-	err |= cbor_value_enter_container(&it, &recursed);
-	DEBUG_DEC(err, "send_mb_pass_through request map");
-
-	C_UINT64 tmp = 0;
-
-	while (!cbor_value_at_end(&recursed)) {
-		stlen = TAG_SIZE;
-		memset(tag,'0',sizeof(tag));
-		err = cbor_value_copy_text_string(&recursed, tag, &stlen, &recursed);
-
-		if (strncmp(tag, "pas", 3) == 0)
-		{
-			err |= CBOR_ExtractInt(&recursed, &tmp);
-			*cbor_pass = (C_UINT16)tmp;
-			DEBUG_DEC(err, "send_mb_pass_through: pas");
-		}
-		else
-		{
-			err |= CBOR_DiscardElement(&recursed);
-			DEBUG_DEC(err, "send_mb_pass_through: discard element");
-		}
-	}
-	err = cbor_value_leave_container(&it, &recursed);
-	return err;
-
-
-}
-#endif
-
 /**
  * @brief CBOR_ReqReboot
  *
@@ -1618,23 +1476,18 @@ CborError CBOR_DiscardElement(CborValue* it)
 		case CborIntegerType: {
 			int64_t val;
 			err = CBOR_ExtractInt(it, &val);     // can't fail
-			//printf("%lld\n", (long long)val);
 			break;
 		}
 		case CborByteStringType: {
 			size_t n=512;
 			uint8_t stringa[512];
-			//buf=&stringa;
 			err = cbor_value_copy_byte_string(it, stringa, &n, it);
-			//dumpbytes(stringa, n);
 			break;
 		}
 		case CborTextStringType: {
 			size_t n=512;
 			char text[512];
-			//buf=&text;
 			err = cbor_value_copy_text_string(it, text, &n, it);
-			//puts(text);
 			break;
 		}
 		default:
@@ -2177,7 +2030,7 @@ C_RES execute_scan_devices(C_BYTE *data_rx, C_UINT16 *add, C_INT16 * lnt)
 {
 	C_INT16 len = 0;
 	C_UINT16 addr = 0;
-	C_RES err = 0;
+	C_RES err = C_SUCCESS;
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 	if (*add == 0) {
