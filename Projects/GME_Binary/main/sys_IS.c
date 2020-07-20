@@ -152,6 +152,22 @@ C_UINT32 Sys__GetFreeHeapSize(void){
 	return freemem;
 }
 
+/**
+* @brief Sys__GetTaskHighWaterMark
+*      this function call  uxTaskGetStackHighWaterMark(),
+*      refer to esp-idf for more details.
+*
+*
+* @param  none
+* @return C_UINT32
+*/
+C_UINT32 Sys__GetTaskHighWaterMark(void){
+	C_UINT32 watermark = 0;
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+	watermark = uxTaskGetStackHighWaterMark(NULL);
+#endif
+	return watermark;
+}
 
 /**
 * @brief Sys__Delay

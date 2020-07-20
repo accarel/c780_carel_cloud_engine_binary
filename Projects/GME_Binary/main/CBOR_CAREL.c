@@ -153,7 +153,7 @@ size_t CBOR_Alarms(C_CHAR* cbor_stream, c_cboralarms cbor_alarms)
 void CBOR_SendHello(void)
 {
 	//Allocate tx buffer
-	uint32_t  freespace = uxTaskGetStackHighWaterMark(NULL);
+	uint32_t  freespace = Sys__GetTaskHighWaterMark();
 	freespace -= 1000;
 	txbuff_len = (uint16_t)freespace;
 

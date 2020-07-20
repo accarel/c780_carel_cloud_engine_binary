@@ -29,6 +29,7 @@
 
 void Sys__ResetCheck(void);
 C_UINT32 Sys__GetFreeHeapSize(void);
+C_UINT32 Sys__GetTaskHighWaterMark(void);
 void Sys__Delay(C_UINT32 delay);
 
 #endif /*SYS_IS_H_ */
