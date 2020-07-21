@@ -59,9 +59,18 @@ C_UINT16 async_cid = 0;
  */
 void CBOR_SendAlarms(c_cboralarms cbor_alarms)
 {
+	C_INT32 err = C_FAIL;
+	C_BYTE retry = 0;
 	size_t len = CBOR_Alarms(txbuff, cbor_alarms);
-	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
-	//TODO CPPCHECK valore di ritorno non testato
+	// mqtt_client_publish already implements retransmissions in case puback is not received in time
+	// here, we just check (for alarms) that publish api do not fail immediately
+	do {
+		 err = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic("/alarms"), (C_SBYTE*)txbuff, len, QOS_1, NO_RETAIN);
+
+		 if(err == C_FAIL) printf("err\n");
+		 else printf("publish err %d\n", err);
+		 retry++;
+	} while(err == C_FAIL && retry < 3);
 }
 
 /**
