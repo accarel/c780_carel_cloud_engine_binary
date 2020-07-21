@@ -73,9 +73,10 @@ gme_sm_t Mobile__Config(void){
     esp_modem_dte_config_t config = ESP_MODEM_DTE_DEFAULT_CONFIG(CONFIG_UART_MODEM_PORT);
     esp_uart_t uart_pins = {Get_Modem_TX(), Get_Modem_RX(), Get_Modem_RTS(), Get_Modem_CTS()};
     dte = esp_modem_dte_init(&config, uart_pins);
-
-    // TODO manage the case dte cannot be created
-
+    if (dte == NULL) {
+    	// manage the case dte cannot be created
+    	return GME_REBOOT;
+    }
     /* Register event handler */
     ESP_ERROR_CHECK(esp_modem_add_event_handler(dte, modem_event_handler, NULL));
     /* create dce object */
@@ -84,8 +85,10 @@ gme_sm_t Mobile__Config(void){
 #elif CONFIG_MODEM_DEVICE_BG96
     dce = bg96_init(dte);
 #endif
-
-    // TODO manage the case dce cannot be created/initialized ---> try again? otherwise it will not work...
+    if (dce == NULL) {
+       	// manage the case dce cannot be created
+      	return GME_REBOOT;
+    }
 
     ESP_ERROR_CHECK(dce->set_flow_ctrl(dce, MODEM_FLOW_CONTROL_NONE));
     ESP_ERROR_CHECK(dce->store_profile(dce));
@@ -100,11 +103,17 @@ gme_sm_t Mobile__Config(void){
     Mobile__SaveImsiCode(dce->imsi);
 
     // TODO in case this info cannot get recovered, we stay here forever...
-    // but at times first get_qeng does not work
+    // at times first get_qeng does not work,
+    // so repeat it some times
+    // if it does not receive answer, something is wrong
+    int retry = 0;
+    C_RES err;
     do{
     	Sys__Delay(1000);
-    	dce->get_qeng(dce);
-    }while(strcmp(dce->mcc, "x") == 0);
+    	err = dce->get_qeng(dce);
+    	retry++;
+    	printf("err %d, retry %d\n", err, retry);
+    }while(strcmp(dce->mcc, "x") == 0 && retry < 5);
 
     ESP_LOGI(TAG, "MCC: %s", dce->mcc);
     ESP_LOGI(TAG, "MNC: %s", dce->mnc);
@@ -121,10 +130,6 @@ gme_sm_t Mobile__Config(void){
     ESP_ERROR_CHECK(dce->get_signal_quality(dce, &rssi, &ber));
     ESP_LOGI(TAG, "rssi: %d, ber: %d", rssi, ber);
     Mobile_SetSignalQuality(rssi);
-    /* Get battery voltage */
-    uint32_t voltage = 0, bcs = 0, bcl = 0;
-    ESP_ERROR_CHECK(dce->get_battery_status(dce, &bcs, &bcl, &voltage));
-    ESP_LOGI(TAG, "Battery voltage: %d mV", voltage);
 
     Utilities__Init();
 
