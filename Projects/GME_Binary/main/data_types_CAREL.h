@@ -15,11 +15,17 @@
 
 #define  CAREL_TYPES_VERSION   257	// 0x101
 
+#define SPIFF_VER_SIZE   2
 #define USERNAME_SIZE	34
 #define PASSWORD_SIZE	34
 #define SERVER_SIZE		60
 #define MQTT_PORT_SIZE	30
-#define PORT_SIZE 		6
+#define NTP_PORT_SIZE 	6
+#define NTP_SERVER_SIZE 30
+#define APN_NAME_SIZE   64
+#define APN_USER_SIZE   64
+#define APN_PASS_SIZE   64
+#define SPIFF_CRC_SIZE   2
 
 #define URI_SIZE 		64
 #define RTO_SIZE 		64
@@ -97,18 +103,18 @@ typedef struct req_set_gw_config_s{
 
 #pragma pack(1)
 typedef struct cfg_data{
-	C_SBYTE cfg_version[2];
+	C_SBYTE cfg_version[SPIFF_VER_SIZE];
 	C_UINT16 enc_key;
 	C_CHAR  mqtt_broker[SERVER_SIZE];
 	C_CHAR  mqtt_port[MQTT_PORT_SIZE];
 	C_SBYTE mqtt_pssw[PASSWORD_SIZE];
 	C_SBYTE mqtt_user[USERNAME_SIZE];
-	C_CHAR  ntp_server[30];
-	C_CHAR  ntp_port[PORT_SIZE];
-	C_CHAR  apn_name[64];
-	C_CHAR	apn_user[64];
-	C_CHAR  apn_password[64];
-	C_CHAR  crc[2];
+	C_CHAR  ntp_server[NTP_SERVER_SIZE];
+	C_CHAR  ntp_port[NTP_PORT_SIZE];
+	C_CHAR  apn_name[APN_NAME_SIZE];
+	C_CHAR	apn_user[APN_USER_SIZE];
+	C_CHAR  apn_password[APN_PASS_SIZE];
+	C_CHAR  crc[SPIFF_CRC_SIZE];
 }cfg_data_t, *ptr_cfg_data_t;
 #pragma pack()
 

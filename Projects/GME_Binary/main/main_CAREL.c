@@ -213,7 +213,7 @@ void Carel_Main_Task(void)
 			}
 
             //NB. the esp library use always the default port 123...so the file system contain the ntp port value but is not used!!!
-			char ntp_server[30];		//TODO check max size
+			char ntp_server[NTP_SERVER_SIZE];
 			retval = RTC_Init(GetNtpServer(ntp_server), NTP_DEFAULT_PORT);
 			retval = RTC_Sync();
 			CAREL_CHECK(retval, "TIME");
