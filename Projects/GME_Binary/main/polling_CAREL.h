@@ -49,7 +49,14 @@
 /* other                                                                      */
 /* ========================================================================== */
 
-
+/*  NB: Remember, the size of the polled variable 
+ *	 	buffer depends on this size SENSE_TRIGGER_TASK_STACK_SIZE
+ *   
+ *      example (1024 * 6) --->  more than 300 variables
+ *
+ *				(1024 * 5) --->  ~238 variables
+ *   
+ */
 #define SENSE_TRIGGER_TASK_STACK_SIZE   (1024 * 6)
 #define SENSE_TRIGGER_TASK_PRIO         (6)
 
