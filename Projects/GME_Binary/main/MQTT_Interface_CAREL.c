@@ -376,7 +376,6 @@ C_RES EventHandler(mqtt_event_handle_t event)
             #endif
 
             if(2 == mqtt_init){
-            	mqtt_client_reinit();
             	mqtt_init = 1;
             	// switch mqtt status led on again after a reconnect
             	Update_Led_Status(LED_STAT_MQTT_CONN, LED_STAT_ON);
