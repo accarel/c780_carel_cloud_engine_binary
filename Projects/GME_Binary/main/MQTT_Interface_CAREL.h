@@ -106,7 +106,7 @@ typedef struct req_update_dev_fw_s{
 
 
 /* Function prototypes -------------------------------------------------------*/
-
+C_RES MQTT_Check_Status(void);
 C_RES MQTT_Subscribe_Default_Topics(void);
 C_RES MQTT_Start(void);
 void MQTT_Stop(void);

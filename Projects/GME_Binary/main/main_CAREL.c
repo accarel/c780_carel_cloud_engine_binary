@@ -116,11 +116,27 @@ void Carel_Main_Task(void)
   static C_UINT32 NVMBaudrate;
   static C_BYTE   NVMConnector;
 
+  #ifdef __DEBUG_MAIN_CAREL_LEV_1
+  C_INT32 alivecount = 10000;
+  #endif
+
+
   SoftWDT_Init(SWWDT_MAIN_DEVICE, SWWDT_DEFAULT_TIME);
 
   while(1)
   {
 	  Sys__Delay(10);
+
+      #ifdef __DEBUG_MAIN_CAREL_LEV_1
+	  alivecount -=10;
+      if (alivecount <= 0)
+      {
+    	  PRINTF_DEBUG_MAIN_CAREL("Main sm %X \n", sm);
+    	  alivecount = 10000;
+      }
+      #endif
+
+
       SoftWDT_Reset(SWWDT_MAIN_DEVICE);
 	  IsTimerForAPConnectionExpired();
 
@@ -137,7 +153,7 @@ void Carel_Main_Task(void)
 			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
 
-			  PRINTF_DEBUG("Version V47 \n");
+			  PRINTF_DEBUG("Version V51 \n");
 
 
 			  if(retval != C_SUCCESS){
@@ -349,6 +365,11 @@ void Carel_Main_Task(void)
               MQTT_PeriodicTasks();			// manage the MQTT subscribes
 
               GME__CheckHTMLConfig();
+
+              if (MQTT_Check_Status() == C_FAIL)
+              {
+            	  MQTT_Start();
+              }
 
               break;
 

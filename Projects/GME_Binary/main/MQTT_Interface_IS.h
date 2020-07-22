@@ -22,7 +22,25 @@
 #include "mqtt_client.h"
 #include "mqtt_config.h"
 #endif
-/* Exported types ------------------------------------------------------------*/ 
+
+
+ /* ========================================================================== */
+ /* debugging purpose                                                          */
+ /* ========================================================================== */
+ #ifdef __CCL_DEBUG_MODE
+
+ //this define enable the output of the command and communications errors
+ #define __DEBUG_MQTT_INTERFACE_IS_LEV_1
+
+ #define	PRINTF_DEBUG_MQTT_INTERFACE_IS	printf
+#else
+  #define	PRINTF_DEBUG_MQTT_INTERFACE_IS(...)
+#endif
+
+
+
+
+ /* Exported types ------------------------------------------------------------*/
 
 #pragma pack(1)
 typedef struct mqtt_config_s{

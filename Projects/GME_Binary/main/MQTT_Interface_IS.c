@@ -19,7 +19,12 @@
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 static mqtt_client_handle_t mqtt_client;
 #endif
+
+esp_mqtt_client_config_t mqtt_cfg;
+
 /* Functions implementations ------------------------------------------------------- */
+
+
 
 /**
  * @brief mqtt_client_subscribe
@@ -150,21 +155,19 @@ void* mqtt_client_init(mqtt_config_t* mqtt_cfg_nvm)
 		C_CHAR conn_buf[25];
 		size_t conn_len = CBOR_Connected(conn_buf, 0);
 
-		esp_mqtt_client_config_t mqtt_cfg = {
-		.event_handle = EventHandler,
-		.uri = (C_SCHAR*)mqtt_cfg_nvm->uri,
-		.username = (C_SCHAR*)mqtt_cfg_nvm->username,
-		.password = (C_SCHAR*)mqtt_cfg_nvm->password,
-		.keepalive =  mqtt_cfg_nvm->keepalive,
-		.lwt_topic = (C_SCHAR*)MQTT_GetUuidTopic("/connected"),
-		.lwt_msg = conn_buf,
-		.lwt_msg_len = conn_len,
-		.lwt_qos = 0,
-		.lwt_retain = 1,
-		.cert_pem = mqtt_cfg_nvm->cert_pem,
-		.task_stack = 8192,
-		.client_id = mac,
-	};
+		 mqtt_cfg.event_handle = EventHandler;
+		 mqtt_cfg.uri = (C_SCHAR*)mqtt_cfg_nvm->uri;
+   	     mqtt_cfg.username = (C_SCHAR*)mqtt_cfg_nvm->username;
+		 mqtt_cfg.password = (C_SCHAR*)mqtt_cfg_nvm->password;
+		 mqtt_cfg.keepalive =  mqtt_cfg_nvm->keepalive;
+		 mqtt_cfg.lwt_topic = (C_SCHAR*)MQTT_GetUuidTopic("/connected");
+		 mqtt_cfg.lwt_msg = conn_buf;
+		 mqtt_cfg.lwt_msg_len = conn_len;
+		 mqtt_cfg.lwt_qos = 0;
+		 mqtt_cfg.lwt_retain = 1;
+		 mqtt_cfg.cert_pem = mqtt_cfg_nvm->cert_pem;
+		 mqtt_cfg.task_stack = 8192;
+		 mqtt_cfg.client_id = mac;
 	
     mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
 
@@ -188,13 +191,15 @@ void mqtt_client_reinit(void)
 		C_CHAR conn_buf[25];
 		size_t conn_len = CBOR_Connected(conn_buf, 0);
 
-		esp_mqtt_client_config_t mqtt_cfg = {
-		.lwt_msg = conn_buf,
-		.lwt_msg_len = conn_len,
-	};
-	esp_mqtt_client_stop(MQTT__GetClient());
+	mqtt_cfg.lwt_msg = conn_buf;
+	mqtt_cfg.lwt_msg_len = conn_len;
+
+	//esp_mqtt_client_stop(MQTT__GetClient());
 	esp_mqtt_set_config(MQTT__GetClient(), &mqtt_cfg);
 	esp_mqtt_client_start(MQTT__GetClient());
+
+	PRINTF_DEBUG_MQTT_INTERFACE_IS("mqtt_client_reinit \n");
+
 #endif
 }
 

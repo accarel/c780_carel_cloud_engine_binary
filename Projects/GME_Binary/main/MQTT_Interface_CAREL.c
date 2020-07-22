@@ -40,6 +40,46 @@ static uint32_t mqtt_mobile_time = 0;
 static uint32_t query_rssi = 0;
 static EventBits_t MQTT_BITS;
 
+
+/**
+ * @brief MQTT_Check_Status
+ *        return the status of the MQTT connection
+ * @param none
+ * @return C_SUCCESS/C_FAIL
+ */
+C_RES MQTT_Check_Status(void)
+{
+    MQTT_BITS = xEventGroupGetBits(s_mqtt_event_group);
+
+    if ((MQTT_BITS & MQTT_DISCONNECTED_BIT) != 0 ){
+    	mqtt_client_destroy();                  //return value not checked anyway the MQTT is stopped in our system we have only one instance
+    	PRINTF_DEBUG("MQTT_Check_Status FAIL \n");
+        return C_FAIL;
+    }
+
+    return C_SUCCESS;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * @brief MQTT_Start
  *         
@@ -265,6 +305,7 @@ void MQTT_PeriodicTasks(void)
 		CBOR_SendStatus();
 		mqtt_status_time = RTC_Get_UTC_Current_Time();
 	}
+
 	// send mobile payload only for 2G model every GW_MOBILE_TIME seconds (fixed)
 	if(PLATFORM(PLATFORM_DETECTED_2G)) {
 		if(RTC_Get_UTC_Current_Time() > (mqtt_mobile_time + GW_MOBILE_TIME)) {
@@ -372,9 +413,12 @@ C_RES EventHandler(mqtt_event_handle_t event)
 
         case MQTT_EVENT_DISCONNECTED:
         	Update_Led_Status(LED_STAT_MQTT_CONN, LED_STAT_OFF);
-        	if(mqtt_init != 0)	// change state only if gme was already connected
+
+        	if (mqtt_init != 0)	// change state only if gme was already connected
         		mqtt_init = 2;
+
         	xEventGroupSetBits(s_mqtt_event_group, MQTT_DISCONNECTED_BIT);
+
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_DISCONNECTED");
             #endif
