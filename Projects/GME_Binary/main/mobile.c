@@ -64,8 +64,7 @@ static void modem_event_handler(void *event_handler_arg, esp_event_base_t event_
     }
 }
 
-gme_sm_t Mobile__Config(void){
-
+gme_sm_t Mobile__Init(void){
 	tcpip_adapter_init();
     mobile_event_group = xEventGroupCreate();
 
@@ -74,8 +73,8 @@ gme_sm_t Mobile__Config(void){
     esp_uart_t uart_pins = {Get_Modem_TX(), Get_Modem_RX(), Get_Modem_RTS(), Get_Modem_CTS()};
     dte = esp_modem_dte_init(&config, uart_pins);
     if (dte == NULL) {
-    	// manage the case dte cannot be created
-    	return GME_REBOOT;
+        // manage the case dte cannot be created
+        return GME_REBOOT;
     }
     /* Register event handler */
     ESP_ERROR_CHECK(esp_modem_add_event_handler(dte, modem_event_handler, NULL));
@@ -86,8 +85,8 @@ gme_sm_t Mobile__Config(void){
     dce = bg96_init(dte);
 #endif
     if (dce == NULL) {
-       	// manage the case dce cannot be created
-      	return GME_REBOOT;
+        // manage the case dce cannot be created
+        return GME_REBOOT;
     }
 
     ESP_ERROR_CHECK(dce->set_flow_ctrl(dce, MODEM_FLOW_CONTROL_NONE));
@@ -102,7 +101,22 @@ gme_sm_t Mobile__Config(void){
     Mobile__SaveImeiCode(dce->imei);
     Mobile__SaveImsiCode(dce->imsi);
 
-    // TODO in case this info cannot get recovered, we stay here forever...
+    return GME_RADIO_CONFIG;
+}
+
+C_RES Mobile__WaitNetwork(void){
+	/* Get network status */
+	uint32_t status = 0;
+	ESP_ERROR_CHECK(dce->get_network_status(dce, &status));
+	ESP_LOGI(TAG, "status: %d", status);
+	if(status != 0)
+		return C_FAIL;
+	else
+		return C_SUCCESS;
+}
+
+gme_sm_t Mobile__Config(void){
+
     // at times first get_qeng does not work,
     // so repeat it some times
     // if it does not receive answer, something is wrong
@@ -134,9 +148,9 @@ gme_sm_t Mobile__Config(void){
     Utilities__Init();
 
     /* Setup PPP environment */
-    char tmp_apn_name[64];
-    char tmp_username[64];
-    char tmp_password[64];
+    char tmp_apn_name[APN_NAME_SIZE];
+    char tmp_username[APN_USER_SIZE];
+    char tmp_password[APN_PASS_SIZE];
     esp_modem_setup_ppp(dte, GetApnName(tmp_apn_name), GetApnUserName(tmp_username), GetApnPassword(tmp_password));
 
     return GME_WAITING_FOR_INTERNET;

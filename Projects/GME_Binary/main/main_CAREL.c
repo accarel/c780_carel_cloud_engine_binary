@@ -175,8 +175,10 @@ void Carel_Main_Task(void)
 	        			}
 	        			sm = GME_RADIO_CONFIG;
 
-	        			if PLATFORM(PLATFORM_DETECTED_2G)
+	        			if PLATFORM(PLATFORM_DETECTED_2G) {
 	        				GSM_Module_PwrKey_On_Off(GSM_PWRKEY_ON);
+	        				Mobile__Init();
+	        			}
 
 					}else{
 						sm = GME_CHECK_FILES;
@@ -193,16 +195,15 @@ void Carel_Main_Task(void)
 			case GME_RADIO_CONFIG:
 			{
 				PRINTF_DEBUG("SM__Start .... GME_RADIO_CONFIG\n");
-				uint8_t config_status;
 
-				config_status = Radio__Config();
-
-				if(GME_REBOOT == config_status){
-					sm = GME_REBOOT;
+				// wait until network is up to connect (only applies to 2g model)
+				C_RES res = Radio_WaitNetwork();
+				if(res == C_FAIL){ // if 2g network is not available, just repeat this attempt in 10s
+					sm = GME_RADIO_CONFIG;
+					Sys__Delay(10000);
 				}
-				else if(GME_WAITING_FOR_INTERNET == config_status){
-					sm = GME_WAITING_FOR_INTERNET;
-				}
+				else
+					sm = Radio__Config();
 			}
 			break;
 

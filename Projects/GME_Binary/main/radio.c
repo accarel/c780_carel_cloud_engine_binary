@@ -75,3 +75,10 @@ int8_t Radio__GetRSSI(void){
 		return 0;	// for 2G model, wifi is off, so no wifi power is measured
 	return 0;
 }
+
+C_RES Radio_WaitNetwork(void){
+	if (PLATFORM(PLATFORM_DETECTED_2G))
+		return Mobile__WaitNetwork();
+	else
+		return C_SUCCESS;
+}

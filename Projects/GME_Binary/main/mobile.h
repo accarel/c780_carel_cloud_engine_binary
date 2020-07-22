@@ -14,6 +14,8 @@
 #include "data_types_CAREL.h"
 #include "wifi.h"
 
+gme_sm_t Mobile__Init(void);
+C_RES Mobile__WaitNetwork(void);
 gme_sm_t Mobile__Config();
 void Mobile__WaitConnection(void);
 void Mobile__SetStatus(connection_status_t status);
