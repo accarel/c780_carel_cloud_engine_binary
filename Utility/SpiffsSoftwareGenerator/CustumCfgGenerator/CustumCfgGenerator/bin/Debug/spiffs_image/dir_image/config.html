@@ -13,7 +13,7 @@
     
   <div class="container">
     <div>
-      <form action="upload/" method="POST" >
+      <form action="upload/" method="POST" target="_blank" >
         <div class="">
             <table style="width:350px;" >
 			<col width="130">
@@ -24,7 +24,7 @@
                 <td><input type="text" value="" name="ap_ssid" required></td>
               
                  <td><label for="ap_ssid_hidden"></label></td>
-                <td><input id="ap_ssid_hidden" type="checkbox" value="" name="ap_ssid_hidden">Hide SSID</td>
+                <td><input id="ap_ssid_hidden" type="checkbox" value="false" name="ap_ssid_hidden">Hide SSID</td>
               </tr>
               <tr>
                 <td class="list_input"><label for="ap_pswd"><b>Password</b></label></td>
@@ -172,7 +172,11 @@ var configjs;
             configjs = JSON.parse(Http.responseText);
             console.log(configjs);
             document.getElementsByName('ap_ssid')[0].value = configjs.ap_ssid;
-            document.getElementById('ap_ssid_hidden').checked = configjs.ap_ssid_hidden;
+			if(configjs.ap_ssid_hidden == true)
+            document.getElementById('ap_ssid_hidden').checked = true;
+			else 
+			document.getElementById('ap_ssid_hidden').checked = false;
+			
             document.getElementsByName('ap_pswd')[0].value = configjs.ap_pswd;
             document.getElementsByName('ap_ip')[0].value = configjs.ap_ip;
 
