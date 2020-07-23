@@ -698,6 +698,8 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
 
+    Utilities__Init();	// take mac from fuses for ap name setting
+
     SetAPConfig(config.ap_ip, config.ap_ip, AP_DEF_NETMASK);
 
     wifi_config_t wifi_config_AP = {
