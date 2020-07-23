@@ -289,7 +289,7 @@ C_RES get_html_config_received_data(char* sent_parameters){
     	PRINTF_DEBUG_SERVER("ap_ssid_hidden: off\n");
     }
     else{
-    	PRINTF_DEBUG_SERVER("ap_ssid_hidden: %s\n",data_value);
+    	PRINTF_DEBUG_SERVER("ap_ssid_hidden: on\n");
         HTMLConfig.ap_ssid_hidden = 1;
     }
     PRINTF_DEBUG_SERVER("ap_ssid_hidden: %d\n",HTMLConfig.ap_ssid_hidden);
