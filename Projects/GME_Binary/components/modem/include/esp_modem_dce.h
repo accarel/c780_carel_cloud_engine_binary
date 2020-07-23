@@ -97,6 +97,7 @@ struct modem_dce {
     esp_err_t (*define_pdp_context)(modem_dce_t *dce, uint32_t cid,
                                     const char *type, const char *apn); /*!< Set PDP Contex */
     esp_err_t (*set_working_mode)(modem_dce_t *dce, modem_mode_t mode); /*!< Set working mode */
+    esp_err_t (*get_network_status)(modem_dce_t *dce, uint32_t* status); /*!< Get network status */
     esp_err_t (*get_qeng)(modem_dce_t *dce);
     esp_err_t (*hang_up)(modem_dce_t *dce);                             /*!< Hang up */
     esp_err_t (*power_down)(modem_dce_t *dce);                          /*!< Normal power down */

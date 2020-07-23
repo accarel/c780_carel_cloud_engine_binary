@@ -85,6 +85,28 @@ static esp_err_t sim800_handle_cbc(modem_dce_t *dce, const char *line)
     return err;
 }
 
+
+/**
+ * @brief Handle response from AT+QNSTATUS
+ */
+static esp_err_t sim800_handle_qnstatus(modem_dce_t *dce, const char *line)
+{
+    esp_err_t err = ESP_FAIL;
+    sim800_modem_dce_t *sim800_dce = __containerof(dce, sim800_modem_dce_t, parent);
+    if (strstr(line, MODEM_RESULT_CODE_SUCCESS)) {
+        err = esp_modem_process_command_done(dce, MODEM_STATE_SUCCESS);
+    } else if (strstr(line, MODEM_RESULT_CODE_ERROR)) {
+        err = esp_modem_process_command_done(dce, MODEM_STATE_FAIL);
+    } else if (!strncmp(line, "+QNSTATUS", strlen("+QNSTATUS"))) {
+        /* store value of bcs, bcl, voltage */
+    	uint32_t **status = sim800_dce->priv_resource;
+        /* +QNSTATUS: <status> */
+        sscanf(line, "%*s%d", status[0]);
+        err = ESP_OK;
+    }
+    return err;
+}
+
 /**
  * @brief Handle response from +++
  */
@@ -359,6 +381,31 @@ err:
     return ESP_FAIL;
 }
 
+
+/**
+ * @brief Get network status
+ *
+ * @param dce Modem DCE object
+ * @param status Network status
+ * @return esp_err_t
+ *      - ESP_OK on success
+ *      - ESP_FAIL on error
+ */
+static esp_err_t sim800_get_network_status(modem_dce_t *dce, uint32_t *status)
+{
+    modem_dte_t *dte = dce->dte;
+    sim800_modem_dce_t *sim800_dce = __containerof(dce, sim800_modem_dce_t, parent);
+    uint32_t *resource[1] = {status};
+    sim800_dce->priv_resource = resource;
+    dce->handle_line = sim800_handle_qnstatus;
+    DCE_CHECK(dte->send_cmd(dte, "AT+QNSTATUS\r", MODEM_COMMAND_TIMEOUT_DEFAULT) == ESP_OK, "send command failed", err);
+    DCE_CHECK(dce->state == MODEM_STATE_SUCCESS, "inquire network status failed", err);
+    ESP_LOGD(DCE_TAG, "inquire network status ok");
+    return ESP_OK;
+err:
+    return ESP_FAIL;
+}
+
 /**
  * @brief Set Working Mode
  *
@@ -580,6 +627,7 @@ modem_dce_t *sim800_init(modem_dte_t *dte)
     sim800_dce->parent.get_signal_quality = sim800_get_signal_quality;
     sim800_dce->parent.get_battery_status = sim800_get_battery_status;
     sim800_dce->parent.set_working_mode = sim800_set_working_mode;
+    sim800_dce->parent.get_network_status = sim800_get_network_status;
     sim800_dce->parent.power_down = sim800_power_down;
     sim800_dce->parent.deinit = sim800_deinit;
     sim800_dce->parent.get_qeng = sim800_get_serving_cell_info;
