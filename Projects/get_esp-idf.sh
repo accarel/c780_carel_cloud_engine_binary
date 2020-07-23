@@ -21,3 +21,5 @@ cd components/freemodbus/modbus
 patch -p0 < ~/esp/GME_Binary/patches/0008_manage_cmd21.patch
 patch -p0 < ~/esp/GME_Binary/patches/0009_manage_cmd21.patch
 cd ../../..
+# extend MQTT timeout before qos 1 publish is resent with puback received (from 1 to 2 seconds)
+patch components/mqtt/esp-mqtt/mqtt_client.c ~/esp/GME_Binary/patches/0010_mqtt_extend_puback_timeout.patch
