@@ -181,6 +181,57 @@ C_RES FS_SaveFile(const char* data_to_save, size_t data_size, const char* filena
 }
 
 
+/**
+ * @brief Check_spiffs_compatibility
+ *		  USefull to check the spiffs version inside the device
+ *
+ * @param  none
+ * @return C_SUCCESS/C_FAIL
+ */
+
+C_RES Check_spiffs_compatibility(void)
+{
+	int fw_ver;
+
+	int spf_ver;
+    int act_spf_ver;
+
+	uint8_t saved_spiff_ver[2] = { 0,0 };
+	uint8_t spiff_ver[2] = { 0,0 };
+
+	C_RES err = C_FAIL;
+
+	FILE *file_ptr_1 = NULL;
+
+	fw_ver = atoi(GW_FW_REV);
+
+	spf_ver = atoi(GW_SPIFFS_REV);
+
+	uint8_t *dati_1 = (uint8_t *)malloc(sizeof(uint16_t));
+	file_ptr_1 = fopen(CFG_DEF, "rb");
+	fread(dati_1, sizeof(uint8_t), sizeof(uint16_t), file_ptr_1);
+	fclose(file_ptr_1);
+
+	saved_spiff_ver[1] = *dati_1;
+	saved_spiff_ver[0] = *(dati_1+1);
+
+	act_spf_ver =  (int)(saved_spiff_ver[0] << 8) | (saved_spiff_ver[1]);
+
+	free(dati_1);
+
+    if(act_spf_ver == spf_ver)
+	{
+    	err = C_SUCCESS;
+    }
+    else
+    {
+    	// bisogna capire se la versione può supportare lo spiffs presente
+    	err = C_FAIL;
+    }
+    return err;
+}
+
+
 
 /**
  * @brief SaveCfgDefDataToNVM
@@ -192,6 +243,9 @@ C_RES SaveCfgDefDataToNVM(void) {
 	C_RES err = C_SUCCESS;
 
 	FILE *file_ptr_1 = NULL;
+
+	//Check_spiffs_compatibility();
+    /*  to added a spiffs check control before save the data in the NVM memory  */
 	uint8_t *dati_1 = (uint8_t *)malloc(sizeof(cfg_data_t));
 
 	file_ptr_1 = fopen(CFG_DEF, "rb");
