@@ -3,6 +3,7 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" type="text/css" href="style.css" />
+<link rel="icon" href="fav.ico" />
 </head>
 <body onload="ShowHideDiv();sta_dhcp()">
   <div class="imgcontainer">
@@ -28,7 +29,7 @@
               </tr>
               <tr>
                 <td class="list_input"><label for="ap_pswd"><b>Password</b></label></td>
-                <td><input type="password" placeholder="" value="" name="ap_pswd" required pattern=".{0}|.{8,}"><br>
+                <td><input type="password" placeholder="" value="" name="ap_pswd" required pattern=".{8,}" autofocus required title="at least 8 characters"><br>
                   <input type="checkbox" onclick="apshowpass()">Show Password</td>
               </tr>
               <tr>
