@@ -418,11 +418,12 @@ namespace CustumCfgGenerator
 
                 try
                 {
-                    byte Majnumber = Convert.ToByte(newVersion);
+                    int Majnumber = Convert.ToInt16(newVersion);
 
-                    if (Enumerable.Range(1, 256).Contains(Majnumber))
+                    if (Enumerable.Range(1, 65535).Contains(Majnumber))
                     {
-                        mySpiffs.cfg_version[0] = Majnumber;
+                        mySpiffs.cfg_version[0] = (byte)Majnumber;
+                        mySpiffs.cfg_version[1] = (byte)(Majnumber>>8);
                     }
                     else
                     {
@@ -440,39 +441,39 @@ namespace CustumCfgGenerator
             }
         }
 
-        private void textBetaVersion_TextChanged(object sender, EventArgs e)
-        {
-            button1.BackColor = Color.Gray;
+        //private void textBetaVersion_TextChanged(object sender, EventArgs e)
+        //{
+        //    button1.BackColor = Color.Gray;
 
-            string newVersion = textBetaVersion.Text;
+        //    string newVersion = textBetaVersion.Text;
         
-            if(newVersion != "")
-            {
-                mySpiffs.cfg_version[1] = 0;
+        //    if(newVersion != "")
+        //    {
+        //        mySpiffs.cfg_version[1] = 0;
 
-                try
-                {
-                    byte Minnumber = Convert.ToByte(newVersion);
+        //        try
+        //        {
+        //            byte Minnumber = Convert.ToByte(newVersion);
 
-                    if (Enumerable.Range(0, 99).Contains(Minnumber))
-                    {
-                        mySpiffs.cfg_version[1] = Minnumber;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Valore errato (range valido da 0 - 99)");
-                    }
-                }
-                catch
-                {
-                    MessageBox.Show("Valore errato (range valido da 0 - 99)");
-                }
-            }
-            else
-            {
-                mySpiffs.cfg_version[1] = 0;
-            }
-        }
+        //            if (Enumerable.Range(0, 99).Contains(Minnumber))
+        //            {
+        //                mySpiffs.cfg_version[1] = Minnumber;
+        //            }
+        //            else
+        //            {
+        //                MessageBox.Show("Valore errato (range valido da 0 - 99)");
+        //            }
+        //        }
+        //        catch
+        //        {
+        //            MessageBox.Show("Valore errato (range valido da 0 - 99)");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        mySpiffs.cfg_version[1] = 0;
+        //    }
+        //}
 
 
         private void button2_Click(object sender, EventArgs e)
@@ -484,7 +485,7 @@ namespace CustumCfgGenerator
             textNtpAddress.Clear();
             textNtpPort.Clear();
             textVersion.Clear();
-            textBetaVersion.Clear();
+            //textBetaVersion.Clear();
             textApnName.Clear();
             textApnPassword.Clear();
             textApnUser.Clear();
