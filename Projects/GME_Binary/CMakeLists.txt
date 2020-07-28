@@ -3,5 +3,8 @@
 cmake_minimum_required(VERSION 3.5)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
+set(SDKCONFIG_DEFAULTS sdkconfig)
+#set(SDKCONFIG_DEFAULTS sdkconfig.release)
+
 project(gme_carel)
 
