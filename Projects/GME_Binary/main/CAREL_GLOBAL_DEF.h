@@ -76,7 +76,9 @@
  *        WARNING! remember that the debug output take elaboration time 
  *        WARNING! this define MUST be DISABLE in the release version of the FW
  */
-#define __CCL_DEBUG_MODE
+#if DEBUG_MODE == 1
+	#define __CCL_DEBUG_MODE
+#endif
 
 #ifdef __CCL_DEBUG_MODE
 	#define	PRINTF_DEBUG	printf
