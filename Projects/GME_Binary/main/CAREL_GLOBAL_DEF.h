@@ -105,7 +105,7 @@
  *
  */
 #define GW_HW_REV  "100"
-#define GW_FW_REV  "001"
+#define GW_FW_REV  "080"
 
 #define GW_SPIFFS_REV  "100"
 
