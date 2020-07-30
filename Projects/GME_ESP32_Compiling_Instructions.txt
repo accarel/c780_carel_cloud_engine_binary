@@ -1,6 +1,11 @@
 ﻿The RELEASE FW of the gateway includes
 a. the all in one version for the GME WiFi and 2G model
 b. the version for bCU embedded gateway
+Build process has been automatized. To build a release version, from GME_Binary folder call:
+./build_gme.sh RELEASE
+To build a debug version:
+./build_gme.sh DEBUG
+
 
 
 To build te RELEASE version of the FW you need to 
@@ -31,7 +36,7 @@ c. Compiler Option -->
 d. Component Config -->
    4_1. ESP32-specific    --> Rev.1
    
-   4_2. Common ESP-related --> UART for console ouput --> NONE                <<<< do not disable uart for console, differently hw test will not work
+   4_2. Common ESP-related --> UART for console ouput --> NONE                <<<< do not disable uart for console, differentlt hw test will not work
    4_3. Task Watchdog timeout period -->  60 sec
    4_4. Ethernet --> Support ESP32 internal ... --> unselect
                  --> SPI ...                    --> unselect
