@@ -31,7 +31,7 @@ c. Compiler Option -->
 d. Component Config -->
    4_1. ESP32-specific    --> Rev.1
    
-   4_2. Common ESP-related --> UART for console ouput --> NONE
+   4_2. Common ESP-related --> UART for console ouput --> NONE                <<<< do not disable uart for console, differently hw test will not work
    4_3. Task Watchdog timeout period -->  60 sec
    4_4. Ethernet --> Support ESP32 internal ... --> unselect
                  --> SPI ...                    --> unselect
