@@ -298,7 +298,8 @@ void Carel_Main_Task(void)
 					waiting_conf_timer = RTC_Get_UTC_Current_Time();
 				}
         	}
-        	MQTT_PeriodicTasks();			// manage the MQTT subscribes even before configuration is done
+        	if(MQTT_GetFlags() == 1)			// make sure that CBOR tx buffer was already allocated
+        		MQTT_PeriodicTasks();			// manage the MQTT subscribes even before configuration is done
 
         	GME__CheckHTMLConfig();
 
@@ -362,8 +363,8 @@ void Carel_Main_Task(void)
           case GME_IDLE_INTERNET_CONNECTED:
           	//TODO
               Radio__WaitConnection();
-
-              MQTT_PeriodicTasks();			// manage the MQTT subscribes
+              if(MQTT_GetFlags() == 1)			// make sure that CBOR tx buffer was already allocated
+            	  MQTT_PeriodicTasks();			// manage the MQTT subscribes
 
               GME__CheckHTMLConfig();
 
