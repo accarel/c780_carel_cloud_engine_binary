@@ -58,6 +58,8 @@
             this.button1 = new System.Windows.Forms.Button();
             this.buttonTestStart = new System.Windows.Forms.Button();
             this.button_test_result = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
+            this.comboBox_DUT_Type = new System.Windows.Forms.ComboBox();
             this.tabControl_Info_Setup.SuspendLayout();
             this.tabPage2_parameters.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -67,7 +69,7 @@
             // 
             // rtbIncoming
             // 
-            this.rtbIncoming.Location = new System.Drawing.Point(13, 96);
+            this.rtbIncoming.Location = new System.Drawing.Point(13, 154);
             this.rtbIncoming.Margin = new System.Windows.Forms.Padding(4);
             this.rtbIncoming.Name = "rtbIncoming";
             this.rtbIncoming.Size = new System.Drawing.Size(330, 506);
@@ -99,7 +101,7 @@
             // 
             this.tabControl_Info_Setup.Controls.Add(this.tabPage2_parameters);
             this.tabControl_Info_Setup.Controls.Add(this.tabPage1_Info);
-            this.tabControl_Info_Setup.Location = new System.Drawing.Point(421, 46);
+            this.tabControl_Info_Setup.Location = new System.Drawing.Point(421, 104);
             this.tabControl_Info_Setup.Name = "tabControl_Info_Setup";
             this.tabControl_Info_Setup.SelectedIndex = 0;
             this.tabControl_Info_Setup.Size = new System.Drawing.Size(393, 618);
@@ -362,9 +364,9 @@
             // 
             // buttonTestStart
             // 
-            this.buttonTestStart.Location = new System.Drawing.Point(18, 32);
+            this.buttonTestStart.Location = new System.Drawing.Point(13, 90);
             this.buttonTestStart.Name = "buttonTestStart";
-            this.buttonTestStart.Size = new System.Drawing.Size(325, 51);
+            this.buttonTestStart.Size = new System.Drawing.Size(330, 51);
             this.buttonTestStart.TabIndex = 49;
             this.buttonTestStart.Text = "PRESS TO START THE TEST";
             this.buttonTestStart.UseVisualStyleBackColor = true;
@@ -372,18 +374,38 @@
             // 
             // button_test_result
             // 
-            this.button_test_result.Location = new System.Drawing.Point(13, 609);
+            this.button_test_result.Location = new System.Drawing.Point(13, 667);
             this.button_test_result.Name = "button_test_result";
             this.button_test_result.Size = new System.Drawing.Size(325, 51);
             this.button_test_result.TabIndex = 50;
             this.button_test_result.Text = "---------";
             this.button_test_result.UseVisualStyleBackColor = true;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(17, 9);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(127, 17);
+            this.label5.TabIndex = 52;
+            this.label5.Text = "Select device type:";
+            // 
+            // comboBox_DUT_Type
+            // 
+            this.comboBox_DUT_Type.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.comboBox_DUT_Type.FormattingEnabled = true;
+            this.comboBox_DUT_Type.Location = new System.Drawing.Point(13, 37);
+            this.comboBox_DUT_Type.Name = "comboBox_DUT_Type";
+            this.comboBox_DUT_Type.Size = new System.Drawing.Size(329, 25);
+            this.comboBox_DUT_Type.TabIndex = 53;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(850, 710);
+            this.ClientSize = new System.Drawing.Size(832, 762);
+            this.Controls.Add(this.comboBox_DUT_Type);
+            this.Controls.Add(this.label5);
             this.Controls.Add(this.button_test_result);
             this.Controls.Add(this.buttonTestStart);
             this.Controls.Add(this.tabControl_Info_Setup);
@@ -391,7 +413,7 @@
             this.Controls.Add(this.rtbIncoming);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "CAREL GME HW Test V.1.0.4";
+            this.Text = "CAREL GME HW Test V.1.1.0";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl_Info_Setup.ResumeLayout(false);
             this.tabPage2_parameters.ResumeLayout(false);
@@ -401,6 +423,7 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -435,6 +458,8 @@
         private System.Windows.Forms.Button button_put_in_programming;
         private System.Windows.Forms.TextBox textBox_read_v;
         private System.Windows.Forms.Button button_read_v;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.ComboBox comboBox_DUT_Type;
     }
 }
 

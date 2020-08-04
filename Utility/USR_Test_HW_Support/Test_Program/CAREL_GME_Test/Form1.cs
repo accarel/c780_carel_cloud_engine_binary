@@ -93,6 +93,11 @@ namespace CodeProjectSerialComms
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
+            comboBox_DUT_Type.Items.Add("WIFI              - GTW000MWT0 ");
+            comboBox_DUT_Type.Items.Add("2G with CAREL SIM - GTW000MGP0 ");
+            comboBox_DUT_Type.SelectedIndex = 0;
+
             My_IO.Init_IO_Interface();
             My_SER.Init_Ser_Interface();
 
@@ -160,8 +165,6 @@ namespace CodeProjectSerialComms
             
             return 1;
         }
-
-
 
 
         private int call_esp_programmer()
@@ -323,7 +326,7 @@ namespace CodeProjectSerialComms
             bool test_pass = true;
 
             display_reset();
-            display_status("TEST Start!");
+            display_status("TEST Start WiFi!");
 
 
             /* close serial if left opened by the previous failed test */
@@ -390,7 +393,7 @@ namespace CodeProjectSerialComms
             My_SER.Init_Ser_Communication_Interface();
             
 
-            MessageBox.Show("Take a look to the status led to see if blink");
+            MessageBox.Show("Take a look to the status led to see if blink it take some time");
 
 
             //now we put GME in test mode            
@@ -401,13 +404,10 @@ namespace CodeProjectSerialComms
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);            //leave GME reset
             display_status("Gateway in test mode ..");
 
-            test_pass = MessageYesNo("LED STATUS TEST", "The status led have blinked green/red ?");
-            if (test_pass == false)
-            {
-                display_failed_test();
-                test_result_indicator(false);
-                return;
-            }
+            //this time is to give the possibility to the GME to encrypt the flash 
+            //it take 60 sec. maximun but we short the time waiting the IMEI serial message 
+            //anyway no less than 10secs are requested so that the first part is in busy wait
+            Thread.Sleep(10000);
 
 
             //get MAC address
@@ -431,6 +431,14 @@ namespace CodeProjectSerialComms
             }
 
 
+            test_pass = MessageYesNo("LED STATUS TEST", "The status led have blinked green/red ?");
+            if (test_pass == false)
+            {
+                display_failed_test();
+                test_result_indicator(false);
+                return;
+            }
+                       
             /* the GME take a while to connect to the AP */
             Thread.Sleep(2000);
 
@@ -496,9 +504,219 @@ namespace CodeProjectSerialComms
 
 
 
+        private void test_sequence_2g()
+        {
+            /* ============================================================== */
+            /*                     BEGIN OF TEST SUITE 2G                     */
+            /* ============================================================== */
+            bool test_pass = true;
+
+            display_reset();
+            display_status("TEST Start 2G!");
+
+
+            /* close serial if left opened by the previous failed test */
+            if (My_SER.ser_is_open == true) My_SER.DeInit_Ser_Communication_Interface();
+
+            My_IO.open_all_rele();
+            display_status("Power ON !");
+            My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_ON); //press prog. button
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_POWER, My_IO.RELE_ON);
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON); //press prog. button
+
+
+            test_pass = MessageYesNo("LED POWER TEST", "Is the power led ON ?");
+            if (test_pass == false)
+            {
+                display_failed_test();
+                test_result_indicator(false);
+                return;
+            }
+
+
+
+            //TEST if power supply voltage is within limits 
+            int irv;
+            irv = My_IO.get_voltage_level();
+            
+
+            if ((irv >= My_IO.volt_min_2g) && (irv <= My_IO.volt_max_2g))
+            {
+                display_status("Voltage = " + (((((float)irv) * My_IO.volt_a)) + My_IO.volt_b));
+                display_status("Test OK");
+            }
+            else
+            {
+                display_failed_test();
+                test_result_indicator(false);
+                return;
+            }
+
+            //now start programming the device 
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
+            Thread.Sleep(1000);
+            My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
+            Thread.Sleep(1000);
+            display_status("Gateway ready to program ..");
+
+
+            //test_pass = prog_device();
+
+            test_pass = true;
+
+            if (test_pass == false)
+            {
+                display_status("Gateway programming FAILED!");
+                display_failed_test();
+                test_result_indicator(false);
+                return;
+            }
+
+
+
+            /*
+             * now we initialize the serial port previosly used for the programming
+             * to get some data from the GME in test mode
+             */
+            My_SER.Init_Ser_Communication_Interface();
+
+            //warn the operator to take a look to the leds
+            MessageBox.Show("Take a look to the green leds to see if they blink in sequence it take some time");
+            
+
+            //now we put GME in test mode            
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_ON);            //maintain GME resetted
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_TP5, My_IO.RELE_ON);           //TP5 to ground 
+            Thread.Sleep(500);
+            My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);            //leave GME reset
+            
+            //this time is to give the possibility to the GME to encrypt the flash 
+            //it take 60 sec. maximun but we short the time waiting the IMEI serial message 
+            //anyway no less than 10secs are requested so that the first part is in busy wait
+            Thread.Sleep(10000);
+            
+            display_status("Gateway in test mode ..");
+                                                  
+            //get IMEI address
+            String imei_address_str;
+            int value;
+
+            imei_address_str = My_SER.get_imei_response();
+
+            value = String.Compare(imei_address_str, @"");
+
+            if (value != 0)
+            {
+                display_status(imei_address_str);
+            }
+            else
+            {
+                display_status("FAIL to get IMEI ");
+                display_failed_test();
+                My_SER.DeInit_Ser_Communication_Interface();
+                test_result_indicator(false);
+                return;
+            }
+
+            test_pass = MessageYesNo("LED TEST", "The status leds have blinked in sequence ?");
+            if (test_pass == false)
+            {
+                display_failed_test();
+                test_result_indicator(false);
+                return;
+            }
+            
+
+            /* check SIM presence */
+            bool res;            
+            res = My_SER.get_sim_installed_response();
+            if (res == true)
+            {
+                display_status("SIM is installed TEST PASSED !");
+            }
+            else
+            {
+                display_status("FAIL SIM not found please check if is installed properly");
+                display_failed_test();
+                My_SER.DeInit_Ser_Communication_Interface();
+                test_result_indicator(false);
+                return;
+            }
+
+
+            /* the GME take a while to search the GSM networks */
+            Thread.Sleep(3000);
+
+            res = My_SER.get_operator_response();
+            if (res == true)
+            {
+                display_status("GSM operator found TEST PASSED !");
+            }
+            else
+            {
+                display_status("FAIL GSM operator NOT found please check the antenna ");
+                display_failed_test();
+                My_SER.DeInit_Ser_Communication_Interface();
+                test_result_indicator(false);
+                return;
+            }
+                                          
+                                 
+            //read HR n.1 
+            res = My_SER.get_modbus_hr_response();
+            if (res == true)
+            {
+                display_status("Read HR through RS485 TEST PASSED !");
+            }
+            else
+            {
+                display_status("FAIL to read HR through RS485 port");
+                display_failed_test();
+                My_SER.DeInit_Ser_Communication_Interface();
+                test_result_indicator(false);
+                return;
+            }
+
+
+
+            //close the serial port 
+            My_SER.DeInit_Ser_Communication_Interface();
+
+
+            /* ============================================================== */
+            /*                BEGIN OF USR CUSTOMIZATION PART                 */
+            /* ============================================================== */
+
+            //TODO for USR 
+            //get Serial number from factory or do all in an external program
+            //that also print the label 
+
+
+            /* ============================================================== */
+            /*                 END OF USR CUSTOMIZATION                       */
+            /* ============================================================== */
+
+            /* ============================================================== */
+            /*                         END OF TEST                            */
+            /* ============================================================== */
+            test_result_indicator(true);
+            display_status("END OF TEST ");
+
+        }
+
+
+
 
         private void buttonTestStart_Click(object sender, EventArgs e)
         {
+            int dut_selected;
+
+            dut_selected = comboBox_DUT_Type.SelectedIndex;
+            
+
             buttonTestStart.Enabled = false;
             buttonTestStart.BackColor = Color.Red;
             buttonTestStart.Text = "TEST RUNNING WAIT";
@@ -509,7 +727,19 @@ namespace CodeProjectSerialComms
 
             Application.DoEvents();
 
-            test_sequence();
+            switch (dut_selected)
+            {
+                case 0:
+                    //WiFi;
+                    test_sequence();
+                    break;
+
+                case 1:
+                    //2G with SIM
+                    test_sequence_2g();
+                    break;
+            }
+                                                   
 
             buttonTestStart.Text = "PRESS TO START THE TEST";
             buttonTestStart.Enabled = true;
@@ -575,6 +805,10 @@ namespace CodeProjectSerialComms
             textBox_read_v.Text = value;
         }
 
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 
 

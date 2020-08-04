@@ -38,6 +38,9 @@ namespace IO_Interface
 
         public int volt_min;
         public int volt_max;
+        public int volt_min_2g;
+        public int volt_max_2g;
+
         public float volt_a;
         public float volt_b;
 
@@ -112,6 +115,12 @@ namespace IO_Interface
             /* read some costants */
             par_val = MyIni.Read("VOLT_MIN");
             volt_min = Int32.Parse(par_val);
+
+            par_val = MyIni.Read("VOLT_MAX_2G");
+            volt_max_2g = Int32.Parse(par_val);
+
+            par_val = MyIni.Read("VOLT_MIN_2G");
+            volt_min_2g = Int32.Parse(par_val);
 
             par_val = MyIni.Read("VOLT_MAX");
             volt_max = Int32.Parse(par_val);
@@ -224,7 +233,7 @@ namespace IO_Interface
 
             SerDataAvailable = 0;
             send_read_voltage();
-            ret_val = serial_response(1000);
+            ret_val = serial_response(2000);
 
             if (ret_val != "")
             {

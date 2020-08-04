@@ -29,6 +29,9 @@ namespace gme_ser_Interface
 
         public String ComModbusSimulator = "---";
 
+        public String GSM_operator = "xxx";
+
+
 
         public bool ser_is_open = false;
             
@@ -93,6 +96,9 @@ namespace gme_ser_Interface
 
             par_val = MyIni.Read("PortMBSim");
             ComModbusSimulator = par_val;
+
+            par_val = MyIni.Read("GSMOPERATOR");
+            GSM_operator = par_val;
                        
         }
         
@@ -186,7 +192,7 @@ namespace gme_ser_Interface
 
 
             maxtime = 0;
-            loctimeout = 5000;  //5 sec
+            loctimeout = 5000;  //50 sec why? because the ESP32 require a lot to encrypt initially the flash
 
             /*
              at startup the ESP32 emit some bootloader msg, so that 
@@ -218,6 +224,54 @@ namespace gme_ser_Interface
             return result;
         }
 
+
+
+        public string get_imei_response()
+        {
+            String ret_val = @"";
+            String result = @"";
+            int irv = 0;
+            int value;
+            int maxtime;
+            int loctimeout;
+
+
+            maxtime = 0;
+            loctimeout = 5000;  //50 sec why? because the ESP32 require a lot to encrypt initially the flash
+
+            /*
+             at startup the ESP32 emit some bootloader msg, so that 
+             we need to receive all this "spurious" data before
+             get the IMEI             
+             */
+            do
+            {
+                ret_val = serial_response(500);
+                value = String.Compare(ret_val, @"");
+                if (value != 0)
+                {
+                    string separator = @"IMEI=";
+                    // Part 1: get index of separator.
+                    int separatorIndex = ret_val.IndexOf(separator);
+                    // Part 2: if separator exists, get substring.
+                    if (separatorIndex >= 0)
+                    {
+                        result = ret_val.Substring(separatorIndex + separator.Length, 15);
+                        break;
+                    }
+                }
+
+                Thread.Sleep(50);
+                maxtime += 50;
+
+                Console.WriteLine(maxtime);
+
+            } while (maxtime < loctimeout);
+
+            return result;
+        }
+
+                              
 
         public bool get_ap_connection_response()
         {
@@ -272,6 +326,130 @@ namespace gme_ser_Interface
       
             return res;
         }
+
+        
+        public bool get_sim_installed_response()
+        {
+            String ret_val = @"";
+            String result = @"";
+            int irv = 0;
+            int value;
+            int maxtime;
+            int loctimeout;
+            bool res = false;
+
+
+            maxtime = 0;
+            loctimeout = 20000;  //20 sec
+
+            /*
+             at startup the ESP32 emit some bootloader msg, so that 
+             we need to receive all this "spurious" data before
+             get the SIM result             
+             */
+            String searchfor = @"OK";
+
+            do
+            {
+                value = String.Compare(CumulatedData, @"SIM=");
+
+                if (value != 0)
+                {
+                    if (CumulatedData.Length >= (value + searchfor.Length))
+                    {
+                        string separator = @"SIM=";
+                        // Part 1: get index of separator.
+                        int separatorIndex = CumulatedData.IndexOf(separator);
+                        // Part 2: if separator exists, get substring.
+                        if (separatorIndex >= 0)
+                        {
+                            result = CumulatedData.Substring(separatorIndex + separator.Length, searchfor.Length);
+                            break;
+                        }
+                    }
+                }
+
+                Thread.Sleep(50);
+                maxtime += 50;
+
+            } while (maxtime < loctimeout);
+
+            if (String.Equals(result, searchfor))
+            {
+                res = true;
+            }
+
+            return res;
+        }
+
+
+        public bool get_operator_response()
+        {
+            String ret_val = @"";
+            String result = @"";
+            int irv = 0;
+            int value;
+            int maxtime;
+            int loctimeout;
+            bool res = false;
+
+
+            maxtime = 0;
+            loctimeout = 20000;  //20 sec
+
+            /*
+             at startup the ESP32 emit some bootloader msg, so that 
+             we need to receive all this "spurious" data before
+             get the SIM result             
+             */
+            String searchfor = GSM_operator;
+
+            do
+            {
+                value = String.Compare(CumulatedData, @"GSM=");
+
+                if (value != 0)
+                {
+                    if (CumulatedData.Length >= (value + searchfor.Length))
+                    {
+                        string separator = @"GSM=";
+                        // Part 1: get index of separator.
+                        int separatorIndex = CumulatedData.IndexOf(separator);
+                        // Part 2: if separator exists, get substring.
+                        if (separatorIndex >= 0)
+                        {
+
+                            try
+                            {
+                                result = CumulatedData.Substring(separatorIndex + separator.Length, searchfor.Length);
+                            }
+                            catch (ArgumentException aae)
+                            {
+                                res = false;
+                                return res;
+                            }
+                            
+                            break;
+                        }
+                    }
+                }
+
+                Thread.Sleep(50);
+                maxtime += 50;
+
+            } while (maxtime < loctimeout);
+
+            if (String.Equals(result, searchfor))
+            {
+                res = true;
+            }
+
+            return res;
+        }
+
+
+
+
 
 
 
