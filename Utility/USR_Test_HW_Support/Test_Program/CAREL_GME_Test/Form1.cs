@@ -562,10 +562,9 @@ namespace CodeProjectSerialComms
             display_status("Gateway ready to program ..");
 
 
-            //test_pass = prog_device();
+            test_pass = prog_device();
 
-            test_pass = true;
-
+            
             if (test_pass == false)
             {
                 display_status("Gateway programming FAILED!");
