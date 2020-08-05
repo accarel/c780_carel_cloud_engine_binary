@@ -1315,7 +1315,7 @@ CborError CBOR_ReqRdWrValues(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrd
 		else if (strncmp(tag, "flg", 3) == 0)
 		{
 			flag_t ftmp = {0};
-			err |= CBOR_ExtractInt(&recursed, &tmp);
+			err |= CBOR_ExtractInt(&recursed, &ftmp);
 			cbor_rwv->flags = ftmp;
 			DEBUG_DEC(err, "req_rdwr_values: flg");
 		}
