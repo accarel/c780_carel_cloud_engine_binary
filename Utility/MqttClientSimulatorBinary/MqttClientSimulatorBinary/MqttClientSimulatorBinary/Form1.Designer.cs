@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             this.txtConsole = new System.Windows.Forms.TextBox();
             this.buttonChangeCredential = new System.Windows.Forms.Button();
@@ -202,6 +203,9 @@
             this.radioButton_qos0 = new System.Windows.Forms.RadioButton();
             this.groupBox11 = new System.Windows.Forms.GroupBox();
             this.radioButton_qos1 = new System.Windows.Forms.RadioButton();
+            this.timer_check_is_alive = new System.Windows.Forms.Timer(this.components);
+            this.radioButton_alive = new System.Windows.Forms.RadioButton();
+            this.checkBox_mqtt_alive = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -2117,12 +2121,42 @@
             this.radioButton_qos1.CheckedChanged += new System.EventHandler(this.radioButton_qos1_CheckedChanged);
             this.radioButton_qos1.Click += new System.EventHandler(this.radioButton_qos1_Click);
             // 
+            // timer_check_is_alive
+            // 
+            this.timer_check_is_alive.Interval = 1000;
+            this.timer_check_is_alive.Tick += new System.EventHandler(this.timer_check_is_alive_Tick);
+            // 
+            // radioButton_alive
+            // 
+            this.radioButton_alive.AutoSize = true;
+            this.radioButton_alive.Enabled = false;
+            this.radioButton_alive.Location = new System.Drawing.Point(550, 2);
+            this.radioButton_alive.Name = "radioButton_alive";
+            this.radioButton_alive.Size = new System.Drawing.Size(100, 21);
+            this.radioButton_alive.TabIndex = 73;
+            this.radioButton_alive.TabStop = true;
+            this.radioButton_alive.Text = "Alive Conn.";
+            this.radioButton_alive.UseVisualStyleBackColor = true;
+            // 
+            // checkBox_mqtt_alive
+            // 
+            this.checkBox_mqtt_alive.AutoSize = true;
+            this.checkBox_mqtt_alive.Enabled = false;
+            this.checkBox_mqtt_alive.Location = new System.Drawing.Point(550, 29);
+            this.checkBox_mqtt_alive.Name = "checkBox_mqtt_alive";
+            this.checkBox_mqtt_alive.Size = new System.Drawing.Size(103, 21);
+            this.checkBox_mqtt_alive.TabIndex = 74;
+            this.checkBox_mqtt_alive.Text = "MQTT alive";
+            this.checkBox_mqtt_alive.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1768, 745);
+            this.Controls.Add(this.checkBox_mqtt_alive);
+            this.Controls.Add(this.radioButton_alive);
             this.Controls.Add(this.groupBox11);
             this.Controls.Add(this.label53);
             this.Controls.Add(this.textBox_MQTT_PWD);
@@ -2165,7 +2199,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.2";
+            this.Text = "IoT Server Simulator Binary Edition V.2.3";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2367,6 +2401,9 @@
         private System.Windows.Forms.RadioButton radioButton_qos0;
         private System.Windows.Forms.GroupBox groupBox11;
         private System.Windows.Forms.RadioButton radioButton_qos1;
+        private System.Windows.Forms.Timer timer_check_is_alive;
+        private System.Windows.Forms.RadioButton radioButton_alive;
+        private System.Windows.Forms.CheckBox checkBox_mqtt_alive;
     }
 }
 

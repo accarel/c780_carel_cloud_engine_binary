@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Timers;
 
 using System.Net;
 using System.Net.Sockets;
@@ -114,7 +115,7 @@ namespace MqttClientSimulatorBinary
 
             if (MQTT_Connect == true)
             {
-                client.Disconnect();
+                if (client.IsConnected == true) client.Disconnect();
             }
         }
 
@@ -454,26 +455,29 @@ namespace MqttClientSimulatorBinary
         }
 
 
-
-
-
-
-
         private void ButtonConnect_Click(object sender, EventArgs e)
         {
+            mqtt_connect(false);
+        }
 
-            if (MQTT_Connect == true)
+
+
+
+        public void mqtt_connect(bool force_reconn)
+        {
+
+            if ((MQTT_Connect == true) && (force_reconn == false))
             {
-                client.Disconnect();
+                //if not don't crash
+                if (client.IsConnected) client.Disconnect();
+
                 MQTT_Connect = false;
+                timer_check_is_alive.Enabled = false;
                 buttonConnect.Text = "Connect";
                 buttonConnect.BackColor = Color.Green;
                 textBox_SubTopic.Enabled = true;
                 textBox_Target.Enabled = true;
-
-                radioButton_qos1.Enabled = true;
-                radioButton_qos0.Enabled = true;
-
+                checkBox_mqtt_alive.Checked = false;
                 return;
             }
 
@@ -511,11 +515,26 @@ namespace MqttClientSimulatorBinary
 
             if (checkBox_TLS.Checked == true)
             {
-                client = new MqttClient(server_url, server_port, true, caCert, caCert, MqttSslProtocols.TLSv1_2, RemoteCertificateValidationCallback);
+                try
+                {
+                    client = new MqttClient(server_url, server_port, true, caCert, caCert, MqttSslProtocols.TLSv1_2, RemoteCertificateValidationCallback);
+                }
+                catch
+                {
+                    return;
+                }
+
             }
             else
             {
-                client = new MqttClient(server_url);
+                try
+                {
+                    client = new MqttClient(server_url);
+                }
+                catch
+                {
+                    return;
+                }
 
             }
 
@@ -559,6 +578,7 @@ namespace MqttClientSimulatorBinary
             client.Subscribe(new string[] { VAL_RESP_carel_ALL }, new byte[] { qos_selected() });
 
             MQTT_Connect = true;
+            timer_check_is_alive.Enabled = true;
             buttonConnect.Text = "Disconnect";
             buttonConnect.BackColor = Color.Red; 
         }
@@ -1558,6 +1578,45 @@ namespace MqttClientSimulatorBinary
 
         private void radioButton_qos1_CheckedChanged(object sender, EventArgs e)
         {
+        }
+
+        private void timer_check_is_alive_Tick(object sender, EventArgs e)
+        {
+
+            if (MQTT_Connect == true)
+            {
+                //if connected I will check the connection 
+
+                if (client.IsConnected == true)
+                {
+                    checkBox_mqtt_alive.Checked = true;
+                    timer_check_is_alive.Interval = 1000;
+                }
+                else
+                {                    
+                    timer_check_is_alive.Interval = 10000; //delayed next check 
+                    checkBox_mqtt_alive.Checked = false;
+                    //the connetion goes down we try again
+                    mqtt_connect(true);
+                }
+
+
+                if (radioButton_alive.Checked == false)
+                {
+                    radioButton_alive.Checked = true;
+                }
+                else
+                {
+                    radioButton_alive.Checked = false;
+                }
+
+            }
+            else
+            {
+                //nothing to do      
+                radioButton_alive.Checked = false;
+            }
+
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)

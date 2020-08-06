@@ -188,12 +188,23 @@ namespace uPLibrary.Networking.M2Mqtt
             }
             catch
             {
+                remoteIpAddress = null;
             }
 
             // in this case the parameter remoteHostName isn't a valid IP address
             if (remoteIpAddress == null)
             {
-                IPHostEntry hostEntry = Dns.GetHostEntry(remoteHostName);
+
+                try
+                {
+                    IPHostEntry hostEntry = Dns.GetHostEntry(remoteHostName);
+                }
+                catch 
+                {
+                    hostEntry = null;
+                }
+
+
                 if ((hostEntry != null) && (hostEntry.AddressList.Length > 0))
                 {
                     // check for the first address not null
