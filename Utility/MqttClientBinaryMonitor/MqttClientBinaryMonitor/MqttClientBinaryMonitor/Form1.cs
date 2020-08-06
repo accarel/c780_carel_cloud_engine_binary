@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Timers;
 
 using System.Net;
 using System.Net.Sockets;
@@ -91,9 +92,8 @@ namespace MqttClientSimulatorBinary
 
         public int targets_num;
         public string [] targets_names = new string[50];
-        
 
-
+        System.Timers.Timer mytimer;
 
 
         private void MessageBoxInfo(string message, string caption)
@@ -114,14 +114,16 @@ namespace MqttClientSimulatorBinary
             }
         }
         
+
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             Save_Last_Used_Values();
 
             if (MQTT_Connect == true)
             {
-                client.Disconnect();
+                if (client.IsConnected == true) client.Disconnect();
             }
+
         }
 
         public Form1()
@@ -129,12 +131,7 @@ namespace MqttClientSimulatorBinary
             InitializeComponent();
 
             //Load settings
-
-
-
-
-
-
+                                                  
             FormClosed += Form1_FormClosed;
 
             //System.Net.IPAddress IPAddress = System.Net.IPAddress.Parse(MQTT_BROKER_ADDRESS);
@@ -486,18 +483,28 @@ namespace MqttClientSimulatorBinary
 
 
 
-
         private void ButtonConnect_Click(object sender, EventArgs e)
         {
+            mqtt_connect(false);
+        }
 
-            if (MQTT_Connect == true)
+
+
+        public void mqtt_connect(bool force_reconn)
+        {
+
+            if ((MQTT_Connect == true) && (force_reconn == false))
             {
-                client.Disconnect();
+                //if not don't crash
+                if (client.IsConnected) client.Disconnect();
+
                 MQTT_Connect = false;
+                timer_check_is_alive.Enabled = false;
                 buttonConnect.Text = "Connect";
                 buttonConnect.BackColor = Color.Green;
                 textBox_SubTopic.Enabled = true;
                 textBox_Target.Enabled = true;
+                checkBox_mqtt_alive.Checked = false;
                 return;
             }
 
@@ -532,13 +539,29 @@ namespace MqttClientSimulatorBinary
 
             if (checkBox_TLS.Checked == true)
             {
-                client = new MqttClient(server_url, server_port, true, caCert, caCert, MqttSslProtocols.TLSv1_2, RemoteCertificateValidationCallback);
+                try
+                {
+                    client = new MqttClient(server_url, server_port, true, caCert, caCert, MqttSslProtocols.TLSv1_2, RemoteCertificateValidationCallback);
+                }
+                catch 
+                {
+                    return;
+                }
+
             }
             else
             {
-                client = new MqttClient(server_url);
+                try
+                {
+                    client = new MqttClient(server_url);
+                }
+                catch 
+                {
+                    return;
+                }
 
             }
+
 
             // register to message received 
             client.MqttMsgPublishReceived += client_MqttMsgPublishReceived;
@@ -581,6 +604,7 @@ namespace MqttClientSimulatorBinary
             }
 
             MQTT_Connect = true;
+            timer_check_is_alive.Enabled = true;
             buttonConnect.Text = "Disconnect";
             buttonConnect.BackColor = Color.Red; 
         }
@@ -1429,6 +1453,46 @@ namespace MqttClientSimulatorBinary
         {
             string textFilePath = @".\cbor_cloud\REQ_REBOOT.cbor";
             PublishTestFile(textFilePath);
+        }
+
+
+
+
+        private void timer_check_is_alive_Tick(object sender, EventArgs e)
+        {
+
+            if (MQTT_Connect == true)
+            {
+                //if connected I will check the connection 
+
+                if (client.IsConnected == true)
+                {
+                    checkBox_mqtt_alive.Checked = true;
+                }
+                else 
+                {
+                    checkBox_mqtt_alive.Checked = false;
+                    //the connetion goes down we try again
+                    mqtt_connect(true);
+                }
+
+
+                if (radioButton_alive.Checked == false)
+                {
+                    radioButton_alive.Checked = true;
+                }
+                else 
+                {
+                    radioButton_alive.Checked = false;
+                }
+
+            }
+            else 
+            {
+                //nothing to do      
+                radioButton_alive.Checked = false;
+            }
+
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)

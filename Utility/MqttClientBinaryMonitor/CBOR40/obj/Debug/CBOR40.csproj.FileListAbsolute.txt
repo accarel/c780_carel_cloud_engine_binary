@@ -29,7 +29,6 @@ C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\
 C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\CBOR40\bin\Debug\Numbers.pdb
 C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\CBOR40\bin\Debug\Numbers.xml
 C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\CBOR40\obj\Debug\CBOR40.csprojAssemblyReference.cache
-C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\CBOR40\obj\Debug\CBOR40.csproj.CoreCompileInputs.cache
 C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\CBOR40\obj\Debug\CBOR40.csproj.CopyComplete
 C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\CBOR40\obj\Debug\CBOR.dll
 C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\MqttClientBinaryMonitor\CBOR40\obj\Debug\CBOR.pdb
