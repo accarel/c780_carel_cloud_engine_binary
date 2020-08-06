@@ -1,0 +1,42 @@
+[DEFAULT]
+Gateway Modubus Test
+PRESS Å to continue
+V.5.0 OTA1
+Coil_alr
+DI_alr
+HR_alr
+IR_alr
+ALARMS
+HR_alr_Bit_1
+HR_alr_Bit_6
+HR_Low_P
+HR_High_P
+IR_Low_P
+IR_High_P
+Integer
+Digital
+Coil_Low_P
+Coil_High_P
+DI_Low_P
+DI_High_P
+Float/int32
+Float1
+Int32
+Float_A2_B1000
+Float_A0_5_B100
+Bit Field
+HR_BIT_FIELD_4
+IR_BIT_FIELD_2
+Nibble
+HR_Nib_0_3
+HR_Nib_4_7
+HR_Nib_8_11
+HR_Nib_12_15
+HR_Low_AutoInc
+Autoincrement
+HR_High_AutoInc
+Temperature_1
+Rele_1
+Rele_2
+Physical R/W
+[DEFAULT]

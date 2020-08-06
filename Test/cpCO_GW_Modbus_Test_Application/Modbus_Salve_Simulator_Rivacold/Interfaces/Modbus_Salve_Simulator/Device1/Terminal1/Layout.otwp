@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Terminal Name="Terminal1" Display="Rivacold" Language="EN" BeginFromMask="Mask" Layout="HorizontalView" Font="CAREL_PST" ZoomCode="0" LoopFunction="TIMED_LOOP" Version="1.0">
+  <ShortCuts>
+    <ShortCut Name="DEFROST/LIGHT_ON" Code="1" />
+    <ShortCut Name="POWER" Code="11" />
+    <ShortCut Name="SET" Code="13" />
+    <ShortCut Name="ALARM" Code="12" />
+    <ShortCut Name="UP" Code="14" />
+    <ShortCut Name="DOWN" Code="15" />
+  </ShortCuts>
+  <KeyBindings />
+</Terminal>
