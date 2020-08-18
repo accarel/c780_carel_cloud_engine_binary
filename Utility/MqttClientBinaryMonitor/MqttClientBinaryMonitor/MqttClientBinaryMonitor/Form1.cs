@@ -137,10 +137,18 @@ namespace MqttClientSimulatorBinary
             //System.Net.IPAddress IPAddress = System.Net.IPAddress.Parse(MQTT_BROKER_ADDRESS);
         }
 
+        static bool first_run=false;
         private void Form1_Load(object sender, EventArgs e)
         {
             Debug.WriteLine("MessageId 1");
             Load_Last_Used_Values();
+
+
+            if (first_run == false)
+            {
+                mqtt_connect(false);
+                first_run = true;
+            }
         }
 
 
