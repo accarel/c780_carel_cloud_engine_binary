@@ -93,7 +93,7 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 	content_length =  http_client_fetch_headers_IS(client);
 	
 	
-	if (total_read_len < content_length && content_length <= MAX_HTTP_RECV_BUFFER) {
+	if ((total_read_len < content_length) && (content_length <= MAX_HTTP_RECV_BUFFER)) {
 		
 		read_len = http_client_read_IS(client, buffer, content_length);
 		
@@ -123,7 +123,7 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 		  }
 		  else if ((memcmp(filename, CERT1_SPIFFS, strlen(CERT1_SPIFFS)) == 0) || (memcmp(filename, CERT2_SPIFFS, strlen(CERT2_SPIFFS)) == 0)) {
 			  err = CONN_OK;
-			  uint16_t Crc = CRC16((uint8_t*)buffer, read_len);
+			  uint16_t Crc = CRC16((uint8_t*)buffer, content_length);
 			  if (Crc != download_devs_config->crc)
 			  	err = WRONG_CRC;
 			  if (memcmp(buffer, "-----BEGIN", strlen("-----BEGIN")))
