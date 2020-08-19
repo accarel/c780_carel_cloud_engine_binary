@@ -42,4 +42,11 @@
       <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
     </KeyBindings>
   </FormatField>
+  <FormatField Name="CL_UDINT" Format="io6">
+    <KeyBindings>
+      <KeyBinding Key="UP" BindOn="Increment_DWORD" />
+      <KeyBinding Key="DOWN" BindOn="Decrement_DWORD" />
+      <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
+    </KeyBindings>
+  </FormatField>
 </FormatFields>

@@ -152,6 +152,16 @@ msgid "HR_L_01"
 msgstr ""
 
 #: Worksheet_1.otws
+msgctxt "[Mask:Mask_6][Field:Text]"
+msgid "SETUP RS485"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_6][Field:Text_2]"
+msgid "BAUD"
+msgstr ""
+
+#: Worksheet_1.otws
 msgctxt "[Mask:Mask_start][Field:Text]"
 msgid "Gateway Modubus Test"
 msgstr ""
@@ -163,6 +173,6 @@ msgstr ""
 
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_start][Field:Text_3]"
-msgid "V.4.0 OTA1"
+msgid "V.6.0"
 msgstr ""
 

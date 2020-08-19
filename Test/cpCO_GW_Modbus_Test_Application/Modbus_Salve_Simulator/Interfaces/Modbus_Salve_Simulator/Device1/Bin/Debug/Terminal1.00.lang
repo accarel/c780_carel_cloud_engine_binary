@@ -1,7 +1,7 @@
 [DEFAULT]
 Gateway Modubus Test
 PRESS Å to continue
-V.4.0 OTA1
+V.6.0
 Coil_alr
 DI_alr
 HR_alr
@@ -30,4 +30,6 @@ Setpoint
 HR_L_00
 Autoincrement
 HR_L_01
+SETUP RS485
+BAUD
 [DEFAULT]

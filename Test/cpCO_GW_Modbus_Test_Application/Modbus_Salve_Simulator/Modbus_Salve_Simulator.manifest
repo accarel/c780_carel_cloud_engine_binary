@@ -7,6 +7,7 @@
     <CreationDate>2019-02-05T11:09:52.1716978Z</CreationDate>
     <Owner></Owner>
     <StorageToolManaged>false</StorageToolManaged>
-    <CSuiteVersion>4.4.22</CSuiteVersion>
+    <CSuiteVersion>4.6.11</CSuiteVersion>
+    <TeamWorkingManaged>false</TeamWorkingManaged>
   </Info>
 </Solution>
