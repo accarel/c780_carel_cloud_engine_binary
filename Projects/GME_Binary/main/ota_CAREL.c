@@ -320,8 +320,14 @@ void CA_ota_task(void * pvParameter)
 {
 	c_cborrequpdatecacert * myCborUpdate = (c_cborrequpdatecacert*)pvParameter;
 	C_RES err;
+	c_cborrequpdatecacert mySavedUpdate;
 
-	err = HttpsClient__UpdateCertificate(myCborUpdate);
+	strcpy(mySavedUpdate.usr, myCborUpdate->usr);
+	strcpy(mySavedUpdate.pwd, myCborUpdate->pwd);
+	strcpy(mySavedUpdate.uri, myCborUpdate->uri);
+	mySavedUpdate.crc = myCborUpdate->crc;
+
+	err = HttpsClient__UpdateCertificate(&mySavedUpdate);
 	err == C_SUCCESS ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);
 
 	if (err == C_SUCCESS)
