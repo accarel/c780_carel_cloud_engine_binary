@@ -46,6 +46,7 @@
 #define HTMLCONF_MQTT_SRVR_ADDR	"mqtt_addr"
 #define HTMLCONF_MQTT_SRVR_PORT	"mqtt_port"
 
+#define HTML_CURRENT_PAGE		"current_page"
 #if HTTP_SERVER_DEBUG == 1
 	#define	PRINTF_DEBUG_SERVER	printf
 #else

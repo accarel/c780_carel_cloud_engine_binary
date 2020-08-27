@@ -270,12 +270,18 @@ C_RES get_html_config_received_data(char* sent_parameters){
 	esp_err_t err;
     C_RES retval;
 
+    char current_page;
     retval = C_SUCCESS;
 
     memset(data_value,0,strlen(data_value)*sizeof(char));
 
     PRINTF_DEBUG_SERVER("\nSTART PARSING\n");
 
+    // check which page is display on the browser
+    get_value_from_string(sent_parameters, HTML_CURRENT_PAGE, (unsigned short)(strlen(HTML_CURRENT_PAGE)), &current_page);
+
+   if(current_page == '2')
+   {
     get_value_from_string(sent_parameters, HTMLCONF_AP_IP, (unsigned short)(strlen(HTMLCONF_AP_IP)), &data_value[0]);
     strcpy(HTMLConfig.ap_ip,data_value);
     PRINTF_DEBUG_SERVER("ap_ip: %s\n",HTMLConfig.ap_ip);
@@ -358,6 +364,8 @@ C_RES get_html_config_received_data(char* sent_parameters){
         	err = NVM__WriteString(NTP_SERVER, HTMLConfig.ntp_server_addr);
         	if (err != ESP_OK) retval = C_FAIL;
        }
+
+   }
 
     get_value_from_string(sent_parameters, HTMLLOGIN_USR, (unsigned short)(strlen(HTMLLOGIN_USR)), &data_value[0]);
     strcpy(HTMLConfig.login_usr,data_value);
