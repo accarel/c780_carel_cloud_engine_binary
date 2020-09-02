@@ -757,8 +757,8 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 	{
 		PRINTF_DEBUG("DHCP STA OFF\n");
 		SetSTAStaticIP(config.sta_static_ip,
-						config.sta_netmask,
 						config.sta_gateway_ip,
+						config.sta_netmask,					
 						config.sta_primary_dns,
 						config.sta_secondary_dns);
 	}
