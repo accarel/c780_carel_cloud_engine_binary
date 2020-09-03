@@ -336,6 +336,7 @@ void PollEngine_StartEngine_CAREL(void);
 void PollEngine_StopEngine_CAREL(void);
 uint8_t PollEngine_GetEngineStatus_CAREL(void);
 uint8_t PollEngine_GetPollingStatus_CAREL(void);
+uint8_t PollEngine_GetStatusForSending_CAREL(void);
 
 C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr,C_BYTE dim , C_UINT16* read_value);
 C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_value);

@@ -338,7 +338,7 @@ size_t CBOR_Status(C_CHAR* cbor_stream)
 
 	// encode est -elem5
 	err |= cbor_encode_text_stringz(&mapEncoder, "est");
-	err |= cbor_encode_uint(&mapEncoder, PollEngine_GetEngineStatus_CAREL());
+	err |= cbor_encode_uint(&mapEncoder, PollEngine_GetStatusForSending_CAREL());
 	DEBUG_ADD(err,"est");
 
 	// encode sgn -elem6

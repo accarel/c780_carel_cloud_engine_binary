@@ -1952,6 +1952,28 @@ uint8_t PollEngine_GetEngineStatus_CAREL(void){
 }
 
 /**
+ * @brief PollEngine_GetStatusForSending_CAREL
+ *        Get the polling engine status of the engine
+ *        and translates it to the value required by cloud
+ *
+ * @param  none
+ * @return uint8_t
+ */
+uint8_t PollEngine_GetStatusForSending_CAREL(void){
+	uint8_t status = PollEngine_GetEngineStatus_CAREL();
+	switch(status)
+	{
+		case STOPPED:
+			return 2;
+		case RUNNING:
+			return 1;
+		case NOT_INITIALIZED:
+			return 3;
+		default:
+			return 0;
+	}
+}
+/**
  * @brief PollEngine_GetEngineStatus_CAREL
  *        Get the polling engine status of the polling
  *
