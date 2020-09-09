@@ -273,6 +273,12 @@ void Mobile_QuerySignalQuality(void){
 	return;
 }
 
+void Mobile_SendGenericCommand(char* line, char* answer){
+	strcpy(dce->cmd, line);
+	strcat(dce->cmd, "\r");
+	dce->send_generic_command(dce, answer);
+}
+
 void Mobile_SetSignalQuality(uint16_t rssi){
 	static uint16_t count=0;
 	printf("Mobile_SetSignalQuality element %d has rssi %d\n", count, rssi);

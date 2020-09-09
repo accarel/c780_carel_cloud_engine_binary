@@ -78,11 +78,12 @@ struct modem_dce {
     char imei[MODEM_IMEI_LENGTH + 1];                                                 /*!< IMEI number */
     char imsi[MODEM_IMSI_LENGTH + 1];                                                 /*!< IMSI number */
     char name[MODEM_MAX_NAME_LENGTH];                                                 /*!< Module name */
-    char oper[MODEM_MAX_OPERATOR_LENGTH + 1];                                             /*!< Operator name */
-    char mcc[MCC_LENGTH + 1];                                                             /*!< Mobile Country Code */
-    char mnc[MNC_LENGTH + 1];                                                             /*!< Mobile Network Code */
-    char lac[LAC_LENGTH + 1];                                                             /*!< Location Area Code */
-    char cellid[CELLID_LENGTH + 1];                                                       /*!< Cell ID */
+    char oper[MODEM_MAX_OPERATOR_LENGTH + 1];                                         /*!< Operator name */
+    char mcc[MCC_LENGTH + 1];                                                         /*!< Mobile Country Code */
+    char mnc[MNC_LENGTH + 1];                                                         /*!< Mobile Network Code */
+    char lac[LAC_LENGTH + 1];                                                         /*!< Location Area Code */
+    char cellid[CELLID_LENGTH + 1];                                                   /*!< Cell ID */
+    char cmd[100];                                                                    /*!< Generic command in bypass mode */
     modem_state_t state;                                                              /*!< Modem working state */
     modem_mode_t mode;                                                                /*!< Working mode */
     modem_dte_t *dte;                                                                 /*!< DTE which connect to DCE */
@@ -100,6 +101,7 @@ struct modem_dce {
     esp_err_t (*get_network_status)(modem_dce_t *dce, uint32_t* status); /*!< Get network status */
     esp_err_t (*get_qeng)(modem_dce_t *dce);
     esp_err_t (*hang_up)(modem_dce_t *dce);                             /*!< Hang up */
+    esp_err_t (*send_generic_command)(modem_dce_t *dce, char* answer);	/*!< Send generic command in bypass mode */
     esp_err_t (*power_down)(modem_dce_t *dce);                          /*!< Normal power down */
     esp_err_t (*deinit)(modem_dce_t *dce);                              /*!< Deinitialize */
 };

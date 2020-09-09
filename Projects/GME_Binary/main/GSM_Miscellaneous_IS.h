@@ -43,6 +43,8 @@
 
 
 /* Function prototypes -------------------------------------------------------*/
+void GSM_BypassEsp32(void);
+
 void GSM_Misc_SMS_Config_Received();
 
 void GSM_Misc_Get_Communication_Status();

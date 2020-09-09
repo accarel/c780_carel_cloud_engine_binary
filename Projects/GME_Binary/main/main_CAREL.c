@@ -44,6 +44,9 @@
 #include "IO_Port_IS.h"
 
 #include "test_hw_CAREL.h"
+#ifdef GW_BYPASS_ESP32
+#include "GSM_Miscellaneous_IS.h"
+#endif
 
 
 #ifdef __DEBUG_MAIN_CAREL_LEV_2
@@ -76,6 +79,11 @@ void app_main(void)  // main_Carel
   Init_Pins();
   Set_Gateway_ID();
   Led_Task_Start();
+
+#ifdef GW_BYPASS_ESP32
+  if(PLATFORM(PLATFORM_DETECTED_2G))
+	  GSM_BypassEsp32();
+#endif
 
   if ((hw_platform_detected & PLATFORM_DETECTED_TEST_MODE) == PLATFORM_DETECTED_TEST_MODE)
   {

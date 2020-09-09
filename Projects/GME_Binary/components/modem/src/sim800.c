@@ -330,6 +330,16 @@ static esp_err_t sim800_handle_power_down(modem_dce_t *dce, const char *line)
     return err;
 }
 
+static esp_err_t sim800_handle_generic_command(modem_dce_t *dce, const char *line)
+{
+    sim800_modem_dce_t *sim800_dce = __containerof(dce, sim800_modem_dce_t, parent);
+    /* store answer */
+    uint32_t **answer = sim800_dce->priv_resource;
+    strcpy(answer, line);
+    esp_modem_process_command_done(dce, MODEM_STATE_SUCCESS);
+    return ESP_OK;
+}
+
 /**
  * @brief Get signal quality
  *
@@ -574,6 +584,22 @@ err:
     return ESP_FAIL;
 }
 
+static esp_err_t sim800_generic_command(modem_dce_t *dce, char* answer)
+{
+    modem_dte_t *dte = dce->dte;
+    sim800_modem_dce_t *sim800_dce = __containerof(dce, sim800_modem_dce_t, parent);
+    uint32_t *resource = &answer[0];
+    sim800_dce->priv_resource = resource;
+
+    dce->handle_line = sim800_handle_generic_command;
+    DCE_CHECK(dte->send_cmd(dte, dce->cmd, MODEM_COMMAND_TIMEOUT_DEFAULT) == ESP_OK, "send command failed", err);
+    DCE_CHECK(dce->state == MODEM_STATE_SUCCESS, "send command failed", err);
+    ESP_LOGD(DCE_TAG, "send command ok");
+    return ESP_OK;
+err:
+    return ESP_FAIL;
+}
+
 static esp_err_t sim800_get_serving_cell_info(modem_dce_t *dce)
 {
     modem_dte_t *dte = dce->dte;
@@ -628,6 +654,7 @@ modem_dce_t *sim800_init(modem_dte_t *dte)
     sim800_dce->parent.get_battery_status = sim800_get_battery_status;
     sim800_dce->parent.set_working_mode = sim800_set_working_mode;
     sim800_dce->parent.get_network_status = sim800_get_network_status;
+    sim800_dce->parent.send_generic_command = sim800_generic_command;
     sim800_dce->parent.power_down = sim800_power_down;
     sim800_dce->parent.deinit = sim800_deinit;
     sim800_dce->parent.get_qeng = sim800_get_serving_cell_info;

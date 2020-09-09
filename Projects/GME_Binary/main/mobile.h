@@ -41,4 +41,6 @@ void Mobile_QuerySignalQuality(void);
 
 uint8_t Mobile_GetCommandMode(void);
 void Mobile_SetCommandMode(uint8_t mode);
+
+void Mobile_SendGenericCommand(char* line, char* answer);
 #endif

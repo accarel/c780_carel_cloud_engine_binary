@@ -32,4 +32,8 @@ C_UINT32 Sys__GetFreeHeapSize(void);
 C_UINT32 Sys__GetTaskHighWaterMark(void);
 void Sys__Delay(C_UINT32 delay);
 
+#ifdef GW_BYPASS_ESP32
+void Sys__ConsoleInit(void);
+char* Sys__GetLine(void);
+#endif
 #endif /*SYS_IS_H_ */

@@ -109,7 +109,12 @@
 
 #define GW_SPIFFS_REV  "100"
 
-
+// Uncomment following line to enable esp32 bypass:
+// everything that will be sent to ttl uart will be
+// forwarded to M95 module
+// This feature allows to send AT commands to M95 module
+// directly from ttl (@115200)
+//#define GW_BYPASS_ESP32 1
 
 /* ========================================================================== */
 /* OS related                                                                 */
