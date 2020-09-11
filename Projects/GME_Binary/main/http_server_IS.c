@@ -279,10 +279,18 @@ static esp_err_t download_get_handler(httpd_req_t *req)
     /* If name has trailing '/', respond with directory contents */
     if (filename[strlen(filename) - 1] == '/') {
     	if(ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
+#ifdef GW_GSM_WIFI		// this is required for certification tests, in final version actual page shoudl be shown
+    		return httpd_resp_sendstr_chunk(req, "This is 2G GME\n");
+#else
     		return file_get_handler(req, LOGIN_HTML);
-    	}else{
+#endif
+    		}else{
+#ifdef GW_GSM_WIFI		// this is required for certification tests, in final version actual page shoudl be shown
+    		return httpd_resp_sendstr_chunk(req, "This is 2G GME\n");
+#else
     		return file_get_handler(req, CHANGE_CRED_HTML);
-    	}
+#endif
+    		}
     }
 
 	PRINTF_DEBUG_SERVER("Requested path = %s\n",filename);

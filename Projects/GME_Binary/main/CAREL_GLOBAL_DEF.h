@@ -95,9 +95,10 @@
 /* ========================================================================== */
 /* Device information                                                         */
 /* ========================================================================== */
-#define GW_WIFI_PARTNUMBER 	"GTW000MWT0"
-#define GW_GSM_PARTNUMBER 	"GTW000MGP0"
-
+#define GW_WIFI_PARTNUMBER 		"GTW000MWT0"
+#define GW_GSM_PARTNUMBER 		"GTW000MGP0"
+#define GW_GSM_WIFI_PARTNUMBER 	"GTW000MGW0"
+#define GW_GSM_THIRD_PARTNUMBER	"GTW000MGT0"
 /*
  * When there is some changes and a new GME FW version are made,
  * remember to check also the spiffs version
@@ -115,6 +116,12 @@
 // This feature allows to send AT commands to M95 module
 // directly from ttl (@115200)
 //#define GW_BYPASS_ESP32 1
+
+// Uncomment following line to compile FW for GTW000MGW0 model
+// (2G HW model, management of both 2G connection and WiFi AP in FW)
+// THIS IS JUST A DRAFT VERSION FOR HOMOLOGATION TESTS!
+// FOR FINAL PRODUCT SOME WORK TO DO...
+//#define GW_GSM_WIFI
 
 /* ========================================================================== */
 /* OS related                                                                 */

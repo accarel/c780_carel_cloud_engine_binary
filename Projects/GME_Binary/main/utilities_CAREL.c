@@ -114,8 +114,12 @@ void Utilities__Init(void){
 
 	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
 	  Utilities__CalcMACAddr();
-	else if (PLATFORM(PLATFORM_DETECTED_2G))
+	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
 	  Utilities__CalcIMEICode();
+#ifdef GW_GSM_WIFI
+		  Utilities__CalcMACAddr();
+#endif
+	}
 
 }
 

@@ -21,8 +21,12 @@ gme_sm_t Radio__Config(void){
 	gme_sm_t config_status = DISCONNECTED;
 	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
 		config_status = WiFi__Config(WiFi_GetConfigSM());
-	else if (PLATFORM(PLATFORM_DETECTED_2G))
+	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
+#ifdef GW_GSM_WIFI
+			config_status = WiFi__Config(WiFi_GetConfigSM());
+#endif
 		config_status = Mobile__Config();
+	}
 
 	return config_status;
 }

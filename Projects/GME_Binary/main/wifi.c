@@ -99,6 +99,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
 		case SYSTEM_EVENT_AP_STAIPASSIGNED:
 			ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STAIPASSIGNED");
+// in case of AP mode, GME does not receive an IP station address but event handler steps in too
+// so, avoid doing a scan of available APs when in AP mode
+#ifndef GW_GSM_WIFI
 			ESP_LOGI(TAG, "station:"MACSTR" join, AID=%d",
 					MAC2STR(event->event_info.sta_connected.mac),
 					event->event_info.sta_connected.aid);
@@ -117,10 +120,14 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			ESP_ERROR_CHECK(esp_wifi_scan_start(&scanConf, true));	//The true parameter cause the function to block until
 																	//the scan is done.
 
+#endif
 		break;
 
 		case SYSTEM_EVENT_AP_STADISCONNECTED:
 			ESP_LOGI(TAG, "SYSTEM_EVENT_AP_STADISCONNECTED");
+// in case of AP mode, GME does not receive an IP station address but event handler steps in too
+// so, avoid doing a scan of available APs when in AP mode
+#ifndef GW_GSM_WIFI
 			ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",
 					MAC2STR(event->event_info.sta_disconnected.mac),
 					event->event_info.sta_disconnected.aid);
@@ -129,6 +136,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 				StartTimerForAPConnection();
 				ESP_ERROR_CHECK(esp_wifi_connect());
 			}
+#endif
 		break;
 
 		case SYSTEM_EVENT_AP_STACONNECTED:
@@ -546,10 +554,12 @@ int WiFi__SetDefaultConfig(void)
 
     strcpy((char*)wifi_config_AP.ap.ssid, ap_ssid_def);
     wifi_config_AP.ap.ssid_len = strlen(ap_ssid_def);
-
-
-    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config_AP));
+#ifdef GW_GSM_WIFI
+        ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));	// enable AP mode only in case of a 2G HW model with both 2G and WiFi AP active
+#else
+    	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+#endif
+    	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config_AP));
 
     PRINTF_DEBUG("wifi_init_AP:\nSSID: %s\nPswd: Open Network\n" , ap_ssid_def);
 

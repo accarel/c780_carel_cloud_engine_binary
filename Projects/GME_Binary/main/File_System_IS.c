@@ -105,7 +105,6 @@ C_RES Set_Gateway_ID(void)
    * in this implementation we leave the original one coming
    * from the chip
    * */
-	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU)) {
 
     #ifdef INCLUDE_PLATFORM_DEPENDENT
 		esp_err_t retval;
@@ -115,7 +114,6 @@ C_RES Set_Gateway_ID(void)
 		retval = esp_base_mac_addr_set(&s_id_tmp[0]);
 		if (retval != ESP_OK) return C_FAIL;
     #endif
-	}
 
 	return C_SUCCESS;
 }
