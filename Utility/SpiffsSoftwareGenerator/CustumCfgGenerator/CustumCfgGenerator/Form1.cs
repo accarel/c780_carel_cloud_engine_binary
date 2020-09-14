@@ -23,6 +23,7 @@ namespace CustumCfgGenerator
         public const int NUM_OF_CRC = 2;
         public const int NUM_OF_CHAR_IN_APN_FIELD = 64;
 
+        public const int NUM_OF_CHAR_IN_PN = 10;
 
         public struct myDataToStore
         {
@@ -38,6 +39,8 @@ namespace CustumCfgGenerator
             public byte[] apn_name;
             public byte[] apn_user;
             public byte[] apn_password;
+
+            public byte[] pn;
         }
 
         private myDataToStore mySpiffs;
@@ -76,6 +79,16 @@ namespace CustumCfgGenerator
             mySpiffs.apn_password = new byte[NUM_OF_CHAR_IN_APN_FIELD];
             mySpiffs.apn_user = new byte[NUM_OF_CHAR_IN_APN_FIELD];
             mySpiffs.apn_name = new byte[NUM_OF_CHAR_IN_APN_FIELD];
+
+            mySpiffs.pn = new byte[NUM_OF_CHAR_IN_PN];
+
+            string[] lineOfContents = File.ReadAllLines("spiffs_image/part_number.txt");
+            foreach (var line in lineOfContents)
+            {
+                string[] tokens = line.Split(',');
+                comboBoxPn.Items.Add(tokens[0]);
+            }
+
 
         }
 
@@ -117,7 +130,8 @@ namespace CustumCfgGenerator
                    (mySpiffs.ntp_port.All(singleByte => singleByte == 0)) ||
                    (mySpiffs.ntp_server.All(singleByte => singleByte == 0)) ||
                    (mySpiffs.apn_name.All(singleByte => singleByte == 0)) ||
-                    (mySpiffs.cfg_version.All(singleByte => singleByte == 0));
+                    (mySpiffs.cfg_version.All(singleByte => singleByte == 0)) ||
+                    (mySpiffs.pn.All(singleByte => singleByte == 0));
 
             }
             else
@@ -131,7 +145,8 @@ namespace CustumCfgGenerator
                    (mySpiffs.apn_name.All(singleByte => singleByte == 0)) ||
                    (mySpiffs.apn_user.All(singleByte => singleByte == 0)) ||
                    (mySpiffs.apn_password.All(singleByte => singleByte == 0)) ||
-                   (mySpiffs.cfg_version.All(singleByte => singleByte == 0));
+                   (mySpiffs.cfg_version.All(singleByte => singleByte == 0)) ||
+                   (mySpiffs.pn.All(singleByte => singleByte == 0));
 
             }
 
@@ -176,6 +191,8 @@ namespace CustumCfgGenerator
                             writer.Write(mySpiffs.apn_name);
                             writer.Write(mySpiffs.apn_user);
                             writer.Write(mySpiffs.apn_password);
+
+                            writer.Write(mySpiffs.pn);
 
                             writer.Close();
 
@@ -628,6 +645,21 @@ namespace CustumCfgGenerator
                 mySpiffs.apn_user = new byte[NUM_OF_CHAR_IN_APN_FIELD];
             }
         }
+
+        private void comboBoxPn_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string newPn = comboBoxPn.Text;
+
+            byte[] tmp = Encoding.ASCII.GetBytes(newPn);
+            if (tmp.Length != 0)
+            {
+                mySpiffs.pn = new byte[NUM_OF_CHAR_IN_PN];
+                Array.Copy(tmp, 0, mySpiffs.pn, 0, tmp.Length);
+            }
+            else
+                mySpiffs.pn = new byte[NUM_OF_CHAR_IN_PN];
+        }
+            
     }
 }
 

@@ -53,6 +53,8 @@
             this.label11 = new System.Windows.Forms.Label();
             this.groupBox1apn = new System.Windows.Forms.GroupBox();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
+            this.comboBoxPn = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.groupBox1apn.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -178,7 +180,7 @@
             // 
             // textVersion
             // 
-            this.textVersion.Location = new System.Drawing.Point(89, 129);
+            this.textVersion.Location = new System.Drawing.Point(89, 148);
             this.textVersion.Name = "textVersion";
             this.textVersion.Size = new System.Drawing.Size(176, 22);
             this.textVersion.TabIndex = 1;
@@ -188,7 +190,7 @@
             // 
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(86, 64);
+            this.label7.Location = new System.Drawing.Point(86, 85);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(351, 51);
             this.label7.TabIndex = 13;
@@ -284,11 +286,31 @@
             this.checkBox1.UseVisualStyleBackColor = true;
             this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
+            // comboBoxPn
+            // 
+            this.comboBoxPn.FormattingEnabled = true;
+            this.comboBoxPn.Location = new System.Drawing.Point(89, 34);
+            this.comboBoxPn.Name = "comboBoxPn";
+            this.comboBoxPn.Size = new System.Drawing.Size(121, 24);
+            this.comboBoxPn.TabIndex = 26;
+            this.comboBoxPn.SelectedIndexChanged += new System.EventHandler(this.comboBoxPn_SelectedIndexChanged);
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(91, 14);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(123, 17);
+            this.label8.TabIndex = 27;
+            this.label8.Text = "Product number";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(907, 564);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.comboBoxPn);
             this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.groupBox1apn);
             this.Controls.Add(this.label9);
@@ -346,6 +368,8 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.GroupBox groupBox1apn;
         private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.ComboBox comboBoxPn;
+        private System.Windows.Forms.Label label8;
     }
 }
 
