@@ -1,27 +1,27 @@
 ****** __RDCC_MODULE_ID ******
-00000000 :  43 41 52 45 4C 5F 50 43  -  4F 5F 4C 45 00 00 00 00   * Target Name : CAREL_PCO_LE
-00000010 :  0C 00 00 00   * RDCC format version number
-00000014 :  82 99 26 EB   * Resource check sum
-00000018 :  EA 17 63 2B   * Module check sum
+00000000 :  43 41 52 45 4C 5F 50 43  -  4F 00 00 00 00 00 00 00   * Target Name : CAREL_PCO
+00000010 :  00 00 00 0C   * RDCC format version number
+00000014 :  A9 DE 89 9D   * Resource check sum
+00000018 :  D1 B6 01 97   * Module check sum
 0000001C :  00 00 00 00   * Module ID parameter
-00000020 :  B0 00 00 00   * Total size
-00000024 :  10 00 00 00   * Size without __RDCC_MODULE_ID
-00000028 :  44 00 00 00   * Offset -> resource name
-0000002C :  6D 00 00 00   * Offset -> module name
-00000030 :  A0 00 00 00   * Offset -> beginning of the data block
-00000034 :  7A 03 3D 5F   * Compilation generation date
-00000038 :  5B 00 00 00   * Compilation version number
+00000020 :  00 00 00 AC   * Total size
+00000024 :  00 00 00 10   * Size without __RDCC_MODULE_ID
+00000028 :  00 00 00 44   * Offset -> resource name
+0000002C :  00 00 00 6D   * Offset -> module name
+00000030 :  00 00 00 9C   * Offset -> beginning of the data block
+00000034 :  5F 5F 47 9E   * Compilation generation date
+00000038 :  00 00 00 5E   * Compilation version number
 0000003C :  00 00 00 00   * User module version number
-00000040 :  83 00 00 00   * Offset -> target auto-validation data
+00000040 :  00 00 00 83   * Offset -> target auto-validation data
 00000044 :  4D 4F 44 42 55 53 5F 53  -  41 4C 56 45 5F 53 49 4D 
 00000054 :  55 4C 41 54 4F 52 5C 44  -  45 56 49 43 45 31 5C 52 
 00000064 :  45 53 4F 55 52 43 45 31  -  00   * Resource name : MODBUS_SALVE_SIMULATOR\DEVICE1\RESOURCE1
 0000006D :  44 4F 57 4E 4C 4F 41 44  -  5F 4F 52 44 45 52 5F 4D 
 0000007D :  4F 44 55 4C 45 00   * Module name : DOWNLOAD_ORDER_MODULE
 00000083 :  11   * SYNC <0x11>
-00000084 :  03   * Bit 0 = Intel/Motorola, bit 1 = Large/Medium, bit 2 = Strict/non-strict alignment
+00000084 :  02   * Bit 0 = Intel/Motorola, bit 1 = Large/Medium, bit 2 = Strict/non-strict alignment
 00000085 :  22   * SYNC <0x22>
-00000086 :  08   * Alignment value
+00000086 :  04   * Alignment value
 00000087 :  33   * SYNC <0x33>
 00000088 :  01   * Memory quantum
 00000089 :  44   * SYNC <0x44>
@@ -43,15 +43,14 @@
 00000099 :  08   * Target capability flags
 0000009A :  08   * Target capability flags (LSB)
 0000009B :  AA   * SYNC <0xAA>
-0000009C :  00 00 00 00 
 
 
 ****** __DWL_ORDER_INFO ******
-000000A0 :  01 00   * Number of files
-000000A2 :  04 00   * Offset to the file definition
-000000A4 :  08 00   * Offset to the file name -> PROG1
-000000A6 :  01 00   * Order of the file
-000000A8 :  50 52 4F 47 31 00   * PROG1
-000000AE :  00 00 
+0000009C :  00 01   * Number of files
+0000009E :  00 04   * Offset to the file definition
+000000A0 :  00 08   * Offset to the file name -> PROG1
+000000A2 :  00 01   * Order of the file
+000000A4 :  50 52 4F 47 31 00   * PROG1
+000000AA :  00 00 
 
 

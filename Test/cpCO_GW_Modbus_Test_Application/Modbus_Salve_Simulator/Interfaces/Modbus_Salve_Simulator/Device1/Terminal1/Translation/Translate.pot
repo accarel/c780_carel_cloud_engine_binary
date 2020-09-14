@@ -173,6 +173,6 @@ msgstr ""
 
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_start][Field:Text_3]"
-msgid "V.6.0"
+msgid "V.6.1"
 msgstr ""
 
