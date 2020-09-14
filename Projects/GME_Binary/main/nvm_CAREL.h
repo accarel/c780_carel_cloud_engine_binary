@@ -26,6 +26,7 @@
 #define MB_DELAY_NVM "del"
 #define PE_STATUS_NVM "pe_status"
 #define CFG_DEF_NVM "cfg_def_copied"
+#define GME_PN "gme_pn"
 
 #define MQTT_USER "mqtt_user"
 #define MQTT_PASSWORD "mqtt_password"

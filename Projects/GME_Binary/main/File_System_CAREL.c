@@ -225,7 +225,7 @@ C_RES Check_spiffs_compatibility(void)
     }
     else
     {
-    	// bisogna capire se la versione può supportare lo spiffs presente
+    	// bisogna capire se la versione puï¿½ supportare lo spiffs presente
     	err = C_FAIL;
     }
     return err;
@@ -271,6 +271,7 @@ C_RES SaveCfgDefDataToNVM(void) {
 	err |= NVM__WriteString(APN_NAME, CfgData.apn_name);
 	err |= NVM__WriteString(APN_USERNAME, CfgData.apn_user);
 	err |= NVM__WriteString(APN_PASSWORD, CfgData.apn_password);
+	err |= NVM__WriteString(GME_PN, CfgData.pn);
 
 	if (err == C_SUCCESS)
 		err = NVM__WriteU8Value(CFG_DEF_NVM, 1);

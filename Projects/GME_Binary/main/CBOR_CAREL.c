@@ -30,6 +30,7 @@
 #include "wifi.h"
 #include "main_CAREL.h"
 #include "mobile.h"
+#include "utilities_CAREL.h"
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "mb_m.h"
 #endif
@@ -203,7 +204,7 @@ size_t CBOR_Hello(C_CHAR* cbor_stream)
 
 	// encode pn - elem2
 	err |= cbor_encode_text_stringz(&mapEncoder, "pn");
-	err |= cbor_encode_text_stringz(&mapEncoder, CBOR_GetPartNumber());
+	err |= cbor_encode_text_stringz(&mapEncoder, Utilities__GetPN());
 	DEBUG_ADD(err, "part number");
 
 	// encode hwv - elem3
@@ -2446,15 +2447,3 @@ C_UINT16 CBOR_GetDid (void)
 	return did;
 }
 
-char* CBOR_GetPartNumber(void)
-{
-	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
-		return GW_WIFI_PARTNUMBER;
-	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
-#ifdef GW_GSM_WIFI
-			return GW_GSM_WIFI_PARTNUMBER;
-#endif
-			return GW_GSM_PARTNUMBER;
-	}
-	else return "";
-}

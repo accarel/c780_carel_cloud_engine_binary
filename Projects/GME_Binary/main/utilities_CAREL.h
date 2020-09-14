@@ -34,6 +34,7 @@ char* Utilities__GetMACAddr(void);
 void Utilities__Init(void);
 req_set_gw_config_t* Utilities__GetGWConfigData(void);
 C_UINT32 Utilities__GetStatusPeriod(void);
+char* Utilities__GetPN(void);
 
 
 #endif /* MAIN_UTILITIES_H_ */

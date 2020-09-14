@@ -25,6 +25,7 @@
 #define APN_NAME_SIZE   64
 #define APN_USER_SIZE   64
 #define APN_PASS_SIZE   64
+#define PN_SIZE			10
 #define SPIFF_CRC_SIZE   2
 
 #define URI_SIZE 		64
@@ -114,6 +115,7 @@ typedef struct cfg_data{
 	C_CHAR  apn_name[APN_NAME_SIZE];
 	C_CHAR	apn_user[APN_USER_SIZE];
 	C_CHAR  apn_password[APN_PASS_SIZE];
+	C_CHAR  pn[PN_SIZE];
 	C_CHAR  crc[SPIFF_CRC_SIZE];
 }cfg_data_t, *ptr_cfg_data_t;
 #pragma pack()

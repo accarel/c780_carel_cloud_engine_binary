@@ -21,6 +21,7 @@ static req_set_gw_config_t gw_config_data = {0};
 static uint8_t wifi_mac_address_gw[6] = {0};
 static char wifi_mac_address_gw_str[14] = {0};
 static char gsm_imei_gw_str[16] = {0};
+static char pn[PN_SIZE] = {0};
 
 /**
  * @brief Utilities__CalcMACAddr
@@ -93,6 +94,41 @@ req_set_gw_config_t* Utilities__GetGWConfigData(void){
 }
 
 /**
+ * @brief Utilities__ReadPNFromNVM
+ *        Read part number from nvm
+ *        If part number is present in nvm, then that part number will be used
+ *        otherwise if part number is not present or if it is "standard"
+ *        then standard part number will be used (wifi or 2g according to hw)
+ *
+ * @param  none
+ * @return none
+ */
+void Utilities__ReadPNFromNVM(void){
+	size_t len = 0;
+	C_RES err = NVM__ReadString(GME_PN, pn, &len);
+
+	if (err == C_FAIL || 		// if no info on part number is saved to nvm, use standard codes
+		(strcmp(pn,"standard") == 0) || (strcmp(pn,"STANDARD") == 0)) // if standard, use standard codes
+	{
+		if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT))
+			memcpy(pn, GW_WIFI_PARTNUMBER, PN_SIZE);
+		else if (PLATFORM(PLATFORM_DETECTED_2G))
+			memcpy(pn, GW_GSM_PARTNUMBER, PN_SIZE);
+	}
+	printf("ReadPN %d, %s\n", err, pn);
+}
+
+/**
+ * @brief Utilities__GetPN
+ *        Read part number from static variable
+ *
+ * @param  none
+ * @return char*, current part number
+ */
+char* Utilities__GetPN(void){
+	return pn;
+}
+/**
  * @brief Utilities__Init
  *        Init all utility function useful to
  *        retrive util information of the GME
@@ -111,6 +147,8 @@ void Utilities__Init(void){
 	Modbus__ReadDelayFromNVM();
 	CBOR_ReadDidFromNVM();
 	BinaryModel_Init();
+
+	Utilities__ReadPNFromNVM();
 
 	if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT) || PLATFORM(PLATFORM_DETECTED_BCU))
 	  Utilities__CalcMACAddr();
