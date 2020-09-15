@@ -120,9 +120,11 @@ void Init_TTL_Pins(void){
 	/* TTL_DIR pin is used in native BOOT mode
 	   it must be left floating input */
 	if(TTL_DIR >= 0) {
-		gpio_pad_select_gpio(TTL_DIR);
-		gpio_set_direction(TTL_DIR, GPIO_MODE_INPUT);
-		gpio_set_pull_mode(TTL_DIR, GPIO_FLOATING);
+		if ((hw_platform_detected & PLATFORM_DETECTED_TEST_MODE) != PLATFORM_DETECTED_TEST_MODE){
+			gpio_pad_select_gpio(TTL_DIR);
+			gpio_set_direction(TTL_DIR, GPIO_MODE_INPUT);
+			gpio_set_pull_mode(TTL_DIR, GPIO_FLOATING);
+		}
 	}
 #endif
 }

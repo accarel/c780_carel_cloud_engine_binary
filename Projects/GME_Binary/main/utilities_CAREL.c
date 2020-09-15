@@ -115,7 +115,6 @@ void Utilities__ReadPNFromNVM(void){
 		else if (PLATFORM(PLATFORM_DETECTED_2G))
 			memcpy(pn, GW_GSM_PARTNUMBER, PN_SIZE);
 	}
-	printf("ReadPN %d, %s\n", err, pn);
 }
 
 /**
