@@ -37,9 +37,6 @@
 
 #define  MODBUS_TIME_OUT     100
 
-static C_SBYTE GetStopBitTable(C_SBYTE stp);
-static C_SBYTE GetParityTable(C_SBYTE prt);
-
 
 /**
  * @brief xMBMasterPortSerialTxPoll
@@ -87,9 +84,6 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)
      eMBErrorCode eStatus;
      esp_err_t err = C_FAIL;
 
-     // translate into the esp constant
-     C_SBYTE mParity = GetParityTable(parity);
-
      if(port == MB_PORTNUM_485)
      {
    	    err = uart_set_pin(port, Get_TEST_TXD(), Get_TEST_RXD(), Get_TEST_RTS(), -1);
@@ -104,7 +98,7 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)
    	 if(err != 0)
    	   PRINTF_DEBUG("Setting UART pin fail\n");
 
-	 eStatus = eMBMasterInit(MB_RTU, port, baud, mParity);
+	 eStatus = eMBMasterInit(MB_RTU, port, baud, parity);
 	 Sys__Delay(50);
 
      if (0 == eStatus)
@@ -133,71 +127,6 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)
      }
 
      return C_FAIL;
-}
-
-
-
-/**
- * @brief GetStopBitTable
- *        translate the data passed by Iot into a
- *        esp-idf library proper value
- *
- *
- * @param  C_SBYTE stp
- * @return C_SBYTE
- */
-static C_SBYTE GetStopBitTable(C_SBYTE stp)
-{
-   C_SBYTE val;
-
-   switch(stp)
-   {
-   	   default:
-   	   case 0:
-   	   case 1:
-   		   val =  UART_STOP_BITS_1;
-   		   break;
-
-   	   case 2:
-   		   val =  UART_STOP_BITS_2;
-   		break;
-
-   	   case 3:
-   		   val =  UART_STOP_BITS_1_5;
-   		break;
-   }
-   return val;
-}
-
-/**
- * @brief GetParityTable
- *        translate the data passed by Iot into a
- *        esp-idf library proper value
- *
- *
- * @param  C_SBYTE prt
- * @return C_SBYTE
- */
-static C_SBYTE GetParityTable(C_SBYTE prt)
-{
-	   C_SBYTE val;
-
-	   switch(prt)
-	   {
-	   	   default:
-	   	   case 0:
-	   		   val =  UART_PARITY_DISABLE;
-	   		   break;
-
-	   	   case 1:
-	   		   val =  UART_PARITY_EVEN;
-	   		break;
-
-	   	   case 2:
-	   		   val =  UART_PARITY_ODD;
-	   		break;
-	   }
-	   return val;
 }
 
 
