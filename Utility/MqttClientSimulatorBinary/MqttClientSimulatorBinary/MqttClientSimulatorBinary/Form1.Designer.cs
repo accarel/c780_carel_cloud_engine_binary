@@ -206,6 +206,10 @@
             this.timer_check_is_alive = new System.Windows.Forms.Timer(this.components);
             this.radioButton_alive = new System.Windows.Forms.RadioButton();
             this.checkBox_mqtt_alive = new System.Windows.Forms.CheckBox();
+            this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.buttonUpdateCAData = new System.Windows.Forms.Button();
+            this.buttonSet_UpdateGwFW = new System.Windows.Forms.Button();
+            this.buttonDevUpdateData = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -217,6 +221,7 @@
             this.groupBox8.SuspendLayout();
             this.groupBox9.SuspendLayout();
             this.groupBox11.SuspendLayout();
+            this.groupBox12.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtConsole
@@ -330,7 +335,7 @@
             // 
             // buttonUpdate_ca_cerficates
             // 
-            this.buttonUpdate_ca_cerficates.Location = new System.Drawing.Point(9, 286);
+            this.buttonUpdate_ca_cerficates.Location = new System.Drawing.Point(7, 24);
             this.buttonUpdate_ca_cerficates.Margin = new System.Windows.Forms.Padding(4);
             this.buttonUpdate_ca_cerficates.Name = "buttonUpdate_ca_cerficates";
             this.buttonUpdate_ca_cerficates.Size = new System.Drawing.Size(129, 46);
@@ -341,7 +346,7 @@
             // 
             // buttonUpdate_dev_firmware
             // 
-            this.buttonUpdate_dev_firmware.Location = new System.Drawing.Point(9, 338);
+            this.buttonUpdate_dev_firmware.Location = new System.Drawing.Point(7, 76);
             this.buttonUpdate_dev_firmware.Margin = new System.Windows.Forms.Padding(4);
             this.buttonUpdate_dev_firmware.Name = "buttonUpdate_dev_firmware";
             this.buttonUpdate_dev_firmware.Size = new System.Drawing.Size(129, 46);
@@ -352,7 +357,7 @@
             // 
             // buttonUpdate_gw_firmware
             // 
-            this.buttonUpdate_gw_firmware.Location = new System.Drawing.Point(9, 391);
+            this.buttonUpdate_gw_firmware.Location = new System.Drawing.Point(7, 130);
             this.buttonUpdate_gw_firmware.Margin = new System.Windows.Forms.Padding(4);
             this.buttonUpdate_gw_firmware.Name = "buttonUpdate_gw_firmware";
             this.buttonUpdate_gw_firmware.Size = new System.Drawing.Size(129, 46);
@@ -423,26 +428,23 @@
             this.groupBox1.Controls.Add(this.button_start_engine);
             this.groupBox1.Controls.Add(this.button_test_set_gw_config_req);
             this.groupBox1.Controls.Add(this.button_send_mb_adu);
-            this.groupBox1.Controls.Add(this.buttonUpdate_dev_firmware);
             this.groupBox1.Controls.Add(this.buttonReadValue);
             this.groupBox1.Controls.Add(this.buttonScanLine);
             this.groupBox1.Controls.Add(this.buttonSet_Devs_Config);
             this.groupBox1.Controls.Add(this.buttonSet_Lines_Config);
-            this.groupBox1.Controls.Add(this.buttonUpdate_gw_firmware);
-            this.groupBox1.Controls.Add(this.buttonUpdate_ca_cerficates);
             this.groupBox1.Controls.Add(this.buttonChangeCredential);
             this.groupBox1.Location = new System.Drawing.Point(915, 134);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox1.Size = new System.Drawing.Size(285, 548);
+            this.groupBox1.Size = new System.Drawing.Size(285, 401);
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
             // 
             // button_ReqDBGInfo
             // 
-            this.button_ReqDBGInfo.Location = new System.Drawing.Point(145, 497);
+            this.button_ReqDBGInfo.Location = new System.Drawing.Point(145, 346);
             this.button_ReqDBGInfo.Margin = new System.Windows.Forms.Padding(4);
             this.button_ReqDBGInfo.Name = "button_ReqDBGInfo";
             this.button_ReqDBGInfo.Size = new System.Drawing.Size(129, 46);
@@ -508,7 +510,7 @@
             // 
             // button_test_set_gw_config_req
             // 
-            this.button_test_set_gw_config_req.Location = new System.Drawing.Point(8, 497);
+            this.button_test_set_gw_config_req.Location = new System.Drawing.Point(9, 346);
             this.button_test_set_gw_config_req.Margin = new System.Windows.Forms.Padding(4);
             this.button_test_set_gw_config_req.Name = "button_test_set_gw_config_req";
             this.button_test_set_gw_config_req.Size = new System.Drawing.Size(129, 46);
@@ -519,7 +521,7 @@
             // 
             // button_send_mb_adu
             // 
-            this.button_send_mb_adu.Location = new System.Drawing.Point(9, 444);
+            this.button_send_mb_adu.Location = new System.Drawing.Point(9, 291);
             this.button_send_mb_adu.Margin = new System.Windows.Forms.Padding(4);
             this.button_send_mb_adu.Name = "button_send_mb_adu";
             this.button_send_mb_adu.Size = new System.Drawing.Size(129, 46);
@@ -1888,12 +1890,12 @@
             // 
             // textBox_Message
             // 
-            this.textBox_Message.Location = new System.Drawing.Point(1217, 437);
+            this.textBox_Message.Location = new System.Drawing.Point(1217, 318);
             this.textBox_Message.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_Message.Multiline = true;
             this.textBox_Message.Name = "textBox_Message";
             this.textBox_Message.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_Message.Size = new System.Drawing.Size(515, 288);
+            this.textBox_Message.Size = new System.Drawing.Size(515, 407);
             this.textBox_Message.TabIndex = 52;
             this.textBox_Message.Text = "Welcome !";
             // 
@@ -1920,19 +1922,19 @@
             // 
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
-            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1216, 139);
+            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1216, 159);
             this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_Resp_Hash.Size = new System.Drawing.Size(516, 260);
+            this.textBox_Resp_Hash.Size = new System.Drawing.Size(516, 115);
             this.textBox_Resp_Hash.TabIndex = 55;
             this.textBox_Resp_Hash.Text = "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
             // 
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(1217, 119);
+            this.label50.Location = new System.Drawing.Point(1214, 134);
             this.label50.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(94, 17);
@@ -1962,7 +1964,7 @@
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(1217, 417);
+            this.label51.Location = new System.Drawing.Point(1214, 288);
             this.label51.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(38, 17);
@@ -2037,7 +2039,7 @@
             // 
             // button_CLS_Infos
             // 
-            this.button_CLS_Infos.Location = new System.Drawing.Point(1676, 406);
+            this.button_CLS_Infos.Location = new System.Drawing.Point(1675, 287);
             this.button_CLS_Infos.Margin = new System.Windows.Forms.Padding(4);
             this.button_CLS_Infos.Name = "button_CLS_Infos";
             this.button_CLS_Infos.Size = new System.Drawing.Size(57, 23);
@@ -2149,12 +2151,61 @@
             this.checkBox_mqtt_alive.Text = "MQTT alive";
             this.checkBox_mqtt_alive.UseVisualStyleBackColor = true;
             // 
+            // groupBox12
+            // 
+            this.groupBox12.Controls.Add(this.buttonUpdateCAData);
+            this.groupBox12.Controls.Add(this.buttonSet_UpdateGwFW);
+            this.groupBox12.Controls.Add(this.buttonDevUpdateData);
+            this.groupBox12.Controls.Add(this.buttonUpdate_ca_cerficates);
+            this.groupBox12.Controls.Add(this.buttonUpdate_dev_firmware);
+            this.groupBox12.Controls.Add(this.buttonUpdate_gw_firmware);
+            this.groupBox12.Location = new System.Drawing.Point(915, 536);
+            this.groupBox12.Name = "groupBox12";
+            this.groupBox12.Size = new System.Drawing.Size(285, 189);
+            this.groupBox12.TabIndex = 75;
+            this.groupBox12.TabStop = false;
+            this.groupBox12.Text = "Uploads";
+            // 
+            // buttonUpdateCAData
+            // 
+            this.buttonUpdateCAData.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonUpdateCAData.Location = new System.Drawing.Point(141, 25);
+            this.buttonUpdateCAData.Name = "buttonUpdateCAData";
+            this.buttonUpdateCAData.Size = new System.Drawing.Size(66, 21);
+            this.buttonUpdateCAData.TabIndex = 49;
+            this.buttonUpdateCAData.Text = "< SET";
+            this.buttonUpdateCAData.UseVisualStyleBackColor = true;
+            this.buttonUpdateCAData.Click += new System.EventHandler(this.buttonUpdateCAData_Click);
+            // 
+            // buttonSet_UpdateGwFW
+            // 
+            this.buttonSet_UpdateGwFW.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonSet_UpdateGwFW.Location = new System.Drawing.Point(141, 133);
+            this.buttonSet_UpdateGwFW.Name = "buttonSet_UpdateGwFW";
+            this.buttonSet_UpdateGwFW.Size = new System.Drawing.Size(66, 21);
+            this.buttonSet_UpdateGwFW.TabIndex = 48;
+            this.buttonSet_UpdateGwFW.Text = "< SET";
+            this.buttonSet_UpdateGwFW.UseVisualStyleBackColor = true;
+            this.buttonSet_UpdateGwFW.Click += new System.EventHandler(this.buttonSet_UpdateGwFW_Click);
+            // 
+            // buttonDevUpdateData
+            // 
+            this.buttonDevUpdateData.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonDevUpdateData.Location = new System.Drawing.Point(141, 77);
+            this.buttonDevUpdateData.Name = "buttonDevUpdateData";
+            this.buttonDevUpdateData.Size = new System.Drawing.Size(66, 21);
+            this.buttonDevUpdateData.TabIndex = 47;
+            this.buttonDevUpdateData.Text = "< SET";
+            this.buttonDevUpdateData.UseVisualStyleBackColor = true;
+            this.buttonDevUpdateData.Click += new System.EventHandler(this.button7_Click_1);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1768, 745);
+            this.Controls.Add(this.groupBox12);
             this.Controls.Add(this.checkBox_mqtt_alive);
             this.Controls.Add(this.radioButton_alive);
             this.Controls.Add(this.groupBox11);
@@ -2199,7 +2250,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.3";
+            this.Text = "IoT Server Simulator Binary Edition V.2.4";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2222,6 +2273,7 @@
             this.groupBox9.PerformLayout();
             this.groupBox11.ResumeLayout(false);
             this.groupBox11.PerformLayout();
+            this.groupBox12.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2404,6 +2456,10 @@
         private System.Windows.Forms.Timer timer_check_is_alive;
         private System.Windows.Forms.RadioButton radioButton_alive;
         private System.Windows.Forms.CheckBox checkBox_mqtt_alive;
+        private System.Windows.Forms.GroupBox groupBox12;
+        private System.Windows.Forms.Button buttonDevUpdateData;
+        private System.Windows.Forms.Button buttonSet_UpdateGwFW;
+        private System.Windows.Forms.Button buttonUpdateCAData;
     }
 }
 

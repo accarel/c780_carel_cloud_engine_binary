@@ -438,20 +438,45 @@ namespace MqttClientSimulatorBinary
 
         private void ButtonUpdate_ca_cerficates_Click(object sender, EventArgs e)
         {
-            string textFilePath = @".\cbor_cloud\REQ_UPDATE_CA.cbor";
-            PublishTestFile(textFilePath);
+            DialogResult result1 = MessageBox.Show("Are you really sure to update CA certificate ?",
+                           "Important Question",
+                           MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+                string textFilePath = @".\cbor_cloud\REQ_UPDATE_CA.cbor";
+                PublishTestFile(textFilePath);
+            }
         }
 
         private void ButtonUpdate_dev_firmware_Click(object sender, EventArgs e)
         {
-            string textFilePath = @".\cbor_cloud\REQ_UPDATE_DEV_FIRMWARE.cbor";
-            PublishTestFile(textFilePath);
+            DialogResult result1 = MessageBox.Show("Are you really sure to update Device Firmware ?",
+                                       "Important Question",
+                                       MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+                string textFilePath = @".\cbor_cloud\REQ_UPDATE_DEV_FIRMWARE.cbor";
+                PublishTestFile(textFilePath);
+            }
         }
+
+
 
         private void ButtonUpdate_gw_firmware_Click(object sender, EventArgs e)
         {
-            string textFilePath = @".\cbor_cloud\REQ_GW_UPDATE_FW.cbor";
-            PublishTestFile(textFilePath);
+
+            DialogResult result1 = MessageBox.Show("Are you really sure to update GW Firmware ?",
+                                                   "Important Question",
+                                                   MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes) 
+            {
+                string textFilePath = @".\cbor_cloud\REQ_GW_UPDATE_FW.cbor";
+                PublishTestFile(textFilePath);
+            }
+
         }
 
 
@@ -1550,6 +1575,18 @@ namespace MqttClientSimulatorBinary
             }
         }
 
+
+        private void set_dev_update_form_call()
+        {
+            FormDevUpdateData frm = new FormDevUpdateData();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+
+
+
+
         private void button_SetFlags_IR_Click(object sender, EventArgs e)
         {
             flags_of = 2;
@@ -1617,6 +1654,27 @@ namespace MqttClientSimulatorBinary
                 radioButton_alive.Checked = false;
             }
 
+        }
+
+        private void button7_Click_1(object sender, EventArgs e)
+        {
+            FormDevUpdateData frm = new FormDevUpdateData();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void buttonSet_UpdateGwFW_Click(object sender, EventArgs e)
+        {
+            FormCBORUpdateGWFW frm = new FormCBORUpdateGWFW();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void buttonUpdateCAData_Click(object sender, EventArgs e)
+        {
+            FormCBORUpdateCA frm = new FormCBORUpdateCA();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
