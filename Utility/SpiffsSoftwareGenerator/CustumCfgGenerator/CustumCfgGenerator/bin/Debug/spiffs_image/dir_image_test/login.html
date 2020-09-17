@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<link rel="icon" href="fav.ico" />
+</head>
+<body>
+  <form action="upload/" method="POST" >
+    <div class="imgcontainer">
+      <img src="fav.ico" alt="Avatar" class="avatar">
+    </div>
+    
+    <h1 class="imgcontainer">Welcome to <text id="lastmac"></text></h1>
+ 
+  <div class="container">
+   <table style="width:350px;" >
+	 <tr id="username">
+        <td class="list_input"><label for="login_usr"><b>Username</b></label></td>
+        <td><input type="text" value="" name="login_usr" ></td>
+     </tr>
+    
+     <tr id="password">
+        <td class="list_input"><label for="login_pswd"><b>Password</b></label></td>
+        <td><input type="text" value="" name="login_pswd" ></td>
+     </tr>
+   </table>
+
+   <input type="hidden" name="current_page" id="current_page" value="1" />
+   
+   <button style="margin-left: 100px" class="admin-link" type="submit">Submit</button>
+
+    <label for="end"></label><input type="text" name="end" value="end" style="display: none;">
+
+    <label>
+      <input type="checkbox" checked="checked" name="remember"> Remember me
+    </label>
+  </div>
+
+  
+</form>
+
+ <script>
+	var configjs;
+    const Http = new XMLHttpRequest();
+    const url = 'login.json';
+    Http.open("GET",url);
+    Http.send();
+    console.log("Hello01");
+
+    Http.onreadystatechange=function(){
+        if(this.readyState == 4 && this.status == 200){
+            configjs = JSON.parse(Http.responseText);
+            console.log(configjs);
+			document.getElementById("lastmac").innerHTML = configjs.lastmac;
+		}
+	}
+ </script>
+ 
+</body>
+</html>

@@ -1,7 +1,16 @@
+                     ATTENZIONE AI CERTIFICATI     
+
+*********************************************************************
+                         AMBIENTE DI TEST
+*********************************************************************
+CERTIFICATI TEST 
+C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\SpiffsSoftwareGenerator\CustumCfgGenerator\CustumCfgGenerator\bin\Debug\spiffs_image\dir_image_test
+                     
+
 mqtts://test-mqtt.remotepro.io
 8883
 
-30AEA4EF4738 (mac-addr del dispositivo)
+?            (mac-addr del dispositivo)
 Ek8e4ZpJ6ZLC (password di default)
 
 pool.ntp.org
@@ -12,3 +21,25 @@ null
 null
 
 *********************************************************************
+                         AMBIENTE DI PRODUZIONE
+*********************************************************************
+Da email claudio.maritan del 17/09/2020
+
+CERTIFICATI UFFICIALI
+C:\hwfwdept_proj\c780_carel_cloud_engine_binary\Utility\SpiffsSoftwareGenerator\CustumCfgGenerator\CustumCfgGenerator\bin\Debug\spiffs_image\dir_image
+
+
+
+mqtts://mqtt.iot-carel.red
+8883
+
+?
+Ek8e4ZpJ6ZLC
+
+
+pool.ntp.org
+123
+
+m2m.rmpro.carel.com
+null
+null
