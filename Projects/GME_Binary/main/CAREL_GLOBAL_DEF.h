@@ -143,7 +143,7 @@
 #define NTP_DEFAULT_PORT  	123
 
 // period for mobile payload transmission
-#define GW_MOBILE_TIME		600	//600 (10 minutes, stress test), 7200 (2 hours)
+#define GW_MOBILE_TIME		7200	//600 (10 minutes, stress test), 7200 (2 hours)
 #define GW_SAMPLES_MOBILE	4
 #define GW_CSQ_TIME			(GW_MOBILE_TIME/GW_SAMPLES_MOBILE) //150 seconds (for stress test) or 30 minutes
 //period for status payload transmission
