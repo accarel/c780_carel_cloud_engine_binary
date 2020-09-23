@@ -110,6 +110,12 @@
     <Compile Include="FormCBORUpdateGWFW.Designer.cs">
       <DependentUpon>FormCBORUpdateGWFW.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormCBORUpdateSetDevsConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormCBORUpdateSetDevsConfig.Designer.cs">
+      <DependentUpon>FormCBORUpdateSetDevsConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="IniFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -128,6 +134,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormCBORUpdateGWFW.resx">
       <DependentUpon>FormCBORUpdateGWFW.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormCBORUpdateSetDevsConfig.resx">
+      <DependentUpon>FormCBORUpdateSetDevsConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

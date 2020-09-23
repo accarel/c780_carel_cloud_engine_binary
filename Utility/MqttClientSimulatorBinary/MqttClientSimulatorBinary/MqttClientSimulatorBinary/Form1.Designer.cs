@@ -207,6 +207,7 @@
             this.radioButton_alive = new System.Windows.Forms.RadioButton();
             this.checkBox_mqtt_alive = new System.Windows.Forms.CheckBox();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.button_setDevsConfig = new System.Windows.Forms.Button();
             this.buttonUpdateCAData = new System.Windows.Forms.Button();
             this.buttonSet_UpdateGwFW = new System.Windows.Forms.Button();
             this.buttonDevUpdateData = new System.Windows.Forms.Button();
@@ -313,7 +314,7 @@
             // 
             // buttonSet_Devs_Config
             // 
-            this.buttonSet_Devs_Config.Location = new System.Drawing.Point(9, 180);
+            this.buttonSet_Devs_Config.Location = new System.Drawing.Point(9, 184);
             this.buttonSet_Devs_Config.Margin = new System.Windows.Forms.Padding(4);
             this.buttonSet_Devs_Config.Name = "buttonSet_Devs_Config";
             this.buttonSet_Devs_Config.Size = new System.Drawing.Size(129, 46);
@@ -324,7 +325,7 @@
             // 
             // buttonSet_Lines_Config
             // 
-            this.buttonSet_Lines_Config.Location = new System.Drawing.Point(9, 233);
+            this.buttonSet_Lines_Config.Location = new System.Drawing.Point(9, 179);
             this.buttonSet_Lines_Config.Margin = new System.Windows.Forms.Padding(4);
             this.buttonSet_Lines_Config.Name = "buttonSet_Lines_Config";
             this.buttonSet_Lines_Config.Size = new System.Drawing.Size(129, 46);
@@ -430,21 +431,20 @@
             this.groupBox1.Controls.Add(this.button_send_mb_adu);
             this.groupBox1.Controls.Add(this.buttonReadValue);
             this.groupBox1.Controls.Add(this.buttonScanLine);
-            this.groupBox1.Controls.Add(this.buttonSet_Devs_Config);
             this.groupBox1.Controls.Add(this.buttonSet_Lines_Config);
             this.groupBox1.Controls.Add(this.buttonChangeCredential);
             this.groupBox1.Location = new System.Drawing.Point(915, 134);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox1.Size = new System.Drawing.Size(285, 401);
+            this.groupBox1.Size = new System.Drawing.Size(285, 346);
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
             // 
             // button_ReqDBGInfo
             // 
-            this.button_ReqDBGInfo.Location = new System.Drawing.Point(145, 346);
+            this.button_ReqDBGInfo.Location = new System.Drawing.Point(9, 286);
             this.button_ReqDBGInfo.Margin = new System.Windows.Forms.Padding(4);
             this.button_ReqDBGInfo.Name = "button_ReqDBGInfo";
             this.button_ReqDBGInfo.Size = new System.Drawing.Size(129, 46);
@@ -455,7 +455,7 @@
             // 
             // buttonSet_Lines_Config_TTL
             // 
-            this.buttonSet_Lines_Config_TTL.Location = new System.Drawing.Point(145, 233);
+            this.buttonSet_Lines_Config_TTL.Location = new System.Drawing.Point(141, 231);
             this.buttonSet_Lines_Config_TTL.Margin = new System.Windows.Forms.Padding(4);
             this.buttonSet_Lines_Config_TTL.Name = "buttonSet_Lines_Config_TTL";
             this.buttonSet_Lines_Config_TTL.Size = new System.Drawing.Size(129, 46);
@@ -466,7 +466,7 @@
             // 
             // button_flush
             // 
-            this.button_flush.Location = new System.Drawing.Point(145, 182);
+            this.button_flush.Location = new System.Drawing.Point(145, 179);
             this.button_flush.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_flush.Name = "button_flush";
             this.button_flush.Size = new System.Drawing.Size(131, 44);
@@ -510,7 +510,7 @@
             // 
             // button_test_set_gw_config_req
             // 
-            this.button_test_set_gw_config_req.Location = new System.Drawing.Point(9, 346);
+            this.button_test_set_gw_config_req.Location = new System.Drawing.Point(9, 231);
             this.button_test_set_gw_config_req.Margin = new System.Windows.Forms.Padding(4);
             this.button_test_set_gw_config_req.Name = "button_test_set_gw_config_req";
             this.button_test_set_gw_config_req.Size = new System.Drawing.Size(129, 46);
@@ -521,7 +521,7 @@
             // 
             // button_send_mb_adu
             // 
-            this.button_send_mb_adu.Location = new System.Drawing.Point(9, 291);
+            this.button_send_mb_adu.Location = new System.Drawing.Point(145, 284);
             this.button_send_mb_adu.Margin = new System.Windows.Forms.Padding(4);
             this.button_send_mb_adu.Name = "button_send_mb_adu";
             this.button_send_mb_adu.Size = new System.Drawing.Size(129, 46);
@@ -2153,18 +2153,31 @@
             // 
             // groupBox12
             // 
+            this.groupBox12.Controls.Add(this.button_setDevsConfig);
             this.groupBox12.Controls.Add(this.buttonUpdateCAData);
             this.groupBox12.Controls.Add(this.buttonSet_UpdateGwFW);
             this.groupBox12.Controls.Add(this.buttonDevUpdateData);
             this.groupBox12.Controls.Add(this.buttonUpdate_ca_cerficates);
             this.groupBox12.Controls.Add(this.buttonUpdate_dev_firmware);
             this.groupBox12.Controls.Add(this.buttonUpdate_gw_firmware);
-            this.groupBox12.Location = new System.Drawing.Point(915, 536);
+            this.groupBox12.Controls.Add(this.buttonSet_Devs_Config);
+            this.groupBox12.Location = new System.Drawing.Point(915, 487);
             this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Size = new System.Drawing.Size(285, 189);
+            this.groupBox12.Size = new System.Drawing.Size(285, 238);
             this.groupBox12.TabIndex = 75;
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "Uploads";
+            // 
+            // button_setDevsConfig
+            // 
+            this.button_setDevsConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_setDevsConfig.Location = new System.Drawing.Point(141, 186);
+            this.button_setDevsConfig.Name = "button_setDevsConfig";
+            this.button_setDevsConfig.Size = new System.Drawing.Size(66, 21);
+            this.button_setDevsConfig.TabIndex = 50;
+            this.button_setDevsConfig.Text = "< SET";
+            this.button_setDevsConfig.UseVisualStyleBackColor = true;
+            this.button_setDevsConfig.Click += new System.EventHandler(this.button_setDevsConfig_Click);
             // 
             // buttonUpdateCAData
             // 
@@ -2250,7 +2263,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.4";
+            this.Text = "IoT Server Simulator Binary Edition V.2.5";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2460,6 +2473,7 @@
         private System.Windows.Forms.Button buttonDevUpdateData;
         private System.Windows.Forms.Button buttonSet_UpdateGwFW;
         private System.Windows.Forms.Button buttonUpdateCAData;
+        private System.Windows.Forms.Button button_setDevsConfig;
     }
 }
 

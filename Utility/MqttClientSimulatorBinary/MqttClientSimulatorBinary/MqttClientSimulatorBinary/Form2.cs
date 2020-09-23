@@ -22,12 +22,12 @@ namespace MqttClientSimulatorBinary
 
         private void FormFlags_Load(object sender, EventArgs e)
         {
-
+            this.CenterToScreen();
         }
 
         private void checkBox5_CheckedChanged(object sender, EventArgs e)
         {
-
+            this.Close();
         }
 
         private void button_Flag_Confirm_Click(object sender, EventArgs e)
@@ -47,6 +47,11 @@ namespace MqttClientSimulatorBinary
             this.ReturnText = flag_value.ToString();
             this.Visible = false;
 
+        }
+
+        private void button_Flag_Cancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
         }
     }
 }

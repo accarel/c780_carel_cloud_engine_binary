@@ -433,7 +433,15 @@ namespace MqttClientSimulatorBinary
         private void buttonSet_Devs_Config_Click(object sender, EventArgs e)
         {
             string textFilePath = @".\cbor_cloud\REQ_DOWNLOAD_DEVS_CONFIG.cbor";
-            PublishTestFile(textFilePath);
+
+            DialogResult result1 = MessageBox.Show("Are you really sure to update DEV config ?",
+               "Important Question",
+               MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+               PublishTestFile(textFilePath);
+            }
         }
 
         private void ButtonUpdate_ca_cerficates_Click(object sender, EventArgs e)
@@ -1551,7 +1559,7 @@ namespace MqttClientSimulatorBinary
         private void set_flags_form_call()
         {
             FormFlags frm = new FormFlags();
-            frm.Show();
+            frm.Show();            
             frm.VisibleChanged += formVisibleChanged;
         }
 
@@ -1673,6 +1681,13 @@ namespace MqttClientSimulatorBinary
         private void buttonUpdateCAData_Click(object sender, EventArgs e)
         {
             FormCBORUpdateCA frm = new FormCBORUpdateCA();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void button_setDevsConfig_Click(object sender, EventArgs e)
+        {
+            FormCBORUpdateSetDevsConfig frm = new FormCBORUpdateSetDevsConfig();
             frm.Show();
             frm.VisibleChanged += formVisibleChanged;
         }

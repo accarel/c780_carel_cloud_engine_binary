@@ -139,6 +139,7 @@
             this.button_Flag_Cancel.TabIndex = 9;
             this.button_Flag_Cancel.Text = "Cancel";
             this.button_Flag_Cancel.UseVisualStyleBackColor = true;
+            this.button_Flag_Cancel.Click += new System.EventHandler(this.button_Flag_Cancel_Click);
             // 
             // FormFlags
             // 
