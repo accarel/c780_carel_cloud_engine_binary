@@ -60,6 +60,8 @@
             this.button_test_result = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.comboBox_DUT_Type = new System.Windows.Forms.ComboBox();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.tabControl_Info_Setup.SuspendLayout();
             this.tabPage2_parameters.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -399,11 +401,25 @@
             this.comboBox_DUT_Type.Size = new System.Drawing.Size(329, 25);
             this.comboBox_DUT_Type.TabIndex = 53;
             // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.WorkerReportsProgress = true;
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(13, 724);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(325, 35);
+            this.progressBar1.Step = 1;
+            this.progressBar1.TabIndex = 55;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ControlLight;
             this.ClientSize = new System.Drawing.Size(832, 762);
+            this.Controls.Add(this.progressBar1);
             this.Controls.Add(this.comboBox_DUT_Type);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.button_test_result);
@@ -460,6 +476,8 @@
         private System.Windows.Forms.Button button_read_v;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox comboBox_DUT_Type;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 

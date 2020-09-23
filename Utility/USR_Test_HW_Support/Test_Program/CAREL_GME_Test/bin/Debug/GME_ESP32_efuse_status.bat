@@ -1,0 +1,1 @@
+python espefuse.py --port %1 summary > prgout.txt

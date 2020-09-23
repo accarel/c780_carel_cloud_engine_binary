@@ -1,0 +1,1 @@
+python espefuse.py --port %1 --do-not-confirm burn_key flash_encryption carel_encryption_key.bin > prgout.txt

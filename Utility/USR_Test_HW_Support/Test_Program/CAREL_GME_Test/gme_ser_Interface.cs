@@ -224,6 +224,40 @@ namespace gme_ser_Interface
             return result;
         }
 
+        public bool wait_cyper_time()
+        {
+            String ret_val = @"";
+            String result = @"";
+            int irv = 0;
+            int value;
+            int maxtime;
+            int loctimeout;
+            bool res = false;
+
+            bool b_err_1;
+            string s_err1 = "encryption completed";
+
+            maxtime = 0;
+            loctimeout = 80000;  //80 sec
+
+            do
+            {
+                b_err_1 = CumulatedData.Contains(s_err1);
+            
+                if (b_err_1)
+                {
+                    res = true;
+                }
+
+                Thread.Sleep(50);
+                maxtime += 50;
+
+            } while (maxtime < loctimeout);
+
+
+            return res;
+        }
+
 
 
         public string get_imei_response()
@@ -465,7 +499,7 @@ namespace gme_ser_Interface
 
 
             maxtime = 0;
-            loctimeout = 5000;  //5 sec
+            loctimeout = 15000;  //15 sec
 
             /*
              at startup the ESP32 emit some bootloader msg, so that 

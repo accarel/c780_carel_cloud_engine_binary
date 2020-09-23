@@ -17,8 +17,16 @@ using System.Timers;
 using System.Diagnostics;
 
 
+
 namespace CodeProjectSerialComms
 {
+    enum StatusCode : int
+    {
+        None = -1,
+        Not_Crypt = 1,
+        Crypt = 2,
+    }
+
 
     public partial class Form1 : Form
     {              
@@ -27,13 +35,25 @@ namespace CodeProjectSerialComms
         IO_Interface_Class My_IO = new IO_Interface_Class();
         System.Timers.Timer mytimer;
 
-
         gme_ser_Interface_Class My_SER = new gme_ser_Interface_Class();
-               
 
         public Form1()
         {
-            InitializeComponent();                      
+            InitializeComponent();
+
+            backgroundWorker1.ProgressChanged += new ProgressChangedEventHandler(backgroundWorker1_ProgressChanged);
+            backgroundWorker1.DoWork += new DoWorkEventHandler(backgroundWorker1_DoWork);
+
+            backgroundWorker1.RunWorkerCompleted += new RunWorkerCompletedEventHandler(backgroundWorker1_RunWorkerCompleted);
+            backgroundWorker1.WorkerReportsProgress = true;
+            backgroundWorker1.WorkerSupportsCancellation = true;
+
+
+            progressBar1.Value = 0;
+            progressBar1.Step = 1;
+            progressBar1.Minimum = 0;
+            progressBar1.Maximum = 100;
+
         }
 
 
@@ -192,9 +212,27 @@ namespace CodeProjectSerialComms
             pProcess.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
             pProcess.StartInfo.CreateNoWindow = true;            //not diplay a windows
             pProcess.Start();
-            string output = pProcess.StandardOutput.ReadToEnd(); //The output result
-            pProcess.WaitForExit();
-            textBox_debug.Text = textBox_debug.Text + output;
+            
+            
+            //string output = pProcess.StandardOutput.ReadToEnd(); //The output result
+            //pProcess.WaitForExit();
+            //textBox_debug.Text = textBox_debug.Text + output;
+
+
+            progressBar1.Value = 0;
+            while (!pProcess.WaitForExit(1000))
+            {
+                // it is not relateed to the real programming...it is just to show 
+                // that the system still running
+                if (progressBar1.Value == 100)
+                    progressBar1.Value = 99;
+
+                progressBar1.Value = progressBar1.Value + 1;
+            }
+
+            progressBar1.Value = 0;
+
+
 
             /* prgout.txt parse to see errors */
             string[] lines = System.IO.File.ReadAllLines(@"prgout.txt");
@@ -224,6 +262,87 @@ namespace CodeProjectSerialComms
             
             return 1;
         }
+
+
+        private int call_esp_burnkey()
+        {
+            String cmdlinepars;
+            cmdlinepars = My_SER.ComPrgName + " " + My_SER.ComPrgBaud;
+
+            Process pProcess = new Process();
+
+            pProcess.StartInfo.FileName = @"GME_ESP32_burn.bat";
+            pProcess.StartInfo.Arguments = cmdlinepars;
+            pProcess.StartInfo.UseShellExecute = false;
+            pProcess.StartInfo.RedirectStandardOutput = true;
+            pProcess.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+            pProcess.StartInfo.CreateNoWindow = true;            //not diplay a windows
+            pProcess.Start();
+            string output = pProcess.StandardOutput.ReadToEnd(); //The output result
+            pProcess.WaitForExit();
+
+            textBox_debug.Text = textBox_debug.Text + output;
+
+            /* prgout.txt parse to see errors */
+            string[] lines = System.IO.File.ReadAllLines(@"prgout.txt");
+
+            bool b_err_1;
+            string s_err1 = "ERROR";
+            string s_err2 = "ALREADY"; // A fatal error occurred: The efuse block has already been write protected. 
+
+            string tmp_line;
+
+            foreach (string line in lines)
+            {
+                // Use a tab to indent each line of the file.
+                //textBox_debug.Text = textBox_debug.Text + line;
+                tmp_line = line.ToUpper();
+
+                b_err_1 = tmp_line.Contains(s_err1);
+
+                if (b_err_1)
+                {
+                    if (tmp_line.Contains(s_err2))
+                    {
+                        display_status("Key already present");
+                        return 1;
+                    }
+                    else
+                        return 0;  // is a real error!!!
+                }
+            }
+
+            return 1;
+        }
+
+
+
+
+        /*   PROGRESS BAR NOT USED */
+  
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            //BackgroundWorker worker = sender as BackgroundWorker;
+
+            for (int j = 0; j < 20; j++)
+            {
+                Thread.Sleep(100);
+                backgroundWorker1.ReportProgress(j * 5);
+            }
+        }
+
+        private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            progressBar1.Value = e.ProgressPercentage;
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            // TODO: do something with final calculation.
+        }
+
+
+        /* end progress bar  */
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -275,7 +394,193 @@ namespace CodeProjectSerialComms
             }
 
         }
-                
+
+
+        private bool burn_encryption_key()
+        {
+            int retval = 0;
+
+            retval = call_esp_burnkey();
+
+            if (retval == 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        
+        
+        private int check_efuse_status()
+        {
+            String cmdlinepars;
+            cmdlinepars = My_SER.ComPrgName + " " + My_SER.ComPrgBaud;
+
+            Process pProcess = new Process();
+
+            pProcess.StartInfo.FileName = @"GME_ESP32_efuse_status.bat";
+            pProcess.StartInfo.Arguments = cmdlinepars;
+            pProcess.StartInfo.UseShellExecute = false;
+            pProcess.StartInfo.RedirectStandardOutput = true;
+            pProcess.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+            pProcess.StartInfo.CreateNoWindow = true;            //not diplay a windows
+            pProcess.Start();
+            string output = pProcess.StandardOutput.ReadToEnd(); //The output result
+            pProcess.WaitForExit();
+
+            textBox_debug.Text = textBox_debug.Text + output;
+
+            /* prgout.txt parse to see errors */
+            string[] lines = System.IO.File.ReadAllLines(@"prgout.txt");
+
+            bool b_par_1;
+
+            string s_param1 = "FLASH_CRYPT_CNT";
+            string s_param2 = "R/W";
+
+            string[] not_crypt = new string[] { "= 0", "= 2", "= 4", "= 6" };
+            string[] is_crypt  = new string[] { "= 1", "= 3", "= 5", "= 7" };
+
+            string tmp_line;
+
+            foreach (string line in lines)
+            {
+                // Use a tab to indent each line of the file.
+                textBox_debug.Text = textBox_debug.Text + line;
+                tmp_line = line.ToUpper();
+
+                b_par_1 = (tmp_line.Contains(s_param1) || tmp_line.Contains(s_param2));
+
+                if (b_par_1)
+                {
+                    int end = line.Length;
+                    int start = end / 2;
+                    int count = 0;
+                    int at = 0;
+
+                    int found = 0; 
+
+                    // search if is not crypt
+                    while ((start <= end) && (found == 0))
+                    {
+                        // start+count must be a position within -str-.
+                        count = end - start;
+                        for (int i = 0; i < 4; i++)
+                        {
+                            at = tmp_line.IndexOf(not_crypt[i], start, count);
+                            // found!
+                            if (at > -1)
+                            {
+                                found = 1;
+                                break;
+                            }
+                            else
+                                found = 0;
+                        }
+
+                        start = end + 1;  // just to stop the while loop after one search
+
+                        if (found == 1)
+                            return (int)StatusCode.Not_Crypt;   
+                    }
+
+                    end = line.Length;
+                    start = end / 2;
+                    count = 0;
+                    at = 0;
+
+                    // search if is crypt
+                    while ((start <= end) && (found == 0))
+                    {
+                        // start+count must be a position within -str-.
+                        count = end - start;
+                        for (int i = 0; i < 4; i++)
+                        {
+                            at = tmp_line.IndexOf(is_crypt[i], start, count);
+                            // found!
+                            if (at > -1)
+                            {
+                                found = 1;
+                                break;
+                            }
+                            else
+                                found = 0;
+                        }
+
+                        start = end + 1;  // just to stop the while loop after one search
+
+                        if (found == 1)
+                            return (int)StatusCode.Crypt;
+                    }
+                }
+            }
+
+            return (int)StatusCode.Crypt;
+        }
+
+
+        private bool re_programmer_encrypt()
+        {
+            String cmdlinepars;
+            cmdlinepars = My_SER.ComPrgName + " " + My_SER.ComPrgBaud;
+
+            Process pProcess = new Process();
+
+            pProcess.StartInfo.FileName = @"GME_ESP32_re_flash_encrypt.bat";
+            pProcess.StartInfo.Arguments = cmdlinepars;
+            pProcess.StartInfo.UseShellExecute = false;
+            pProcess.StartInfo.RedirectStandardOutput = true;
+            pProcess.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Normal;
+            pProcess.StartInfo.CreateNoWindow = true;            //not diplay a windows
+        
+            pProcess.Start();
+            //string output = pProcess.StandardOutput.ReadToEnd(); //The output result
+
+            progressBar1.Value = 0;
+            while (!pProcess.WaitForExit(1000))
+            {
+                // it is not relateed to the real programming...it is just to show 
+                // that the system still running
+                if (progressBar1.Value == 100)
+                    progressBar1.Value = 99;
+
+                progressBar1.Value = progressBar1.Value + 1;
+            }
+
+            progressBar1.Value = 0;
+
+
+            /* prgout.txt parse to see errors */
+            string[] lines = System.IO.File.ReadAllLines(@"prgout.txt");
+
+            bool b_err_1;
+            string s_err1 = "ERROR";
+
+            bool b_err_2;
+            string s_err2 = "FAIL";
+
+            string tmp_line;
+
+            foreach (string line in lines)
+            {
+                // Use a tab to indent each line of the file.
+                textBox_debug.Text = textBox_debug.Text + line;
+                tmp_line = line.ToUpper();
+
+                b_err_1 = tmp_line.Contains(s_err1);
+                b_err_2 = tmp_line.Contains(s_err2);
+
+                if (b_err_1 || b_err_2)
+                {  
+                    return false;                 
+                }
+            }
+            return true;
+        }
+
+
         private bool MessageYesNo(String caption, String msg)
         {
                      
@@ -324,6 +629,10 @@ namespace CodeProjectSerialComms
             /*                     BEGIN OF TEST SUITE                        */
             /* ============================================================== */
             bool test_pass = true;
+            bool burn_pass = false;
+
+            int is_or_not_crypt = -1;
+
 
             display_reset();
             display_status("TEST Start WiFi!");
@@ -366,24 +675,72 @@ namespace CodeProjectSerialComms
                 return;
             }
 
-            //now start programming the device 
+            // read the status of eFuse bit
+
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
             Thread.Sleep(1000);
             My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
             Thread.Sleep(1000);
-            display_status("Gateway ready to program ..");
+            display_status("Read eFuse bits status ..");
 
-                        
-            test_pass = prog_device();
+            is_or_not_crypt = check_efuse_status();
 
-            if (test_pass == false) 
+
+            if(is_or_not_crypt == (int)StatusCode.Crypt)
             {
-                display_status("Gateway programming FAILED!");
-                display_failed_test();
-                test_result_indicator(false);
-                return;
-            }
+                //now start programming the device 
+                My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
+                Thread.Sleep(1000);
+                My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
+                Thread.Sleep(1000);
+                display_status("Re-program the device ..");
 
+                // use the encrypted files      
+                test_pass = re_programmer_encrypt();
+
+                if (test_pass == false)
+                {
+                    display_status("Gateway programming FAILED!");
+                    display_failed_test();
+                    test_result_indicator(false);
+                    return;
+                }
+
+            }
+            else
+            {
+                //if you want encrypt the firmware first you have to burn the CAREL key  
+               
+                My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
+                Thread.Sleep(1000);
+                My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
+                Thread.Sleep(1000);
+                display_status("Gateway ready to program ..");
+
+                // burn the key!!!
+                display_status("Burn the Cyper key into the Gateway ..");
+
+                burn_pass = burn_encryption_key();
+ 
+
+                //now start programming the device 
+                My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
+                Thread.Sleep(1000);
+                My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
+                Thread.Sleep(1000);
+                display_status("Gateway ready to program ..");
+
+
+                test_pass = prog_device();
+
+                if (test_pass == false)
+                {
+                    display_status("Gateway programming FAILED!");
+                    display_failed_test();
+                    test_result_indicator(false);
+                    return;
+                }
+            }
 
 
             /*
@@ -393,7 +750,7 @@ namespace CodeProjectSerialComms
             My_SER.Init_Ser_Communication_Interface();
             
 
-            MessageBox.Show("Take a look to the status led to see if blink it take some time");
+            MessageBox.Show("Take a look to the status led to see if blink it take some time...AT LEAST 1 MINUTE!!!");
 
 
             //now we put GME in test mode            
@@ -402,12 +759,14 @@ namespace CodeProjectSerialComms
             My_IO.set_rele_status(My_IO.RELE_TP5, My_IO.RELE_ON);           //TP5 to ground 
             Thread.Sleep(500);
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);            //leave GME reset
+
+
             display_status("Gateway in test mode ..");
 
             //this time is to give the possibility to the GME to encrypt the flash 
             //it take 60 sec. maximun but we short the time waiting the IMEI serial message 
             //anyway no less than 10secs are requested so that the first part is in busy wait
-            Thread.Sleep(10000);
+            Thread.Sleep(30000);
 
 
             //get MAC address
@@ -510,6 +869,11 @@ namespace CodeProjectSerialComms
             /*                     BEGIN OF TEST SUITE 2G                     */
             /* ============================================================== */
             bool test_pass = true;
+            bool burn_pass = false;
+
+            int is_or_not_crypt = -1;
+
+
 
             display_reset();
             display_status("TEST Start 2G!");
@@ -554,26 +918,72 @@ namespace CodeProjectSerialComms
                 return;
             }
 
-            //now start programming the device 
+            // read the status of eFuse bit (2G)
+
             My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
             Thread.Sleep(1000);
             My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
             Thread.Sleep(1000);
-            display_status("Gateway ready to program ..");
+            display_status("Read eFuse bits status ..");
+
+            is_or_not_crypt = check_efuse_status();
 
 
-            test_pass = prog_device();
-
-            
-            if (test_pass == false)
+            if (is_or_not_crypt == (int)StatusCode.Crypt)
             {
-                display_status("Gateway programming FAILED!");
-                display_failed_test();
-                test_result_indicator(false);
-                return;
+                //now start programming the device 
+                My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
+                Thread.Sleep(1000);
+                My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
+                Thread.Sleep(1000);
+                display_status("Re-program the device ..");
+
+                // use the encrypted files      
+                test_pass = re_programmer_encrypt();
+
+                if (test_pass == false)
+                {
+                    display_status("Gateway programming FAILED!");
+                    display_failed_test();
+                    test_result_indicator(false);
+                    return;
+                }
             }
+            else
+            {
+                //if you want encrypt the firmware first you have to burn the CAREL key  
+
+                My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
+                Thread.Sleep(1000);
+                My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
+                Thread.Sleep(1000);
+                display_status("Gateway ready to program ..");
+
+                // burn the key!!!
+                display_status("Burn the Cyper key into the Gateway ..");
+
+                burn_pass = burn_encryption_key();
 
 
+                //now start programming the device 
+                My_IO.set_rele_status(My_IO.RELE_EN, My_IO.RELE_OFF);      //leave GME reset
+                Thread.Sleep(1000);
+                My_IO.set_rele_status(My_IO.RELE_BUTTON, My_IO.RELE_OFF);  //prog. button release
+                Thread.Sleep(1000);
+                display_status("Gateway ready to program ..");
+
+
+                test_pass = prog_device();
+
+                if (test_pass == false)
+                {
+                    display_status("Gateway programming FAILED!");
+                    display_failed_test();
+                    test_result_indicator(false);
+                    return;
+                }
+
+            }
 
             /*
              * now we initialize the serial port previosly used for the programming
@@ -582,7 +992,7 @@ namespace CodeProjectSerialComms
             My_SER.Init_Ser_Communication_Interface();
 
             //warn the operator to take a look to the leds
-            MessageBox.Show("Take a look to the green leds to see if they blink in sequence it take some time");
+            MessageBox.Show("Take a look to the green leds to see if they blink in sequence it take some time...AT LEAST 1 MINUTE!!!");
             
 
             //now we put GME in test mode            
@@ -595,7 +1005,7 @@ namespace CodeProjectSerialComms
             //this time is to give the possibility to the GME to encrypt the flash 
             //it take 60 sec. maximun but we short the time waiting the IMEI serial message 
             //anyway no less than 10secs are requested so that the first part is in busy wait
-            Thread.Sleep(10000);
+            Thread.Sleep(30000);
             
             display_status("Gateway in test mode ..");
                                                   
@@ -722,7 +1132,6 @@ namespace CodeProjectSerialComms
 
             button_test_result.Text = "--------";
             button_test_result.BackColor = Color.LightGray;
-
 
             Application.DoEvents();
 
