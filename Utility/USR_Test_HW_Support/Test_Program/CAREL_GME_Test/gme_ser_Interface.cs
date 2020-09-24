@@ -427,6 +427,7 @@ namespace gme_ser_Interface
             int loctimeout;
             bool res = false;
 
+            bool find = false;
 
             maxtime = 0;
             loctimeout = 20000;  //20 sec
@@ -444,28 +445,25 @@ namespace gme_ser_Interface
 
                 if (value != 0)
                 {
-                    if (CumulatedData.Length >= (value + searchfor.Length))
-                    {
-                        string separator = @"GSM=";
-                        // Part 1: get index of separator.
-                        int separatorIndex = CumulatedData.IndexOf(separator);
-                        // Part 2: if separator exists, get substring.
-                        if (separatorIndex >= 0)
-                        {
+                    maxtime = 0;
 
-                            try
-                            {
-                                result = CumulatedData.Substring(separatorIndex + separator.Length, searchfor.Length);
-                            }
-                            catch (ArgumentException aae)
-                            {
-                                res = false;
-                                return res;
-                            }
-                            
-                            break;
+                    do
+                    {
+                        find = CumulatedData.Contains(searchfor);
+
+                        if (find)
+                        {
+                            res = true;
+
+                            return res;
                         }
-                    }
+
+                        Thread.Sleep(50);
+                        maxtime += 50;
+
+                    } while (maxtime < loctimeout);
+
+                    return res;
                 }
 
                 Thread.Sleep(50);
@@ -473,16 +471,8 @@ namespace gme_ser_Interface
 
             } while (maxtime < loctimeout);
 
-            if (String.Equals(result, searchfor))
-            {
-                res = true;
-            }
-
             return res;
         }
-
-
-
 
 
 
