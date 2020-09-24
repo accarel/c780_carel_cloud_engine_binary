@@ -429,7 +429,7 @@
             this.Controls.Add(this.rtbIncoming);
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "Form1";
-            this.Text = "CAREL GME HW Test V.1.1.0";
+            this.Text = "CAREL GME HW Test V.1.2.0";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl_Info_Setup.ResumeLayout(false);
             this.tabPage2_parameters.ResumeLayout(false);
