@@ -180,7 +180,9 @@ void DEV_ota_task(void * pvParameter){
 	chunk_size = DEV_OTA_BUF_SIZE;
 
 	while(1){
-
+        #ifdef __CCL_DEBUG_MODE
+		printf("-----------------------------------------\n");
+		#endif
 		data_read_len = http_client_read_IS(client, (char*)upgrade_data_buf, DEV_OTA_BUF_SIZE);
 		
 		if (data_read_len > 0) {
@@ -195,7 +197,7 @@ void DEV_ota_task(void * pvParameter){
 			sent_data_per_file = sent_data_per_file + data_read_len;
 			file_total_lenght += data_read_len;
 
-			if (sent_data_per_file >= (MB_FILE_MAX_BYTES - DEV_OTA_BUF_SIZE))
+			if (sent_data_per_file >= MB_FILE_MAX_BYTES)
 			{
 		    	file_number_inc++;
 		    	starting_reg = 0;
