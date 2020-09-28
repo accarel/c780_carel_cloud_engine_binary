@@ -49,12 +49,12 @@ extern BOOL xMBMasterPortSerialTxPoll(void);
 
 static TaskHandle_t MODBUS_TASK = NULL;
 static uint32_t MB_Device = 0;
-static uint16_t MB_Delay = 0;
+static uint16_t MB_Delay = 200;
 
 C_UINT16 ModbusDisabled = 0;
 
 
-extern CHAR ucMBFileTransfer[256];
+extern CHAR ucMBFileTransfer[260]; //256 is the right value but
 extern USHORT usMBFileTransferLen;
 
 /**
@@ -381,56 +381,112 @@ C_RES app_report_slave_id_read(const uint8_t addr)
  */
 C_RES app_file_transfer(unsigned char* data_tx, uint8_t packet_len)
 {
-   C_RES result = C_SUCCESS;
+   char data_rx[260];
+   int retrycount=0;
+   uint16_t data_rx_len;
+   const long timeout = MODBUS_TIME_OUT;
+   const int MAX_RETRY = 3;
 
+    C_RES result = C_SUCCESS;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
+do{
 
-    const long timeout = MODBUS_TIME_OUT;
-    eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
-    errorCode = eMBMAsterReqFileTransfer(1, data_tx, packet_len, timeout);
-    result = errorCode;
+    do{
+      if (retrycount > 0) Sys__Delay(250);
+
+      eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
+      memset(ucMBFileTransfer, 0, 256);   /* zeroed the rx buffer */
+      errorCode = eMBMAsterReqFileTransfer(1, data_tx, packet_len, timeout);
+      result = errorCode;
+      retrycount++;
+
+      #ifdef __CCL_DEBUG_MODE
+      if (errorCode != MB_MRE_NO_ERR) printf("app_file_transfer #1 err %X \r\n", result);
+      #endif
+
+    }while((result != MB_MRE_NO_ERR) && (retrycount < MAX_RETRY)) ;
+
+
+    if (retrycount >= MAX_RETRY)
+    {
+        #ifdef __CCL_DEBUG_MODE
+    	printf("app_file_transfer MAX_RETRY\r\n");
+        #endif
+    	result = C_FAIL;
+    	return result;
+    }
+
 
     //TODO CPPCHECK result non è testato maglio testare
     //errorcode che torna   MB_MRE_ILL_ARG / MB_MRE_MASTER_BUSY / più significativo
     //sopratutto se un giorno implementiamo ADU .... Brrrrivido
 
+    memset(data_rx, 0, 260);
+    data_rx_len = usMBFileTransferLen + 3;
+    data_rx[0]  = ucMBFileTransfer[0];
 
-    char data_rx[260];
-    uint16_t data_rx_len = usMBFileTransferLen + 3;
-    data_rx[0] = ucMBFileTransfer[0];
     // get response
-    for(C_INT16 i = 0; i < data_rx_len + 2; i++)
+    for (C_INT16 i = 0; i < data_rx_len + 2; i++)
+    {
    	  (data_rx[i + 1]) = 	ucMBFileTransfer[i];
+    }
 
     if(data_rx_len != packet_len){
+        #ifdef __CCL_DEBUG_MODE
     	printf("Received packet length %d doesn't match the transmitted packet length %d\n", data_rx_len, packet_len);
-#ifdef __CCL_DEBUG_MODE
     	printf("uart_read_bytes len = %d\n",data_rx_len);
 
     	for(int i=0; i<data_rx_len; i++){
    			printf("%02X ",data_rx[i]);
    		}
    		printf("\n");
-#endif
+        #endif
+
    		result = C_FAIL;
    	}else{
+
 		if(data_rx[data_rx_len-1] != data_tx[packet_len-1] || data_rx[data_rx_len-2] != data_tx[packet_len-2]){
-			printf("Received packet content doesn't match the transmitted packet content\n");
-			result = C_FAIL;
+
+            #ifdef __CCL_DEBUG_MODE
+			printf("Received packet content doesn't match the transmitted packet content\r\n");
+			printf("  data_rx_len %x\r\n", data_rx_len);
+			printf("RECV***************\r\n");
+	    	for(int i=0; i<data_rx_len; i++){
+	   			printf("%02X ",data_rx[i]);
+	   		}
+	    	printf("\r\nSENT$$$$$$$$$$$$$$$\r\n");
+
+	    	for(int i=0; i<packet_len; i++){
+	   			printf("%02X ",data_tx[i]);
+	   		}
+	    	printf("------------------\r\n");
+            #endif
+
+	    	result = C_FAIL;
+
 		}else{
+
 			result = C_SUCCESS;
-#ifdef __CCL_DEBUG_MODE
+
+            #ifdef __CCL_DEBUG_MODE
 			printf("uart_read_bytes len = %d\n",data_rx_len);
 
 			for(int i=0; i<data_rx_len; i++){
 				printf("%02X ",data_rx[i]);
 			}
-			printf("\n");
-#endif
+			printf("\r\n");
+
+            #endif
 		}
    	}
 
+    Modbus__Delay();
+
+}while((result != C_SUCCESS) && (retrycount < MAX_RETRY));
+
 #endif
+
+
     Modbus__Delay();
     return result;
 }

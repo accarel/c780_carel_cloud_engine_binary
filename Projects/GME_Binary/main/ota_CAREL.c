@@ -148,8 +148,11 @@ void DEV_ota_task(void * pvParameter){
 	}
 
 	C_UINT16 file_number = dev_fw_config->fid;
+	C_UINT16 file_number_inc = 0;
+	C_UINT16 file_number_inc_old = 0;
 	C_INT32  data_read_len = 0;
 	C_UINT32 sent_data_per_file = 0;
+	C_UINT32 file_total_lenght = 0;
 	C_UINT16 starting_reg = 0;
 	C_BYTE   *upgrade_data_buf = NULL;
 	C_INT16  chunk_size = DEV_OTA_BUF_SIZE;
@@ -174,20 +177,14 @@ void DEV_ota_task(void * pvParameter){
 	printf("%s content_length = %d\n",TAG, content_length);
 	#endif
 
+	chunk_size = DEV_OTA_BUF_SIZE;
+
 	while(1){
 
-		//chunk_size
-		if(sent_data_per_file > MB_FILE_MAX_BYTES - DEV_OTA_BUF_SIZE){
-			chunk_size = MB_FILE_MAX_BYTES - sent_data_per_file;
-			new_file = true;
-		}else{
-			chunk_size = DEV_OTA_BUF_SIZE;
-		}
-
-		data_read_len = http_client_read_IS(client, (char*)upgrade_data_buf, chunk_size);
+		data_read_len = http_client_read_IS(client, (char*)upgrade_data_buf, DEV_OTA_BUF_SIZE);
 		
 		if (data_read_len > 0) {
-			err = UpdateDevFirmware(upgrade_data_buf, data_read_len, file_number, starting_reg);	//, content_length - sent_data_per_file
+			err = UpdateDevFirmware(upgrade_data_buf, data_read_len, (file_number+file_number_inc), starting_reg);	//, content_length - sent_data_per_file
 			if(err != C_SUCCESS) {
 				free(url);
 				free(upgrade_data_buf);
@@ -195,25 +192,32 @@ void DEV_ota_task(void * pvParameter){
 				vTaskDelete(NULL);
 			}
 
-			if(sent_data_per_file > MB_FILE_MAX_BYTES - DEV_OTA_BUF_SIZE){
-				file_number++;
-				starting_reg = 0;
-			}else{
-				sent_data_per_file += data_read_len;
-				starting_reg = sent_data_per_file/2;
-			}
+			sent_data_per_file = sent_data_per_file + data_read_len;
+			file_total_lenght += data_read_len;
 
-			if(new_file == true){
-				sent_data_per_file = 0;
-				new_file=false;
-			}
+			if (sent_data_per_file >= (MB_FILE_MAX_BYTES - DEV_OTA_BUF_SIZE))
+			{
+		    	file_number_inc++;
+		    	starting_reg = 0;
+		    	sent_data_per_file = 0;
+                #ifdef __CCL_DEBUG_MODE
+                //printf("%s file_number_inc %d\n", TAG, file_number_inc);
+                #endif
+		    }
+		    else
+		    {
+		    	starting_reg = sent_data_per_file/2;
+		    }
 
             #ifdef __CCL_DEBUG_MODE
-			printf("%s Written image length %d\n", TAG, sent_data_per_file);
+			printf("%s file_number_inc %d  Written image length %d\n", TAG, file_number_inc, sent_data_per_file);
 			#endif
 		}
 		else {
+            #ifdef __CCL_DEBUG_MODE
+            printf("%s Written file_total_lenght %d\n", TAG, file_total_lenght);
 			printf("closing update\n");
+            #endif
 			http_client_close_IS(client);
 			http_client_cleanup_IS(client);
 

@@ -54,12 +54,15 @@ enum{
 
 
 /** @brief  DEV_OTA_BUF_SIZE
-*  The maximum allowed packet's size to be sent through modbus is 253 bytes,
+*   The maximum allowed packet's size to be sent through modbus is 253 bytes,
 *	so 253(total) - 9(write file cmd header) - 2(CRC) = 242
 * 
 *   @note  this amount of bytes will be allocate on the stack. 
+*          the packet chunck is a little bit small than the maximum
+*
 */
-#define DEV_OTA_BUF_SIZE 240
+#define DEV_OTA_BUF_SIZE  200
+//238
 
 /** @brief MB_FILE_MAX_BYTES this define is the size of a modbus file 
  *        in the implemented way, this does't mean that we allocate this 
