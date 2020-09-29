@@ -1692,6 +1692,13 @@ namespace MqttClientSimulatorBinary
             frm.VisibleChanged += formVisibleChanged;
         }
 
+        private void buttonUpdateSetLinesConfig_Click(object sender, EventArgs e)
+        {       
+            FormCBORUpdateLinesConfig frm = new FormCBORUpdateLinesConfig();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
         {
             const string template_name = @"test-send_mb_adu-req.json";

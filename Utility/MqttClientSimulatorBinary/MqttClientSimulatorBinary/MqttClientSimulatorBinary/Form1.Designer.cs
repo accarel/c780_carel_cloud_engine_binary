@@ -211,6 +211,7 @@
             this.buttonUpdateCAData = new System.Windows.Forms.Button();
             this.buttonSet_UpdateGwFW = new System.Windows.Forms.Button();
             this.buttonDevUpdateData = new System.Windows.Forms.Button();
+            this.buttonUpdateSetLinesConfig = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -421,6 +422,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.buttonUpdateSetLinesConfig);
             this.groupBox1.Controls.Add(this.button_ReqDBGInfo);
             this.groupBox1.Controls.Add(this.buttonSet_Lines_Config_TTL);
             this.groupBox1.Controls.Add(this.button_flush);
@@ -433,11 +435,11 @@
             this.groupBox1.Controls.Add(this.buttonScanLine);
             this.groupBox1.Controls.Add(this.buttonSet_Lines_Config);
             this.groupBox1.Controls.Add(this.buttonChangeCredential);
-            this.groupBox1.Location = new System.Drawing.Point(915, 134);
+            this.groupBox1.Location = new System.Drawing.Point(890, 134);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox1.Size = new System.Drawing.Size(285, 346);
+            this.groupBox1.Size = new System.Drawing.Size(337, 346);
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
@@ -455,7 +457,7 @@
             // 
             // buttonSet_Lines_Config_TTL
             // 
-            this.buttonSet_Lines_Config_TTL.Location = new System.Drawing.Point(141, 231);
+            this.buttonSet_Lines_Config_TTL.Location = new System.Drawing.Point(171, 231);
             this.buttonSet_Lines_Config_TTL.Margin = new System.Windows.Forms.Padding(4);
             this.buttonSet_Lines_Config_TTL.Name = "buttonSet_Lines_Config_TTL";
             this.buttonSet_Lines_Config_TTL.Size = new System.Drawing.Size(129, 46);
@@ -466,7 +468,7 @@
             // 
             // button_flush
             // 
-            this.button_flush.Location = new System.Drawing.Point(145, 179);
+            this.button_flush.Location = new System.Drawing.Point(169, 179);
             this.button_flush.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_flush.Name = "button_flush";
             this.button_flush.Size = new System.Drawing.Size(131, 44);
@@ -477,7 +479,7 @@
             // 
             // button_reboot
             // 
-            this.button_reboot.Location = new System.Drawing.Point(145, 128);
+            this.button_reboot.Location = new System.Drawing.Point(169, 128);
             this.button_reboot.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_reboot.Name = "button_reboot";
             this.button_reboot.Size = new System.Drawing.Size(131, 44);
@@ -488,7 +490,7 @@
             // 
             // button_stop_engine
             // 
-            this.button_stop_engine.Location = new System.Drawing.Point(145, 76);
+            this.button_stop_engine.Location = new System.Drawing.Point(169, 76);
             this.button_stop_engine.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_stop_engine.Name = "button_stop_engine";
             this.button_stop_engine.Size = new System.Drawing.Size(131, 44);
@@ -499,7 +501,7 @@
             // 
             // button_start_engine
             // 
-            this.button_start_engine.Location = new System.Drawing.Point(147, 23);
+            this.button_start_engine.Location = new System.Drawing.Point(171, 23);
             this.button_start_engine.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_start_engine.Name = "button_start_engine";
             this.button_start_engine.Size = new System.Drawing.Size(131, 44);
@@ -521,7 +523,7 @@
             // 
             // button_send_mb_adu
             // 
-            this.button_send_mb_adu.Location = new System.Drawing.Point(145, 284);
+            this.button_send_mb_adu.Location = new System.Drawing.Point(173, 285);
             this.button_send_mb_adu.Margin = new System.Windows.Forms.Padding(4);
             this.button_send_mb_adu.Name = "button_send_mb_adu";
             this.button_send_mb_adu.Size = new System.Drawing.Size(129, 46);
@@ -1350,7 +1352,7 @@
             this.groupBox7.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox7.Size = new System.Drawing.Size(195, 186);
+            this.groupBox7.Size = new System.Drawing.Size(170, 186);
             this.groupBox7.TabIndex = 47;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Modbus Value Req DI";
@@ -1580,7 +1582,7 @@
             this.groupBox8.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox8.Size = new System.Drawing.Size(195, 346);
+            this.groupBox8.Size = new System.Drawing.Size(170, 346);
             this.groupBox8.TabIndex = 45;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Modbus Value Req IR";
@@ -1890,12 +1892,12 @@
             // 
             // textBox_Message
             // 
-            this.textBox_Message.Location = new System.Drawing.Point(1217, 318);
+            this.textBox_Message.Location = new System.Drawing.Point(1238, 318);
             this.textBox_Message.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_Message.Multiline = true;
             this.textBox_Message.Name = "textBox_Message";
             this.textBox_Message.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_Message.Size = new System.Drawing.Size(515, 407);
+            this.textBox_Message.Size = new System.Drawing.Size(494, 407);
             this.textBox_Message.TabIndex = 52;
             this.textBox_Message.Text = "Welcome !";
             // 
@@ -1922,19 +1924,19 @@
             // 
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
-            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1216, 159);
+            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1238, 159);
             this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_Resp_Hash.Size = new System.Drawing.Size(516, 115);
+            this.textBox_Resp_Hash.Size = new System.Drawing.Size(494, 115);
             this.textBox_Resp_Hash.TabIndex = 55;
             this.textBox_Resp_Hash.Text = "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
             // 
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(1214, 134);
+            this.label50.Location = new System.Drawing.Point(1235, 134);
             this.label50.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(94, 17);
@@ -1964,7 +1966,7 @@
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(1214, 288);
+            this.label51.Location = new System.Drawing.Point(1235, 288);
             this.label51.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(38, 17);
@@ -2161,9 +2163,9 @@
             this.groupBox12.Controls.Add(this.buttonUpdate_dev_firmware);
             this.groupBox12.Controls.Add(this.buttonUpdate_gw_firmware);
             this.groupBox12.Controls.Add(this.buttonSet_Devs_Config);
-            this.groupBox12.Location = new System.Drawing.Point(915, 487);
+            this.groupBox12.Location = new System.Drawing.Point(890, 487);
             this.groupBox12.Name = "groupBox12";
-            this.groupBox12.Size = new System.Drawing.Size(285, 238);
+            this.groupBox12.Size = new System.Drawing.Size(337, 238);
             this.groupBox12.TabIndex = 75;
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "Uploads";
@@ -2171,33 +2173,33 @@
             // button_setDevsConfig
             // 
             this.button_setDevsConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_setDevsConfig.Location = new System.Drawing.Point(141, 186);
+            this.button_setDevsConfig.Location = new System.Drawing.Point(141, 184);
             this.button_setDevsConfig.Name = "button_setDevsConfig";
-            this.button_setDevsConfig.Size = new System.Drawing.Size(66, 21);
+            this.button_setDevsConfig.Size = new System.Drawing.Size(21, 23);
             this.button_setDevsConfig.TabIndex = 50;
-            this.button_setDevsConfig.Text = "< SET";
+            this.button_setDevsConfig.Text = "<";
             this.button_setDevsConfig.UseVisualStyleBackColor = true;
             this.button_setDevsConfig.Click += new System.EventHandler(this.button_setDevsConfig_Click);
             // 
             // buttonUpdateCAData
             // 
             this.buttonUpdateCAData.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonUpdateCAData.Location = new System.Drawing.Point(141, 25);
+            this.buttonUpdateCAData.Location = new System.Drawing.Point(141, 24);
             this.buttonUpdateCAData.Name = "buttonUpdateCAData";
-            this.buttonUpdateCAData.Size = new System.Drawing.Size(66, 21);
+            this.buttonUpdateCAData.Size = new System.Drawing.Size(21, 27);
             this.buttonUpdateCAData.TabIndex = 49;
-            this.buttonUpdateCAData.Text = "< SET";
+            this.buttonUpdateCAData.Text = "<";
             this.buttonUpdateCAData.UseVisualStyleBackColor = true;
             this.buttonUpdateCAData.Click += new System.EventHandler(this.buttonUpdateCAData_Click);
             // 
             // buttonSet_UpdateGwFW
             // 
             this.buttonSet_UpdateGwFW.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonSet_UpdateGwFW.Location = new System.Drawing.Point(141, 133);
+            this.buttonSet_UpdateGwFW.Location = new System.Drawing.Point(141, 130);
             this.buttonSet_UpdateGwFW.Name = "buttonSet_UpdateGwFW";
-            this.buttonSet_UpdateGwFW.Size = new System.Drawing.Size(66, 21);
+            this.buttonSet_UpdateGwFW.Size = new System.Drawing.Size(21, 24);
             this.buttonSet_UpdateGwFW.TabIndex = 48;
-            this.buttonSet_UpdateGwFW.Text = "< SET";
+            this.buttonSet_UpdateGwFW.Text = "<";
             this.buttonSet_UpdateGwFW.UseVisualStyleBackColor = true;
             this.buttonSet_UpdateGwFW.Click += new System.EventHandler(this.buttonSet_UpdateGwFW_Click);
             // 
@@ -2206,11 +2208,22 @@
             this.buttonDevUpdateData.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.buttonDevUpdateData.Location = new System.Drawing.Point(141, 77);
             this.buttonDevUpdateData.Name = "buttonDevUpdateData";
-            this.buttonDevUpdateData.Size = new System.Drawing.Size(66, 21);
+            this.buttonDevUpdateData.Size = new System.Drawing.Size(21, 25);
             this.buttonDevUpdateData.TabIndex = 47;
-            this.buttonDevUpdateData.Text = "< SET";
+            this.buttonDevUpdateData.Text = "<";
             this.buttonDevUpdateData.UseVisualStyleBackColor = true;
             this.buttonDevUpdateData.Click += new System.EventHandler(this.button7_Click_1);
+            // 
+            // buttonUpdateSetLinesConfig
+            // 
+            this.buttonUpdateSetLinesConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonUpdateSetLinesConfig.Location = new System.Drawing.Point(145, 177);
+            this.buttonUpdateSetLinesConfig.Name = "buttonUpdateSetLinesConfig";
+            this.buttonUpdateSetLinesConfig.Size = new System.Drawing.Size(18, 24);
+            this.buttonUpdateSetLinesConfig.TabIndex = 51;
+            this.buttonUpdateSetLinesConfig.Text = "<";
+            this.buttonUpdateSetLinesConfig.UseVisualStyleBackColor = true;
+            this.buttonUpdateSetLinesConfig.Click += new System.EventHandler(this.buttonUpdateSetLinesConfig_Click);
             // 
             // Form1
             // 
@@ -2263,7 +2276,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.5";
+            this.Text = "IoT Server Simulator Binary Edition V.2.6";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2474,6 +2487,7 @@
         private System.Windows.Forms.Button buttonSet_UpdateGwFW;
         private System.Windows.Forms.Button buttonUpdateCAData;
         private System.Windows.Forms.Button button_setDevsConfig;
+        private System.Windows.Forms.Button buttonUpdateSetLinesConfig;
     }
 }
 

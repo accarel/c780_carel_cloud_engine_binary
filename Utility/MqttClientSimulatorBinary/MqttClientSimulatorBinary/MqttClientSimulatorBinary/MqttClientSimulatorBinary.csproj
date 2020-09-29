@@ -110,6 +110,12 @@
     <Compile Include="FormCBORUpdateGWFW.Designer.cs">
       <DependentUpon>FormCBORUpdateGWFW.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormCBORUpdateLinesConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormCBORUpdateLinesConfig.Designer.cs">
+      <DependentUpon>FormCBORUpdateLinesConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormCBORUpdateSetDevsConfig.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -134,6 +140,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FormCBORUpdateGWFW.resx">
       <DependentUpon>FormCBORUpdateGWFW.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormCBORUpdateLinesConfig.resx">
+      <DependentUpon>FormCBORUpdateLinesConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormCBORUpdateSetDevsConfig.resx">
       <DependentUpon>FormCBORUpdateSetDevsConfig.cs</DependentUpon>
