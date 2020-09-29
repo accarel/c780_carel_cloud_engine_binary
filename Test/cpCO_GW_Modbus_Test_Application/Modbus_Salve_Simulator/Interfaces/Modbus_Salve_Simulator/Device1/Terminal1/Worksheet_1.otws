@@ -6,7 +6,8 @@
         <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
         <Field Type="Text" Name="Text" Row="2" Column="1" Content="Gateway Modubus Test" />
         <Field Type="Text" Name="Text_2" Row="4" Column="1" Content="PRESS  to continue" />
-        <Field Type="Text" Name="Text_3" Row="6" Column="8" Content="V.6.1" />
+        <Field Type="Text" Name="Text_3" Row="6" Column="5" Content="Ver." />
+        <Field Type="Variable" Name="Variable" Row="6" Column="11" Content="app_version" Class="CL_INT" Format="o+5" Min="-32768" Max="32767" />
       </Fields>
     </Mask>
     <Mask Name="Mask" Type="Normal" X="0" Y="2">
@@ -96,6 +97,14 @@
         <Field Type="Text" Name="Text" Row="0" Column="6" Content="SETUP RS485" />
         <Field Type="Text" Name="Text_2" Row="2" Column="0" Content="BAUD" />
         <Field Type="Variable" Name="Variable" Row="2" Column="6" Content="RS485_BaudRate" Min="9600" Max="19200" Class="CL_UDINT" Format="io6" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask_7" Type="Normal" X="0" Y="9">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Text" Name="Text" Row="0" Column="8" Content="INFO" />
+        <Field Type="Text" Name="Text_2" Row="2" Column="0" Content="ReBoot" />
+        <Field Type="Variable" Name="Variable" Row="2" Column="14" Content="rebootcount" Class="CL_UINT" Format="io5" Min="0" Max="65535" />
       </Fields>
     </Mask>
   </Loop>

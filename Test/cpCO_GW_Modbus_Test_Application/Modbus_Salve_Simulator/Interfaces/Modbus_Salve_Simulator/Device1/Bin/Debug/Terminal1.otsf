@@ -7,17 +7,17 @@
       <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
     </KeyBindings>
   </FormatField>
-  <FormatField Name="CL_BOOL_SWAP" Format="iob">
-    <KeyBindings>
-      <KeyBinding Key="UP" BindOn="BoolSwap" />
-      <KeyBinding Key="DOWN" BindOn="BoolSwap" />
-      <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
-    </KeyBindings>
-  </FormatField>
   <FormatField Name="CL_INT" Format="io+5">
     <KeyBindings>
       <KeyBinding Key="UP" BindOn="Increment_WORD" />
       <KeyBinding Key="DOWN" BindOn="Decrement_WORD" />
+      <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
+    </KeyBindings>
+  </FormatField>
+  <FormatField Name="CL_BOOL_SWAP" Format="iob">
+    <KeyBindings>
+      <KeyBinding Key="UP" BindOn="BoolSwap" />
+      <KeyBinding Key="DOWN" BindOn="BoolSwap" />
       <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
     </KeyBindings>
   </FormatField>
@@ -46,6 +46,13 @@
     <KeyBindings>
       <KeyBinding Key="UP" BindOn="Increment_DWORD" />
       <KeyBinding Key="DOWN" BindOn="Decrement_DWORD" />
+      <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
+    </KeyBindings>
+  </FormatField>
+  <FormatField Name="CL_UINT" Format="io5">
+    <KeyBindings>
+      <KeyBinding Key="UP" BindOn="Increment_WORD" />
+      <KeyBinding Key="DOWN" BindOn="Decrement_WORD" />
       <KeyBinding Key="ENTER" BindOn="SetCurrentValue" />
     </KeyBindings>
   </FormatField>

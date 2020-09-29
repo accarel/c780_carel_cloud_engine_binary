@@ -361,6 +361,24 @@
       Max=""
       StringSize="0" />
     <Variable
+      Name="app_version"
+      Comment=""
+      DataType="INT"
+      Kind="Var"
+      IO="false"
+      Protocol="true"
+      UI="true"
+      Default="false"
+      LogPV="false"
+      IsRetained="false"
+      Alarm="false"
+      UoM="NoUnits"
+      Access="Read"
+      Min=""
+      Max=""
+      InitialValue="614"
+      StringSize="0" />
+    <Variable
       Name="Coil_alr"
       Comment=""
       DataType="BOOL"
@@ -7452,6 +7470,24 @@
       Max=""
       StringSize="0" />
     <Variable
+      Name="rebootcount"
+      Comment=""
+      DataType="UINT"
+      Kind="Var"
+      IO="false"
+      Protocol="true"
+      UI="true"
+      Default="true"
+      LogPV="false"
+      IsRetained="true"
+      Alarm="false"
+      UoM="NoUnits"
+      Access="ReadWrite"
+      Min=""
+      Max=""
+      InitialValue="0"
+      StringSize="0" />
+    <Variable
       Name="Rele_1"
       Comment=""
       DataType="BOOL"
@@ -7500,7 +7536,7 @@
       UoM="NoUnits"
       Access="ReadWrite"
       Min="9600"
-      Max="19200"
+      Max="38400"
       InitialValue="19200"
       StringSize="0" />
     <Variable

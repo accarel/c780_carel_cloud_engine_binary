@@ -1,27 +1,27 @@
 ****** __RDCC_MODULE_ID ******
-00000000 :  43 41 52 45 4C 5F 50 43  -  4F 00 00 00 00 00 00 00   * Target Name : CAREL_PCO
-00000010 :  00 00 00 0C   * RDCC format version number
-00000014 :  A9 DE 89 9D   * Resource check sum
-00000018 :  BA F7 85 24   * Module check sum
+00000000 :  43 41 52 45 4C 5F 50 43  -  4F 5F 4C 45 00 00 00 00   * Target Name : CAREL_PCO_LE
+00000010 :  0C 00 00 00   * RDCC format version number
+00000014 :  E5 F3 99 4C   * Resource check sum
+00000018 :  A1 73 5D C6   * Module check sum
 0000001C :  00 00 00 00   * Module ID parameter
-00000020 :  00 00 01 80   * Total size
-00000024 :  00 00 00 E8   * Size without __RDCC_MODULE_ID
-00000028 :  00 00 00 44   * Offset -> resource name
-0000002C :  00 00 00 6D   * Offset -> module name
-00000030 :  00 00 00 98   * Offset -> beginning of the data block
-00000034 :  5F 5F 47 9E   * Compilation generation date
-00000038 :  00 00 00 5E   * Compilation version number
+00000020 :  A8 01 00 00   * Total size
+00000024 :  10 01 00 00   * Size without __RDCC_MODULE_ID
+00000028 :  44 00 00 00   * Offset -> resource name
+0000002C :  6D 00 00 00   * Offset -> module name
+00000030 :  98 00 00 00   * Offset -> beginning of the data block
+00000034 :  1A 40 73 5F   * Compilation generation date
+00000038 :  6D 00 00 00   * Compilation version number
 0000003C :  00 00 00 00   * User module version number
-00000040 :  00 00 00 7E   * Offset -> target auto-validation data
+00000040 :  7E 00 00 00   * Offset -> target auto-validation data
 00000044 :  4D 4F 44 42 55 53 5F 53  -  41 4C 56 45 5F 53 49 4D 
 00000054 :  55 4C 41 54 4F 52 5C 44  -  45 56 49 43 45 31 5C 52 
 00000064 :  45 53 4F 55 52 43 45 31  -  00   * Resource name : MODBUS_SALVE_SIMULATOR\DEVICE1\RESOURCE1
 0000006D :  43 4F 4E 53 54 41 4E 54  -  53 5F 4D 4F 44 55 4C 45 
 0000007D :  00   * Module name : CONSTANTS_MODULE
 0000007E :  11   * SYNC <0x11>
-0000007F :  02   * Bit 0 = Intel/Motorola, bit 1 = Large/Medium, bit 2 = Strict/non-strict alignment
+0000007F :  03   * Bit 0 = Intel/Motorola, bit 1 = Large/Medium, bit 2 = Strict/non-strict alignment
 00000080 :  22   * SYNC <0x22>
-00000081 :  04   * Alignment value
+00000081 :  08   * Alignment value
 00000082 :  33   * SYNC <0x33>
 00000083 :  01   * Memory quantum
 00000084 :  44   * SYNC <0x44>
@@ -47,100 +47,110 @@
 
 
 ****** __INITVAR ******
-00000098 :  00 00 01 00   * Address of __INIT_BOOL
-0000009C :  00 00 01 08   * Address of __INIT_SINT_USINT
-000000A0 :  00 00 01 10   * Address of __INIT_DINT_UDINT_REAL_TIME_DATE
-000000A4 :  00 00 01 30   * Address of __INIT_STRING
-000000A8 :  00 00 01 38   * Address of __INIT_MAXSTRING
-000000AC :  00 00 01 44   * Address of __INIT_BLOCK
+00000098 :  00 01 00 00   * Address of __INIT_BOOL
+0000009C :  10 01 00 00   * Address of __INIT_SINT_USINT
+000000A0 :  18 01 00 00   * Address of __INIT_DINT_UDINT_REAL_TIME_DATE
+000000A4 :  48 01 00 00   * Address of __INIT_STRING
+000000A8 :  50 01 00 00   * Address of __INIT_MAXSTRING
+000000AC :  60 01 00 00   * Address of __INIT_BLOCK
 000000B0 :  00 00 00 00   * Cst. Nb. in __INIT_BOOL
 000000B4 :  00 00 00 00   * Total Elt. in __INIT_BOOL
 000000B8 :  00 00 00 00   * Cst. Nb. in __INIT_SINT_USINT
 000000BC :  00 00 00 00   * Total Elt. in __INIT_SINT_USINT
-000000C0 :  00 00 00 03   * Cst. Nb. in __INIT_DINT_UDINT_REAL_TIME_DATE
-000000C4 :  00 00 00 03   * Total Elt. in __INIT_DINT_UDINT_REAL_TIME_DATE
+000000C0 :  05 00 00 00   * Cst. Nb. in __INIT_DINT_UDINT_REAL_TIME_DATE
+000000C4 :  05 00 00 00   * Total Elt. in __INIT_DINT_UDINT_REAL_TIME_DATE
 000000C8 :  00 00 00 00   * Cst. Nb. in __INIT_STRING
 000000CC :  00 00 00 00   * Total Elt. in __INIT_STRING
 000000D0 :  00 00 00 00   * Total Elt. in __INIT_MAXSTRING
 000000D4 :  00 00 00 00   * Cst. Nb. in __INIT_BLOCK
 000000D8 :  00 00 00 00   * Total Elt. in __INIT_BLOCK
-000000DC :  00 00 01 54   * Address of __INIT_INT_UINT
-000000E0 :  00 00 00 03   * Cst. Nb. in __INIT_INT_UINT
-000000E4 :  00 00 00 03   * Total Elt. in __INIT_INT_UINT
-000000E8 :  00 00 01 74   * Address of __INIT_LINT_ULINT_LREAL
+000000DC :  70 01 00 00   * Address of __INIT_INT_UINT
+000000E0 :  04 00 00 00   * Cst. Nb. in __INIT_INT_UINT
+000000E4 :  04 00 00 00   * Total Elt. in __INIT_INT_UINT
+000000E8 :  98 01 00 00   * Address of __INIT_LINT_ULINT_LREAL
 000000EC :  00 00 00 00   * Cst. Nb. in __INIT_LINT_ULINT_LREAL
 000000F0 :  00 00 00 00   * Total Elt. in __INIT_LINT_ULINT_LREAL
-000000F4 :  00 00 01 04   * Address of __INIT_BOOL_FALSE
+000000F4 :  08 01 00 00   * Address of __INIT_BOOL_FALSE
 000000F8 :  00 00 00 00   * Cst. Nb. in __INIT_BOOL_FALSE
 000000FC :  00 00 00 00   * Total Elt. in __INIT_BOOL_FALSE
 
 
 ****** __INIT_BOOL ******
 00000100 :  00 00 00 00   * Terminator
+00000104 :  00 00 00 00 
 
 
 ****** __INIT_BOOL_FALSE ******
-00000104 :  00 00 00 00   * Terminator
+00000108 :  00 00 00 00   * Terminator
+0000010C :  00 00 00 00 
 
 
 ****** __INIT_SINT_USINT ******
-00000108 :  00 00 00 00   * Terminator
-0000010C :  00   * Terminator
-0000010D :  00 00 00  
+00000110 :  00 00 00 00   * Terminator
+00000114 :  00   * Terminator
+00000115 :  00 00 00  
 
 
 
 ****** __INIT_DINT_UDINT_REAL_TIME_DATE ******
-00000110 :  00 00 07 DC   * __CUDINT00004B00
-00000114 :  00 00 4B 00   * 19200
-00000118 :  00 00 07 D8   * __CUDINT00002580
-0000011C :  00 00 25 80   * 9600
-00000120 :  00 00 07 D4   * __CUDINT00000064
-00000124 :  00 00 00 64   * 100
-00000128 :  00 00 00 00   * Terminator
-0000012C :  00 00 00 00   * Terminator
+00000118 :  F0 07 00 00   * __CUDINT00009600
+0000011C :  00 96 00 00   * 38400
+00000120 :  EC 07 00 00   * __CUDINT00004B00
+00000124 :  00 4B 00 00   * 19200
+00000128 :  E8 07 00 00   * __CUDINT00002580
+0000012C :  80 25 00 00   * 9600
+00000130 :  E4 07 00 00   * __CUDINT00004B02
+00000134 :  02 4B 00 00   * 19202
+00000138 :  E0 07 00 00   * __CUDINT00000064
+0000013C :  64 00 00 00   * 100
+00000140 :  00 00 00 00   * Terminator
+00000144 :  00 00 00 00   * Terminator
 
 
 ****** __INIT_STRING ******
-00000130 :  00 00 00 00   * Terminator
-00000134 :  00   * Terminator
-00000135 :  00 00 00  
+00000148 :  00 00 00 00   * Terminator
+0000014C :  00   * Terminator
+0000014D :  00 00 00  
 
 
 
 ****** __INIT_MAXSTRING ******
-00000138 :  00 00 00 00   * Terminator
-0000013C :  00 00 00 00   * Terminator
-00000140 :  00   * Terminator
-00000141 :  00 00 00  
-
+00000150 :  00 00 00 00   * Terminator
+00000154 :  00 00 00 00   * Terminator
+00000158 :  00   * Terminator
+00000159 :  00 00 00  
+0000015C :  00 00 00 00 
 
 
 ****** __INIT_BLOCK ******
-00000144 :  00 00 00 00   * Terminator
-00000148 :  00 00 00 00   * Terminator
-0000014C :  00 00 00 00   * Terminator
-00000150 :  00 00 00 00   * Terminator
+00000160 :  00 00 00 00   * Terminator
+00000164 :  00 00 00 00   * Terminator
+00000168 :  00 00 00 00   * Terminator
+0000016C :  00 00 00 00   * Terminator
 
 
 ****** __INIT_INT_UINT ******
-00000154 :  00 00 07 CE   * __CINT00004096
-00000158 :  40 96   * 16534
-0000015A :  00 00  
-0000015C :  00 00 07 CC   * __CINT00000001
-00000160 :  00 01   * 1
-00000162 :  00 00  
-00000164 :  00 00 07 CA   * __INT_NULL
-00000168 :  00 00   * 0
-0000016A :  00 00  
-0000016C :  00 00 00 00   * Terminator
-00000170 :  00 00   * Terminator
-00000172 :  00 00  
+00000170 :  D6 07 00 00   * __INT_NULL
+00000174 :  00 00   * 0
+00000176 :  00 00  
+00000178 :  D4 07 00 00   * __CINT00000001
+0000017C :  01 00   * 1
+0000017E :  00 00  
+00000180 :  DA 07 00 00   * __CUINT00000001
+00000184 :  01 00   * 1
+00000186 :  00 00  
+00000188 :  D2 07 00 00   * __CINT00004096
+0000018C :  96 40   * 16534
+0000018E :  00 00  
+00000190 :  00 00 00 00   * Terminator
+00000194 :  00 00   * Terminator
+00000196 :  00 00  
 
 
 
 ****** __INIT_LINT_ULINT_LREAL ******
-00000174 :  00 00 00 00   * Terminator
-00000178 :  00 00 00 00 00 00 00 00   * Terminator
+00000198 :  00 00 00 00   * Terminator
+0000019C :  00 00 00 00 
+000001A0 :  00 00 00 00 00 00 00 00   * Terminator
 
 

@@ -162,6 +162,16 @@ msgid "BAUD"
 msgstr ""
 
 #: Worksheet_1.otws
+msgctxt "[Mask:Mask_7][Field:Text]"
+msgid "INFO"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_7][Field:Text_2]"
+msgid "ReBoot"
+msgstr ""
+
+#: Worksheet_1.otws
 msgctxt "[Mask:Mask_start][Field:Text]"
 msgid "Gateway Modubus Test"
 msgstr ""
@@ -173,6 +183,6 @@ msgstr ""
 
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_start][Field:Text_3]"
-msgid "V.6.1"
+msgid "Ver."
 msgstr ""
 
