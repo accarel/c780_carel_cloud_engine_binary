@@ -385,14 +385,14 @@ C_RES app_file_transfer(unsigned char* data_tx, uint8_t packet_len)
    int retrycount=0;
    uint16_t data_rx_len;
    const long timeout = MODBUS_TIME_OUT;
-   const int MAX_RETRY = 3;
+   const int MAX_RETRY = 5;
 
     C_RES result = C_SUCCESS;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 do{
 
     do{
-      if (retrycount > 0) Sys__Delay(250);
+      //if (retrycount > 0) Sys__Delay(250);
 
       eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
       memset(ucMBFileTransfer, 0, 256);   /* zeroed the rx buffer */
