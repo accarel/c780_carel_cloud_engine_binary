@@ -531,7 +531,9 @@ static void check_increment_values_buff_len(uint16_t *values_buffer_idx){
 static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint8_t first_run)
 {
 	long double value = 0;
+	int changed;		// set to 1 when a variable changes
 	for(uint8_t i=0; i<arr_len; i++){
+		changed = 0;
 		if( arr->tab[i].error != arr->tab[i].p_error && ( (arr->tab[i].error != 0) )){
 			values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 			values_buffer[values_buffer_index].value = 0;
@@ -563,8 +565,8 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 
 				if(temp > arr->tab[i].info.Hyster || first_run){
 					arr->tab[i].p_value = arr->tab[i].c_value;
-
 					value = (long double)c_read;
+					changed = 1;
 
                     #ifdef __DEBUG_POLLING_CAREL_LEV_2
 					PRINTF_DEBUG("TYPE_A c_read = %f\n",c_read);
@@ -576,6 +578,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 
 			case TYPE_B:
 			{
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				PRINTF_DEBUG("check_hr_ir_read_val B \n");
+				#endif
 				float temp, c_read, p_read= 0.0;
 				c_read = get_type_b(&arr->tab[i], CURRENT);
 				p_read = get_type_b(&arr->tab[i], PREVIOUS);
@@ -586,12 +591,10 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #endif
 
 				if(temp > arr->tab[i].info.Hyster || first_run){
-
-
 					arr->tab[i].p_value = arr->tab->c_value;
-
 					value = (long double)c_read;
-                    #ifdef __DEBUG_POLLING_CAREL_LEV_2
+					changed = 1;
+			        #ifdef __DEBUG_POLLING_CAREL_LEV_2
 					PRINTF_DEBUG("TYPE_B REG low = %d\n",arr->tab[i].c_value.reg.low);
 					PRINTF_DEBUG("TYPE_B REG high = %d\n",arr->tab[i].c_value.reg.high);
 					PRINTF_DEBUG("TYPE_B REG val = %d\n",arr->tab[i].c_value.value);
@@ -604,6 +607,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 
 			case TYPE_C_SIGNED:
 			{
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				PRINTF_DEBUG("check_hr_ir_read_val C_SIGNED \n");
+				#endif
 				int32_t temp, c_read, p_read= 0;
 				c_read = get_type_c_signed(&arr->tab[i], CURRENT);
 				p_read = get_type_c_signed(&arr->tab[i], PREVIOUS);
@@ -614,17 +620,18 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #endif
 
 				if(temp > arr->tab[i].info.Hyster || first_run){
-
-
 					arr->tab[i].p_value = arr->tab[i].c_value;
-
 					value = (long double)c_read;
+					changed = 1;
 				}
 			}
 				break;
 
 			case TYPE_C_UNSIGNED:
 			{
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				PRINTF_DEBUG("check_hr_ir_read_val C_UNSIGNED \n");
+				#endif
 				uint32_t temp, c_read, p_read= 0;
 				c_read = get_type_c_unsigned(&arr->tab[i], CURRENT);
 				p_read = get_type_c_unsigned(&arr->tab[i], PREVIOUS);
@@ -633,23 +640,25 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
                 #endif
 				if(temp > arr->tab[i].info.Hyster || first_run){
-
-
 					arr->tab[i].p_value = arr->tab[i].c_value;
-
 					value = (long double)c_read;
+					changed = 1;
 				}
 			}
 				break;
 
 			case TYPE_D:
 			{
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				PRINTF_DEBUG("check_hr_ir_read_val D \n");
+				#endif
 				uint8_t c_read, p_read= 0;
 				c_read = get_type_d(&arr->tab[i], CURRENT);
 				p_read = get_type_d(&arr->tab[i], PREVIOUS);
 				if(c_read != p_read  || first_run){
-
+					arr->tab[i].p_value = arr->tab[i].c_value;
 					value = (long double)c_read;
+					changed = 1;
 				}
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
@@ -659,16 +668,18 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 
 			case TYPE_E:
 			{
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				PRINTF_DEBUG("check_hr_ir_read_val E \n");
+				#endif
 				int32_t temp, c_read, p_read= 0;
 				c_read = get_type_e(&arr->tab[i], CURRENT);
 				p_read = get_type_e(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
 				if(temp > arr->tab[i].info.Hyster || first_run){
 
-
 					arr->tab[i].p_value = arr->tab[i].c_value;
-
 					value = (long double)c_read;
+					changed = 1;
 				}
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
@@ -679,6 +690,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 
 			case TYPE_F_SIGNED:
 			{
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				PRINTF_DEBUG("check_hr_ir_read_val F_SIGNED \n");
+				#endif
 				int16_t temp, c_read, p_read= 0;
 				c_read = get_type_f_signed(&arr->tab[i], CURRENT);
 				p_read = get_type_f_signed(&arr->tab[i], PREVIOUS);
@@ -688,14 +702,17 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #endif
 				if(temp > arr->tab[i].info.Hyster || first_run){
 					arr->tab[i].p_value = arr->tab[i].c_value;
-
 					value = (long double)c_read;
+					changed = 1;
 				}
 			}
 					break;
 
 			case TYPE_F_UNSIGNED:
 			{
+				#ifdef __DEBUG_POLLING_CAREL_LEV_2
+				PRINTF_DEBUG("check_hr_ir_read_val F_UNSIGNED \n");
+				#endif
 				uint16_t temp, c_read, p_read= 0;
 				c_read = get_type_f_unsigned(&arr->tab[i], CURRENT);
 				p_read = get_type_f_unsigned(&arr->tab[i], PREVIOUS);
@@ -704,10 +721,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
                 #endif
 				if(temp > arr->tab[i].info.Hyster || first_run){
-
 					arr->tab[i].p_value = arr->tab[i].c_value;
-
 					value = (long double)c_read;
+					changed = 1;
 				}
 			}
 				break;
@@ -715,7 +731,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 			default:
 				break;
 			}
-			if(value != 0 || (first_run)){
+			if(changed != 0 || (first_run)){
 				values_buffer[values_buffer_index].alias = arr->tab[i].info.Alias;
 				values_buffer[values_buffer_index].value = value;
 				values_buffer[values_buffer_index].info_err = 0;
@@ -897,6 +913,8 @@ static void update_current_previous_tables(RegType_t poll_type){
 		}
 		//IR
 		for(i=0;i<high_n.ir;i++){
+			printf("update_current_previous_tables index:%d\n", i);
+
 			//IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
 			IRLowPollTab.tab[i].c_value.value = 0;
 			IRLowPollTab.tab[i].p_error = IRLowPollTab.tab[i].error;
@@ -1605,7 +1623,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			if(timeout > (timestamp.current_alarm) && alarm_n.total > 0) {  // + ALARM_POLLING_TIME
 			   //ALARM POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
-				PRINTF_DEBUG("ALR %X\n", timeout);
+	//			PRINTF_DEBUG("ALR %X\n", timeout);
                 #endif
 				timestamp.current_alarm = RTC_Get_UTC_Current_Time();
 
@@ -1617,7 +1635,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1
 				cronometro = RTC_Get_UTC_Current_Time() - cronometro;
-				PRINTF_DEBUG("ALR POLL TIME %X\n", cronometro);
+			//	PRINTF_DEBUG("ALR POLL TIME %X\n", cronometro);
                 #endif
 
 				SendOffline(poll_done);
