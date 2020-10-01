@@ -371,15 +371,14 @@ void Carel_Main_Task(void)
           case GME_IDLE_INTERNET_CONNECTED:
           	//TODO
               Radio__WaitConnection();
+
+              if (MQTT_Check_Status() == C_FAIL)
+                  MQTT_Start();
+
               if(MQTT_GetFlags() == 1)			// make sure that CBOR tx buffer was already allocated
             	  MQTT_PeriodicTasks();			// manage the MQTT subscribes
 
               GME__CheckHTMLConfig();
-
-              if (MQTT_Check_Status() == C_FAIL)
-              {
-            	  MQTT_Start();
-              }
 
               break;
 
