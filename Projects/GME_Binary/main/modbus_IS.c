@@ -49,7 +49,7 @@ extern BOOL xMBMasterPortSerialTxPoll(void);
 
 static TaskHandle_t MODBUS_TASK = NULL;
 static uint32_t MB_Device = 0;
-static uint16_t MB_Delay = 200;
+static uint16_t MB_Delay = 0;
 
 C_UINT16 ModbusDisabled = 0;
 
