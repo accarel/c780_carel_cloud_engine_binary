@@ -54,7 +54,7 @@ static uint16_t MB_Delay = 0;
 C_UINT16 ModbusDisabled = 0;
 
 
-extern CHAR ucMBFileTransfer[260]; //256 is the right value but
+extern CHAR ucMBFileTransfer[256]; //256 is the right value but
 extern USHORT usMBFileTransferLen;
 
 /**
@@ -383,13 +383,15 @@ C_RES app_file_transfer(unsigned char* data_tx, uint8_t packet_len)
 {
    char data_rx[260];
    int retrycount=0;
+   int retrypacket=0;
    uint16_t data_rx_len;
    const long timeout = MODBUS_TIME_OUT;
-   const int MAX_RETRY = 5;
+   const int MAX_RETRY = 10;  //5  //3;
 
     C_RES result = C_SUCCESS;
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 do{
+	retrypacket++;
 
     do{
       //if (retrycount > 0) Sys__Delay(250);
@@ -416,6 +418,7 @@ do{
     	return result;
     }
 
+   retrycount = 0;
 
     //TODO CPPCHECK result non è testato maglio testare
     //errorcode che torna   MB_MRE_ILL_ARG / MB_MRE_MASTER_BUSY / più significativo
@@ -442,6 +445,7 @@ do{
    		printf("\n");
         #endif
 
+   		vMBMasterRunResRelease();
    		result = C_FAIL;
    	}else{
 
@@ -462,12 +466,14 @@ do{
 	    	printf("------------------\r\n");
             #endif
 
+	    	vMBMasterRunResRelease();
 	    	result = C_FAIL;
 
 		}else{
 
 			result = C_SUCCESS;
 
+			retrypacket = 0;
             #ifdef __CCL_DEBUG_MODE
 			printf("uart_read_bytes len = %d\n",data_rx_len);
 
@@ -482,7 +488,7 @@ do{
 
     Modbus__Delay();
 
-}while((result != C_SUCCESS) && (retrycount < MAX_RETRY));
+}while((result != C_SUCCESS) && (retrypacket < MAX_RETRY));
 
 #endif
 
