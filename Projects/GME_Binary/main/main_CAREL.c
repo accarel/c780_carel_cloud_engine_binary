@@ -124,9 +124,8 @@ void Carel_Main_Task(void)
   static C_UINT32 NVMBaudrate;
   static C_BYTE   NVMConnector;
 
-  #ifdef __DEBUG_MAIN_CAREL_LEV_1
-  C_INT32 alivecount = 10000;
-  #endif
+  C_INT32 alivecount = RTC_Get_UTC_Current_Time() + 20;
+
 
 
   SoftWDT_Init(SWWDT_MAIN_DEVICE, SWWDT_DEFAULT_TIME);
@@ -134,15 +133,6 @@ void Carel_Main_Task(void)
   while(1)
   {
 	  Sys__Delay(10);
-
-      #ifdef __DEBUG_MAIN_CAREL_LEV_1
-	  alivecount -=10;
-      if (alivecount <= 0)
-      {
-    	  PRINTF_DEBUG_MAIN_CAREL("Main sm %X \n", sm);
-    	  alivecount = 10000;
-      }
-      #endif
 
 
       SoftWDT_Reset(SWWDT_MAIN_DEVICE);
@@ -369,19 +359,30 @@ void Carel_Main_Task(void)
 
 
           case GME_IDLE_INTERNET_CONNECTED:
-          	//TODO
+          {
               Radio__WaitConnection();
 
-              if (MQTT_Check_Status() == C_FAIL)
-                  MQTT_Start();
+              if (CONNECTED == Radio__GetStatus())
+              {
 
-              if(MQTT_GetFlags() == 1)			// make sure that CBOR tx buffer was already allocated
-            	  MQTT_PeriodicTasks();			// manage the MQTT subscribes
+                 if (MQTT_Check_Status() == C_FAIL)
+                    MQTT_Start();
+
+                 if(MQTT_GetFlags() == 1)            // make sure that CBOR tx buffer was already allocated
+                      MQTT_PeriodicTasks();          // manage the MQTT subscribes
+              }
+              else
+              {
+                if (alivecount < RTC_Get_UTC_Current_Time())
+                {
+                  PRINTF_DEBUG("DISCONNECTED \n");
+                }
+              }
 
               GME__CheckHTMLConfig();
 
               break;
-
+          }
 
           //Reboot GME after 5 seconds
           case GME_REBOOT:
@@ -395,6 +396,16 @@ void Carel_Main_Task(void)
           //Check reboot/factory reset button
           if (Get_Button_Pin() >= 0)
               Sys__ResetCheck();
+
+
+          #ifdef __DEBUG_MAIN_CAREL_LEV_1
+          if ((alivecount < RTC_Get_UTC_Current_Time()) && (RTC_Get_UTC_Current_Time() > 0))
+          {
+        	  PRINTF_DEBUG_MAIN_CAREL("Main sm %X \n", sm);
+        	  alivecount = RTC_Get_UTC_Current_Time() + 20;
+          }
+		  #endif
+
 
       }
 }
