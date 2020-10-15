@@ -92,7 +92,9 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 
 	content_length =  http_client_fetch_headers_IS(client);
 	
-	
+	// download of certificate happens all at once:
+	// no need to break down download into multiple packets
+	// as certificate must be shorter than 2kB
 	if ((total_read_len < content_length) && (content_length <= MAX_HTTP_RECV_BUFFER)) {
 		
 		read_len = http_client_read_IS(client, buffer, content_length);
