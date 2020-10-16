@@ -132,7 +132,7 @@ static void SetAllErrors(eMBMasterReqErrCode error){
 	for(i=0;i<low_n.hr;i++)
 		HRLowPollTab.tab[i].error = error;
 	//IR
-	for(i=0;i<high_n.ir;i++)
+	for(i=0;i<low_n.ir;i++)
 		IRLowPollTab.tab[i].error = error;
 	//Coil
 	for(i=0;i<high_n.coil;i++)
