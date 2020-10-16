@@ -21,7 +21,7 @@ static req_set_gw_config_t gw_config_data = {0};
 static uint8_t wifi_mac_address_gw[6] = {0};
 static char wifi_mac_address_gw_str[14] = {0};
 static char gsm_imei_gw_str[16] = {0};
-static char pn[PN_SIZE] = {0};
+static char pn[PN_SIZE + 1] = {0};
 
 /**
  * @brief Utilities__CalcMACAddr
@@ -111,10 +111,12 @@ void Utilities__ReadPNFromNVM(void){
 		(strcmp(pn,"standard") == 0) || (strcmp(pn,"STANDARD") == 0)) // if standard, use standard codes
 	{
 		if (PLATFORM(PLATFORM_DETECTED_WIFI) || PLATFORM(PLATFORM_DETECTED_ESP_WROVER_KIT))
-			memcpy(pn, GW_WIFI_PARTNUMBER, PN_SIZE);
+			strcpy(pn, GW_WIFI_PARTNUMBER);
 		else if (PLATFORM(PLATFORM_DETECTED_2G))
-			memcpy(pn, GW_GSM_PARTNUMBER, PN_SIZE);
+			strcpy(pn, GW_GSM_PARTNUMBER);
 	}
+	pn[11] = '\0';  //make sure pn string is properly terminated (for correct hello message composition)
+	printf("pn used: %s\n", pn);
 }
 
 /**
