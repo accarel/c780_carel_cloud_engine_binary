@@ -912,7 +912,7 @@ static void update_current_previous_tables(RegType_t poll_type){
 
 		}
 		//IR
-		for(i=0;i<high_n.ir;i++){
+		for(i=0;i<low_n.ir;i++){
 			printf("update_current_previous_tables index:%d\n", i);
 
 			//IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
