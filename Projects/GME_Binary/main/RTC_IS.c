@@ -70,10 +70,17 @@ C_RES RTC_Sync(void)
 		Sys__Delay(2000);
 		stat = sntp_get_sync_status();
 	}
-	time(&now);
+
+	// repeat time acquisition multiple times to mitigate ntp delayed updates
+	// this attempts to solve a problem happening sometimes, when synchronization
+	// seems to have succeeded, but read time is 0... this should fix the btm field 0
+	retry = 0;
+	while (now == 0 && ++retry < retry_count)
+		time(&now);
+
 	localtime_r(&now, &timeinfo);
 
-	if(stat == SNTP_SYNC_STATUS_COMPLETED) {
+	if(stat == SNTP_SYNC_STATUS_COMPLETED && now != 0) {
         #ifdef __DEBUG_RTC_IS_LEV_2
 		printf("got time: year:%d, month:%d, day:%d, hour:%d. minute:%d\n", timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
         #endif
