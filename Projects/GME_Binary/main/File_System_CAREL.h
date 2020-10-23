@@ -35,8 +35,10 @@ char* GetApnName(char* tmp_apn_name);
 char* GetApnUserName(char* tmp_apn_username);
 char* GetApnPassword(char* tmp_apn_password);
 
-void encrypt(char data[],int key);
-void dencrypt(char data[],int key);
+
+void decrypt_carel(char data[],int key, int size);
+//void encrypt_carel(char data[],int key, int size);
+
 
 #ifdef __cplusplus
 }

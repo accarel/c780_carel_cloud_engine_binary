@@ -20,15 +20,20 @@
  *
  * @param data[]the data, key the encryption key
  * @return none
- */
-void encrypt(char data[],int key)
+
+ * NOT in use now but leave here for future usage
+
+void encrypt(char data[],int key, int size)
 {
     unsigned int i;
-    for(i=0;i<strlen(data);++i)
+
+    for(i=0; i < size; ++i)
     {
     	data[i] = data[i] - key;
     }
 }
+*/
+
 
 /**
  * @brief decrypt
@@ -37,10 +42,10 @@ void encrypt(char data[],int key)
  * @param data[]the data, key the decryption key
  * @return none
  */
-void decrypt(char data[],int key)
+void decrypt_carel(char data[],int key, int size)
 {
     unsigned int i;
-    for(i=0;i<strlen(data);++i)
+    for (i=0; i < size; ++i)
     {
     	data[i] = data[i] + key;
     }
@@ -258,8 +263,12 @@ C_RES SaveCfgDefDataToNVM(void) {
 
 	CfgData = *pCfgData;
 
-	decrypt(CfgData.mqtt_pssw , CfgData.enc_key);
-	decrypt(CfgData.mqtt_user , CfgData.enc_key);
+
+	decrypt_carel(CfgData.mqtt_pssw , CfgData.enc_key, PASSWORD_SIZE);
+	PRINTF_DEBUG("PASSWORD_SIZE = %s \n", CfgData.mqtt_pssw);
+
+	decrypt_carel(CfgData.mqtt_user , CfgData.enc_key, USERNAME_SIZE);
+	PRINTF_DEBUG("USERNAME_SIZE = %s \n", CfgData.mqtt_user);
 
 	free(dati_1);
 

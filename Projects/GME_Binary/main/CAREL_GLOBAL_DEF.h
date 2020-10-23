@@ -106,9 +106,9 @@
  *
  */
 #define GW_HW_REV  "100"
-#define GW_FW_REV  "088"
+#define GW_FW_REV  "090"
 
-#define GW_SPIFFS_REV  "100"
+#define GW_SPIFFS_REV  "101"
 
 // Uncomment following line to enable esp32 bypass:
 // everything that will be sent to ttl uart will be

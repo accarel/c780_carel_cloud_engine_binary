@@ -151,7 +151,7 @@ void Carel_Main_Task(void)
 			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
 
-			  PRINTF_DEBUG("Version V51 \n");
+			  PRINTF_DEBUG("Version V91 \n");
 
 
 			  if(retval != C_SUCCESS){
