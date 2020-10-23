@@ -177,13 +177,15 @@ namespace CustumCfgGenerator
                             writer.Write(mySpiffs.mqtt_port);
 
 
-                            Array.Copy(mySpiffs.mqtt_pssw, 0, temp_mqtt_pssw, 0, temp_mqtt_pssw.Length);
-                            encrypt(temp_mqtt_pssw, randomNum);                           
-                            writer.Write(temp_mqtt_pssw);
+                            Array.Copy(mySpiffs.mqtt_pssw, 0, temp_mqtt_pssw, 0, temp_mqtt_pssw.Length);                            
+                            encrypt(temp_mqtt_pssw, randomNum, NUM_OF_PSSW);                               
+                            writer.Write(temp_mqtt_pssw, 0, NUM_OF_PSSW);
+
+
 
                             Array.Copy(mySpiffs.mqtt_user, 0, temp_mqtt_user, 0, temp_mqtt_user.Length);
-                            encrypt(temp_mqtt_user, randomNum);
-                            writer.Write(temp_mqtt_user);
+                            encrypt(temp_mqtt_user, randomNum, NUM_OF_USER);
+                            writer.Write(temp_mqtt_user, 0, NUM_OF_USER);
 
                             writer.Write(mySpiffs.ntp_server);
                             writer.Write(mySpiffs.ntp_port);
@@ -317,6 +319,9 @@ namespace CustumCfgGenerator
             else
               mySpiffs.mqtt_pssw = new byte[NUM_OF_PSSW];
         }
+
+
+
         private void textMqttUser_TextChanged(object sender, EventArgs e)
         {
             button1.BackColor = Color.Gray;
@@ -509,26 +514,25 @@ namespace CustumCfgGenerator
         }
 
 
-        private void encrypt(byte[] password, ushort key)
+        private void encrypt(byte[] password, ushort key, int fieldsize)
         {
             byte i = 0;
-            byte len = 0;
             ushort res = 0;
-   
-            while (password[i] != 0)
-            {
-                len++;
-                i++;
-            }
 
-            for (i = 0; i < len; i++)
+
+            for (i = 0; i < fieldsize; i++)
             {
                 res = (ushort)password[i];
                 res -= (ushort)key;
-
                 password[i] = (byte)res;
             }
+
+
         }
+
+
+
+
 
         private void dencrypt(byte[] password, ushort key)
         {
