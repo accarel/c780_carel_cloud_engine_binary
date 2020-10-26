@@ -15,12 +15,12 @@ static const int STOP_BIT = BIT1;
 
 static const char *TAG = "mobile";
 static connection_status_t MobStatus = DISCONNECTED;
-static char gsm_imei_gw_str[MODEM_IMEI_LENGTH] = {0};
-static char gsm_imsi_gw_str[MODEM_IMSI_LENGTH] = {0};
-static char gsm_mcc_gw_str[MCC_LENGTH] = {0};
-static char gsm_mnc_gw_str[MNC_LENGTH] = {0};
-static char gsm_lac_gw_str[LAC_LENGTH] = {0};
-static char gsm_cellid_gw_str[CELLID_LENGTH] = {0};
+static char gsm_imei_gw_str[MODEM_IMEI_LENGTH+1] = {0};
+static char gsm_imsi_gw_str[MODEM_IMSI_LENGTH+1] = {0};
+static char gsm_mcc_gw_str[MCC_LENGTH+1] = {0};
+static char gsm_mnc_gw_str[MNC_LENGTH+1] = {0};
+static char gsm_lac_gw_str[LAC_LENGTH+1] = {0};
+static char gsm_cellid_gw_str[CELLID_LENGTH+1] = {0};
 
 static C_TIME MobConnTime = 0;
 static modem_dte_t *dte;

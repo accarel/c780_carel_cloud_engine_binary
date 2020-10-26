@@ -20,8 +20,8 @@ static req_set_gw_config_t gw_config_data = {0};
 
 static uint8_t wifi_mac_address_gw[6] = {0};
 static char wifi_mac_address_gw_str[14] = {0};
-static char gsm_imei_gw_str[16] = {0};
-static char pn[PN_SIZE + 1] = {0};
+//static char gsm_imei_gw_str[16] = {0};
+static char pn[PN_SIZE+1] = {0};  //+1 to make the space for the string termination
 
 /**
  * @brief Utilities__CalcMACAddr
@@ -115,7 +115,7 @@ void Utilities__ReadPNFromNVM(void){
 		else if (PLATFORM(PLATFORM_DETECTED_2G))
 			strcpy(pn, GW_GSM_PARTNUMBER);
 	}
-	pn[11] = '\0';  //make sure pn string is properly terminated (for correct hello message composition)
+	pn[PN_SIZE] = '\0';  //make sure pn string is properly terminated (for correct hello message composition)
 	printf("pn used: %s\n", pn);
 }
 
