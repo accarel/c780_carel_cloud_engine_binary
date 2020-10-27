@@ -63,6 +63,8 @@ typedef enum e_html_pages{
 	CHANGE_CRED = 0,
 	LOGIN,
 	CONFIG,
+	DBG_PG,
+	NUM_OF_PAGE
 }html_pages;
 
 

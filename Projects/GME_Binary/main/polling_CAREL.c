@@ -35,6 +35,7 @@
 #include "Led_Manager_IS.h"
 #include "mobile.h"
 
+#include "WebDebug.h"
 #define RET_DIM(x,l)     (x == 16 ? (l = 1) : (l = 2))
 
 
@@ -100,6 +101,7 @@ static uint8_t first_low = 1;
 // this helps us in deciding whether we should send an empty values payload
 static C_BYTE something_sent = 0;
 
+static C_INT32 modbus_error = 0;
 /*Static Function*/
 
 static void check_increment_values_buff_len(uint16_t *values_buffer_idx);
@@ -1249,6 +1251,8 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		}
 		else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
             PRINTF_DEBUG("DoPolling Coil i=%X errorReq %X \r\n", i, errorReq);
@@ -1283,6 +1287,8 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		}
 		else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
             PRINTF_DEBUG("DoPolling DI i=%X errorReq %X \r\n", i, errorReq);
@@ -1322,6 +1328,8 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		}
 		else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
             PRINTF_DEBUG("DoPolling HR i=%X errorReq %X \r\n", i, errorReq);
@@ -1360,6 +1368,8 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		}
 		else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
             PRINTF_DEBUG("DoPolling IR i=%X errorReq %X \r\n", i, errorReq);
@@ -1419,6 +1429,8 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		}
 		else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
 			PRINTF_DEBUG("DoAlarmPolling Coil i=%X errorReq %X \r\n", i, errorReq);
@@ -1457,6 +1469,8 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		}
 		else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
 			PRINTF_DEBUG("DoAlarmPolling DI i=%X errorReq %X \r\n", i, errorReq);
@@ -1488,6 +1502,8 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 			save_alarm_hr_ir_value(&Hr[i], param_buffer);
 		}else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
 			PRINTF_DEBUG("DoAlarmPolling HR i=%X errorReq %X \r\n", i, errorReq);
@@ -1519,6 +1535,8 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 			save_alarm_hr_ir_value(&Ir[i], param_buffer);
 		}else
 		{
+			modbus_error++; // only for web debug
+
 			is_offline++;
             #ifdef __DEBUG_POLLING_CAREL_LEV_1
 			PRINTF_DEBUG("DoAlarmPolling IR i=%X errorReq %X \r\n", i, errorReq);
@@ -1722,6 +1740,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			}
 		}
 		PollEngine_Status.polling = STOPPED;
+		RetriveDataDebug(WEBDBG_POLLING, PollEngine_GetEngineStatus_CAREL());
+		RetriveDataDebug(WEBDBG_MODBUS_RTU, modbus_error);
 }
 
 void FlushValues(PollType_t type){

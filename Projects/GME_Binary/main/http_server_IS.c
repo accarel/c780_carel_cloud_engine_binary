@@ -15,6 +15,9 @@
 #include "wifi.h"
 #include "http_server_CAREL.h"
 #include "http_server_IS.h"
+#include "main_CAREL.h"
+
+#include "WebDebug.h"
 
 static const char *TAG = "http_server";
 static C_BYTE ReceivedConfig = 0;
@@ -87,6 +90,8 @@ static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 		LastPageSent = CONFIG;
 	}else if (0 == strcmp(filename,CHANGE_CRED_HTML)){
 		LastPageSent = CHANGE_CRED;
+	}else if (0 == strcmp(filename,DBG_HTML)){
+		LastPageSent = DBG_PG;
 	}
 
     return ESP_OK;
@@ -221,6 +226,44 @@ static C_RES http_resp_login_json(httpd_req_t *req)
     return ESP_OK;
 }
 
+#define HTMLCONF_DBG_INFO	     "dbg_info"
+#define HTMLCONF_DBG_STATIC_INFO "dbg_static"
+
+//Send config.json
+static C_RES http_resp_config_json_dbg(httpd_req_t *req)
+{
+    //Get config values into a json struct
+	char *out;
+	char ap_ssid_temp[30] = {0};
+	size_t len=0;
+	cJSON *html_debug;
+
+	html_debug = cJSON_CreateObject();
+
+	cJSON_AddItemToObject(html_debug, HTMLCONF_DBG_INFO, cJSON_CreateString(ReturnDataDebugBuffer()));
+	cJSON_AddItemToObject(html_debug, HTMLCONF_DBG_STATIC_INFO, cJSON_CreateString(ReturnStaticDataDebugBuffer()));
+
+	/* print everything */
+	out = cJSON_Print(html_debug);
+	//PRINTF_DEBUG_SERVER("dbg_config.json:%s\n", out);
+
+    httpd_resp_set_type(req, "application/json");
+    /* Add file upload form and script which on execution sends a POST request to /upload */
+
+    httpd_resp_send_chunk(req, (const char *)out, strlen(out));
+    httpd_resp_sendstr_chunk(req, NULL);
+
+	/* free all objects under root and root itself */
+	cJSON_Delete(html_debug);
+
+    return ESP_OK;
+}
+
+
+
+
+
+
 
 /**
  * @brief set_content_type_from_file
@@ -307,12 +350,18 @@ static esp_err_t download_get_handler(httpd_req_t *req)
 		else if (strcmp(filename, "/style.css") == 0){
 			return file_get_handler(req, STYLE_CSS);
 		}
+        else if (strcmp(filename, "/infocgm.html") == 0){
+        	return file_get_handler(req, DBG_HTML);
+        }
 	}else{
 		if (strcmp(filename, "/config.json") == 0){
 			return http_resp_config_json(req);
 		}
 		else if (strcmp(filename, "/login.json") == 0){
 			return http_resp_login_json(req);
+		}
+		else if (strcmp(filename, "/dbg.json") == 0){
+			return http_resp_config_json_dbg(req);
 		}
 
 	ESP_LOGE(TAG, "Failed to stat file : %s", filepath);
@@ -511,6 +560,8 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 	//httpd_handle_t server = NULL;
 	httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
+	config.max_uri_handlers = 10;
+
 	// Use the URI wildcard matching function in order to
 	//allow the same handler to respond to multiple different
 	//target URIs which match the wildcard scheme
@@ -590,6 +641,25 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 	};
 	httpd_register_uri_handler(server, &file_delete);
 
+/** debug session **/
+	httpd_uri_t get_dbg_page = {
+		.uri       = "/infocgm.html",  // Match all URIs of type /path/to/file
+		.method    = HTTP_GET,
+		.handler   = download_get_handler,
+		.user_ctx  = server_data    // Pass server data as context
+	};
+	httpd_register_uri_handler(server, &get_dbg_page);
+
+	httpd_uri_t get_dbg_json = {
+		.uri       = "/dbg.json",  // Match all URIs of type /path/to/file
+		.method    = HTTP_GET,
+		.handler   = download_get_handler,
+		.user_ctx  = server_data    // Pass server data as context
+	};
+	httpd_register_uri_handler(server, &get_dbg_json);
+
+
+/***********************/
 
 	if (ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
 		HTTPServer__ParseCredfromNVM();

@@ -48,6 +48,8 @@
 #include "GSM_Miscellaneous_IS.h"
 #endif
 
+#include "WebDebug.h"
+
 
 #ifdef __DEBUG_MAIN_CAREL_LEV_2
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
@@ -406,7 +408,9 @@ void Carel_Main_Task(void)
           }
 		  #endif
 
-
+          RetriveDataDebug(WEBDBG_MAIN_DEVICE, sm);
+          RetriveDataDebug(WEBDBG_WIFI, Radio__GetStatus());
+          RetriveDataDebug(WEBDBG_MQTT, MQTT_GetFlags());
       }
 }
 

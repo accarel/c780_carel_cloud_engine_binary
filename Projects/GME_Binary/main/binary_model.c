@@ -471,10 +471,11 @@ static void GetDeviceInfo(uint8_t *val)
 	ptmyAlarmPoll = (struct NumOfPoll*)(val + sizeof(myHeaderModel) + 2*sizeof(myNumOfPoll));
 	myAlarmPoll = *ptmyAlarmPoll;		//point to the whole struct of NumOfPoll
 
+	struct NumOfPoll *pt;
+
 	// show INFO
 	for (int d = 0; d < 3; d++)
 	{
-		struct NumOfPoll *pt;
 
 		if		(d == 0) { pt = &myLowPoll;		PRINTF_DEBUG("LOW POLLING:     \n"); }
 		else if (d == 1) { pt = &myHighPoll;    PRINTF_DEBUG("HIGH POLLING:    \n"); }

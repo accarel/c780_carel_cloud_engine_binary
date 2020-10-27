@@ -77,6 +77,9 @@
 
 #define CFG_DEF			     "/spiffs/cfgdef.bin"
 
+
+#define DBG_HTML			"/spiffs/infocgm.html"
+
 /*-------------------------------
  * Certificates Allocation
  *-----------------------------*/
