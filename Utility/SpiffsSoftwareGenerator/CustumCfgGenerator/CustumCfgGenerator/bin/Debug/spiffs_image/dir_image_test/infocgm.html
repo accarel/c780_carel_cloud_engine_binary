@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--meta http-equiv="refresh" content="5" -->	
+  </head>
+<span class="verd"><meta name='viewport' content='width=device-width, initial-scale=1' /></span>
+<body onload="getTime()">
+
+<h1>Info CloudGateMini Carel</h1>
+<p id="time"></p>
+
+<form action="upload/" method="POST" target="_blank" >
+
+<div id="dbg_info"></div
+<p>Static Info</p>
+<textarea id="myTextarea_fix" NAME="address" ROWS=10 COLS=40></textarea>
+
+<p>dynamic Info</p>
+<textarea id="myTextarea" NAME="address" ROWS=10 COLS=40></textarea>
+  
+  
+</form>
+<script>		 
+
+setInterval(function() {
+  // Call a function repetatively with 5 Second interval
+  getData();
+}, 10000); //5000mSeconds update rate
+
+
+setInterval(function() {
+   getTime(); 
+}, 1000);
+
+
+var values = [];
+var timeStamp = [];
+
+
+function getData() {
+	var debugjs;
+	
+	var fixedinfo;
+	var datalog;   
+	
+	const Http = new XMLHttpRequest();
+    const url = 'dbg.json';
+    
+	
+	Http.open("GET",url);
+    Http.send();
+	
+    Http.onreadystatechange = function(){
+        if(this.readyState == 4 && this.status == 200){
+            
+            // retrive the log data			
+  		    debugjs = JSON.parse(Http.responseText);
+            console.log(debugjs);				 
+			
+			var datalog = debugjs.dbg_info;		 	
+			var fixedinfo = debugjs.dbg_static;
+			
+			//document.getElementById('myTextarea').value += datalog + '\r\n';
+			document.getElementById('myTextarea').value = datalog;
+			
+			document.getElementById('myTextarea_fix').value = fixedinfo;			
+		}
+	  }
+}
+
+
+function getTime(){
+
+	var time = new Date();   //.toLocaleTimeString();  // this give me only the time
+	
+	document.getElementById("time").innerHTML = time;
+}
+
+
+ </script>
+</body>
+</html>	
