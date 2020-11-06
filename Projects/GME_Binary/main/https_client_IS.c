@@ -99,6 +99,8 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 	esp_http_client_config_t esp_config = {
 		.url = config->url,
 		.event_handler = _http_event_handler,
+		.username = config->username,
+		.password = config->password,
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
 		.cert_pem =  Sys__GetCert((uint8_t)cert_num),
 	};
