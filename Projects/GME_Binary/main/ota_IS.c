@@ -29,7 +29,7 @@ const int OTA_GME_OK = BIT0;
 const int OTA_GME_FAIL = BIT1;
 
 
-static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
+static esp_err_t _http_event_handler_ota(esp_http_client_event_t *evt)
 {
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
@@ -122,7 +122,7 @@ C_RES https_ota(c_http_client_config_t* c_config)
 		.username = c_config->username,
 		.password = c_config->password,
 		.cert_pem = Sys__GetCert(c_config->cert_num),
-		.event_handler = _http_event_handler,
+		.event_handler = _http_event_handler_ota,
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
 	};
 
