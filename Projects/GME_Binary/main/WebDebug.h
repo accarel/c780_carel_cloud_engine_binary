@@ -11,6 +11,8 @@
 #define _WEBDEBUG_H
 
 /* ==== Include ==== */
+#include "CAREL_GLOBAL_DEF.h"
+#include "data_types_CAREL.h"
 
 /* ==== Define fixed don't touch it ==== */
 
@@ -24,16 +26,22 @@
 #define WEBDBG_POLLING      2
 #define WEBDBG_WIFI         3
 #define WEBDBG_MQTT			4
-#define MAX_WEBDBG  	    5
+#define WEBDBG_OTA_STATUS   5
+#define WEBDBG_OTA_CONLEN   6
+#define WEBDBG_OTA_TRASLEN  7
+#define MAX_WEBDBG  	    8
 
 /* ==== Global Variables ==== */
 
 typedef struct debug_data_s{
-	 uint8_t dbgMain;
-	 uint32_t dbgRtu;
-	 uint8_t dbgPolling;
-	 uint8_t dbgWifi;
-	 uint8_t dbgMqtt;
+	 C_BYTE dbgMain;
+	 C_UINT32 dbgRtu;
+	 C_BYTE dbgPolling;
+	 C_BYTE dbgWifi;
+	 C_BYTE dbgMqtt;
+	 C_BYTE dbgOtaStatus;
+	 C_UINT32 dbgOtaConlen;
+	 C_UINT32 dbgOtaTrasflen;
 }debug_data_t;
 
 /* ==== Function prototype ==== */

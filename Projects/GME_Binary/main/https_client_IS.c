@@ -17,6 +17,10 @@
 static const char *TAG = "HTTP_CLIENT_IS";
 
 
+http_client_handle_t client_http_client_init_IS = NULL;
+esp_http_client_config_t esp_config_http_client_init_IS;
+
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 
 /**
@@ -92,23 +96,28 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
  */
  http_client_handle_t http_client_init_IS(c_http_client_config_t *config, C_BYTE cert_num)
  {
-	http_client_handle_t client = NULL;
+
+	client_http_client_init_IS = NULL;
+
+
 
 	#ifdef INCLUDE_PLATFORM_DEPENDENT 
 
-	esp_http_client_config_t esp_config = {
-		.url = config->url,
-		.event_handler = _http_event_handler,
-		.username = config->username,
-		.password = config->password,
-		.auth_type = HTTP_AUTH_TYPE_BASIC,
-		.cert_pem =  Sys__GetCert((uint8_t)cert_num),
-	};
+	esp_config_http_client_init_IS.url = config->url;
+	esp_config_http_client_init_IS.username = config->username;
+	esp_config_http_client_init_IS.password = config->password;
+	esp_config_http_client_init_IS.event_handler = _http_event_handler;
+	esp_config_http_client_init_IS.auth_type = HTTP_AUTH_TYPE_BASIC;
+	esp_config_http_client_init_IS.cert_pem =  Sys__GetCert((uint8_t)cert_num);
+//	esp_config_http_client_init_IS.skip_cert_common_name_check = 1;     USE ONLY FOR TEST PURPOSE
 
-	client = esp_http_client_init(&esp_config);
+	//if you need to skip certificate CN validation include the row below
+	//esp_config.skip_cert_common_name_check = true;
+
+	client_http_client_init_IS = esp_http_client_init(&esp_config_http_client_init_IS);
     #endif
 
-	return client;
+	return client_http_client_init_IS;
  }
  
  

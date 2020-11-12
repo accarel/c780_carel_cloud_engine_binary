@@ -45,6 +45,8 @@
 #define TIMEOUT_UPDATE_CIDS_TICS        (TIMEOUT_UPDATE_CIDS_MS / portTICK_RATE_MS)
 
 
+static const char *TAG = "POLLING_CAREL";
+
 static poll_engine_flags_t PollEngine_Status = {
 	.engine = NOT_INITIALIZED,
 	.polling = STOPPED,
@@ -1656,6 +1658,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			//	PRINTF_DEBUG("ALR POLL TIME %X\n", cronometro);
                 #endif
 
+				PRINTF_DEBUG("%s DoAlarmPolling poll_done = %d \n", TAG, poll_done);
 				SendOffline(poll_done);
 
 				check_alarms_change();
@@ -1679,8 +1682,10 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 				poll_done = DoPolling(&COILHighPollTab, &DIHighPollTab, &HRHighPollTab, &IRHighPollTab, HIGH_POLLING);
 				SendOffline(poll_done);
+				PRINTF_DEBUG("%s COILHighPollTab poll_done = %d \n", TAG, poll_done);
 
 				poll_done = DoPolling(&COILLowPollTab, &DILowPollTab, &HRLowPollTab, &IRLowPollTab, LOW_POLLING);
+				PRINTF_DEBUG("%s COILLowPollTab poll_done = %d \n", TAG, poll_done);
 
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1
 				cronometro = RTC_Get_UTC_Current_Time() - cronometro;
@@ -1715,6 +1720,7 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
                 #endif
 
 				SendOffline(poll_done);
+				PRINTF_DEBUG("%s COILHighPollTab poll_done = %d \n", TAG, poll_done);
 
 				FlushValues(HIGH_POLLING);
 				if (PollEngine__GetValuesBufferCount()) {

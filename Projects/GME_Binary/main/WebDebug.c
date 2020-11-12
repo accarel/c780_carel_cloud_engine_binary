@@ -8,10 +8,7 @@
 
 /* decomment to enable output debug */
 //#define __SWWDT_ENABLE_DEBUG_PRINT
-
-#include "CAREL_GLOBAL_DEF.h"
 #include "types.h"
-#include "data_types_CAREL.h"
 #include "utilities_CAREL.h"
 
 #include "WebDebug.h"
@@ -33,6 +30,9 @@ static debug_data_t dbgData = {
 		 .dbgPolling = 0,
 		 .dbgWifi = 0,
 		 .dbgMqtt = 0,
+		 .dbgOtaStatus = 0,
+		 .dbgOtaConlen = 0,
+		 .dbgOtaTrasflen = 0
 };
 
 
@@ -60,24 +60,38 @@ void RetriveDataDebug(C_INT16 type, C_INT32 val)
 		case WEBDBG_MQTT:
 			dbgData.dbgMqtt = val;
 			break;
+
+		case WEBDBG_OTA_STATUS:
+			dbgData.dbgOtaStatus = val;
+			break;
+
+		case WEBDBG_OTA_CONLEN:
+			dbgData.dbgOtaConlen = val;
+			break;
+
+		case WEBDBG_OTA_TRASLEN:
+			dbgData.dbgOtaTrasflen = val;
+			break;
+
 	}
 }
 
 
 C_CHAR * ReturnDataDebugBuffer(void)
 {
-		sprintf(response_debug, "%s%d%s%d%s%d%s%d%s%d",
+		sprintf(response_debug, "%s%d%s%d%s%d%s%d%s%d%s%X %X %X",
 				    "MT=", dbgData.dbgMain,
 				"\r\nPT=", dbgData.dbgPolling,
 				"\r\nWT=", dbgData.dbgWifi,
 				"\r\nMQT=",dbgData.dbgMqtt,
-				"\r\nMBE=",dbgData.dbgRtu
+				"\r\nMBE=",dbgData.dbgRtu,
+				"\r\nOTA=",dbgData.dbgOtaStatus, dbgData.dbgOtaConlen, dbgData.dbgOtaTrasflen
 				);
 
         #ifdef __CCL_DEBUG_MODE
         if (strlen(response_debug)>= WEB_DEBUG_BUF_SIZE)
         {
-          PRINTF_DEBUG("%s ReturnDataDebugBuffer OWFL %d\n",TAG, strlen(response_debug));
+          PRINTF_DEBUG("%s ReturnDataDebugBuffer ERROR OWFL %d\n",TAG, strlen(response_debug));
         }
         #endif
 

@@ -45,7 +45,7 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 		
 	int total_read_len = 0;
     int read_len = 0;
-	int content_length;
+    C_UINT32 content_length;
 
 	char *buffer = malloc(MAX_HTTP_RECV_BUFFER + 1);
 	uint16_t url_len = strlen(download_devs_config->uri) + strlen(download_devs_config->pwd) + strlen(download_devs_config->usr);
