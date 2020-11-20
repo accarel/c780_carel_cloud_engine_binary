@@ -13,6 +13,7 @@
 #include "https_client_CAREL.h"
 #include "radio.h"
 #include "WebDebug.h"
+#include "sys_IS.h"
 
 static const char *TAG = "OTA_CAREL";
 
@@ -116,7 +117,7 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 	data_tx[packet_len - 2] = (uint8_t)(crc & 0x00ff);
 	data_tx[packet_len - 1] = (uint8_t)((crc >> 8) & 0x00ff);
 
-    #ifdef __CCL_DEBUG_MODE
+    #ifdef __CCL_DEBUG_MODE_1
 	printf("\nuart_transmit_bytes len = %d\n",packet_len);
 		
 	for(int idx=0; idx < packet_len; idx++){
@@ -137,6 +138,7 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
 	return err;
 
 }
+
 
 /**
  * @brief DEV_ota_task
@@ -176,12 +178,11 @@ void DEV_ota_task(void * pvParameter){
 		cert_num = CERT_1;
 
 
-
 	client = http_client_init_IS(&c_config, cert_num);
 	if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
 		
 		#ifdef __CCL_DEBUG_MODE
-		printf("%s Failed to open HTTPS connection\n", TAG);
+		printf("%s DEV_ota_task Failed to open HTTPS connection\n", TAG);
 		printf("%s \n", url);
 		#endif
 		free(url);
@@ -207,7 +208,9 @@ void DEV_ota_task(void * pvParameter){
 	if (upgrade_data_buf == NULL)
 	{
 		free(url); //TODO CPPCHECK questa viene chiamata 2 volte vedi riga 142
-		printf("cannot alloc upgrade_data_buf\n");
+        #ifdef __CCL_DEBUG_MODE
+		printf("DEV_ota_task cannot alloc upgrade_data_buf\n");
+        #endif
 		OTADEVGroup(false);
 		vTaskDelete(NULL);
 	}
@@ -236,7 +239,12 @@ void DEV_ota_task(void * pvParameter){
 		
 		if (data_read_len > 0) {
 			err = UpdateDevFirmware(upgrade_data_buf, data_read_len, (file_number+file_number_inc), starting_reg);	//, content_length - sent_data_per_file
-			if(err != C_SUCCESS) {
+
+			if (err != C_SUCCESS) {
+                #ifdef __CCL_DEBUG_MODE
+                printf("DEV_ota_task UpdateDevFirmware error - 1 ABORTED! \n");
+                #endif
+
 				free(url);
 				free(upgrade_data_buf);
 				dbg_Set_OTA_Status(OTA_IDLE);
@@ -254,9 +262,6 @@ void DEV_ota_task(void * pvParameter){
 		    	file_number_inc++;
 		    	starting_reg = 0;
 		    	sent_data_per_file = 0;
-                #ifdef __CCL_DEBUG_MODE
-                //printf("%s file_number_inc %d\n", TAG, file_number_inc);
-                #endif
 		    }
 		    else
 		    {
@@ -279,8 +284,13 @@ void DEV_ota_task(void * pvParameter){
 			uart_flush_IS(modbusPort);
 
 			if (data_read_len == 0) {
+
 				err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
-				if(err != C_SUCCESS) {
+
+				if (err != C_SUCCESS) {
+                    #ifdef __CCL_DEBUG_MODE
+                    printf("DEV_ota_task UpdateDevFirmware error - 2 ABORTED! \n");
+                    #endif
 					free(url);
 					free(upgrade_data_buf);
 					dbg_Set_OTA_Status(OTA_IDLE);
@@ -481,10 +491,6 @@ void GME_ota_task(void * pvParameter)
 }
 
 
-
-
-
-
 void DEV_ota_range_task(void * pvParameter){
 
 	c_cborrequpddevfw * dev_fw_config = (c_cborrequpddevfw*)pvParameter;
@@ -533,15 +539,12 @@ void DEV_ota_range_task(void * pvParameter){
     printf("%s OTA START **************************\r\n", TAG);
     #endif
 
-
-    cert_num = 1;
-
 	client = http_client_init_IS(&c_config, cert_num);
 
 	if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
 
 		#ifdef __CCL_DEBUG_MODE
-		printf("%s Failed to open HTTP connection", TAG);
+		printf("%s DEV_ota_range_task Failed to open HTTP connection", TAG);
 		#endif
 		free(url);
 		OTADEVGroup(false);
@@ -597,6 +600,7 @@ void DEV_ota_range_task(void * pvParameter){
 		// loop header request
 		if (!is_connected)
 		{
+			client_init_retry = 0;
 		
             do {
    		       client = http_client_init_IS(&c_config, cert_num);
@@ -621,7 +625,8 @@ void DEV_ota_range_task(void * pvParameter){
 				       free(upgrade_data_buf);
 				       OTADEVGroup(false);
 				       vTaskDelete(NULL);					   
-			       }				   				 
+			       }		
+				   Sys__Delay(100);				   
 			   }
 			   
 			}while (is_connected==0);
@@ -630,27 +635,41 @@ void DEV_ota_range_task(void * pvParameter){
 
 
 		sprintf(myrange, "bytes=%d%s%d\r\n",int_range_start,"-", int_range_stop);
-		esp_http_client_set_method(client, HTTP_METHOD_GET);
-		//delete previous range
-		esp_http_client_delete_header(client, "Range");
-		//set new range
-		esp_http_client_set_header(client, "Range", myrange);
+		esp_http_client_set_method(client, HTTP_METHOD_GET);		
+		esp_http_client_delete_header(client, "Range");        //delete previous range
+		esp_http_client_set_header(client, "Range", myrange);  //set new range
 
-		esp_http_client_perform(client);
 
-	    if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
-		    #ifdef __CCL_DEBUG_MODE
-			printf("%s Failed to open HTTP connection", TAG);
-		    #endif
-		    free(upgrade_data_buf);
-		    free(url);
-		    OTADEVGroup(false);
-		    vTaskDelete(NULL);
-	    }
-		else
+        client_init_retry = 0;
+        do
 		{
-			C_INT32 cl =  http_client_fetch_headers_IS(client);
-		}
+			err = esp_http_client_perform(client);
+		
+  		    if (err != C_SUCCESS)
+			{
+				client_init_retry++;
+				#ifdef __CCL_DEBUG_MODE
+			    printf("%s DEV_ota_range_task esp_http_client_perform Failed to open HTTP connection", TAG);
+		        #endif	
+				
+			    if (client_init_retry > MAX_CLIENT_INIT_RETRY)
+				{
+                  #ifdef __CCL_DEBUG_MODE
+                  printf("%s MAX_CLIENT_INIT_RETRY", TAG);
+                  #endif
+				  //ok no way Internet or server off line 		          
+			  
+				  free(url);
+				  free(upgrade_data_buf);
+				  OTADEVGroup(false);
+				  vTaskDelete(NULL);					   
+			    }			
+				Sys__Delay(100);
+			}
+			
+		}while(err != C_SUCCESS);
+
+   	    C_INT32 cl =  http_client_fetch_headers_IS(client);
 
 		if (num_of_chunk > 1)
 	      data_read_len = esp_http_client_read(client, (char*)upgrade_data_buf, DEV_OTA_BUF_SIZE);
@@ -674,15 +693,19 @@ void DEV_ota_range_task(void * pvParameter){
                  }
                  printf("\r\n");
               }
+
               #endif
 
-	    	err = UpdateDevFirmware(upgrade_data_buf, data_read_len, (file_number+file_number_inc), starting_reg);	//, content_length - sent_data_per_file
-
-            //BILATO cancellare
-            //err = C_SUCCESS;
+           //BILATO cancellare
+           //err = C_SUCCESS;
+           err = UpdateDevFirmware(upgrade_data_buf, data_read_len, (file_number+file_number_inc), starting_reg);	//, content_length - sent_data_per_file
 
 			if (err != C_SUCCESS) {
 				// modbus write error
+                #ifdef __CCL_DEBUG_MODE
+                printf("DEV_ota_range_task UpdateDevFirmware error - 1 ABORTED! \n");
+                #endif
+
 				free(url);
 				free(upgrade_data_buf);
 				OTADEVGroup(false);
@@ -711,47 +734,43 @@ void DEV_ota_range_task(void * pvParameter){
 			#endif
 	    }
 		else
-		{
-			// *** manage HTTP exception ***
-		    #ifdef __CCL_DEBUG_MODE
-            printf("%s Written file_total_lenght %d\n", TAG, file_total_lenght);
-            #endif
-			
+		{						
+			// *** manage HTTP exception ***			
 			http_client_close_IS(client);
 			http_client_cleanup_IS(client);
+			is_connected = 0;
+			
 			uart_flush_input_IS(modbusPort);
 			uart_flush_IS(modbusPort);
 
 			if (data_read_len < 0)
 			{
+				//we try to retry
 				#ifdef __CCL_DEBUG_MODE
 				printf("%s %s\r\n", TAG, "Error: SSL data read error");
-				#endif
-
-				is_connected = 0;
-			
-				//free(url);
-				//free(upgrade_data_buf);
-				//OTADEVGroup(false);
-				//vTaskDelete(NULL);
+				#endif			
 			}
 
 			if ((data_read_len == 0) && (num_of_chunk > 1))
 			{
-				//is a network error probably
-
-				is_connected = 0;
+				//is a network error probably or server trouble 
+                #ifdef __CCL_DEBUG_MODE
+                printf("\n data_read_len==0   mum_of_chunk > 1) \n");
+                #endif
 			}
 			else{
-				//end of file
-				printf("closing update\n");
+				//end of file SECONDO ME QUESTO E' un bug perchè se passiamo di qui non chiudiamo il file modbus
+				
+			    #ifdef __CCL_DEBUG_MODE
+                printf("%s CLOSING update - Written file_total_lenght %d\n", TAG, file_total_lenght);
+                #endif
 				free(url);
 				free(upgrade_data_buf);
 				OTADEVGroup(false);
 				vTaskDelete(NULL);
 			}
-
 		}
+
 
       if (is_connected ==1) 
 	  {
@@ -768,7 +787,7 @@ void DEV_ota_range_task(void * pvParameter){
 	   
 	}
 
-	if(num_of_chunk == 0)
+	if (num_of_chunk == 0)
 	{
 		// all chunk sended...send a 0 file to end modbus trasmition
 		http_client_close_IS(client);
@@ -782,6 +801,9 @@ void DEV_ota_range_task(void * pvParameter){
 		err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
 
 		if(err != C_SUCCESS) {
+            #ifdef __CCL_DEBUG_MODE
+            printf("DEV_ota_range_task UpdateDevFirmware error - 2 ABORTED! \n");
+            #endif
 			free(url);
 			free(upgrade_data_buf);
 			OTADEVGroup(false);
@@ -795,15 +817,23 @@ void DEV_ota_range_task(void * pvParameter){
 		free(upgrade_data_buf);
 		OTADEVGroup(true);
 		vTaskDelete(NULL);
+		is_connected = 0;
 	}
 
+
+    #ifdef __CCL_DEBUG_MODE
+    printf("%s %s\r\n", TAG, "Connection closed and exit from routine");
+    #endif
+
+        
 	http_client_close_IS(client);
 	http_client_cleanup_IS(client);
+    
 
 	free(url);
 	free(upgrade_data_buf);
 
-#ifdef __CCL_DEBUG_MODE
-printf("%s End of download %d\n",TAG, num_of_chunk);
-#endif
+    #ifdef __CCL_DEBUG_MODE
+    printf("%s End of download %d\n",TAG, num_of_chunk);
+    #endif
 }

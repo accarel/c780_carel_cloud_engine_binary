@@ -56,7 +56,26 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 			
         case HTTP_EVENT_ON_DATA:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
+
             if (!esp_http_client_is_chunked_response(evt->client)) {
+
+                #ifdef __CCL_DEBUG_MODE
+            	printf("--------------------\n");
+            	printf("%d\n", evt->data_len);
+
+                #ifdef __CCL_DEBUG_MODE_1
+            	char *p;
+
+            	p = (char *)(evt->data);
+
+            	for (int ciclo=0; ciclo < evt->data_len; ciclo++)
+            	{
+            		printf("%02X ", *(p+ciclo));
+            	}
+            	printf("\n++++++++++++++++++++\n");
+                #endif
+            	#endif
+
             }
             break;
 			
@@ -100,6 +119,7 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 	client_http_client_init_IS = NULL;
 
 
+	printf("%s CERTIFICATO %d \r\n", TAG, cert_num);
 
 	#ifdef INCLUDE_PLATFORM_DEPENDENT 
 
@@ -109,7 +129,9 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 	esp_config_http_client_init_IS.event_handler = _http_event_handler;
 	esp_config_http_client_init_IS.auth_type = HTTP_AUTH_TYPE_BASIC;
 	esp_config_http_client_init_IS.cert_pem =  Sys__GetCert((uint8_t)cert_num);
-//	esp_config_http_client_init_IS.skip_cert_common_name_check = 1;     USE ONLY FOR TEST PURPOSE
+	esp_config_http_client_init_IS.buffer_size = 2048;
+
+	//esp_config_http_client_init_IS.skip_cert_common_name_check = 1;
 
 	//if you need to skip certificate CN validation include the row below
 	//esp_config.skip_cert_common_name_check = true;
@@ -119,7 +141,6 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 
 	return client_http_client_init_IS;
  }
- 
  
  
  
