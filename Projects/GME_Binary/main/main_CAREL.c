@@ -153,8 +153,7 @@ void Carel_Main_Task(void)
 			  retval = Sys__Init();
 			  CAREL_CHECK(retval, "SYSTEM");
 
-			  PRINTF_DEBUG("Version V91 \n");
-
+			  PRINTF_DEBUG("FW Ver. %s\n", GW_FW_REV);
 
 			  if(retval != C_SUCCESS){
 				  sm = GME_REBOOT;
@@ -408,9 +407,12 @@ void Carel_Main_Task(void)
           }
 		  #endif
 
+
           RetriveDataDebug(WEBDBG_MAIN_DEVICE, sm);
           RetriveDataDebug(WEBDBG_WIFI, Radio__GetStatus());
           RetriveDataDebug(WEBDBG_MQTT, MQTT_GetFlags());
+
+
       }
 }
 
