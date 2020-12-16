@@ -1,0 +1,176 @@
+Test *=OK F=fail 
+
+* | Coil_Low_P"      addressIn="100001" funcTypeRead="1" addressOut="510001" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | Coil_High_P"     addressIn="100002" funcTypeRead="1" addressOut="510002" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | Coil_alr"        addressIn="100003" funcTypeRead="1" addressOut="510003" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | Rele_1"          addressIn="100013" funcTypeRead="1" addressOut="500013" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | Rele_2"          addressIn="100014" funcTypeRead="1" addressOut="500014" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | DI_Low_P"        addressIn="200001" funcTypeRead="2" addressOut="500001" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | DI_High_P"       addressIn="200002" funcTypeRead="2" addressOut="500002" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | DI_alr"          addressIn="200003" funcTypeRead="2" addressOut="500003" funcTypeWrite="5" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+* | HR_Low_P"        addressIn="300001" funcTypeRead="3" addressOut="600001" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" 
+* | HR_High_P"       addressIn="300002" funcTypeRead="3" addressOut="600002" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" 
+* | HR_alr_Bit_1"    addressIn="300003" funcTypeRead="3" addressOut="600003" funcTypeWrite="6" varDimension="16" varLength="1"  bitPosition="1" aValue="1" bValue="0" 
+* | HR_Low_AutoInc"  addressIn="300100" funcTypeRead="3" addressOut="600100" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" 
+* | HR_High_AutoInc" addressIn="300101" funcTypeRead="3" addressOut="600101" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" 
+  | 
+  | 
+  | 
+F | HR_BIT_FIELD_4"  addressIn="300102" funcTypeRead="3" addressOut="600102" funcTypeWrite="6" varDimension="16" varLength="1"  bitPosition="4" aValue="1" bValue="0" 
+  | restituisce il valore non mascherato DIM 1 POS 4 > value 16 doveva essere 1 se imposto 15 legge correttamente 0
+  | 
+* | Float1"          addressIn="300200" funcTypeRead="3" addressOut="600200" funcTypeWrite="6" varDimension="32" varLength="32" bitPosition="0" aValue="1" bValue="0" 
+  | 
+  | 
+* | Int32"           addressIn="300202" funcTypeRead="3" addressOut="600202" funcTypeWrite="6" varDimension="32" varLength="32" bitPosition="0" aValue="1" bValue="0" 
+  | 
+  | 
+* | Temperature_1"   addressIn="300204" funcTypeRead="3" addressOut="600204" funcTypeWrite="6" varDimension="32" varLength="32" bitPosition="0" aValue="1" bValue="0" 
+  | 
+* | IR_Low_P"        addressIn="400001" funcTypeRead="4" addressOut="610001" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" 
+* | IR_High_P"       addressIn="400002" funcTypeRead="4" addressOut="610002" funcTypeWrite="6" varDimension="16" varLength="16" bitPosition="0" aValue="1" bValue="0" 
+* | IR_alr"          addressIn="400003" funcTypeRead="4" addressOut="610003" funcTypeWrite="6" varDimension="16" varLength="1"  bitPosition="0" aValue="1" bValue="0" 
+  | 
+  | IR_BIT_FIELD_2"  addressIn="400004" funcTypeRead="4" addressOut="610004" funcTypeWrite="6" varDimension="16" varLength="1"  bitPosition="2" aValue="1" bValue="0" 
+  | 
+  | 
+* | HR_alr_Bit_6"    addressIn="300206" funcTypeRead="3" addressOut="600206" funcTypeWrite="6" varDimension="16" varLength="1"  bitPosition="6" aValue="1" bValue="0" 
+  | IR_alr_Bit_7"    addressIn="400207" funcTypeRead="4" addressOut="610207" funcTypeWrite="6" varDimension="16" varLength="1"  bitPosition="7" aValue="1" bValue="0" 
+  | 
+* | Float_A2_B1000"  addressIn="300208" funcTypeRead="3" addressOut="600208" funcTypeWrite="6" varDimension="32" varLength="32" bitPosition="0" aValue="2" bValue="1000" 
+  | 
+  | 
+  | 
+F | Float_A0_5_B100" addressIn="300210" funcTypeRead="3" addressOut="600210" funcTypeWrite="6" varDimension="32" varLength="32" bitPosition="0" aValue="0.5" bValue="100" 
+  | passandogli 0.5 non divide ma è possibile che l'errore sia nel tool
+  | 
+  | 
+  | HR_Nib_0_3"      addressIn="300212" funcTypeRead="3" addressOut="600212" funcTypeWrite="6" varDimension="16" varLength="4"  bitPosition="0" aValue="1" bValue="0" 
+  | HR_Nib_4_7"      addressIn="300213" funcTypeRead="3" addressOut="600213" funcTypeWrite="6" varDimension="16" varLength="4"  bitPosition="4" aValue="1" bValue="0" 
+  | HR_Nib_8_11"     addressIn="300214" funcTypeRead="3" addressOut="600214" funcTypeWrite="6" varDimension="16" varLength="4"  bitPosition="8" aValue="1" bValue="0" 
+  | HR_Nib_12_15"    addressIn="300215" funcTypeRead="3" addressOut="600215" funcTypeWrite="6" varDimension="16" varLength="4"  bitPosition="12" aValue="1" bValue="0" 
+
+
+
+
+
+
+
+
+
+- Start check GME MODEL -
+Type the model file name:
+DC_all_vars_edited_model.bin
+Read File ok
+Size model Ok
+Header signature:  GME_MBT
+Header version  :  256
+Model GUID      : cf cd 20 84 95 d5 35 ef a6 e7 df f9 f9 87 64 da
+Model Version   :  100027A
+
+LOW POLLING:
+Coil   2
+Disc   1
+HR     6
+IR     2
+
+HIGH POLLING:
+Coil   2
+Disc   1
+HR     8
+IR     1
+
+ALARM POLLING:
+Coil   1
+Disc   1
+HR     2
+IR     2
+
+
+CRC OK
+
+--------------------- LOW Coil --------------------
+Alias  ADDR
+   1,    1
+   5,   14
+-------------------- HIGH Coil --------------------
+Alias  ADDR
+   2,    2
+   4,   13
+--------------------- ALARM  ----------------------
+Alias  ADDR
+   3,    3
+--------------------- LOW Di   --------------------
+Alias  ADDR
+   6,    1
+--------------------- HIGH Di  --------------------
+Alias  ADDR
+   7,    2
+--------------------- ALARM Di --------------------
+Alias  ADDR
+   8,    3
+---------------------- LOW Hr ---------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+   9,    1,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  12,  100,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  14,  102,  192,   16,    4,    1, 1.00, 0.00, 0.00
+  25,  210,  196,   32,    0,   32, 0.50, 100.00, 0.00
+  27,  213,  192,   16,    4,    4, 1.00, 0.00, 0.00
+  29,  215,  192,   16,   12,    4, 1.00, 0.00, 0.00
+--------------------- HIGH Hr ---------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+  10,    2,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  13,  101,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  15,  200,  196,   32,    0,   32, 1.00, 0.00, 0.00
+  16,  202,  192,   32,    0,   32, 1.00, 0.00, 0.00
+  17,  204,  196,   32,    0,   32, 1.00, 0.00, 0.00
+  24,  208,  196,   32,    0,   32, 2.00, 1000.00, 0.00
+  26,  212,  192,   16,    0,    4, 1.00, 0.00, 0.00
+  28,  214,  192,   16,    8,    4, 1.00, 0.00, 0.00
+-------------------- ALARM Hr ---------------------
+  11,    3,
+  22,  206,
+------------------- LOW Ir ------------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+  18,    1,  192,   16,    0,   16, 1.00, 0.00, 0.00
+  21,    4,  192,   16,    2,    1, 1.00, 0.00, 0.00
+---------------------- HIGH Ir --------------------
+Alias Addr  flags  dim  bitp   len  linA  linB  Hys
+  19,    2,  192,   16,    0,   16, 1.00, 0.00, 0.00
+--------------------- ALARM Ir --------------------
+Alias  ADDR
+  20,    3,
+  23,  207,
+
+
+
+
+{"ver": 257
+ "cnt": 142
+ "btm": 1590042115
+ "t": 1590046522
+ "vls": {"1": "0.0"
+ "5": "0.0"
+ "6": "0.0"
+ "9": "0"
+ "12": "735"
+ "14": "0"
+ "25": "105.0"
+ "27": "16"
+ "29": "4095"
+ "18": "0"
+ "21": "0"
+ "2": "0.0"
+ "4": "0.0"
+ "7": "0.0"
+ "10": "0"
+ "13": "735"
+ "15": "1.2"
+ "16": "345.0"
+ "17": "22.6"
+ "24": "1002.0"
+ "26": "1"
+ "28": "255"
+ "19": "0"}
+ "frm": -1
+ "did": 23}

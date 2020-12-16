@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">pCO</Platform>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>761e452f-7672-411d-bc42-275dac41db83</ProjectGuid>
+    <RepositoryPath>..\..\..\Configurations\Modbus_Salve_Simulator\Device1.otr</RepositoryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <OutputPath>Bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <OutputPath>Bin\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Resources\Black_rows_114x16.bmp" />
+    <Compile Include="Resources\Clock_18x16.bmp" />
+    <Compile Include="Resources\fan1_16x16.bmp" />
+    <Compile Include="Resources\fan2_16x16.bmp" />
+    <Compile Include="Resources\logo_carel_132x64.bmp" />
+    <Compile Include="Resources\Off_60x32.bmp" />
+    <Compile Include="Resources\On_60x32.bmp" />
+    <Compile Include="Resources\Switch_18x16.bmp" />
+    <Compile Include="Resources\White_rows_114x16.bmp" />
+    <Compile Include="Terminal1\Code.st" />
+    <Compile Include="Terminal1\Classes.otsf" />
+    <Compile Include="Terminal1\Layout.otwp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Terminal1\" />
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <Import Project="$(DevEnvDir)\PackagesToLoad\Targets\Carel.targets" />
+</Project>

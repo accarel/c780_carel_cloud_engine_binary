@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Solution>
+  <Info ManifestVersion="1.1.0">
+    <Name>Test_with_Applica</Name>
+    <Description>Integration test with Applica project</Description>
+    <Version>1.5.0</Version>
+    <CreationDate>2020-02-10T15:47:28.4565145Z</CreationDate>
+    <Owner>Carel Industries S.p.a</Owner>
+    <StorageToolManaged>false</StorageToolManaged>
+    <CSuiteVersion>4.7.6</CSuiteVersion>
+    <TeamWorkingManaged>false</TeamWorkingManaged>
+  </Info>
+</Solution>

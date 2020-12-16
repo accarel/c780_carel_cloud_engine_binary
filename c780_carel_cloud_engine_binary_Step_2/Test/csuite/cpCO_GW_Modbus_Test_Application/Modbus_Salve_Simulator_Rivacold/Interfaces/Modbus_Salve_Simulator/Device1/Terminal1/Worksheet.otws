@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Worksheet Name="Worksheet" Version="1.0.0">
+  <Mask Name="Mask" Type="Normal" X="0" Y="0">
+    <Fields>
+      <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+      <Field Type="Variable" Name="Variable" Row="0" Column="0" Content="Temperature_1" Class="CL_REAL_1" Format="o+2.1" Min="-99.9" Max="99.9" />
+    </Fields>
+  </Mask>
+</Worksheet>

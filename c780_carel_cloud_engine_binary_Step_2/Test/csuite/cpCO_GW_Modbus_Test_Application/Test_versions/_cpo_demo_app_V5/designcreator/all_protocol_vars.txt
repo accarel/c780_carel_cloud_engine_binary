@@ -1,0 +1,36 @@
+Version 1.1 ModbusSlave RepoVersion 3.5.9
+Settings
+Address	TimeOut	UoM	OnlineError	Endianess
+1	3000	0		BigEndian
+
+Variables
+Type	Index	Variable	Occupation
+Coil	1	Coil_Low_P	
+Coil	2	Coil_High_P	
+Coil	3	Coil_alr	
+Coil	13	Rele_1	
+Coil	14	Rele_2	
+DiscreteInput	1	DI_Low_P	
+DiscreteInput	2	DI_High_P	
+DiscreteInput	3	DI_alr	
+HoldingRegister	1	HR_Low_P	
+HoldingRegister	2	HR_High_P	
+HoldingRegister	3	HR_alr_Bit_1	
+HoldingRegister	100	HR_Low_AutoInc	
+HoldingRegister	101	HR_High_AutoInc	
+HoldingRegister	102	HR_BIT_FIELD_4	
+HoldingRegister	200	Float1	2
+HoldingRegister	202	Int32	2
+HoldingRegister	204	Temperature_1	2
+HoldingRegister	206	HR_alr_Bit_6	
+HoldingRegister	207	IR_alr_Bit_7	
+HoldingRegister	208	Float_A2_B1000	2
+HoldingRegister	210	Float_A0_5_B100	2
+HoldingRegister	212	HR_Nib_0_3	
+HoldingRegister	213	HR_Nib_4_7	
+HoldingRegister	214	HR_Nib_8_11	
+HoldingRegister	215	HR_Nib_12_15	
+InputRegister	1	IR_Low_P	
+InputRegister	2	IR_High_P	
+InputRegister	3	IR_alr	
+InputRegister	4	IR_BIT_FIELD_2	

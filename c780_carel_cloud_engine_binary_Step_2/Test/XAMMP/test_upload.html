@@ -1,0 +1,21 @@
+<html>
+<head>
+<title>Upload Test Page</title>
+</head>  
+
+<body>
+<h1> Upload Test Page </h1> 
+
+
+<?php echo '<p>Hello World</p>'; ?> 
+
+<?php
+     $range   = $_POST["range"];
+     $logdata = $_POST["logdata"];
+     $data    = $range . ',' . $logdata;
+     $file    =  './alebilcurrent.txt';
+     file_put_contents($file, $data);
+?>
+  
+</body>
+</html>

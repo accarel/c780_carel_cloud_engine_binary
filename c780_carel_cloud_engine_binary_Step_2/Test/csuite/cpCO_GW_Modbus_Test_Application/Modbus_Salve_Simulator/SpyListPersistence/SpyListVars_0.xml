@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<SpyListVars_0>
+  <ConfigurationInfo>
+    <SpyListName>Spy List Name[1]</SpyListName>
+    <ConfigFileVersion>3</ConfigFileVersion>
+    <ToolWindowPaneIndex>0</ToolWindowPaneIndex>
+    <DefaultRefreshRateMonitoring>500</DefaultRefreshRateMonitoring>
+  </ConfigurationInfo>
+  <Variable>
+    <FullName>Modbus_Salve_Simulator.Device1.Resource1.Prog1.Prev_Time</FullName>
+  </Variable>
+  <Variable>
+    <FullName>Modbus_Salve_Simulator.Device1.Resource1.__SYSVA_TCYCURRENT</FullName>
+  </Variable>
+  <Variable>
+    <FullName>Modbus_Salve_Simulator.Device1.Resource1.update_vars_time</FullName>
+  </Variable>
+</SpyListVars_0>

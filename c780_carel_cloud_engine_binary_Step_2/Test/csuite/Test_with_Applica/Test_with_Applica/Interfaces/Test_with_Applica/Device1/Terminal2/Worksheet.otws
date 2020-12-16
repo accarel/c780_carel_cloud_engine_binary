@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Worksheet Name="Worksheet" Version="1.0.0">
+  <Loop Name="Loop" X="0" Y="0">
+    <Mask Name="Mask" Type="Normal" X="0" Y="1">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Variable" Name="Variable" Row="0" Column="1" Content="temp_amb" Class="CL_INT" Format="io+2" Min="-99" Max="99" />
+      </Fields>
+    </Mask>
+  </Loop>
+</Worksheet>

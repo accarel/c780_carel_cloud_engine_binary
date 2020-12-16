@@ -1,0 +1,23 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{1a562cf1-9280-4c8b-810c-3add0e08417e}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Test_with_Applica</RootNamespace>
+    <AssemblyName>Test_with_Applica</AssemblyName>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+    <CAMProjectFile>Test_with_Applica\PrjLibrary.mdb</CAMProjectFile>
+    <UniqueProjectId>{1a562cf1-9280-4c8b-810c-3add0e08417e}</UniqueProjectId>
+    <CAMProjectVersion>5.50.7</CAMProjectVersion>
+    <Name>Test_with_Applica</Name>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Simulation' ">
+    <OutputPath>bin\Simulation\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Online' ">
+    <OutputPath>bin\Online\</OutputPath>
+  </PropertyGroup>
+  <Import Project="$(DevEnvDir)\PackagesToLoad\Targets\ISaGRAF.ISaGRAF5.targets" />
+  <Import Project="$(DevEnvDir)\PackagesToLoad\Targets\Carel.targets" />
+</Project>

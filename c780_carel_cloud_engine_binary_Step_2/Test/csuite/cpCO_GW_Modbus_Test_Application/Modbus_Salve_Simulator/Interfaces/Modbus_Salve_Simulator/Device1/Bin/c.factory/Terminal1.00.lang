@@ -1,0 +1,35 @@
+[DEFAULT]
+Gateway Modubus Test
+PRESS Å to continue
+V.4.1 OTA1
+Coil_alr
+DI_alr
+HR_alr
+IR_alr
+ALARMS
+HR1
+HR2
+IR1
+IR2
+Integer
+Digital
+Coil1
+Coil2
+DI1
+DI2
+Float/int32
+Float1
+Int32
+Temperature_1
+Temperature_2
+Digital_1
+Digital_2
+Rele_1
+Rele_2
+Setpoint
+HR_L_00
+Autoincrement
+HR_L_01
+SETUP RS485
+BAUD
+[DEFAULT]

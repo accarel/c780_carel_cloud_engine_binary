@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Manifest
+  Name="Prog1"
+  Version="1.1.0">
+  <Variables>
+    <Variable
+      Name="Prev_Time"
+      Comment=""
+      DataType="TIME"
+      Kind="Var"
+      IO="false"
+      Protocol="false"
+      UI="false"
+      Default="false"
+      LogPV="false"
+      IsRetained="false"
+      Alarm="false"
+      UoM="NoUnits"
+      Access="ReadWrite"
+      Min=""
+      Max=""
+      StringSize="0" />
+  </Variables>
+</Manifest>
