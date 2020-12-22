@@ -5,10 +5,10 @@
     "pwd": "secret",                                       //PWD C_PASSWORD  string, the password to be used for
                                                            //                authenticating.
  
-    "uri": "https://carel.TDB.COM/whatdoyouwant/upload.php",  
+    "uri": "https://carel.TDB.COM/whatdoyouwant/1234/upload.php",  
                                                            //URI C_URI       the uri where upload the log data
                                                            //                This is a string of max. 64 char 
-    "fid": 5000,                                           //FID C_UINT16   integer, 0..9999 file index, valid only for modbus file transf.
-     
+    "fid": 1000,                                           //FID C_UINT16   integer, 0..9999 file index, valid only for modbus file transf.
+    "cid": 1234 
 }
 
