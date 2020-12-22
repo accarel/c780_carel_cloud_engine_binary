@@ -579,15 +579,16 @@ namespace MqttClientSimulatorBinary
 
             //@"A0A1A2A3A4A5A6"; //fixed for the simulator
             string clientId = textBox_MQTT_ID.Text;
+            string ClientUsr = textBox_MQTT_USR.Text;
             string clientPwd = textBox_MQTT_PWD.Text;
 
             //client.Connect(clientId);                                                              // for local Mosquitto
             //client.Connect(clientId, "alessandro_bilato", "51ed38a4a4d14de09f021ee0de2db993");     // for Iot Adafruit    
             //client.Connect(clientId, "admin", "5Qz*(3_>K&vU!PS^");                                 // mqtt-dev.tera.systems     
 
-            //mqtts://test-mqtt.remotepro.io   user=MAC=clientId
+            //mqtts://test-mqtt.remotepro.io   user=from IoT      clientId=MAC
 
-            client.Connect(clientId, clientId, clientPwd);
+            client.Connect(clientId, ClientUsr, clientPwd);
 
             if (client.IsConnected)
             {
@@ -1390,6 +1391,7 @@ namespace MqttClientSimulatorBinary
 
             MyIni.Write("MQTT_ID", textBox_MQTT_ID.Text);
             MyIni.Write("MQTT_PWD", textBox_MQTT_PWD.Text);
+            MyIni.Write("MQTT_USR", textBox_MQTT_USR.Text);
 
         }
 
@@ -1460,9 +1462,13 @@ namespace MqttClientSimulatorBinary
             else
                 textBox_MQTT_PWD.Text = par_val;
 
+           
+            par_val = MyIni.Read("MQTT_USR");
 
-
-            
+            if (par_val == "")
+                textBox_MQTT_USR.Text = @"......";
+            else
+                textBox_MQTT_USR.Text = par_val;
 
         }
 
@@ -1695,6 +1701,13 @@ namespace MqttClientSimulatorBinary
         private void buttonUpdateSetLinesConfig_Click(object sender, EventArgs e)
         {       
             FormCBORUpdateLinesConfig frm = new FormCBORUpdateLinesConfig();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void button_web_test_Click(object sender, EventArgs e)
+        {
+            WebTest frm = new WebTest();
             frm.Show();
             frm.VisibleChanged += formVisibleChanged;
         }

@@ -49,6 +49,7 @@
             this.textBoxMQTT_Server_Port = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.buttonUpdateSetLinesConfig = new System.Windows.Forms.Button();
             this.button_ReqDBGInfo = new System.Windows.Forms.Button();
             this.buttonSet_Lines_Config_TTL = new System.Windows.Forms.Button();
             this.button_flush = new System.Windows.Forms.Button();
@@ -211,7 +212,9 @@
             this.buttonUpdateCAData = new System.Windows.Forms.Button();
             this.buttonSet_UpdateGwFW = new System.Windows.Forms.Button();
             this.buttonDevUpdateData = new System.Windows.Forms.Button();
-            this.buttonUpdateSetLinesConfig = new System.Windows.Forms.Button();
+            this.button_web_test = new System.Windows.Forms.Button();
+            this.label54 = new System.Windows.Forms.Label();
+            this.textBox_MQTT_USR = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -371,7 +374,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(8, 17);
+            this.label2.Location = new System.Drawing.Point(8, 13);
             this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(50, 17);
@@ -380,7 +383,7 @@
             // 
             // textBoxMQTT_Server_URL
             // 
-            this.textBoxMQTT_Server_URL.Location = new System.Drawing.Point(63, 12);
+            this.textBoxMQTT_Server_URL.Location = new System.Drawing.Point(68, 11);
             this.textBoxMQTT_Server_URL.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxMQTT_Server_URL.Name = "textBoxMQTT_Server_URL";
             this.textBoxMQTT_Server_URL.Size = new System.Drawing.Size(168, 22);
@@ -391,7 +394,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(237, 16);
+            this.label3.Location = new System.Drawing.Point(266, 15);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(34, 17);
@@ -400,7 +403,7 @@
             // 
             // textBoxMQTT_Server_Port
             // 
-            this.textBoxMQTT_Server_Port.Location = new System.Drawing.Point(280, 12);
+            this.textBoxMQTT_Server_Port.Location = new System.Drawing.Point(312, 14);
             this.textBoxMQTT_Server_Port.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxMQTT_Server_Port.Name = "textBoxMQTT_Server_Port";
             this.textBoxMQTT_Server_Port.Size = new System.Drawing.Size(55, 22);
@@ -443,6 +446,17 @@
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
+            // 
+            // buttonUpdateSetLinesConfig
+            // 
+            this.buttonUpdateSetLinesConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonUpdateSetLinesConfig.Location = new System.Drawing.Point(145, 177);
+            this.buttonUpdateSetLinesConfig.Name = "buttonUpdateSetLinesConfig";
+            this.buttonUpdateSetLinesConfig.Size = new System.Drawing.Size(18, 24);
+            this.buttonUpdateSetLinesConfig.TabIndex = 51;
+            this.buttonUpdateSetLinesConfig.Text = "<";
+            this.buttonUpdateSetLinesConfig.UseVisualStyleBackColor = true;
+            this.buttonUpdateSetLinesConfig.Click += new System.EventHandler(this.buttonUpdateSetLinesConfig_Click);
             // 
             // button_ReqDBGInfo
             // 
@@ -1913,7 +1927,7 @@
             // label47
             // 
             this.label47.AutoSize = true;
-            this.label47.Location = new System.Drawing.Point(237, 70);
+            this.label47.Location = new System.Drawing.Point(257, 68);
             this.label47.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label47.Name = "label47";
             this.label47.Size = new System.Drawing.Size(43, 17);
@@ -1947,7 +1961,7 @@
             // label49
             // 
             this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(237, 46);
+            this.label49.Location = new System.Drawing.Point(257, 44);
             this.label49.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label49.Name = "label49";
             this.label49.Size = new System.Drawing.Size(50, 17);
@@ -1979,7 +1993,7 @@
             this.checkBox_TLS.AutoSize = true;
             this.checkBox_TLS.Checked = true;
             this.checkBox_TLS.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_TLS.Location = new System.Drawing.Point(341, 12);
+            this.checkBox_TLS.Location = new System.Drawing.Point(395, 12);
             this.checkBox_TLS.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_TLS.Name = "checkBox_TLS";
             this.checkBox_TLS.Size = new System.Drawing.Size(56, 21);
@@ -2053,35 +2067,35 @@
             // label52
             // 
             this.label52.AutoSize = true;
-            this.label52.Location = new System.Drawing.Point(8, 46);
+            this.label52.Location = new System.Drawing.Point(20, 73);
             this.label52.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label52.Name = "label52";
-            this.label52.Size = new System.Drawing.Size(21, 17);
+            this.label52.Size = new System.Drawing.Size(38, 17);
             this.label52.TabIndex = 67;
-            this.label52.Text = "ID";
+            this.label52.Text = "User";
             // 
             // textBox_MQTT_ID
             // 
-            this.textBox_MQTT_ID.Location = new System.Drawing.Point(63, 42);
+            this.textBox_MQTT_ID.Location = new System.Drawing.Point(68, 43);
             this.textBox_MQTT_ID.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_MQTT_ID.Name = "textBox_MQTT_ID";
             this.textBox_MQTT_ID.Size = new System.Drawing.Size(168, 22);
             this.textBox_MQTT_ID.TabIndex = 68;
-            this.textBox_MQTT_ID.Text = "C00000000000001";
+            this.textBox_MQTT_ID.Text = "A0A1.....";
             // 
             // textBox_MQTT_PWD
             // 
-            this.textBox_MQTT_PWD.Location = new System.Drawing.Point(63, 66);
+            this.textBox_MQTT_PWD.Location = new System.Drawing.Point(68, 103);
             this.textBox_MQTT_PWD.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_MQTT_PWD.Name = "textBox_MQTT_PWD";
             this.textBox_MQTT_PWD.Size = new System.Drawing.Size(168, 22);
             this.textBox_MQTT_PWD.TabIndex = 69;
-            this.textBox_MQTT_PWD.Text = "ClIjN8uaM3rwN5nE";
+            this.textBox_MQTT_PWD.Text = "3oxKrOS1CtDJcp4I";
             // 
             // label53
             // 
             this.label53.AutoSize = true;
-            this.label53.Location = new System.Drawing.Point(9, 71);
+            this.label53.Location = new System.Drawing.Point(18, 103);
             this.label53.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label53.Name = "label53";
             this.label53.Size = new System.Drawing.Size(40, 17);
@@ -2214,16 +2228,34 @@
             this.buttonDevUpdateData.UseVisualStyleBackColor = true;
             this.buttonDevUpdateData.Click += new System.EventHandler(this.button7_Click_1);
             // 
-            // buttonUpdateSetLinesConfig
+            // button_web_test
             // 
-            this.buttonUpdateSetLinesConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonUpdateSetLinesConfig.Location = new System.Drawing.Point(145, 177);
-            this.buttonUpdateSetLinesConfig.Name = "buttonUpdateSetLinesConfig";
-            this.buttonUpdateSetLinesConfig.Size = new System.Drawing.Size(18, 24);
-            this.buttonUpdateSetLinesConfig.TabIndex = 51;
-            this.buttonUpdateSetLinesConfig.Text = "<";
-            this.buttonUpdateSetLinesConfig.UseVisualStyleBackColor = true;
-            this.buttonUpdateSetLinesConfig.Click += new System.EventHandler(this.buttonUpdateSetLinesConfig_Click);
+            this.button_web_test.Location = new System.Drawing.Point(1252, 13);
+            this.button_web_test.Name = "button_web_test";
+            this.button_web_test.Size = new System.Drawing.Size(88, 40);
+            this.button_web_test.TabIndex = 76;
+            this.button_web_test.Text = "Web Test";
+            this.button_web_test.UseVisualStyleBackColor = true;
+            this.button_web_test.Click += new System.EventHandler(this.button_web_test_Click);
+            // 
+            // label54
+            // 
+            this.label54.AutoSize = true;
+            this.label54.Location = new System.Drawing.Point(1, 46);
+            this.label54.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label54.Name = "label54";
+            this.label54.Size = new System.Drawing.Size(59, 17);
+            this.label54.TabIndex = 77;
+            this.label54.Text = "Client-Id";
+            // 
+            // textBox_MQTT_USR
+            // 
+            this.textBox_MQTT_USR.Location = new System.Drawing.Point(68, 73);
+            this.textBox_MQTT_USR.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox_MQTT_USR.Name = "textBox_MQTT_USR";
+            this.textBox_MQTT_USR.Size = new System.Drawing.Size(168, 22);
+            this.textBox_MQTT_USR.TabIndex = 78;
+            this.textBox_MQTT_USR.Text = "ecd26d8b2b78094d12c046f93a9d66fc";
             // 
             // Form1
             // 
@@ -2231,6 +2263,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1768, 745);
+            this.Controls.Add(this.textBox_MQTT_USR);
+            this.Controls.Add(this.label54);
+            this.Controls.Add(this.button_web_test);
             this.Controls.Add(this.groupBox12);
             this.Controls.Add(this.checkBox_mqtt_alive);
             this.Controls.Add(this.radioButton_alive);
@@ -2276,7 +2311,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.6";
+            this.Text = "IoT Server Simulator Binary Edition V.2.7";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2488,6 +2523,9 @@
         private System.Windows.Forms.Button buttonUpdateCAData;
         private System.Windows.Forms.Button button_setDevsConfig;
         private System.Windows.Forms.Button buttonUpdateSetLinesConfig;
+        private System.Windows.Forms.Button button_web_test;
+        private System.Windows.Forms.Label label54;
+        private System.Windows.Forms.TextBox textBox_MQTT_USR;
     }
 }
 

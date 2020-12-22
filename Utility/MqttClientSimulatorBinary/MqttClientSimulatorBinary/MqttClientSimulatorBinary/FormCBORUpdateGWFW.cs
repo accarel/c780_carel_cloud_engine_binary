@@ -110,7 +110,7 @@ namespace MqttClientSimulatorBinary
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", @"update_dev_firmware");
+            cbor.Add(@"rto", @"update_gw_firmware");
 
             value = 10;
 
