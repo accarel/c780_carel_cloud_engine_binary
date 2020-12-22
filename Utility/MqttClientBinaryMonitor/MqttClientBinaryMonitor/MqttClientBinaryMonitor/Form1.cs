@@ -146,7 +146,7 @@ namespace MqttClientSimulatorBinary
 
             if (first_run == false)
             {
-                mqtt_connect(false);
+                //mqtt_connect(false);
                 first_run = true;
             }
         }
@@ -579,11 +579,12 @@ namespace MqttClientSimulatorBinary
 
             //@"A0A1A2A3A4A5A6"; //fixed for the simulator
             string clientId = textBox_MQTT_ID.Text;
+            string clientUsr = textBox_MQTT_USR.Text;
             string clientPwd = textBox_MQTT_PWD.Text;
 
             //client.Connect(clientId);                                                              // for local Mosquitto
             //client.Connect(clientId, "alessandro_bilato", "51ed38a4a4d14de09f021ee0de2db993");     // for Iot Adafruit    
-            client.Connect(clientId, clientId, clientPwd);
+            client.Connect(clientId, clientUsr, clientPwd);
 
             if (client.IsConnected)
             {
@@ -1311,6 +1312,10 @@ namespace MqttClientSimulatorBinary
 
             MyIni.Write("Target", textBox_Target.Text);
 
+            MyIni.Write("MQTT_ID", textBox_MQTT_ID.Text);
+            MyIni.Write("MQTT_PWD", textBox_MQTT_PWD.Text);
+            MyIni.Write("MQTT_USR", textBox_MQTT_USR.Text);
+
         }
 
         private void TextBoxMQTT_Server_URL_TextChanged(object sender, EventArgs e)
@@ -1352,6 +1357,7 @@ namespace MqttClientSimulatorBinary
 
             MyIni.Write("MQTT_ID", textBox_MQTT_ID.Text);
             MyIni.Write("MQTT_PWD", textBox_MQTT_PWD.Text);
+            MyIni.Write("MQTT_USR", textBox_MQTT_USR.Text);
 
         }
 
@@ -1407,11 +1413,18 @@ namespace MqttClientSimulatorBinary
 
             par_val = MyIni.Read("MQTT_PWD");
             if (par_val == "")
-                textBox_MQTT_PWD.Text = "7fTU6z2dH84CYry3";
+                textBox_MQTT_PWD.Text = "3oxKrOS1CtDJcp4I";
             else
                 textBox_MQTT_PWD.Text = par_val;
-            
-                
+
+            par_val = MyIni.Read("MQTT_USR");
+            if (par_val == "")
+                textBox_MQTT_USR.Text = "ecd26d8b2b78094d12c046f93a9d66fc";
+            else
+                textBox_MQTT_USR.Text = par_val;
+
+
+            Application.DoEvents();
 
         }
 

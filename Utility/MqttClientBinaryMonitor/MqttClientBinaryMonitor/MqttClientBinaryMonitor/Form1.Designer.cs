@@ -195,6 +195,8 @@
             this.timer_check_is_alive = new System.Windows.Forms.Timer(this.components);
             this.radioButton_alive = new System.Windows.Forms.RadioButton();
             this.checkBox_mqtt_alive = new System.Windows.Forms.CheckBox();
+            this.textBox_MQTT_USR = new System.Windows.Forms.TextBox();
+            this.label54 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -244,18 +246,18 @@
             // 
             // textBoxPublish
             // 
-            this.textBoxPublish.Location = new System.Drawing.Point(27, 139);
+            this.textBoxPublish.Location = new System.Drawing.Point(27, 177);
             this.textBoxPublish.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPublish.Multiline = true;
             this.textBoxPublish.Name = "textBoxPublish";
             this.textBoxPublish.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxPublish.Size = new System.Drawing.Size(457, 260);
+            this.textBoxPublish.Size = new System.Drawing.Size(457, 222);
             this.textBoxPublish.TabIndex = 6;
             // 
             // labelPublish
             // 
             this.labelPublish.AutoSize = true;
-            this.labelPublish.Location = new System.Drawing.Point(23, 119);
+            this.labelPublish.Location = new System.Drawing.Point(23, 154);
             this.labelPublish.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPublish.Name = "labelPublish";
             this.labelPublish.Size = new System.Drawing.Size(54, 17);
@@ -274,7 +276,7 @@
             // 
             // buttonClear
             // 
-            this.buttonClear.Location = new System.Drawing.Point(301, 95);
+            this.buttonClear.Location = new System.Drawing.Point(301, 127);
             this.buttonClear.Margin = new System.Windows.Forms.Padding(4);
             this.buttonClear.Name = "buttonClear";
             this.buttonClear.Size = new System.Drawing.Size(57, 42);
@@ -372,7 +374,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(237, 16);
+            this.label3.Location = new System.Drawing.Point(299, 16);
             this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(34, 17);
@@ -381,7 +383,7 @@
             // 
             // textBoxMQTT_Server_Port
             // 
-            this.textBoxMQTT_Server_Port.Location = new System.Drawing.Point(280, 12);
+            this.textBoxMQTT_Server_Port.Location = new System.Drawing.Point(342, 12);
             this.textBoxMQTT_Server_Port.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxMQTT_Server_Port.Name = "textBoxMQTT_Server_Port";
             this.textBoxMQTT_Server_Port.Size = new System.Drawing.Size(55, 22);
@@ -1726,7 +1728,7 @@
             // 
             // button_JSON_Validate_Pub
             // 
-            this.button_JSON_Validate_Pub.Location = new System.Drawing.Point(367, 95);
+            this.button_JSON_Validate_Pub.Location = new System.Drawing.Point(365, 127);
             this.button_JSON_Validate_Pub.Margin = new System.Windows.Forms.Padding(4);
             this.button_JSON_Validate_Pub.Name = "button_JSON_Validate_Pub";
             this.button_JSON_Validate_Pub.Size = new System.Drawing.Size(119, 42);
@@ -1740,7 +1742,7 @@
             this.checkBox_ShowMsg.AutoSize = true;
             this.checkBox_ShowMsg.Checked = true;
             this.checkBox_ShowMsg.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_ShowMsg.Location = new System.Drawing.Point(12, 95);
+            this.checkBox_ShowMsg.Location = new System.Drawing.Point(26, 129);
             this.checkBox_ShowMsg.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_ShowMsg.Name = "checkBox_ShowMsg";
             this.checkBox_ShowMsg.Size = new System.Drawing.Size(94, 21);
@@ -1825,7 +1827,7 @@
             // 
             // textBox_SubTopic
             // 
-            this.textBox_SubTopic.Location = new System.Drawing.Point(294, 66);
+            this.textBox_SubTopic.Location = new System.Drawing.Point(341, 62);
             this.textBox_SubTopic.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_SubTopic.Name = "textBox_SubTopic";
             this.textBox_SubTopic.Size = new System.Drawing.Size(108, 22);
@@ -1835,7 +1837,7 @@
             // label47
             // 
             this.label47.AutoSize = true;
-            this.label47.Location = new System.Drawing.Point(239, 69);
+            this.label47.Location = new System.Drawing.Point(286, 65);
             this.label47.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label47.Name = "label47";
             this.label47.Size = new System.Drawing.Size(43, 17);
@@ -1869,7 +1871,7 @@
             // label49
             // 
             this.label49.AutoSize = true;
-            this.label49.Location = new System.Drawing.Point(239, 45);
+            this.label49.Location = new System.Drawing.Point(286, 41);
             this.label49.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label49.Name = "label49";
             this.label49.Size = new System.Drawing.Size(50, 17);
@@ -1878,7 +1880,7 @@
             // 
             // textBox_Target
             // 
-            this.textBox_Target.Location = new System.Drawing.Point(294, 41);
+            this.textBox_Target.Location = new System.Drawing.Point(341, 37);
             this.textBox_Target.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_Target.Name = "textBox_Target";
             this.textBox_Target.Size = new System.Drawing.Size(108, 22);
@@ -1901,7 +1903,7 @@
             this.checkBox_TLS.AutoSize = true;
             this.checkBox_TLS.Checked = true;
             this.checkBox_TLS.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_TLS.Location = new System.Drawing.Point(341, 12);
+            this.checkBox_TLS.Location = new System.Drawing.Point(403, 12);
             this.checkBox_TLS.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_TLS.Name = "checkBox_TLS";
             this.checkBox_TLS.Size = new System.Drawing.Size(56, 21);
@@ -1937,16 +1939,16 @@
             // label52
             // 
             this.label52.AutoSize = true;
-            this.label52.Location = new System.Drawing.Point(8, 46);
+            this.label52.Location = new System.Drawing.Point(1, 44);
             this.label52.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label52.Name = "label52";
-            this.label52.Size = new System.Drawing.Size(21, 17);
+            this.label52.Size = new System.Drawing.Size(61, 17);
             this.label52.TabIndex = 67;
-            this.label52.Text = "ID";
+            this.label52.Text = "Client-ID";
             // 
             // textBox_MQTT_ID
             // 
-            this.textBox_MQTT_ID.Location = new System.Drawing.Point(63, 43);
+            this.textBox_MQTT_ID.Location = new System.Drawing.Point(63, 42);
             this.textBox_MQTT_ID.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_MQTT_ID.Name = "textBox_MQTT_ID";
             this.textBox_MQTT_ID.Size = new System.Drawing.Size(168, 22);
@@ -1956,7 +1958,7 @@
             // label53
             // 
             this.label53.AutoSize = true;
-            this.label53.Location = new System.Drawing.Point(8, 69);
+            this.label53.Location = new System.Drawing.Point(1, 102);
             this.label53.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label53.Name = "label53";
             this.label53.Size = new System.Drawing.Size(40, 17);
@@ -1965,7 +1967,7 @@
             // 
             // textBox_MQTT_PWD
             // 
-            this.textBox_MQTT_PWD.Location = new System.Drawing.Point(63, 69);
+            this.textBox_MQTT_PWD.Location = new System.Drawing.Point(63, 102);
             this.textBox_MQTT_PWD.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_MQTT_PWD.Name = "textBox_MQTT_PWD";
             this.textBox_MQTT_PWD.Size = new System.Drawing.Size(168, 22);
@@ -2000,12 +2002,33 @@
             this.checkBox_mqtt_alive.Text = "MQTT alive";
             this.checkBox_mqtt_alive.UseVisualStyleBackColor = true;
             // 
+            // textBox_MQTT_USR
+            // 
+            this.textBox_MQTT_USR.Location = new System.Drawing.Point(63, 72);
+            this.textBox_MQTT_USR.Margin = new System.Windows.Forms.Padding(4);
+            this.textBox_MQTT_USR.Name = "textBox_MQTT_USR";
+            this.textBox_MQTT_USR.Size = new System.Drawing.Size(168, 22);
+            this.textBox_MQTT_USR.TabIndex = 73;
+            this.textBox_MQTT_USR.Text = ".....";
+            // 
+            // label54
+            // 
+            this.label54.AutoSize = true;
+            this.label54.Location = new System.Drawing.Point(1, 75);
+            this.label54.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label54.Name = "label54";
+            this.label54.Size = new System.Drawing.Size(30, 17);
+            this.label54.TabIndex = 74;
+            this.label54.Text = "Usr";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.ClientSize = new System.Drawing.Size(1768, 745);
+            this.Controls.Add(this.label54);
+            this.Controls.Add(this.textBox_MQTT_USR);
             this.Controls.Add(this.checkBox_mqtt_alive);
             this.Controls.Add(this.radioButton_alive);
             this.Controls.Add(this.textBox_MQTT_PWD);
@@ -2046,7 +2069,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Monitor V.1.2";
+            this.Text = "IoT Server Monitor V.1.3";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2238,6 +2261,8 @@
         private System.Windows.Forms.Timer timer_check_is_alive;
         private System.Windows.Forms.RadioButton radioButton_alive;
         private System.Windows.Forms.CheckBox checkBox_mqtt_alive;
+        private System.Windows.Forms.TextBox textBox_MQTT_USR;
+        private System.Windows.Forms.Label label54;
     }
 }
 
