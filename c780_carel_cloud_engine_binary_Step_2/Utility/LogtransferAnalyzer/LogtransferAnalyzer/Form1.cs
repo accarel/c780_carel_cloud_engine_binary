@@ -15,6 +15,9 @@ namespace LogtransferAnalyzer
     public partial class Form1 : Form
     {
 
+        const byte LOG_TYPE_PERIODIC = 0;
+        const byte LOG_TYPE_EVENT    = 1;
+
         const int SPARE_BYTES = 5;
         public struct _GeneralLogHeader
         {
@@ -26,12 +29,19 @@ namespace LogtransferAnalyzer
             public UInt16 crc;
         };
 
-
-        public struct _PeriodicLogHeader
+        public struct _CommonLogHeader
         {
             public UInt64 uuid;
             public byte type;
             public byte version;
+            public UInt16 headerSize;
+        };
+
+        public struct _PeriodicLogHeader
+        {
+            public UInt64 uuid;
+            public byte   type;
+            public byte   version;
             public UInt16 headerSize;
             public UInt16 id;
             public UInt32 samplesCount;
@@ -78,9 +88,8 @@ namespace LogtransferAnalyzer
           };
 
 
-
-
-
+        public byte[] poff_bit_field;
+        UInt32 num_of_poff_field = 0;
 
 
         public Form1()
@@ -182,16 +191,37 @@ namespace LogtransferAnalyzer
         }
 
 
+        public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
+        }
 
 
 
-
-    public void Log_File_Analyzer()
-    {
+        public void Log_File_Analyzer()
+        {
                         
             VM_CompressionHeader CompHeader;
             _GeneralLogHeader GenHeader;
             _PeriodicLogHeader PerHeader;
+
+            PerHeader.uuid = 0;
+            PerHeader.type = 0;
+            PerHeader.version = 0;
+            PerHeader.headerSize = 0;
+            PerHeader.id = 0;
+            PerHeader.samplesCount =0;
+            PerHeader.sampleLength=0;
+            PerHeader.currentSample=0;
+            PerHeader.lastSampleIndex=0;
+            PerHeader.sampleTime=0;
+            PerHeader.startTime=0;
+            PerHeader.lastSampleTime=0;
+            PerHeader.spareBytes=0;
+            PerHeader.crc=0;
 
             using (BinaryReader reader = new BinaryReader(File.Open(textBox_log_file_bin.Text , FileMode.Open)))
             {               
@@ -218,82 +248,125 @@ namespace LogtransferAnalyzer
                 GenHeader.crc = reader.ReadUInt16();
                                
                 PerHeader.uuid = (UInt64)reader.ReadInt64();
-                PerHeader.type = reader.ReadByte(); ;
-                PerHeader.version = reader.ReadByte(); 
-                PerHeader.headerSize = reader.ReadUInt16(); 
-                PerHeader.id = reader.ReadUInt16();
-                PerHeader.samplesCount = reader.ReadUInt32();
-                PerHeader.sampleLength = reader.ReadUInt32();
-                PerHeader.currentSample = reader.ReadUInt32();
-                PerHeader.lastSampleIndex = reader.ReadUInt32();
-                PerHeader.sampleTime = reader.ReadUInt32();
-                PerHeader.startTime = reader.ReadUInt32();
-                PerHeader.lastSampleTime = reader.ReadUInt32();
-                PerHeader.spareBytes = reader.ReadUInt32();
-                PerHeader.crc = reader.ReadUInt16();                
+                PerHeader.type = reader.ReadByte();
+
+                /* if Periodic detected */                
+                if (PerHeader.type == LOG_TYPE_PERIODIC)
+                {
+                    PerHeader.version = reader.ReadByte();
+                    PerHeader.headerSize = reader.ReadUInt16();
+                    PerHeader.id = reader.ReadUInt16();
+                    PerHeader.samplesCount = reader.ReadUInt32();
+                    PerHeader.sampleLength = reader.ReadUInt32();
+                    PerHeader.currentSample = reader.ReadUInt32();
+                    PerHeader.lastSampleIndex = reader.ReadUInt32();
+                    PerHeader.sampleTime = reader.ReadUInt32();
+                    PerHeader.startTime = reader.ReadUInt32();
+                    PerHeader.lastSampleTime = reader.ReadUInt32();
+                    PerHeader.spareBytes = reader.ReadUInt32();
+                    PerHeader.crc = reader.ReadUInt16();
+
+                    
+                    if (PerHeader.version == 1)
+                    { /* V1 have hard to understand method of power off bit field with a dinamic size */
+                        
+                        num_of_poff_field = PerHeader.samplesCount / 8;
+                        if ((PerHeader.samplesCount % 8) > 0) num_of_poff_field++;
+
+                        poff_bit_field = new byte[num_of_poff_field];
+                        poff_bit_field = reader.ReadBytes((int)num_of_poff_field);
+                    }
+
+                }
             }
 
             using (StreamWriter outputFile = new StreamWriter(textBox_Disassembled.Text))
             {
                 outputFile.WriteLine("--- COMPRESSION HEADER ---");
-                outputFile.WriteLine("Version = " + CompHeader.Version.ToString());
-                outputFile.Write("ProjectId = ");
+                outputFile.WriteLine("Version         = " + CompHeader.Version.ToString());
+                    outputFile.Write("ProjectId       = ");
                 foreach (var data in CompHeader.ProjectId)
                 {
                     outputFile.Write(data.ToString() + " ");
                 }
                 outputFile.WriteLine("");
 
-                outputFile.WriteLine("SizePayload = " + CompHeader.SizePayload.ToString());
-                outputFile.WriteLine("CrcPayload = " + CompHeader.CrcPayload.ToString());
+                outputFile.WriteLine("SizePayload     = " + CompHeader.SizePayload.ToString());
+                outputFile.WriteLine("CrcPayload      = " + CompHeader.CrcPayload.ToString());
                 outputFile.WriteLine("CompressionType = " + CompHeader.CompressionType.ToString());
-                outputFile.WriteLine("FileType = " + CompHeader.FileType.ToString());
-                outputFile.WriteLine("CompressedSize = " + CompHeader.CompressedSize.ToString());
+                outputFile.WriteLine("FileType        = " + CompHeader.FileType.ToString());
+                outputFile.WriteLine("CompressedSize  = " + CompHeader.CompressedSize.ToString());
 
-                outputFile.Write("Flags = ");
+                    outputFile.Write("Flags           = ");
                 foreach (var data in CompHeader.Flags)
                 {
                     outputFile.Write(data.ToString() + " ");
                 }
                 outputFile.WriteLine("");
 
-                outputFile.WriteLine("Spare = " + CompHeader.Spare.ToString());
-                outputFile.WriteLine("Crc = " + CompHeader.Crc.ToString());
+                outputFile.WriteLine("Spare           = " + CompHeader.Spare.ToString());
+                outputFile.WriteLine("Crc             = " + CompHeader.Crc.ToString());
                 outputFile.WriteLine("----------------------");
                 
                 /* -------------------------------------------------------------- */
                 outputFile.WriteLine("--- Generic Header ---");
-                outputFile.Write("version = ");      outputFile.WriteLine(GenHeader.version.ToString());
-                outputFile.Write("headerSize = ");   outputFile.WriteLine(GenHeader.headerSize.ToString());
-                outputFile.Write("numberOfLog = ");     outputFile.WriteLine(GenHeader.numberOfLog.ToString());
-                outputFile.Write("logsCrc = ");         outputFile.WriteLine(GenHeader.logsCrc.ToString());
+                outputFile.Write("version             = "); outputFile.WriteLine(GenHeader.version.ToString());
+                outputFile.Write("headerSize          = "); outputFile.WriteLine(GenHeader.headerSize.ToString());
+                outputFile.Write("numberOfLog         = "); outputFile.WriteLine(GenHeader.numberOfLog.ToString());
+                outputFile.Write("logsCrc             = "); outputFile.WriteLine(GenHeader.logsCrc.ToString());
                                 
-                outputFile.Write("spare = ");          
+                outputFile.Write("spare               = ");          
                 foreach (var data in GenHeader.spare)
                 {
                     outputFile.Write(data.ToString() + " ");
                 }
                 outputFile.WriteLine("");
-                outputFile.Write("crc = ");             outputFile.WriteLine(GenHeader.crc.ToString());
+                outputFile.Write("crc                 = "); outputFile.WriteLine(GenHeader.crc.ToString());
                 outputFile.WriteLine("----------------------");
 
                 /* ---------------------------------------------------------------- */
-                outputFile.WriteLine("--- Periodic Header ---");
-                outputFile.Write("uuid = ");                   outputFile.WriteLine(PerHeader.uuid.ToString());
-                outputFile.Write("type = ");                    outputFile.WriteLine(PerHeader.type.ToString());
-                outputFile.Write("version = ");                outputFile.WriteLine(PerHeader.version.ToString());
-                outputFile.Write("headerSize = ");             outputFile.WriteLine(PerHeader.headerSize.ToString());
-                outputFile.Write("id = ");                     outputFile.WriteLine(PerHeader.id.ToString());
-                outputFile.Write("samplesCount = ");           outputFile.WriteLine(PerHeader.samplesCount.ToString());
-                outputFile.Write("sampleLength = ");           outputFile.WriteLine(PerHeader.sampleLength.ToString());
-                outputFile.Write("currentSample= ");           outputFile.WriteLine(PerHeader.currentSample.ToString());
-                outputFile.Write("lastSampleIndex = ");        outputFile.WriteLine(PerHeader.lastSampleIndex.ToString());
-                outputFile.Write("sampleTime = ");             outputFile.WriteLine(PerHeader.sampleTime.ToString());
-                outputFile.Write("startTime = ");              outputFile.WriteLine(PerHeader.startTime.ToString());
-                outputFile.Write("lastSampleTime = ");         outputFile.WriteLine(PerHeader.lastSampleTime.ToString());
-                outputFile.Write("spareBytes = ");             outputFile.WriteLine(PerHeader.spareBytes.ToString());
-                outputFile.Write("crc = ");                    outputFile.WriteLine(PerHeader.crc.ToString());
-                outputFile.WriteLine("----------------------");
+                if (PerHeader.type == LOG_TYPE_PERIODIC)
+                {
+                    outputFile.WriteLine("--- Periodic Header ---");
+                    outputFile.Write("uuid            = "); outputFile.WriteLine(PerHeader.uuid.ToString());
+                    outputFile.Write("type            = "); outputFile.WriteLine(PerHeader.type.ToString());
+                    outputFile.Write("version         = "); outputFile.WriteLine(PerHeader.version.ToString());
+                    outputFile.Write("headerSize      = "); outputFile.WriteLine(PerHeader.headerSize.ToString());
+                    outputFile.Write("id              = "); outputFile.WriteLine(PerHeader.id.ToString());
+                    outputFile.Write("samplesCount    = "); outputFile.WriteLine(PerHeader.samplesCount.ToString());
+                    outputFile.Write("sampleLength    = "); outputFile.WriteLine(PerHeader.sampleLength.ToString());
+                    outputFile.Write("currentSample   = "); outputFile.WriteLine(PerHeader.currentSample.ToString());
+                    outputFile.Write("lastSampleIndex = "); outputFile.WriteLine(PerHeader.lastSampleIndex.ToString());
+                    outputFile.Write("sampleTime      = "); outputFile.WriteLine(PerHeader.sampleTime.ToString());
+                    outputFile.Write("startTime       = "); outputFile.Write(PerHeader.startTime.ToString());
+                    outputFile.Write(" " + UnixTimeStampToDateTime(PerHeader.startTime).ToString() + "\r\n");
+
+                    outputFile.Write("lastSampleTime  = "); outputFile.Write(PerHeader.lastSampleTime.ToString());
+                    outputFile.Write(" " + UnixTimeStampToDateTime(PerHeader.lastSampleTime).ToString() + "\r\n");
+
+                    outputFile.Write("spareBytes      = "); outputFile.WriteLine(PerHeader.spareBytes.ToString());
+                    outputFile.Write("crc             = "); outputFile.WriteLine(PerHeader.crc.ToString());
+                    outputFile.WriteLine("----------------------");
+                    
+                    
+                    if (PerHeader.version == 1)
+                    {
+                        outputFile.WriteLine("--- poff_bit_field ---");
+
+                        for(int i=0; i < num_of_poff_field; i++) 
+                        {
+                            string yourByteString = Convert.ToString(poff_bit_field[i], 2).PadLeft(8, '0');
+                            outputFile.WriteLine(yourByteString);
+                        }
+
+                        outputFile.WriteLine("----------------------");
+                    }
+                    
+
+
+                }
+
+
 
             }
 

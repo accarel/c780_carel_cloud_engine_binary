@@ -1,34 +1,53 @@
 --- COMPRESSION HEADER ---
-Version = 1
-ProjectId = 137 233 178 0 151 94 69 114 152 98 198 182 115 82 193 61 
-SizePayload = 862
-CrcPayload = 0
+Version         = 1
+ProjectId       = 137 233 178 0 151 94 69 114 152 98 198 182 115 82 193 61 
+SizePayload     = 862
+CrcPayload      = 0
 CompressionType = 0
-FileType = 1000
-CompressedSize = 862
-Flags = 1 0 
-Spare = 0
-Crc = 12565
+FileType        = 1000
+CompressedSize  = 862
+Flags           = 1 0 
+Spare           = 0
+Crc             = 12565
 ----------------------
 --- Generic Header ---
-version = 1
-headerSize = 16
-numberOfLog = 2
-logsCrc = 700416319
-spare = 0 0 0 0 0 
-crc = 34571
+version             = 1
+headerSize          = 16
+numberOfLog         = 2
+logsCrc             = 700416319
+spare               = 0 0 0 0 0 
+crc                 = 34571
 ----------------------
-uuid = 16718206241729413120
-type = 0
-version = 1
-headerSize = 48
-id = 0
-samplesCount = 120
-sampleLength = 4
-currentSample= 92
+--- Periodic Header ---
+uuid            = 16718206241729413120
+type            = 0
+version         = 1
+headerSize      = 48
+id              = 0
+samplesCount    = 120
+sampleLength    = 4
+currentSample   = 92
 lastSampleIndex = 91
-sampleTime = 60
-startTime = 979251609
-lastSampleTime = 979257069
-spareBytes = 0
-crc = 48257
+sampleTime      = 60
+startTime       = 979251609 11/01/2001 23:20:09
+lastSampleTime  = 979257069 12/01/2001 00:51:09
+spareBytes      = 0
+crc             = 48257
+----------------------
+--- poff_bit_field ---
+11111111
+11111111
+11111111
+11111111
+11111111
+11111111
+11111111
+11111111
+11111111
+11111111
+11111111
+00001111
+00000000
+00000000
+00000000
+----------------------
