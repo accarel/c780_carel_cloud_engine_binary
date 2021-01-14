@@ -1075,10 +1075,10 @@ static void esp_mqtt_task(void *pv)
                     outbox_set_pending(client->outbox, client->mqtt_state.pending_msg_id, TRANSMITTED);
                 }
                 // resend other "transmitted" messages after 1s
-            } else if (platform_tick_get_ms() - last_retransmit > 1000) {
+            } else if (platform_tick_get_ms() - last_retransmit > 2000) {
                 last_retransmit = platform_tick_get_ms();
                 item = outbox_dequeue(client->outbox, TRANSMITTED, &msg_tick);
-                if (item && (last_retransmit - msg_tick > 1000))  {
+                if (item && (last_retransmit - msg_tick > 2000))  {
                     mqtt_resend_queued(client, item);
                 }
             }
