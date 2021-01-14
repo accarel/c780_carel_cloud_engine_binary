@@ -1,0 +1,12 @@
+--- mb_m.c.orig	2021-01-12 07:50:30.026611922 -0800
++++ mb_m.c	2020-12-11 00:30:39.555570000 -0800
+@@ -109,6 +109,9 @@
+ #if MB_FUNC_FILE_TRANSFER_ENABLED > 0
+     {MB_FUNC_FILE_TRANSFER, eMBFuncFileTransfer},
+ #endif
++#if MB_FUNC_FILE_READ_ENABLED > 0
++    {MB_FUNC_FILE_READ, eMBFuncReadFileRecord},
++#endif
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+     {MB_FUNC_READ_INPUT_REGISTER, eMBMasterFuncReadInputRegister},
+ #endif

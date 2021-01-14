@@ -1,0 +1,10 @@
+
+** Note 14/01/2021 **
+
+To enable the MODBUS Read file transfer is necessary to apply this patch to the esp-idf. 
+
+Copy the 5 patch to the folder PATCH inside the project.
+
+ 
+
+

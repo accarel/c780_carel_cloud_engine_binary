@@ -1,0 +1,50 @@
+--- mbfuncother.c.orig	2021-01-12 07:50:30.018610464 -0800
++++ mbfuncother.c	2020-12-14 08:07:05.392007000 -0800
+@@ -152,3 +152,47 @@
+ 	}
+     return eErrStatus;
+ }
++
++
++
++/*********************/
++/*  Modbus File Read */
++/*********************/
++
++eMBException eMBFuncReadFileRecord ( UCHAR * pucFrame, USHORT * usLen )
++{
++	// TODO
++	usMBFileTransferLen = *usLen;
++
++	for(int i = 0; i < (usMBFileTransferLen + 2); i++) {  //  + 2 bytes CRC
++		ucMBFileTransfer[i] =  *(pucFrame+i);
++	}
++
++	return MB_EX_NONE;
++}
++
++
++
++eMBMasterReqErrCode eMBMasterReqFileRead(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen,  LONG lTimeOut)
++{
++    UCHAR                 *ucMBFrame;
++    eMBMasterReqErrCode    eErrStatus = MB_MRE_NO_ERR;
++
++    if ( ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM ) eErrStatus = MB_MRE_ILL_ARG;
++	else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) eErrStatus = MB_MRE_MASTER_BUSY;
++	else
++	{
++		vMBMasterGetPDUSndBuf(&ucMBFrame);
++		vMBMasterSetDestAddress(ucSndAddr);
++		for (USHORT i=0; i<datalen-1; i++)
++			ucMBFrame[i] = databuf[i+1];
++
++		vMBMasterSetPDUSndLength(datalen - 1);
++		xMBMasterPortEventPost( EV_MASTER_FRAME_SENT);
++		eErrStatus = eMBMasterWaitRequestFinish( );
++		printf("eMBMasterWaitRequestFinish eErrStatus %d\n", eErrStatus);
++	}
++    return eErrStatus;
++}
++
++

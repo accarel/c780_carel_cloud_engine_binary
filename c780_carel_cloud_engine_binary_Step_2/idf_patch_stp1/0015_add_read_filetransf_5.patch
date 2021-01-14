@@ -1,0 +1,11 @@
+--- mbconfig.h.orig	2021-01-12 07:50:30.018610464 -0800
++++ mbconfig.h	2020-12-11 00:22:42.018471000 -0800
+@@ -106,6 +106,8 @@
+ /*! \brief If the <em>File Transfer</em> function should be enabled. */
+ #define MB_FUNC_FILE_TRANSFER_ENABLED			(  1 )
+ 
++#define MB_FUNC_FILE_READ_ENABLED				(  1 )
++
+ /*! \brief If the <em>Read Input Registers</em> function should be enabled. */
+ #define MB_FUNC_READ_INPUT_ENABLED              (  1 )
+ 
