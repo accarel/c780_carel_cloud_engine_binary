@@ -8,12 +8,10 @@
 
                                                            //                This is a string of max. 64 char 
     "fid": 1000,                                           //FID C_UINT16    integer, 0..9999 file index, valid only for modbus file transf.
+	
 	"fst":  0,                                             //FST C_UINT32    integer, 0..4294967295 file start offset
 	                                                       //                NB. start include the compression header size
 	"fle":  200,                                           //FLE C_UINT32    integer, 0..4294967295 lenght
 	
-	"cid" : xxxxx                                          //CID C_UINT16    TBC maybe redudant because "whateveryouwant" is unique and 
-	                                                       //                is possible to generate it dinamically
-
 }
 

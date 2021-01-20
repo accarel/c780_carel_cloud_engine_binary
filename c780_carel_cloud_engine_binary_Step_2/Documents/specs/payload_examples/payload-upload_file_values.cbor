@@ -1,10 +1,32 @@
 {								
-                                             // this is in addition to response header.
-                                             //TAG TYPE 
-				
+                                             
+                                             //TAG TYPE
+	                                         //    this is the response header "NON è più" common to all
+                                             //    requests.
+	"ver": 101,                              //VER C_UINT16   
+											       
+	"rto": "whateveryouwant",                //RTO C_RTO        48 char max. string zero terminated, this is exactly what receviced in the
+	                                         //                 NOTE
+                                             //                 request, the GW will publish the response to the topic <uuid>/upload
+											       
+	"cmd": 19,                               //CMD C_UINT16     integer, the code of the command the 
+	                                         //                 GW must execute.
+											       
+    "res": 0,                                //RES C_INT16      integer, the command execution result,
+                                             //                 interpretation depends on command, 
+                                             //                 -1 is reserved for 'invalid command',
+                                             //                 usually 0 is OK and >= 1 is ERROR.
+											 //                 2 : device is locked
+											 //                 3 : upload aborted due to many Modbus retry or exceptions
+											 //                 4 : TBD
+                          											 
+											 
+											 // this is in addition to response header.
+											 											                                             											
     "fsz": 1700000,  				         //FSZ C_UINT32    integer, 0..4294967295 file size
 	                                         //                if the req command was full lenght this number is determined by the 
-											 //                GME automatically
+											 //                GME automatically. NOte that this number is equal in bytes to 
+											 //                fsz = "compression header size" + "CompressedSize"											 
                                            	 //                if the req command was range lenght this number is equal to the 
 											 //                FLE declared in the call 										 
 											 
@@ -12,10 +34,6 @@
 	                                         //                NB. start include the compression header size
 	"fle":  200,                             //FLE C_UINT32    integer, 0..4294967295 ans lenght
 	
-	"ans": xxxxxxxxx,                        //RET C_BYTE[200]  response encoded in hex the array is zero filled
+	"ans": xxxxxxxxx,                        //RET C_BYTE[400]  response encoded in hex the array is zero filled
                                              //                 take a look to fle to have the exact amount of valid data   
-	
-	"cid" : xxxxx                            //CID C_UINT16    TBC maybe redudant because "whateveryouwant" is unique and 
-	                                         //                is possible to generate it dinamically take a look to the 
-											 //                request		
 }
