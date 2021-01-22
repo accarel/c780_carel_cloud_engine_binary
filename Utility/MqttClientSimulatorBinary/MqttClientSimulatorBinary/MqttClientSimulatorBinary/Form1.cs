@@ -109,15 +109,33 @@ namespace MqttClientSimulatorBinary
             }
         }
         
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        public void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
             Save_Last_Used_Values();
 
             if (MQTT_Connect == true)
             {
-                if (client.IsConnected == true) client.Disconnect();
+                if (client.IsConnected == true)
+                {
+                    client.Disconnect();
+                }
             }
         }
+
+
+        public void Form1_FormClosing(object sender, FormClosedEventArgs e)
+        {
+            if (MQTT_Connect == true)
+            {
+                if (client.IsConnected == true)
+                {
+                    client.Disconnect();
+                }
+            }
+
+        }
+
+
 
         public Form1()
         {
@@ -502,7 +520,10 @@ namespace MqttClientSimulatorBinary
             if ((MQTT_Connect == true) && (force_reconn == false))
             {
                 //if not don't crash
-                if (client.IsConnected) client.Disconnect();
+                if (client.IsConnected)
+                {
+                    client.Disconnect();
+                }
 
                 MQTT_Connect = false;
                 timer_check_is_alive.Enabled = false;
@@ -1710,6 +1731,49 @@ namespace MqttClientSimulatorBinary
             WebTest frm = new WebTest();
             frm.Show();
             frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void button_upload_log_file_Click(object sender, EventArgs e)
+        {
+            string textFilePath = @".\cbor_cloud\REQ_upload_range_file.cbor";
+
+            DialogResult result1 = MessageBox.Show("Are you really sure to get the File ?",
+               "Important Question",
+               MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+                PublishTestFile(textFilePath);
+            }
+
+        }
+
+        private void button_SetUploadLogCfg_Click(object sender, EventArgs e)
+        {
+            FormUploadFileFromControllerRange frm = new FormUploadFileFromControllerRange();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void button_SetUploadLogCfgFull_Click(object sender, EventArgs e)
+        {
+            FormUploadFileFromControllerFull frm = new FormUploadFileFromControllerFull();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void button_upload_log_file_full_Click(object sender, EventArgs e)
+        {
+            string textFilePath = @".\cbor_cloud\REQ_upload_full_file.cbor";
+
+            DialogResult result1 = MessageBox.Show("Are you really sure to get the File ?",
+               "Important Question",
+               MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+                PublishTestFile(textFilePath);
+            }
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)

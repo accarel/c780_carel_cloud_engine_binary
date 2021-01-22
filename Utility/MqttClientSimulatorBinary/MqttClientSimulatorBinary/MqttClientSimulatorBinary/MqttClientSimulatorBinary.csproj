@@ -60,9 +60,6 @@
     </StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="M2Mqtt.Net">
-      <HintPath>..\..\paho.mqtt.m2mqtt-master\bin\Debug\M2Mqtt.Net\M2Mqtt.Net.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\net45\Newtonsoft.Json.dll</HintPath>
@@ -97,6 +94,18 @@
     </Compile>
     <Compile Include="Form3.Designer.cs">
       <DependentUpon>Form3.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form4.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form4.Designer.cs">
+      <DependentUpon>Form4.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form5.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form5.Designer.cs">
+      <DependentUpon>Form5.cs</DependentUpon>
     </Compile>
     <Compile Include="FormCBORUpdateCA.cs">
       <SubType>Form</SubType>
@@ -140,6 +149,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form3.resx">
       <DependentUpon>Form3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form4.resx">
+      <DependentUpon>Form4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form5.resx">
+      <DependentUpon>Form5.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormCBORUpdateCA.resx">
       <DependentUpon>FormCBORUpdateCA.cs</DependentUpon>
@@ -196,6 +211,10 @@
     <ProjectReference Include="..\..\Numbers40\Numbers40.csproj">
       <Project>{d7e09f55-3156-44b0-87d9-1babcbb398d9}</Project>
       <Name>Numbers40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\paho.mqtt.m2mqtt-master\M2Mqtt\M2Mqtt.Net.csproj">
+      <Project>{a11aef5a-b246-4fe8-8330-06db73cc8074}</Project>
+      <Name>M2Mqtt.Net</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

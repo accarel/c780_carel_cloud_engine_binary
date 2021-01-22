@@ -208,6 +208,8 @@
             this.radioButton_alive = new System.Windows.Forms.RadioButton();
             this.checkBox_mqtt_alive = new System.Windows.Forms.CheckBox();
             this.groupBox12 = new System.Windows.Forms.GroupBox();
+            this.button_SetUploadLogCfg = new System.Windows.Forms.Button();
+            this.button_upload_log_file = new System.Windows.Forms.Button();
             this.button_setDevsConfig = new System.Windows.Forms.Button();
             this.buttonUpdateCAData = new System.Windows.Forms.Button();
             this.buttonSet_UpdateGwFW = new System.Windows.Forms.Button();
@@ -215,6 +217,8 @@
             this.button_web_test = new System.Windows.Forms.Button();
             this.label54 = new System.Windows.Forms.Label();
             this.textBox_MQTT_USR = new System.Windows.Forms.TextBox();
+            this.button_upload_log_file_full = new System.Windows.Forms.Button();
+            this.button_SetUploadLogCfgFull = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -1906,12 +1910,12 @@
             // 
             // textBox_Message
             // 
-            this.textBox_Message.Location = new System.Drawing.Point(1238, 318);
+            this.textBox_Message.Location = new System.Drawing.Point(1264, 318);
             this.textBox_Message.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_Message.Multiline = true;
             this.textBox_Message.Name = "textBox_Message";
             this.textBox_Message.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_Message.Size = new System.Drawing.Size(494, 407);
+            this.textBox_Message.Size = new System.Drawing.Size(468, 407);
             this.textBox_Message.TabIndex = 52;
             this.textBox_Message.Text = "Welcome !";
             // 
@@ -1938,19 +1942,19 @@
             // 
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
-            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1238, 159);
+            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1264, 159);
             this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_Resp_Hash.Size = new System.Drawing.Size(494, 115);
+            this.textBox_Resp_Hash.Size = new System.Drawing.Size(468, 115);
             this.textBox_Resp_Hash.TabIndex = 55;
             this.textBox_Resp_Hash.Text = "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
             // 
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(1235, 134);
+            this.label50.Location = new System.Drawing.Point(1261, 134);
             this.label50.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(94, 17);
@@ -1980,7 +1984,7 @@
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(1235, 288);
+            this.label51.Location = new System.Drawing.Point(1261, 287);
             this.label51.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(38, 17);
@@ -2169,6 +2173,10 @@
             // 
             // groupBox12
             // 
+            this.groupBox12.Controls.Add(this.button_SetUploadLogCfgFull);
+            this.groupBox12.Controls.Add(this.button_upload_log_file_full);
+            this.groupBox12.Controls.Add(this.button_SetUploadLogCfg);
+            this.groupBox12.Controls.Add(this.button_upload_log_file);
             this.groupBox12.Controls.Add(this.button_setDevsConfig);
             this.groupBox12.Controls.Add(this.buttonUpdateCAData);
             this.groupBox12.Controls.Add(this.buttonSet_UpdateGwFW);
@@ -2183,6 +2191,28 @@
             this.groupBox12.TabIndex = 75;
             this.groupBox12.TabStop = false;
             this.groupBox12.Text = "Uploads";
+            // 
+            // button_SetUploadLogCfg
+            // 
+            this.button_SetUploadLogCfg.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_SetUploadLogCfg.Location = new System.Drawing.Point(309, 184);
+            this.button_SetUploadLogCfg.Name = "button_SetUploadLogCfg";
+            this.button_SetUploadLogCfg.Size = new System.Drawing.Size(21, 23);
+            this.button_SetUploadLogCfg.TabIndex = 52;
+            this.button_SetUploadLogCfg.Text = "<";
+            this.button_SetUploadLogCfg.UseVisualStyleBackColor = true;
+            this.button_SetUploadLogCfg.Click += new System.EventHandler(this.button_SetUploadLogCfg_Click);
+            // 
+            // button_upload_log_file
+            // 
+            this.button_upload_log_file.Location = new System.Drawing.Point(173, 184);
+            this.button_upload_log_file.Margin = new System.Windows.Forms.Padding(4);
+            this.button_upload_log_file.Name = "button_upload_log_file";
+            this.button_upload_log_file.Size = new System.Drawing.Size(129, 46);
+            this.button_upload_log_file.TabIndex = 51;
+            this.button_upload_log_file.Text = "Upload File Range";
+            this.button_upload_log_file.UseVisualStyleBackColor = true;
+            this.button_upload_log_file.Click += new System.EventHandler(this.button_upload_log_file_Click);
             // 
             // button_setDevsConfig
             // 
@@ -2257,6 +2287,28 @@
             this.textBox_MQTT_USR.TabIndex = 78;
             this.textBox_MQTT_USR.Text = "ecd26d8b2b78094d12c046f93a9d66fc";
             // 
+            // button_upload_log_file_full
+            // 
+            this.button_upload_log_file_full.Location = new System.Drawing.Point(173, 130);
+            this.button_upload_log_file_full.Margin = new System.Windows.Forms.Padding(4);
+            this.button_upload_log_file_full.Name = "button_upload_log_file_full";
+            this.button_upload_log_file_full.Size = new System.Drawing.Size(129, 46);
+            this.button_upload_log_file_full.TabIndex = 53;
+            this.button_upload_log_file_full.Text = "Upload File Full";
+            this.button_upload_log_file_full.UseVisualStyleBackColor = true;
+            this.button_upload_log_file_full.Click += new System.EventHandler(this.button_upload_log_file_full_Click);
+            // 
+            // button_SetUploadLogCfgFull
+            // 
+            this.button_SetUploadLogCfgFull.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_SetUploadLogCfgFull.Location = new System.Drawing.Point(309, 131);
+            this.button_SetUploadLogCfgFull.Name = "button_SetUploadLogCfgFull";
+            this.button_SetUploadLogCfgFull.Size = new System.Drawing.Size(21, 23);
+            this.button_SetUploadLogCfgFull.TabIndex = 54;
+            this.button_SetUploadLogCfgFull.Text = "<";
+            this.button_SetUploadLogCfgFull.UseVisualStyleBackColor = true;
+            this.button_SetUploadLogCfgFull.Click += new System.EventHandler(this.button_SetUploadLogCfgFull_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -2311,7 +2363,8 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.7";
+            this.Text = "IoT Server Simulator Binary Edition V.2.8";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2526,6 +2579,10 @@
         private System.Windows.Forms.Button button_web_test;
         private System.Windows.Forms.Label label54;
         private System.Windows.Forms.TextBox textBox_MQTT_USR;
+        private System.Windows.Forms.Button button_SetUploadLogCfg;
+        private System.Windows.Forms.Button button_upload_log_file;
+        private System.Windows.Forms.Button button_SetUploadLogCfgFull;
+        private System.Windows.Forms.Button button_upload_log_file_full;
     }
 }
 
