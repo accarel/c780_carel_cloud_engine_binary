@@ -1,11 +1,6 @@
 {                                                          //TAG TYPE
                                                            //    this is in addition to request header.
     
-	
-	"rto": "whateveryouwant",                              //RTO C_RTO       48 char max.  string zero terminated the GW will publish 
-	                                                       //                the response to the
-                                                           //                topic <uuid>/<RTO>.
-
                                                            //                This is a string of max. 64 char 
     "fid": 1000,                                           //FID C_UINT16    integer, 0..9999 file index, valid only for modbus file transf.
 	

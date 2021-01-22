@@ -3,11 +3,11 @@
                                                         //    requests.
 	"ver": 101,                                         //VER C_UINT16   
 														      
-	"rto": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",     //RTO C_RTO        48 char max. string zero terminated, this is exactly what receviced in the
+	"rto": "A126F91B35D3A6",                            //RTO C_RTO        48 char max. string zero terminated, this is exactly what receviced in the
                                                         //                 request, the GW will publish the response to 
                                                         //                 the topic <uuid>/res/<RTO>.
 														      
-	"cmd": 1,                                           //CMD C_UINT16     integer, the code of the command the GW 
+	"cmd": 19                                           //CMD C_UINT16     integer, the code of the command the GW 
                                                         //                 must execute.
 														      
     "res": 0,                                           //RES C_INT16      integer, the command execution result,

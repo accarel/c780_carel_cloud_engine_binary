@@ -1,26 +1,4 @@
-{								
-                                             
-                                             //TAG TYPE
-	                                         //    this is the response header "NON è più" common to all
-                                             //    requests.
-	"ver": 101,                              //VER C_UINT16   
-											       
-	"rto": "whateveryouwant",                //RTO C_RTO        48 char max. string zero terminated, this is exactly what receviced in the
-	                                         //                 NOTE
-                                             //                 request, the GW will publish the response to the topic <uuid>/upload
-											       
-	"cmd": 19,                               //CMD C_UINT16     integer, the code of the command the 
-	                                         //                 GW must execute.
-											       
-    "res": 0,                                //RES C_INT16      integer, the command execution result,
-                                             //                 interpretation depends on command, 
-                                             //                 -1 is reserved for 'invalid command',
-                                             //                 usually 0 is OK and >= 1 is ERROR.
-											 //                 2 : device is locked
-											 //                 3 : upload aborted due to many Modbus retry or exceptions
-											 //                 4 : TBD
-                          											 
-											 
+{								                                          
 											 // this is in addition to response header.
 											 											                                             											
     "fsz": 1700000,  				         //FSZ C_UINT32    integer, 0..4294967295 file size
