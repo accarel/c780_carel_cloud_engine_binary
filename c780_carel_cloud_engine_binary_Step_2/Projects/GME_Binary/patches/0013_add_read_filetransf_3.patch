@@ -1,0 +1,14 @@
+--- mbfunc.h.orig	2021-01-12 07:50:30.034613380 -0800
++++ mbfunc.h	2020-12-11 00:28:06.839381000 -0800
+@@ -41,6 +41,11 @@
+ #if MB_FUNC_FILE_TRANSFER_ENABLED > 0
+ eMBException eMBFuncFileTransfer( UCHAR * pucFrame, USHORT * usLen );
+ #endif
++
++#if MB_FUNC_FILE_READ_ENABLED > 0
++eMBException eMBFuncReadFileRecord ( UCHAR * pucFrame, USHORT * usLen );
++#endif
++
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+ eMBException    eMBFuncReadInputRegister( UCHAR * pucFrame, USHORT * usLen );
+ #endif

@@ -1,0 +1,75 @@
+﻿The RELEASE FW of the gateway includes
+a. the all in one version for the GME WiFi and 2G model
+b. the version for bCU embedded gateway
+Build process has been automatized. To build a release version, from GME_Binary folder call:
+./build_gme.sh RELEASE
+To build a debug version:
+./build_gme.sh DEBUG
+
+
+
+To build te RELEASE version of the FW you need to 
+
+1. check CAREL_GLOBAL_DEF.h and decomment 
+   a. #define __USE_CAREL_BCU_HW if needed 
+   b. check and comment out //#define __CCL_DEBUG_MODE
+      
+2. go to development enviroment and via MAKE MENUCONFIG check CAREFULLY  
+   the list of item below
+
+a. Bootloader config
+   1_1. Bootloader log verbosity --> No output
+   1_2. Enable app Rollback support                                  <<<<  works, to understand if there is a 
+                                                                           way to check the functionality of the app	
+
+b. Security feature -->
+   2_1. Require signed app images                                             <<< TO BE CONFIRMED
+   2_2. Enable flash encryption on boot (READ DOCS FIRST)                     <<<<< yes, the second-stage boot encrypt it self the image (both via cable and via ota),
+                                                                                    in this way the first-stage bootloader (in ROM) remain available
+   2_3 Enable usage mode --> Release                                          <<< currently we are in "development", just for test 		
+								          			
+
+c. Compiler Option -->
+   3_1.Optimization level --> Release
+   3_2.Assertion level    --> Disabled
+   
+d. Component Config -->
+   4_1. ESP32-specific    --> Rev.1
+   
+   4_2. Common ESP-related --> UART for console ouput --> NONE                <<<< do not disable uart for console, differentlt hw test will not work
+   4_3. Task Watchdog timeout period -->  60 sec
+   4_4. Ethernet --> Support ESP32 internal ... --> unselect
+                 --> SPI ...                    --> unselect
+				 
+   4_5. HTTP Server --> Max HTTP Request ...    --> 1792                      <<<< esiste ancora il bug overflow?
+   4_6. Log Output --> Default log ...          --> none
+
+   4_7. Wi-Fi Provisioning Manager --> Max Wi-Fi Scan Result Entries --> 16
+   
+   4_8. NVS  --> Enable NVS encryption                                        <<<< you see this feature only when flash encryption on boot are ENABLE
+   
+   
+   
+   
+   
+   
+   
+     
+   
+   
+IMPORTANT NOTE
+===============
+- Bootloader di default viene disabilitato se secure boot è attivo
+  quindi non funziona più il sistema del boot  
+
+
+Your FLASH_CRYPT_CNT=3 means encryption should be disabled and you should be able to 
+reflash plaintext signed binaries. But if you don't have the flash encryption key be 
+very careful, you only get to flash 4 times total and in this case you should leave 
+encryption off during development because you are not using OTA update. 
+You need to have the flash encryption key if you want to reflash pre-encrypted signed 
+binaries without incrementing the FLASH_CRYPT_CNT.
+
+   
+   
+   
