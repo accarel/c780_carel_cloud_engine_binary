@@ -26,6 +26,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 using System.IO;
 //using System.Json;
@@ -41,6 +42,24 @@ namespace MqttClientSimulatorBinary
 
     public partial class Form1 : Form
     {
+
+        public struct read_file_struct
+        {
+            public Int16 version;
+            public String rto;
+            public Int16 cmd;
+            public Int16 res;
+            public Int32 fsz;
+            public Int32 fst;
+            public Int32 fle;
+            public string ans_arr;
+        };
+
+
+
+        const string DECODE_FILE_PRG = "LogtransferAnalyzer.exe";
+
+
         const string JSON_VALIDATOR = "http://cbor.me/";
         // "https://jsonformatter.org/";    
         // "https://jsonformatter.curiousconcept.com/"
@@ -65,7 +84,7 @@ namespace MqttClientSimulatorBinary
 
         public string VAL_TOPIC_CONNECTED = @"";
         public string VAL_TOPIC_STATUS = @"";
-
+        public string VAL_TOPIC_UPLOAD = @"";
 
 
         public const int CBOR_PAYLOAD_VER = 257;   //in HEX 0x101 > Ver.1.01
@@ -90,6 +109,9 @@ namespace MqttClientSimulatorBinary
         public int msg_line_count = 1;
 
         public int flags_of;
+
+
+        public string latest_upload_file = @"";
 
         private void MessageBoxInfo(string message, string caption)
         {
@@ -122,7 +144,6 @@ namespace MqttClientSimulatorBinary
             }
         }
 
-
         public void Form1_FormClosing(object sender, FormClosedEventArgs e)
         {
             if (MQTT_Connect == true)
@@ -143,15 +164,11 @@ namespace MqttClientSimulatorBinary
 
             //Load settings
 
-
-
-
-
-
             FormClosed += Form1_FormClosed;
 
             //System.Net.IPAddress IPAddress = System.Net.IPAddress.Parse(MQTT_BROKER_ADDRESS);
         }
+
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -192,9 +209,6 @@ namespace MqttClientSimulatorBinary
 
         }
 
-
-
-
         private void Timer_Res2Res(bool start_stop)
         {
 
@@ -232,7 +246,6 @@ namespace MqttClientSimulatorBinary
 
         }
 
-
         private void MessageBoxUpdated(string msg)
         {
             string s_msg, s_msg2;
@@ -244,6 +257,136 @@ namespace MqttClientSimulatorBinary
             msg_line_count += 1;
         }
 
+        public static int GetHexVal(char hex)
+        {
+            int val = (int)hex;
+            //For uppercase A-F letters:
+            //return val - (val < 58 ? 48 : 55);
+            //For lowercase a-f letters:
+            //return val - (val < 58 ? 48 : 87);
+            //Or the two combined, but a bit slower:
+            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+        }
+
+        void Decode_Upload_Msg(CBORObject cbor_rx)
+        {
+            read_file_struct my_J_data;                     
+            string data = cbor_rx.ToString();
+
+            //use this sample to debug the below routine 
+            // the extracted data more or less are similar to this example
+            //string data1 = @"{
+            //'ver': 257,                           								
+            //'rto': 'A126F91B35D3A6',    
+            //'cmd': 19,
+            //'res': 0,                   
+            //'fsz': 1700000,  
+            //'fst':  4,       
+            //'fle':  4,     
+            //'ans': 'FF102030' 
+            // }";
+
+            //to test simply change data > data1 in the row below
+            JObject o = JObject.Parse(data);
+
+            string o_ver = (string)o["ver"];
+            string o_rto = (string)o["rto"];
+            string o_cmd = (string)o["cmd"];
+
+            int cmd_value = 0;
+            if (!(int.TryParse(o_cmd, out cmd_value)))
+            {
+                DialogResult result1 = MessageBox.Show("Error in the o_cmd buffer abort!",
+                                                       "Important Question",
+                                                       MessageBoxButtons.OK);
+                return;
+            }
+
+            //check if is a file upload cmd full or range
+            if ((cmd_value != 19) || (cmd_value != 20)) return;
+
+            string o_res = (string)o["res"];
+            string o_fsz = (string)o["fsz"];
+            string o_fst = (string)o["fst"];
+            string o_fle = (string)o["fle"];
+            string o_ans = (string)o["ans"];
+
+            string curFile = o_rto + @".bin";
+
+            int fsz_value = 0;
+            if (!(int.TryParse(o_fsz, out fsz_value)))
+            {                
+                DialogResult result1 = MessageBox.Show("Error in the o_fsz buffer abort!",
+                                                       "Important Question",
+                                                       MessageBoxButtons.OK);
+                return;                                    
+            }
+
+            int fst_value = 0;
+            if (!(int.TryParse(o_fst, out fst_value)))
+            {
+                DialogResult result1 = MessageBox.Show("Error in the o_fst buffer abort!",
+                                                       "Important Question",
+                                                       MessageBoxButtons.OK);
+                return;
+            }
+
+            int fle_value = 0;
+            if (!(int.TryParse(o_fle, out fle_value)))
+            {
+                DialogResult result1 = MessageBox.Show("Error in the o_fst buffer abort!",
+                                                       "Important Question",
+                                                       MessageBoxButtons.OK);
+                return;
+            }
+
+            //create an empty but filled with zero file if not exist
+            if (!(File.Exists(curFile)))
+            {                
+                    byte value_to_write = 0;
+                    //we create a new file filled with zero 
+                    using (BinaryWriter writer = new BinaryWriter(File.Open(curFile, FileMode.Create)))
+                    {
+                        for (int i = 0; i < fsz_value; i++) writer.Write(value_to_write);
+                    }
+
+                textBox_upload_file_info.AppendText("Created " + curFile + " size " + fsz_value.ToString());
+                latest_upload_file = curFile;
+            }
+
+            //insert the given file chunk in the right position
+            if ((fst_value + fle_value) <= fsz_value) 
+            {
+
+                using (FileStream fileStream = new FileStream(curFile, FileMode.Open))
+                {
+                    // Set the stream position to the beginning of the file.
+                    fileStream.Seek(fst_value, SeekOrigin.Begin);
+
+                    int s_len = o_ans.Length;
+                    int iSidx = 0;
+
+                    while (iSidx < s_len) 
+                    {
+                        string subS = o_ans.Substring(iSidx, 2);
+                        iSidx += 2;
+
+                        byte val=0; 
+
+                        for (int i = 0; i < subS.Length >> 1; ++i)
+                        {
+                            val = (byte)((GetHexVal(subS[i << 1]) << 4) + (GetHexVal(subS[(i << 1) + 1])));
+                        }
+
+                        fileStream.WriteByte(val);
+                    }
+
+                    textBox_upload_file_info.AppendText("Chunk " + fst_value.ToString() + ":" + fle_value.ToString());
+                }
+
+            }
+
+        }
 
 
         void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
@@ -297,6 +440,11 @@ namespace MqttClientSimulatorBinary
                         txtConsole.Invoke(new Action(() => txtConsole.AppendText(cbor_rx.ToString() + Environment.NewLine)));
                     }
 
+
+                    //try to decode the file upload if a background file transfer is running
+                    Decode_Upload_Msg(cbor_rx);
+
+
                 }
                 else
                 {
@@ -331,8 +479,6 @@ namespace MqttClientSimulatorBinary
         }
 
 
-
-
         // call back for connection SSL
         bool RemoteCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
@@ -350,7 +496,6 @@ namespace MqttClientSimulatorBinary
             public DateTime CreatedDate { get; set; }
             public IList<string> Roles { get; set; }
         }
-
 
 
         byte qos_selected()
@@ -539,7 +684,7 @@ namespace MqttClientSimulatorBinary
             VAL_RESP_carel      = textBox_Target.Text + @"/" +  textBox_SubTopic.Text;
             VAL_TOPIC_CONNECTED = textBox_Target.Text + @"/connected";
             VAL_TOPIC_STATUS    = textBox_Target.Text + @"/status";
-
+            VAL_TOPIC_UPLOAD    = textBox_Target.Text + @"/upload";
 
             val_req_post = textBox_Target.Text + VAL_REQ_carel;
 
@@ -618,6 +763,7 @@ namespace MqttClientSimulatorBinary
             else
             {
                 MessageBoxUpdated("--> client NOT CONNECT ");
+                client.Disconnect();
             }
 
             // subscribe to the topic "/home/temperature" with QoS 2 
@@ -631,6 +777,7 @@ namespace MqttClientSimulatorBinary
 
 
             client.Subscribe(new string[] { VAL_RESP_carel_ALL }, new byte[] { qos_selected() });
+                        
 
             MQTT_Connect = true;
             timer_check_is_alive.Enabled = true;
@@ -1743,6 +1890,7 @@ namespace MqttClientSimulatorBinary
 
             if (result1 == DialogResult.Yes)
             {
+                textBox_upload_file_info.Text = "";
                 PublishTestFile(textFilePath);
             }
 
@@ -1772,8 +1920,15 @@ namespace MqttClientSimulatorBinary
 
             if (result1 == DialogResult.Yes)
             {
+                textBox_upload_file_info.Text = "";
                 PublishTestFile(textFilePath);
             }
+        }
+
+        private void button_Decode_File_Click(object sender, EventArgs e)
+        {
+            //latest_upload_file = @"ciao"; //if you need to test the program call 
+            System.Diagnostics.Process.Start(DECODE_FILE_PRG, latest_upload_file);
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
@@ -1815,8 +1970,3 @@ namespace MqttClientSimulatorBinary
 
 
 
-
-
-//string textFilePath = @"C:\\hwfwdept_proj\\c780_gme_library\\Test\\Test_cases\\JSON_test_cases\\test-write_values_coil_15.json";
-
-//string textFilePath = @"C:\\hwfwdept_proj\\c780_gme_library\\Test\\Test_cases\\JSON_test_cases\\test-write_values_hr_16-req.json";
