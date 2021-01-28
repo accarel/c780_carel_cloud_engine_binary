@@ -7,7 +7,7 @@
 	                                                    //                the response to the
                                                         //                topic <uuid>/res/<RTO>.
 														      
-	"cmd": 1,                                           //CMD C_UINT16    integer, the code of the command the GW 
+	"cmd": 21,                                          //CMD C_UINT16    integer, the code of the command the GW 
                                                         //                must execute.
                                                         //                ^^^^^^ note the comma here, this is not a valid
 	                                                    //                command specific information follows.
