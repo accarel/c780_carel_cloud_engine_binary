@@ -49,6 +49,8 @@
             this.textBoxMQTT_Server_Port = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button_decode_cmd17 = new System.Windows.Forms.Button();
+            this.button_Unlock_Device = new System.Windows.Forms.Button();
             this.button_SetUploadLogCfg = new System.Windows.Forms.Button();
             this.buttonUpdateSetLinesConfig = new System.Windows.Forms.Button();
             this.button_upload_log_file = new System.Windows.Forms.Button();
@@ -222,6 +224,7 @@
             this.textBox_upload_file_info = new System.Windows.Forms.TextBox();
             this.label55 = new System.Windows.Forms.Label();
             this.button_Decode_File = new System.Windows.Forms.Button();
+            this.timer_post_processing = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -294,7 +297,7 @@
             // labelResponse
             // 
             this.labelResponse.AutoSize = true;
-            this.labelResponse.Location = new System.Drawing.Point(23, 447);
+            this.labelResponse.Location = new System.Drawing.Point(27, 439);
             this.labelResponse.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelResponse.Name = "labelResponse";
             this.labelResponse.Size = new System.Drawing.Size(72, 17);
@@ -432,6 +435,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button_decode_cmd17);
+            this.groupBox1.Controls.Add(this.button_Unlock_Device);
             this.groupBox1.Controls.Add(this.button_SetUploadLogCfg);
             this.groupBox1.Controls.Add(this.buttonUpdateSetLinesConfig);
             this.groupBox1.Controls.Add(this.button_upload_log_file);
@@ -453,10 +458,32 @@
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox1.Size = new System.Drawing.Size(337, 405);
+            this.groupBox1.Size = new System.Drawing.Size(501, 405);
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
+            // 
+            // button_decode_cmd17
+            // 
+            this.button_decode_cmd17.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_decode_cmd17.Location = new System.Drawing.Point(141, 128);
+            this.button_decode_cmd17.Name = "button_decode_cmd17";
+            this.button_decode_cmd17.Size = new System.Drawing.Size(18, 24);
+            this.button_decode_cmd17.TabIndex = 56;
+            this.button_decode_cmd17.Text = "D";
+            this.button_decode_cmd17.UseVisualStyleBackColor = true;
+            this.button_decode_cmd17.Click += new System.EventHandler(this.button_decode_cmd17_Click);
+            // 
+            // button_Unlock_Device
+            // 
+            this.button_Unlock_Device.Location = new System.Drawing.Point(340, 23);
+            this.button_Unlock_Device.Margin = new System.Windows.Forms.Padding(4);
+            this.button_Unlock_Device.Name = "button_Unlock_Device";
+            this.button_Unlock_Device.Size = new System.Drawing.Size(129, 46);
+            this.button_Unlock_Device.TabIndex = 55;
+            this.button_Unlock_Device.Text = "Unlock Device";
+            this.button_Unlock_Device.UseVisualStyleBackColor = true;
+            this.button_Unlock_Device.Click += new System.EventHandler(this.button_Unlock_Device_Click);
             // 
             // button_SetUploadLogCfg
             // 
@@ -472,7 +499,7 @@
             // buttonUpdateSetLinesConfig
             // 
             this.buttonUpdateSetLinesConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonUpdateSetLinesConfig.Location = new System.Drawing.Point(145, 177);
+            this.buttonUpdateSetLinesConfig.Location = new System.Drawing.Point(141, 179);
             this.buttonUpdateSetLinesConfig.Name = "buttonUpdateSetLinesConfig";
             this.buttonUpdateSetLinesConfig.Size = new System.Drawing.Size(18, 24);
             this.buttonUpdateSetLinesConfig.TabIndex = 51;
@@ -1961,12 +1988,12 @@
             // 
             // textBox_Message
             // 
-            this.textBox_Message.Location = new System.Drawing.Point(1264, 311);
+            this.textBox_Message.Location = new System.Drawing.Point(1252, 597);
             this.textBox_Message.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_Message.Multiline = true;
             this.textBox_Message.Name = "textBox_Message";
             this.textBox_Message.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_Message.Size = new System.Drawing.Size(468, 142);
+            this.textBox_Message.Size = new System.Drawing.Size(480, 142);
             this.textBox_Message.TabIndex = 52;
             this.textBox_Message.Text = "Welcome !";
             // 
@@ -1993,19 +2020,19 @@
             // 
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
-            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1264, 159);
+            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1414, 159);
             this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_Resp_Hash.Size = new System.Drawing.Size(468, 115);
+            this.textBox_Resp_Hash.Size = new System.Drawing.Size(319, 115);
             this.textBox_Resp_Hash.TabIndex = 55;
             this.textBox_Resp_Hash.Text = "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
             // 
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(1261, 134);
+            this.label50.Location = new System.Drawing.Point(1411, 134);
             this.label50.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(94, 17);
@@ -2035,7 +2062,7 @@
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(1262, 283);
+            this.label51.Location = new System.Drawing.Point(1249, 573);
             this.label51.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(38, 17);
@@ -2110,7 +2137,7 @@
             // 
             // button_CLS_Infos
             // 
-            this.button_CLS_Infos.Location = new System.Drawing.Point(1675, 280);
+            this.button_CLS_Infos.Location = new System.Drawing.Point(1675, 563);
             this.button_CLS_Infos.Margin = new System.Windows.Forms.Padding(4);
             this.button_CLS_Infos.Name = "button_CLS_Infos";
             this.button_CLS_Infos.Size = new System.Drawing.Size(57, 23);
@@ -2314,18 +2341,18 @@
             // 
             // textBox_upload_file_info
             // 
-            this.textBox_upload_file_info.Location = new System.Drawing.Point(1264, 486);
+            this.textBox_upload_file_info.Location = new System.Drawing.Point(1414, 461);
             this.textBox_upload_file_info.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_upload_file_info.Multiline = true;
             this.textBox_upload_file_info.Name = "textBox_upload_file_info";
             this.textBox_upload_file_info.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_upload_file_info.Size = new System.Drawing.Size(468, 78);
+            this.textBox_upload_file_info.Size = new System.Drawing.Size(318, 78);
             this.textBox_upload_file_info.TabIndex = 79;
             // 
             // label55
             // 
             this.label55.AutoSize = true;
-            this.label55.Location = new System.Drawing.Point(1262, 463);
+            this.label55.Location = new System.Drawing.Point(1411, 434);
             this.label55.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label55.Name = "label55";
             this.label55.Size = new System.Drawing.Size(102, 17);
@@ -2334,13 +2361,17 @@
             // 
             // button_Decode_File
             // 
-            this.button_Decode_File.Location = new System.Drawing.Point(1661, 463);
+            this.button_Decode_File.Location = new System.Drawing.Point(1660, 428);
             this.button_Decode_File.Name = "button_Decode_File";
             this.button_Decode_File.Size = new System.Drawing.Size(72, 23);
             this.button_Decode_File.TabIndex = 81;
             this.button_Decode_File.Text = "Decode";
             this.button_Decode_File.UseVisualStyleBackColor = true;
             this.button_Decode_File.Click += new System.EventHandler(this.button_Decode_File_Click);
+            // 
+            // timer_post_processing
+            // 
+            this.timer_post_processing.Tick += new System.EventHandler(this.timer_post_processing_Tick);
             // 
             // Form1
             // 
@@ -2399,8 +2430,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.2.9.1";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
+            this.Text = "IoT Server Simulator Binary Edition V.3.0b";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_Closing);
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_Closed);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
@@ -2622,6 +2654,9 @@
         private System.Windows.Forms.TextBox textBox_upload_file_info;
         private System.Windows.Forms.Label label55;
         private System.Windows.Forms.Button button_Decode_File;
+        private System.Windows.Forms.Button button_Unlock_Device;
+        private System.Windows.Forms.Timer timer_post_processing;
+        private System.Windows.Forms.Button button_decode_cmd17;
     }
 }
 

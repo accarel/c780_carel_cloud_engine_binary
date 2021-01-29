@@ -43,6 +43,10 @@ namespace MqttClientSimulatorBinary
     public partial class Form1 : Form
     {
 
+        const int CBOR_CMD_SCAN_LINE = 3;
+        const int CBOR_CMD_FULL_FILE_UPLOAD = 19;
+        const int CBOR_CMD_RANGE_FILE_UPLOAD = 20;
+
         public struct read_file_struct
         {
             public Int16 version;
@@ -55,24 +59,11 @@ namespace MqttClientSimulatorBinary
             public string ans_arr;
         };
 
-
-
         const string DECODE_FILE_PRG = "LogtransferAnalyzer.exe";
-
 
         const string JSON_VALIDATOR = "http://cbor.me/";
         // "https://jsonformatter.org/";    
         // "https://jsonformatter.curiousconcept.com/"
-
-        const string MQTT_BROKER_ADDRESS = "192.168.16.102";
-
-        const string SUB_TEMP  = "alessandro_bilato/f/temperature";
-        const string SUB_RELE1 = "alessandro_bilato/f/rele1";
-        const string PUB_RELE1 = SUB_RELE1;
-
-        const string SUB_TEMP_carel = "sonda";
-        const string PUB_VAL_carel  = "pco/topic/valore";
-
 
         const string VAL_REQ_carel  = @"/req";
         public string val_req_post;
@@ -86,9 +77,7 @@ namespace MqttClientSimulatorBinary
         public string VAL_TOPIC_STATUS = @"";
         public string VAL_TOPIC_UPLOAD = @"";
 
-
         public const int CBOR_PAYLOAD_VER = 257;   //in HEX 0x101 > Ver.1.01
-
 
 
         //static int value = 0;
@@ -110,8 +99,12 @@ namespace MqttClientSimulatorBinary
 
         public int flags_of;
 
-
         public string latest_upload_file = @"";
+
+        LogFile SessionLog;
+
+        string post_processing = @"";
+        string last_cmd17_payload = @"";
 
         private void MessageBoxInfo(string message, string caption)
         {
@@ -130,33 +123,6 @@ namespace MqttClientSimulatorBinary
                 }
             }
         }
-        
-        public void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            Save_Last_Used_Values();
-
-            if (MQTT_Connect == true)
-            {
-                if (client.IsConnected == true)
-                {
-                    client.Disconnect();
-                }
-            }
-        }
-
-        public void Form1_FormClosing(object sender, FormClosedEventArgs e)
-        {
-            if (MQTT_Connect == true)
-            {
-                if (client.IsConnected == true)
-                {
-                    client.Disconnect();
-                }
-            }
-
-        }
-
-
 
         public Form1()
         {
@@ -164,18 +130,17 @@ namespace MqttClientSimulatorBinary
 
             //Load settings
 
-            FormClosed += Form1_FormClosed;
+            //FormClosed += Form1_Closed;
 
             //System.Net.IPAddress IPAddress = System.Net.IPAddress.Parse(MQTT_BROKER_ADDRESS);
         }
-
 
         private void Form1_Load(object sender, EventArgs e)
         {
             Debug.WriteLine("MessageId 1");
             Load_Last_Used_Values();
+            SessionLog = new LogFile();
         }
-
 
         private void Timer_Pub2Res(bool start_stop)
         {
@@ -187,6 +152,7 @@ namespace MqttClientSimulatorBinary
                 start_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
                 nstr = @"-----";
                 txtConsole.Invoke(new Action(() => textBox_timer_pub2res.Text = nstr));
+               
             }
             else
             {
@@ -268,10 +234,40 @@ namespace MqttClientSimulatorBinary
             return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
         }
 
-        void Decode_Upload_Msg(CBORObject cbor_rx)
+
+        /*
+         * ans_filter
+         * this routine remove the h character that the conversion cbor > text > json put
+         * to indicate the binary content but generate an error on deserialization
+         */
+        string ans_filter(string data)
         {
-            read_file_struct my_J_data;                     
-            string data = cbor_rx.ToString();
+            string ret = "";
+
+            ret = data;
+
+            if (ret.Contains("ans"))
+            {
+                ret = ret.Replace(": h", ": ");
+            }
+
+            if (ret.Contains("mqv"))
+            {
+                ret = ret.Replace(": h", ": ");
+            }
+
+            if (ret.Contains("gid"))
+            {
+                ret = ret.Replace(": h", ": ");
+            }
+
+
+            return ret;
+        }
+
+        void Decode_Upload_Msg(string data_in)
+        {
+            read_file_struct my_J_data;
 
             //use this sample to debug the below routine 
             // the extracted data more or less are similar to this example
@@ -286,12 +282,17 @@ namespace MqttClientSimulatorBinary
             //'ans': 'FF102030' 
             // }";
 
+            string data = ans_filter(data_in);
+
             //to test simply change data > data1 in the row below
             JObject o = JObject.Parse(data);
 
             string o_ver = (string)o["ver"];
             string o_rto = (string)o["rto"];
             string o_cmd = (string)o["cmd"];
+
+            //not a cmd
+            if (o_cmd == null) return;
 
             int cmd_value = 0;
             if (!(int.TryParse(o_cmd, out cmd_value)))
@@ -303,7 +304,7 @@ namespace MqttClientSimulatorBinary
             }
 
             //check if is a file upload cmd full or range
-            if ((cmd_value != 19) || (cmd_value != 20)) return;
+            if ((cmd_value != CBOR_CMD_FULL_FILE_UPLOAD) || (cmd_value != CBOR_CMD_RANGE_FILE_UPLOAD)) return;
 
             string o_res = (string)o["res"];
             string o_fsz = (string)o["fsz"];
@@ -312,6 +313,9 @@ namespace MqttClientSimulatorBinary
             string o_ans = (string)o["ans"];
 
             string curFile = o_rto + @".bin";
+
+            //if empty means the echo of the command sent
+            if (o_ans == null) return;
 
             int fsz_value = 0;
             if (!(int.TryParse(o_fsz, out fsz_value)))
@@ -340,6 +344,8 @@ namespace MqttClientSimulatorBinary
                 return;
             }
 
+            
+
             //create an empty but filled with zero file if not exist
             if (!(File.Exists(curFile)))
             {                
@@ -355,39 +361,83 @@ namespace MqttClientSimulatorBinary
             }
 
             //insert the given file chunk in the right position
-            if ((fst_value + fle_value) <= fsz_value) 
+            if ((fst_value + fle_value) >= fsz_value) 
             {
+                string sdata;
 
-                using (FileStream fileStream = new FileStream(curFile, FileMode.Open))
-                {
-                    // Set the stream position to the beginning of the file.
-                    fileStream.Seek(fst_value, SeekOrigin.Begin);
+                sdata = String.Format("{0} {1} of {2}", "File transfer reached the size", (fst_value + fle_value), fsz_value);
 
-                    int s_len = o_ans.Length;
-                    int iSidx = 0;
-
-                    while (iSidx < s_len) 
-                    {
-                        string subS = o_ans.Substring(iSidx, 2);
-                        iSidx += 2;
-
-                        byte val=0; 
-
-                        for (int i = 0; i < subS.Length >> 1; ++i)
-                        {
-                            val = (byte)((GetHexVal(subS[i << 1]) << 4) + (GetHexVal(subS[(i << 1) + 1])));
-                        }
-
-                        fileStream.WriteByte(val);
-                    }
-
-                    textBox_upload_file_info.AppendText("Chunk " + fst_value.ToString() + ":" + fle_value.ToString());
-                }
-
+                //take in mind that > (major) is not possible theoretichally anyway not to bad to have a feedback
+                DialogResult result1 = MessageBox.Show(sdata,
+                                                       "Try to decode!",
+                                                        MessageBoxButtons.OK);
             }
 
+            using (FileStream fileStream = new FileStream(curFile, FileMode.Open))
+            {
+               // Set the stream position to the beginning of the file.
+               fileStream.Seek(fst_value, SeekOrigin.Begin);
+               
+               int s_len = o_ans.Length;
+               int iSidx = 0;
+               
+               while (iSidx < s_len) 
+               {
+                   string subS = o_ans.Substring(iSidx, 2);
+                   iSidx += 2;
+               
+                   byte val=0; 
+               
+                   for (int i = 0; i < subS.Length >> 1; ++i)
+                   {
+                       val = (byte)((GetHexVal(subS[i << 1]) << 4) + (GetHexVal(subS[(i << 1) + 1])));
+                   }
+               
+                   fileStream.WriteByte(val);
+               }
+               
+               textBox_upload_file_info.AppendText("Chunk " + fst_value.ToString() + ":" + fle_value.ToString());
+            }
+           
         }
+        
+        void Decode_Scan_Line_Msg(string data_in)
+        {
+           read_file_struct my_J_data;
 
+           string data = ans_filter(data_in);
+            
+           JObject o = JObject.Parse(data);
+
+           string o_ver = (string)o["ver"];
+           string o_rto = (string)o["rto"];
+           string o_cmd = (string)o["cmd"];
+
+           if (o_cmd == null) return;
+
+           int cmd_value = 0;
+           if (!(int.TryParse(o_cmd, out cmd_value)))
+           {
+               DialogResult result1 = MessageBox.Show("Error in the o_cmd buffer abort!",
+                                                      "Important Question",
+                                                      MessageBoxButtons.OK);
+               return;
+           }
+
+           //check if is a file upload cmd full or range
+           if (cmd_value != CBOR_CMD_SCAN_LINE) return;
+
+           string o_res = (string)o["res"];
+           string o_dev = (string)o["dev"];
+           string o_ans = (string)o["ans"];
+
+           //this is cmd echo 
+           if (o_ans == null) return;
+
+            last_cmd17_payload = o_ans;
+
+           //textBox_upload_file_info.AppendText(o_ans);                
+        }
 
         void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
         {
@@ -419,6 +469,8 @@ namespace MqttClientSimulatorBinary
 
             try
             {
+                string data=@"";
+
                 cbor_rx = CBORObject.DecodeFromBytes(e.Message);
 
                 if ((targer_topic_for_me == true))
@@ -428,22 +480,33 @@ namespace MqttClientSimulatorBinary
 
                     if (checkBox_Split_Resp.Checked == true)
                     {
-                        string data = cbor_rx.ToString();
+                        data = cbor_rx.ToString();
                         string[] words = data.Split(',');
                         foreach (string word in words)
                         {
-                            txtConsole.Invoke(new Action(() => txtConsole.AppendText(word + Environment.NewLine)));
+                            string sdata = word + Environment.NewLine;
+                            txtConsole.Invoke(new Action(() => txtConsole.AppendText(sdata)));
+                            SessionLog.WriteLine(sdata);
                         }
                     }
                     else
                     {
-                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(cbor_rx.ToString() + Environment.NewLine)));
+                        data = cbor_rx.ToString() + Environment.NewLine;
+                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(data)));
+                        SessionLog.WriteLine(data);
                     }
 
 
-                    //try to decode the file upload if a background file transfer is running
-                    Decode_Upload_Msg(cbor_rx);
+                    //wait last msg processed TODO BILATO da sistemare con una coda
+                    while (post_processing.Length > 0) ;
 
+
+                    post_processing = data;
+                    //try to decode the file upload if a background file transfer is running
+                    //Decode_Upload_Msg(cbor_rx_clone);
+
+                    //try to decode scan line result
+                    //Decode_Scan_Line_Msg(data);
 
                 }
                 else
@@ -459,16 +522,21 @@ namespace MqttClientSimulatorBinary
 
                 if ((targer_topic_for_me == true))
                 {
-                    txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP START:" + Environment.NewLine)));
+                    string sdata = "CBOR Decoding Error ! DUMP START:" + Environment.NewLine;
 
+                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(sdata)));
+                    SessionLog.WriteLine(sdata);
 
                     foreach (var item in e.Message)
                     {
-                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(item.ToString("X") + Environment.NewLine)));
+                        sdata = item.ToString("X") + Environment.NewLine;
+                        txtConsole.Invoke(new Action(() => txtConsole.AppendText(sdata)));
+                        SessionLog.WriteLine(sdata);
                     }
 
-                    txtConsole.Invoke(new Action(() => txtConsole.AppendText("CBOR Decoding Error ! DUMP END " + Environment.NewLine)));
-
+                    sdata = "CBOR Decoding Error ! DUMP END " + Environment.NewLine;
+                    txtConsole.Invoke(new Action(() => txtConsole.AppendText(sdata)));
+                    SessionLog.WriteLine(sdata);
                 }
 
             }
@@ -526,9 +594,13 @@ namespace MqttClientSimulatorBinary
 
             try
             {
-                ushort msgId = client.Publish(val_req_post, fileBytes, qos_selected(), false);
 
-                textBoxPublish.Text = textFile;
+                if (MQTT_Connect == true) 
+                {
+                    ushort msgId = client.Publish(val_req_post, fileBytes, qos_selected(), false);
+                    textBoxPublish.Text = textFile;
+                }
+
             }
             catch (System.NullReferenceException)
             {
@@ -667,11 +739,14 @@ namespace MqttClientSimulatorBinary
                 //if not don't crash
                 if (client.IsConnected)
                 {
-                    client.Disconnect();
+                    client.Disconnect();                    
                 }
+
+                SessionLog.CloseLogFile();
 
                 MQTT_Connect = false;
                 timer_check_is_alive.Enabled = false;
+                timer_post_processing.Enabled = false;
                 buttonConnect.Text = "Connect";
                 buttonConnect.BackColor = Color.Green;
                 textBox_SubTopic.Enabled = true;
@@ -680,6 +755,11 @@ namespace MqttClientSimulatorBinary
                 return;
             }
 
+            //already connected
+            if (MQTT_Connect == false)
+            {
+                SessionLog.OpenLogFile();
+            }
 
             VAL_RESP_carel      = textBox_Target.Text + @"/" +  textBox_SubTopic.Text;
             VAL_TOPIC_CONNECTED = textBox_Target.Text + @"/connected";
@@ -692,8 +772,6 @@ namespace MqttClientSimulatorBinary
             textBox_Target.Enabled = false;
             radioButton_qos1.Enabled = false;
             radioButton_qos0.Enabled = false;
-
-
 
 
             // create client instance 
@@ -781,6 +859,7 @@ namespace MqttClientSimulatorBinary
 
             MQTT_Connect = true;
             timer_check_is_alive.Enabled = true;
+            timer_post_processing.Enabled = true;
             buttonConnect.Text = "Disconnect";
             buttonConnect.BackColor = Color.Red; 
         }
@@ -820,7 +899,7 @@ namespace MqttClientSimulatorBinary
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", textBox_Target.Text + @"\hr_r_val");
+            cbor.Add(@"rto", textBox_Target.Text + @"/hr_r_val");
             value = 6;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias.Text);
@@ -913,7 +992,7 @@ namespace MqttClientSimulatorBinary
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", textBox_Target.Text + @"\hr_w_val");
+            cbor.Add(@"rto", textBox_Target.Text + @"/hr_w_val");
             value = 7;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias.Text);
@@ -1018,7 +1097,7 @@ namespace MqttClientSimulatorBinary
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", textBox_Target.Text + @"\coil_r_val");
+            cbor.Add(@"rto", textBox_Target.Text + @"/coil_r_val");
             value = 6;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias_Coil.Text);
@@ -1106,7 +1185,7 @@ namespace MqttClientSimulatorBinary
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", textBox_Target.Text + @"\coil_w_val");
+            cbor.Add(@"rto", textBox_Target.Text + @"/coil_w_val");
             value = 7;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias_Coil.Text);
@@ -1197,7 +1276,7 @@ namespace MqttClientSimulatorBinary
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", textBox_Target.Text + @"\di_r_val");
+            cbor.Add(@"rto", textBox_Target.Text + @"/di_r_val");
             value = 6;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias_DI.Text);
@@ -1285,7 +1364,7 @@ namespace MqttClientSimulatorBinary
             var cbor = CBORObject.NewMap();
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", textBox_Target.Text + @"\ir_r_val");
+            cbor.Add(@"rto", textBox_Target.Text + @"/ir_r_val");
             value = 6;
             cbor.Add(@"cmd", value);
             cbor.Add(@"ali", textBox_Alias_IR.Text);
@@ -1729,14 +1808,12 @@ namespace MqttClientSimulatorBinary
 
         }
 
-
         private void set_flags_form_call()
         {
             FormFlags frm = new FormFlags();
             frm.Show();            
             frm.VisibleChanged += formVisibleChanged;
         }
-
 
         private void button_SetFlags_Click(object sender, EventArgs e)
         {
@@ -1757,17 +1834,12 @@ namespace MqttClientSimulatorBinary
             }
         }
 
-
         private void set_dev_update_form_call()
         {
             FormDevUpdateData frm = new FormDevUpdateData();
             frm.Show();
             frm.VisibleChanged += formVisibleChanged;
         }
-
-
-
-
 
         private void button_SetFlags_IR_Click(object sender, EventArgs e)
         {
@@ -1780,12 +1852,9 @@ namespace MqttClientSimulatorBinary
 
         }
 
-
-
         private void radioButton_qos0_Clik(object sender, EventArgs e)
         {
         }
-
 
         private void radioButton_qos0_CheckedChanged(object sender, EventArgs e)
         {
@@ -1929,6 +1998,65 @@ namespace MqttClientSimulatorBinary
         {
             //latest_upload_file = @"ciao"; //if you need to test the program call 
             System.Diagnostics.Process.Start(DECODE_FILE_PRG, latest_upload_file);
+        }
+
+        private void button_Unlock_Device_Click(object sender, EventArgs e)
+        {
+            
+            //cmd 17
+            string textFilePath = @".\cbor_cloud\REQ_SCAN_DEVICES.cbor";
+            PublishTestFile(textFilePath);
+            
+            //wait for data and extract
+         
+        }
+
+        private void Form1_Closing(object sender, FormClosingEventArgs e)
+        {
+            
+            if (client != null)
+            {
+                //client.Disconnect();             
+            }
+
+            SessionLog.CloseLogFile();
+        }
+
+        private void Form1_Closed(object sender, FormClosedEventArgs e)
+        {
+
+        }
+
+        private void timer_post_processing_Tick(object sender, EventArgs e)
+        {
+            if (MQTT_Connect == true)
+            {
+                if (client.IsConnected == true)
+                {
+                   timer_post_processing.Interval = 100;
+            
+                   if (post_processing.Length > 0)
+                   {
+                      Decode_Upload_Msg(post_processing);
+                      Decode_Scan_Line_Msg(post_processing);
+                      post_processing = @"";
+                   }
+                }
+            }
+         
+        }
+
+        private void button_decode_cmd17_Click(object sender, EventArgs e)
+        {
+            FormDecodeCMD17 frm = new FormDecodeCMD17();
+            //pan   
+            //last_cmd17_payload   = "0111B4BDFF01380406015400067D07D00000000000000000000005004300000000E3575E010189E9B200975E45729862C6B67352C13D010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000019332404F0036030204074D6F646275735F53616C76655F53696D756C61746370434F4D696E690000000000000000000000000000000000000000013A60";
+            //chieb 
+            //last_cmd17_payload = "0111B4BDFF01380407015400067D07D0000000000000000000000500000000000003E85E010189E9B200975E45729862C6B67352C13D0100000000000000000000000000000000000000000000000000000000000000000000008ADD804A739B4F33BF4A763EA3C19DA67465737400000000000000000000000000009332404F0036030204074D6F646275735F53616C76655F53696D756C61746370434F4D696E69000000000000000000000000000000000000000002F650";            
+
+            frm.set_data(last_cmd17_payload);
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
