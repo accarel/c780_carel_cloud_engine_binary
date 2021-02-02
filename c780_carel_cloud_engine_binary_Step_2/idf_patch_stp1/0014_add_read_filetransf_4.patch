@@ -13,7 +13,6 @@
 +
 +eMBException eMBFuncReadFileRecord ( UCHAR * pucFrame, USHORT * usLen )
 +{
-+	// TODO
 +	usMBFileTransferLen = *usLen;
 +
 +	for(int i = 0; i < (usMBFileTransferLen + 2); i++) {  //  + 2 bytes CRC
