@@ -1,0 +1,10 @@
+--- mbproto.h.orig	2021-02-01 23:49:23.413961757 -0800
++++ mbproto.h	2020-12-09 05:59:06.510393000 -0800
+@@ -53,6 +53,7 @@
+ #define MB_FUNC_DIAG_GET_COM_EVENT_CNT        ( 11 )
+ #define MB_FUNC_DIAG_GET_COM_EVENT_LOG        ( 12 )
+ #define MB_FUNC_OTHER_REPORT_SLAVEID          ( 17 )
++#define MB_FUNC_FILE_READ					  ( 20 )
+ #define MB_FUNC_FILE_TRANSFER                 ( 21 )
+ #define MB_FUNC_ERROR                         ( 128 )
+ /* ----------------------- Type definitions ---------------------------------*/
