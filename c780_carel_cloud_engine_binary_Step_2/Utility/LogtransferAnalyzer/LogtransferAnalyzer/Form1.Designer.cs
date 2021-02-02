@@ -39,12 +39,14 @@
             this.label4 = new System.Windows.Forms.Label();
             this.textBox_Disassembled = new System.Windows.Forms.TextBox();
             this.textBox_Show_Disassembled = new System.Windows.Forms.TextBox();
+            this.button_Decode_from_Bin = new System.Windows.Forms.Button();
+            this.checkBox_Strip_Comp_Head = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(0, 16);
+            this.label1.Location = new System.Drawing.Point(3, 25);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(45, 17);
             this.label1.TabIndex = 0;
@@ -52,17 +54,17 @@
             // 
             // textBox_logfile_in
             // 
-            this.textBox_logfile_in.Location = new System.Drawing.Point(67, 13);
+            this.textBox_logfile_in.Location = new System.Drawing.Point(67, 22);
             this.textBox_logfile_in.Name = "textBox_logfile_in";
-            this.textBox_logfile_in.Size = new System.Drawing.Size(1085, 22);
+            this.textBox_logfile_in.Size = new System.Drawing.Size(276, 22);
             this.textBox_logfile_in.TabIndex = 1;
             this.textBox_logfile_in.Text = "putty.log";
             // 
             // button_analyze
             // 
-            this.button_analyze.Location = new System.Drawing.Point(1162, 12);
+            this.button_analyze.Location = new System.Drawing.Point(501, 12);
             this.button_analyze.Name = "button_analyze";
-            this.button_analyze.Size = new System.Drawing.Size(92, 35);
+            this.button_analyze.Size = new System.Drawing.Size(120, 35);
             this.button_analyze.TabIndex = 2;
             this.button_analyze.Text = "Analyze";
             this.button_analyze.UseVisualStyleBackColor = true;
@@ -79,7 +81,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(0, 55);
+            this.label2.Location = new System.Drawing.Point(3, 65);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(57, 17);
             this.label2.TabIndex = 4;
@@ -87,24 +89,24 @@
             // 
             // textBox_log_file_out
             // 
-            this.textBox_log_file_out.Location = new System.Drawing.Point(67, 55);
+            this.textBox_log_file_out.Location = new System.Drawing.Point(66, 62);
             this.textBox_log_file_out.Name = "textBox_log_file_out";
-            this.textBox_log_file_out.Size = new System.Drawing.Size(1085, 22);
+            this.textBox_log_file_out.Size = new System.Drawing.Size(276, 22);
             this.textBox_log_file_out.TabIndex = 5;
             this.textBox_log_file_out.Text = "Datasample_PROCESSED.txt";
             // 
             // textBox_log_file_bin
             // 
-            this.textBox_log_file_bin.Location = new System.Drawing.Point(67, 99);
+            this.textBox_log_file_bin.Location = new System.Drawing.Point(67, 102);
             this.textBox_log_file_bin.Name = "textBox_log_file_bin";
-            this.textBox_log_file_bin.Size = new System.Drawing.Size(1085, 22);
+            this.textBox_log_file_bin.Size = new System.Drawing.Size(276, 22);
             this.textBox_log_file_bin.TabIndex = 6;
             this.textBox_log_file_bin.Text = "Datasample_PROCESSED.bin";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(0, 99);
+            this.label3.Location = new System.Drawing.Point(3, 105);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(54, 17);
             this.label3.TabIndex = 7;
@@ -114,36 +116,59 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(0, 153);
+            this.label4.Location = new System.Drawing.Point(10, 145);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(96, 17);
+            this.label4.Size = new System.Drawing.Size(47, 17);
             this.label4.TabIndex = 8;
-            this.label4.Text = "Disassembled";
+            this.label4.Text = "Disas.";
             // 
             // textBox_Disassembled
             // 
             this.textBox_Disassembled.AcceptsTab = true;
-            this.textBox_Disassembled.Location = new System.Drawing.Point(67, 173);
+            this.textBox_Disassembled.AllowDrop = true;
+            this.textBox_Disassembled.Location = new System.Drawing.Point(67, 142);
             this.textBox_Disassembled.Name = "textBox_Disassembled";
-            this.textBox_Disassembled.Size = new System.Drawing.Size(1085, 22);
+            this.textBox_Disassembled.Size = new System.Drawing.Size(276, 22);
             this.textBox_Disassembled.TabIndex = 9;
-            this.textBox_Disassembled.Text = "Log_DISASSEMBLED.txt";
+            this.textBox_Disassembled.Text = "Log_DISASSEMBLED";
             // 
             // textBox_Show_Disassembled
             // 
             this.textBox_Show_Disassembled.Font = new System.Drawing.Font("Courier New", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_Show_Disassembled.Location = new System.Drawing.Point(9, 217);
+            this.textBox_Show_Disassembled.Location = new System.Drawing.Point(9, 215);
             this.textBox_Show_Disassembled.Multiline = true;
             this.textBox_Show_Disassembled.Name = "textBox_Show_Disassembled";
             this.textBox_Show_Disassembled.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_Show_Disassembled.Size = new System.Drawing.Size(1244, 440);
+            this.textBox_Show_Disassembled.Size = new System.Drawing.Size(1244, 442);
             this.textBox_Show_Disassembled.TabIndex = 10;
+            // 
+            // button_Decode_from_Bin
+            // 
+            this.button_Decode_from_Bin.Location = new System.Drawing.Point(501, 91);
+            this.button_Decode_from_Bin.Name = "button_Decode_from_Bin";
+            this.button_Decode_from_Bin.Size = new System.Drawing.Size(120, 35);
+            this.button_Decode_from_Bin.TabIndex = 11;
+            this.button_Decode_from_Bin.Text = "Dec. From Bin";
+            this.button_Decode_from_Bin.UseVisualStyleBackColor = true;
+            this.button_Decode_from_Bin.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // checkBox_Strip_Comp_Head
+            // 
+            this.checkBox_Strip_Comp_Head.AutoSize = true;
+            this.checkBox_Strip_Comp_Head.Location = new System.Drawing.Point(349, 105);
+            this.checkBox_Strip_Comp_Head.Name = "checkBox_Strip_Comp_Head";
+            this.checkBox_Strip_Comp_Head.Size = new System.Drawing.Size(146, 21);
+            this.checkBox_Strip_Comp_Head.TabIndex = 12;
+            this.checkBox_Strip_Comp_Head.Text = "Strip Compr. Head";
+            this.checkBox_Strip_Comp_Head.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1262, 753);
+            this.Controls.Add(this.checkBox_Strip_Comp_Head);
+            this.Controls.Add(this.button_Decode_from_Bin);
             this.Controls.Add(this.textBox_Show_Disassembled);
             this.Controls.Add(this.textBox_Disassembled);
             this.Controls.Add(this.label4);
@@ -176,6 +201,8 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.TextBox textBox_Disassembled;
         private System.Windows.Forms.TextBox textBox_Show_Disassembled;
+        private System.Windows.Forms.Button button_Decode_from_Bin;
+        private System.Windows.Forms.CheckBox checkBox_Strip_Comp_Head;
     }
 }
 
