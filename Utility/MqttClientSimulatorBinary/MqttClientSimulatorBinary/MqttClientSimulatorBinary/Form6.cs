@@ -16,18 +16,21 @@ namespace MqttClientSimulatorBinary
         private const int MODBUS_OFFSET = 10;
 
         private string data_to_decode = @"";
+
+        public string o_machine_code_data = @"";
+        public string ov_machine_code_data = @"";
+
+        public byte[] oem_id_array = new byte[16];
+        public byte[] ov_oem_id_array = new byte[16];
         public FormDecodeCMD17()
         {
             InitializeComponent();
         }
 
-
-        public void set_data(string data) 
+        public void set_data(string data)
         {
             data_to_decode = data;
         }
-
-
 
         private static int GetHexVal(char hex)
         {
@@ -40,16 +43,16 @@ namespace MqttClientSimulatorBinary
             return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
         }
 
-        private void Decoding_1() 
+        private void Decoding_1()
         {
 
             string sub_low = @"";
             string sub_high = @"";
             short tmp_l = 0;
             short tmp_h = 0;
-            UInt16 value = 0 ;
+            UInt16 value = 0;
             bool pass_fail = false;
-            byte val=0;
+            byte val = 0;
 
             /* --------------------------------------- */
             sub_high = data_to_decode.Substring(MODBUS_OFFSET + 0, 2);
@@ -59,7 +62,7 @@ namespace MqttClientSimulatorBinary
             }
             value = (UInt16)(((UInt16)val) << 8);
 
-            sub_low = data_to_decode.Substring(MODBUS_OFFSET+2, 2);
+            sub_low = data_to_decode.Substring(MODBUS_OFFSET + 2, 2);
             for (int i = 0; i < sub_high.Length >> 1; ++i)
             {
                 val = (byte)((GetHexVal(sub_low[i << 1]) << 4) + (GetHexVal(sub_low[(i << 1) + 1])));
@@ -139,7 +142,7 @@ namespace MqttClientSimulatorBinary
             if ((value & 0x800) != 0) ckBox_cmd17_pcap_11.Checked = true;
             /* --------------------------------------- */
             value = 0;
-            sub_high = data_to_decode.Substring(MODBUS_OFFSET + 14, 2);         
+            sub_high = data_to_decode.Substring(MODBUS_OFFSET + 14, 2);
             for (int i = 0; i < sub_high.Length >> 1; ++i)
             {
                 val = (byte)((GetHexVal(sub_high[i << 1]) << 4) + (GetHexVal(sub_high[(i << 1) + 1])));
@@ -291,11 +294,7 @@ namespace MqttClientSimulatorBinary
             textBox_UID_Carel.Text = sub_high;
         }
 
-
-
-
-
-        private int Decoding_3(int offset) 
+        private int Decoding_3(int offset)
         {
             string sub_low = @"";
             string sub_high = @"";
@@ -328,26 +327,39 @@ namespace MqttClientSimulatorBinary
                     retval = Decode_Applica_Block(offset);
                 }
 
+                if (value == 2)
+                {  // ACU/BCU
+                    retval = offset + 41; //for debug
+                                          //retval = Decode_ACU_Block(offset);
+                }
+
                 if (value == 3)
-                {  // cpCO BLOCK detected
+                {  // cpCO application BLOCK detected
+
+                    retval = offset + 54;
                     retval = Decode_cpCO_Block(offset);
                 }
 
+                if (value == 4)
+                {  // pCO application BLOCK detected
+                    retval = offset + 31;
+                }
+
                 if (value == 6)
-                {  // cpCO BLOCK detected
-                   //retval = Decode_cpco_Block(offset);
+                {  // cpCO OS BLOCK detected
+
+                    retval = Decode_cpCO_OS_Block(offset);
                 }
             }
-            catch 
+            catch
             {
-            
+
             }
 
             return retval;
         }
 
-
-        private int Decode_Applica_Block(int offset) 
+        private int Decode_Applica_Block(int offset)
         {
             string sub_low = @"";
             string sub_high = @"";
@@ -359,7 +371,6 @@ namespace MqttClientSimulatorBinary
             int retval = 0;
 
             int offset_rel;
-
 
             /* --------------------------------------- */
             value = 0;
@@ -397,12 +408,12 @@ namespace MqttClientSimulatorBinary
             }
             value = (UInt16)(((UInt16)val));
 
-            String s10 = String.Format("{0}", value);            
+            String s10 = String.Format("{0}", value);
             textBox_applica_version.Text = s10.ToString();
 
 
             /* --------------------------------------- */
-            offset_rel += 2; 
+            offset_rel += 2;
             sub_high = data_to_decode.Substring(offset_rel, 32);
             textBox_applica_prj_guid.Text = sub_high;
             /* --------------------------------------- */
@@ -410,21 +421,63 @@ namespace MqttClientSimulatorBinary
             sub_high = data_to_decode.Substring(offset_rel, 8);
             textBox_applica_prj_release.Text = sub_high;
             /* --------------------------------------- */
-            offset_rel += 8; 
+            offset_rel += 8;
             sub_high = data_to_decode.Substring(offset_rel, 32);
+
+            int idx = 0;
+            for (int i = 0; i < sub_high.Length >>1 ; ++i)
+            {
+                val = (byte)((GetHexVal(sub_high[i << 1]) << 4) + (GetHexVal(sub_high[(i << 1) + 1])));
+                oem_id_array[idx] = val;
+                idx++;
+            }
+            
             textBox_applica_OEM_Id.Text = sub_high;
             /* --------------------------------------- */
             offset_rel += 32;
             sub_high = data_to_decode.Substring(offset_rel, 32);
-            textBox_Applica_Machine_Code.Text = sub_high;
+            //textBox_Applica_Machine_Code.Text = sub_high;
+
+            string o_mach_code = "";
+
+            /* trasform in ASCII code */
+            for (int count = 0; count < sub_high.Length; count += 2)
+            {
+                string v = sub_high.Substring(count, 2);
+                o_mach_code += (char)Convert.ToByte(v, 16);
+            }
+
+            textBox_Applica_Machine_Code.Text = o_mach_code;
+            o_machine_code_data = o_mach_code;
+
             /* --------------------------------------- */
             offset_rel += 32;
             sub_high = data_to_decode.Substring(offset_rel, 32);
             textBox_applica_ov_oem_id.Text = sub_high;
+
+            idx = 0;
+            for (int i = 0; i < sub_high.Length >> 1; ++i)
+            {
+                val = (byte)((GetHexVal(sub_high[i << 1]) << 4) + (GetHexVal(sub_high[(i << 1) + 1])));
+                ov_oem_id_array[idx] = val;
+                idx++;
+            }
+
+
+
             /* --------------------------------------- */
             offset_rel += 32;
             sub_high = data_to_decode.Substring(offset_rel, 32);
-            textBox_applica_ov_mach_code.Text = sub_high;
+            ov_machine_code_data = sub_high; //store the data in HEX for other functions
+            string ov_mach_code = "";
+            /* trasform in ASCII code */
+            for (int count = 0; count < sub_high.Length; count += 2)
+            {
+                string v = sub_high.Substring(count, 2);
+                ov_mach_code += (char)Convert.ToByte(v, 16);
+            }
+            textBox_applica_ov_mach_code.Text = ov_mach_code;
+
             /* --------------------------------------- */
             offset_rel += 32;
             sub_high = data_to_decode.Substring(offset_rel, 4);
@@ -438,10 +491,9 @@ namespace MqttClientSimulatorBinary
             sub_high = data_to_decode.Substring(offset_rel, 2);
             textBox_applica_zone_idx.Text = sub_high;
 
-            offset_rel += 2;           
+            offset_rel += 2;
             return offset_rel;
         }
-
 
         private int Decode_cpCO_Block(int offset)
         {
@@ -497,7 +549,7 @@ namespace MqttClientSimulatorBinary
             textBox_cpco_version.Text = s10.ToString();
             /* --------------------------------------- */
             value = 0;
-            offset_rel += 2;  
+            offset_rel += 2;
 
             sub_high = data_to_decode.Substring(offset_rel, 2);
             for (int i = 0; i < sub_high.Length >> 1; ++i)
@@ -519,18 +571,18 @@ namespace MqttClientSimulatorBinary
             textBox_cpco_tool_version.Text = s11;
             /* --------------------------------------- */
             offset_rel += 2;
-            string sprjname = ""; 
+            string sprjname = "";
 
-            for (int c=0; c<40; c += 2) 
+            for (int c = 0; c < 40; c += 2)
             {
-                val=0;
+                val = 0;
                 sub_high = data_to_decode.Substring(offset_rel, 2);
                 for (int i = 0; i < sub_high.Length >> 1; ++i)
                 {
                     val = (byte)((GetHexVal(sub_high[i << 1]) << 4) + (GetHexVal(sub_high[(i << 1) + 1])));
                 }
 
-                sprjname += Convert.ToChar(val); 
+                sprjname += Convert.ToChar(val);
                 offset_rel += 2;
             }
 
@@ -577,6 +629,179 @@ namespace MqttClientSimulatorBinary
             return offset_rel;
         }
 
+        private int Decode_cpCO_OS_Block(int offset)
+        {
+            string sub_low = @"";
+            string sub_high = @"";
+            short tmp_l = 0;
+            short tmp_h = 0;
+            UInt16 value = 0;
+            bool pass_fail = false;
+            byte val = 0;
+            int retval = 0;
+
+            int offset_rel;
+
+
+            /* --------------------------------------- */
+            value = 0;
+            offset_rel = offset;
+            sub_high = data_to_decode.Substring(offset_rel, 2);
+            for (int i = 0; i < sub_high.Length >> 1; ++i)
+            {
+                val = (byte)((GetHexVal(sub_high[i << 1]) << 4) + (GetHexVal(sub_high[(i << 1) + 1])));
+            }
+            value = (UInt16)(((UInt16)val));
+
+            String s0 = String.Format("{0}", value);
+            textBox_cpco_os_lenght.Text = s0.ToString();
+
+            /* --------------------------------------- */
+            value = 0;
+            offset_rel += 2;
+            sub_high = data_to_decode.Substring(offset_rel, 2);
+            for (int i = 0; i < sub_high.Length >> 1; ++i)
+            {
+                val = (byte)((GetHexVal(sub_high[i << 1]) << 4) + (GetHexVal(sub_high[(i << 1) + 1])));
+            }
+            value = (UInt16)(((UInt16)val));
+
+            String s1 = String.Format("{0}", value);
+            textBox_cpco_os_type.Text = s1.ToString();
+
+            /* --------------------------------------- */
+            value = 0;
+            offset_rel += 2;
+            sub_high = data_to_decode.Substring(offset_rel, 2);
+            for (int i = 0; i < sub_high.Length >> 1; ++i)
+            {
+                val = (byte)((GetHexVal(sub_high[i << 1]) << 4) + (GetHexVal(sub_high[(i << 1) + 1])));
+            }
+            value = (UInt16)(((UInt16)val));
+
+            String s10 = String.Format("{0}", value);
+            textBox_cpco_os_version.Text = s10.ToString();
+
+
+            /* --------------------------------------- boot */
+            value = 0;
+            offset_rel += 2;
+            sub_high = data_to_decode.Substring(offset_rel, 4);
+            textBox_cpco_os_type_1.Text = sub_high.ToString();
+
+            /* --------------------------------------- */
+            value = 0;
+            offset_rel += 4;
+            sub_high = data_to_decode.Substring(offset_rel, 8);
+            textBox_cpco_os_version_1.Text = sub_high.ToString();
+
+            /* --------------------------------------- OS */
+            value = 0;
+            offset_rel += 8;
+            sub_high = data_to_decode.Substring(offset_rel, 4);
+            textBox_cpco_os_type_2.Text = sub_high.ToString();
+            /* --------------------------------------- */
+            value = 0;
+            offset_rel += 4;
+            sub_high = data_to_decode.Substring(offset_rel, 8);
+            textBox_cpco_os_version_2.Text = sub_high.ToString();
+
+            /* --------------------------------------- APP */
+            value = 0;
+            offset_rel += 8;
+            sub_high = data_to_decode.Substring(offset_rel, 4);
+            textBox_cpco_os_type_3.Text = sub_high.ToString();
+            /* --------------------------------------- */
+            value = 0;
+            offset_rel += 4;
+            sub_high = data_to_decode.Substring(offset_rel, 8);
+            textBox_cpco_os_version_3.Text = sub_high.ToString();
+
+
+            offset_rel += 8;
+
+            return offset_rel;
+        }
+
+        public bool is_Control_Locked()
+        {
+            if (ckBox_cmd17_pcap_11.Checked == false)
+                return false;
+            else
+                return true;
+        }
+
+        public string get_OEM_ID()
+        {
+            return textBox_applica_OEM_Id.Text;
+        }
+
+        public string get_OV_OEM_ID()
+        {
+            return textBox_applica_ov_oem_id.Text;
+        }
+
+        public byte[] get_OEM_ID_array() 
+        {
+            return oem_id_array;
+        }
+
+        public byte[] get_OV_OEM_ID_array() 
+        {
+            return ov_oem_id_array;
+        }
+
+        public string get_OV_Machine_Code() 
+        {
+            return ov_machine_code_data;
+        }
+
+        public string get_Machine_Code()
+        {
+            return o_machine_code_data;
+        }
+
+        public void Silent_Decoding() 
+        {
+            ckBox_cmd17_pcap_0.Checked = false;
+            ckBox_cmd17_pcap_1.Checked = false;
+            ckBox_cmd17_pcap_2.Checked = false;
+            ckBox_cmd17_pcap_3.Checked = false;
+            ckBox_cmd17_pcap_4.Checked = false;
+            ckBox_cmd17_pcap_5.Checked = false;
+            ckBox_cmd17_pcap_6.Checked = false;
+            ckBox_cmd17_pcap_7.Checked = false;
+            ckBox_cmd17_pcap_8.Checked = false;
+            ckBox_cmd17_pcap_9.Checked = false;
+            ckBox_cmd17_pcap_10.Checked = false;
+            ckBox_cmd17_pcap_11.Checked = false;
+
+            if (data_to_decode.Length > 0)
+            {
+                Decoding_1();
+                Decoding_2();
+
+                int len = data_to_decode.Length;
+                int retv = 70; //end of fixed part
+
+                //start decoding dynamic part
+                while (retv < len)
+                {
+                    retv = Decoding_3(retv);
+                }
+
+
+            }
+            else
+            {
+                DialogResult result1 = MessageBox.Show("Error buffer is empty! ",
+                                                       "Please do a Scan Line",
+                                                        MessageBoxButtons.OK);
+            }
+
+
+        }
+
         private void FormDecodeCMD17_Load(object sender, EventArgs e)
         {
             this.CenterToScreen();
@@ -599,7 +824,7 @@ namespace MqttClientSimulatorBinary
                 Decoding_1();
                 Decoding_2();
 
-                int len = data_to_decode.Length ;
+                int len = data_to_decode.Length - 4; // - CRC 4 char
                 int retv = 70; //end of fixed part
 
                 //start decoding dynamic part
@@ -607,11 +832,7 @@ namespace MqttClientSimulatorBinary
                 {
                     retv = Decoding_3(retv);
                 }
-                
-
-                
-                
-
+                         
 
             }
             else 
@@ -620,6 +841,11 @@ namespace MqttClientSimulatorBinary
                                                        "Please do a Scan Line",
                                                         MessageBoxButtons.OK);
             }
+
+        }
+
+        private void textBox_applica_ov_mach_code_TextChanged(object sender, EventArgs e)
+        {
 
         }
     }

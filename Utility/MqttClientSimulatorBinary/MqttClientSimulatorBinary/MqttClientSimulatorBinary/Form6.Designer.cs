@@ -30,53 +30,48 @@
         {
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.tabPage6 = new System.Windows.Forms.TabPage();
-            this.tabPage7 = new System.Windows.Forms.TabPage();
-            this.label3 = new System.Windows.Forms.Label();
-            this.ckBox_cmd17_pcap_7 = new System.Windows.Forms.CheckBox();
-            this.ckBox_cmd17_pcap_6 = new System.Windows.Forms.CheckBox();
-            this.textBox_CMD17_FW_Rel = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.ckBox_cmd17_pcap_8 = new System.Windows.Forms.CheckBox();
-            this.ckBox_cmd17_pcap_5 = new System.Windows.Forms.CheckBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.textBox_CMD17_HW_Code = new System.Windows.Forms.TextBox();
-            this.ckBox_cmd17_pcap_9 = new System.Windows.Forms.CheckBox();
-            this.ckBox_cmd17_pcap_4 = new System.Windows.Forms.CheckBox();
-            this.textBox_cmd17_Machine_Type = new System.Windows.Forms.TextBox();
-            this.ckBox_cmd17_pcap_0 = new System.Windows.Forms.CheckBox();
-            this.ckBox_cmd17_pcap_10 = new System.Windows.Forms.CheckBox();
-            this.ckBox_cmd17_pcap_1 = new System.Windows.Forms.CheckBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.ckBox_cmd17_pcap_2 = new System.Windows.Forms.CheckBox();
-            this.ckBox_cmd17_pcap_11 = new System.Windows.Forms.CheckBox();
-            this.ckBox_cmd17_pcap_3 = new System.Windows.Forms.CheckBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label8 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.textBox_cmd17_reg_max_var = new System.Windows.Forms.TextBox();
-            this.textBox_cmd17_coil_max_var = new System.Windows.Forms.TextBox();
-            this.textBox_cmd17_option_code = new System.Windows.Forms.TextBox();
-            this.textBox_cmd17_export_code = new System.Windows.Forms.TextBox();
-            this.textBox_cmd17_app_release = new System.Windows.Forms.TextBox();
-            this.textBox_cmd17_app_code = new System.Windows.Forms.TextBox();
-            this.textBox_cmd17_customer_code = new System.Windows.Forms.TextBox();
             this.textBox_cmd17_pcap = new System.Windows.Forms.TextBox();
-            this.label14 = new System.Windows.Forms.Label();
+            this.textBox_cmd17_customer_code = new System.Windows.Forms.TextBox();
+            this.textBox_cmd17_app_code = new System.Windows.Forms.TextBox();
+            this.textBox_cmd17_app_release = new System.Windows.Forms.TextBox();
+            this.textBox_cmd17_export_code = new System.Windows.Forms.TextBox();
+            this.textBox_cmd17_option_code = new System.Windows.Forms.TextBox();
+            this.textBox_cmd17_coil_max_var = new System.Windows.Forms.TextBox();
+            this.textBox_cmd17_reg_max_var = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.ckBox_cmd17_pcap_3 = new System.Windows.Forms.CheckBox();
+            this.ckBox_cmd17_pcap_11 = new System.Windows.Forms.CheckBox();
+            this.ckBox_cmd17_pcap_2 = new System.Windows.Forms.CheckBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.ckBox_cmd17_pcap_1 = new System.Windows.Forms.CheckBox();
+            this.ckBox_cmd17_pcap_10 = new System.Windows.Forms.CheckBox();
+            this.ckBox_cmd17_pcap_0 = new System.Windows.Forms.CheckBox();
+            this.textBox_cmd17_Machine_Type = new System.Windows.Forms.TextBox();
+            this.ckBox_cmd17_pcap_4 = new System.Windows.Forms.CheckBox();
+            this.ckBox_cmd17_pcap_9 = new System.Windows.Forms.CheckBox();
+            this.textBox_CMD17_HW_Code = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.ckBox_cmd17_pcap_5 = new System.Windows.Forms.CheckBox();
+            this.ckBox_cmd17_pcap_8 = new System.Windows.Forms.CheckBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.textBox_CMD17_FW_Rel = new System.Windows.Forms.TextBox();
+            this.ckBox_cmd17_pcap_6 = new System.Windows.Forms.CheckBox();
+            this.ckBox_cmd17_pcap_7 = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
             this.textBox_UID_Carel = new System.Windows.Forms.TextBox();
             this.textBox_Protocol_Rev = new System.Windows.Forms.TextBox();
             this.textBox_cmd17_back_comp = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.label13 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.textBox_applica_zone_idx = new System.Windows.Forms.TextBox();
             this.textBox_applica_layout_crc = new System.Windows.Forms.TextBox();
             this.textBox_applica_layout_id = new System.Windows.Forms.TextBox();
@@ -101,6 +96,8 @@
             this.label18 = new System.Windows.Forms.Label();
             this.label17 = new System.Windows.Forms.Label();
             this.label16 = new System.Windows.Forms.Label();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
             this.textBox_cpco_core_type = new System.Windows.Forms.TextBox();
             this.textBox_cpco_active_plug_in = new System.Windows.Forms.TextBox();
             this.textBox_cpco_cfg_name = new System.Windows.Forms.TextBox();
@@ -117,10 +114,32 @@
             this.label30 = new System.Windows.Forms.Label();
             this.label29 = new System.Windows.Forms.Label();
             this.label28 = new System.Windows.Forms.Label();
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.label14 = new System.Windows.Forms.Label();
+            this.textBox_cpco_os_version_3 = new System.Windows.Forms.TextBox();
+            this.textBox_cpco_os_version_2 = new System.Windows.Forms.TextBox();
+            this.textBox_cpco_os_version_1 = new System.Windows.Forms.TextBox();
+            this.textBox_cpco_os_type_3 = new System.Windows.Forms.TextBox();
+            this.textBox_cpco_os_type_2 = new System.Windows.Forms.TextBox();
+            this.textBox_cpco_os_type_1 = new System.Windows.Forms.TextBox();
+            this.label45 = new System.Windows.Forms.Label();
+            this.label46 = new System.Windows.Forms.Label();
+            this.label41 = new System.Windows.Forms.Label();
+            this.label42 = new System.Windows.Forms.Label();
+            this.label40 = new System.Windows.Forms.Label();
+            this.label39 = new System.Windows.Forms.Label();
+            this.label38 = new System.Windows.Forms.Label();
+            this.label37 = new System.Windows.Forms.Label();
+            this.textBox_cpco_os_version = new System.Windows.Forms.TextBox();
+            this.textBox_cpco_os_type = new System.Windows.Forms.TextBox();
+            this.textBox_cpco_os_lenght = new System.Windows.Forms.TextBox();
+            this.label36 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.tabPage5.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -183,6 +202,302 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "1";
             // 
+            // textBox_cmd17_pcap
+            // 
+            this.textBox_cmd17_pcap.Location = new System.Drawing.Point(52, 166);
+            this.textBox_cmd17_pcap.Name = "textBox_cmd17_pcap";
+            this.textBox_cmd17_pcap.Size = new System.Drawing.Size(83, 22);
+            this.textBox_cmd17_pcap.TabIndex = 66;
+            // 
+            // textBox_cmd17_customer_code
+            // 
+            this.textBox_cmd17_customer_code.Location = new System.Drawing.Point(589, 228);
+            this.textBox_cmd17_customer_code.Name = "textBox_cmd17_customer_code";
+            this.textBox_cmd17_customer_code.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_customer_code.TabIndex = 65;
+            // 
+            // textBox_cmd17_app_code
+            // 
+            this.textBox_cmd17_app_code.Location = new System.Drawing.Point(589, 200);
+            this.textBox_cmd17_app_code.Name = "textBox_cmd17_app_code";
+            this.textBox_cmd17_app_code.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_app_code.TabIndex = 64;
+            // 
+            // textBox_cmd17_app_release
+            // 
+            this.textBox_cmd17_app_release.Location = new System.Drawing.Point(589, 170);
+            this.textBox_cmd17_app_release.Name = "textBox_cmd17_app_release";
+            this.textBox_cmd17_app_release.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_app_release.TabIndex = 63;
+            // 
+            // textBox_cmd17_export_code
+            // 
+            this.textBox_cmd17_export_code.Location = new System.Drawing.Point(589, 142);
+            this.textBox_cmd17_export_code.Name = "textBox_cmd17_export_code";
+            this.textBox_cmd17_export_code.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_export_code.TabIndex = 62;
+            // 
+            // textBox_cmd17_option_code
+            // 
+            this.textBox_cmd17_option_code.Location = new System.Drawing.Point(589, 110);
+            this.textBox_cmd17_option_code.Name = "textBox_cmd17_option_code";
+            this.textBox_cmd17_option_code.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_option_code.TabIndex = 61;
+            // 
+            // textBox_cmd17_coil_max_var
+            // 
+            this.textBox_cmd17_coil_max_var.Location = new System.Drawing.Point(589, 82);
+            this.textBox_cmd17_coil_max_var.Name = "textBox_cmd17_coil_max_var";
+            this.textBox_cmd17_coil_max_var.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_coil_max_var.TabIndex = 60;
+            // 
+            // textBox_cmd17_reg_max_var
+            // 
+            this.textBox_cmd17_reg_max_var.Location = new System.Drawing.Point(589, 52);
+            this.textBox_cmd17_reg_max_var.Name = "textBox_cmd17_reg_max_var";
+            this.textBox_cmd17_reg_max_var.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_reg_max_var.TabIndex = 59;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(492, 82);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(90, 17);
+            this.label11.TabIndex = 58;
+            this.label11.Text = "Coil Max Var ";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Location = new System.Drawing.Point(494, 112);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(87, 17);
+            this.label10.TabIndex = 57;
+            this.label10.Text = "Option Code";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(494, 142);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(89, 17);
+            this.label9.TabIndex = 56;
+            this.label9.Text = "Export Code ";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(494, 169);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(89, 17);
+            this.label8.TabIndex = 55;
+            this.label8.Text = "App Release";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(494, 200);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(72, 17);
+            this.label7.TabIndex = 54;
+            this.label7.Text = "App.code ";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(494, 227);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(85, 17);
+            this.label6.TabIndex = 53;
+            this.label6.Text = "Customer C.";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(491, 52);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(89, 17);
+            this.label5.TabIndex = 52;
+            this.label5.Text = "Reg Max Var";
+            // 
+            // ckBox_cmd17_pcap_3
+            // 
+            this.ckBox_cmd17_pcap_3.AutoSize = true;
+            this.ckBox_cmd17_pcap_3.Location = new System.Drawing.Point(150, 223);
+            this.ckBox_cmd17_pcap_3.Name = "ckBox_cmd17_pcap_3";
+            this.ckBox_cmd17_pcap_3.Size = new System.Drawing.Size(183, 21);
+            this.ckBox_cmd17_pcap_3.TabIndex = 43;
+            this.ckBox_cmd17_pcap_3.Text = "03: Carel/Modbus switch";
+            this.ckBox_cmd17_pcap_3.UseVisualStyleBackColor = true;
+            // 
+            // ckBox_cmd17_pcap_11
+            // 
+            this.ckBox_cmd17_pcap_11.AutoSize = true;
+            this.ckBox_cmd17_pcap_11.Location = new System.Drawing.Point(150, 440);
+            this.ckBox_cmd17_pcap_11.Name = "ckBox_cmd17_pcap_11";
+            this.ckBox_cmd17_pcap_11.Size = new System.Drawing.Size(251, 21);
+            this.ckBox_cmd17_pcap_11.TabIndex = 51;
+            this.ckBox_cmd17_pcap_11.Text = "11: unlock special features present";
+            this.ckBox_cmd17_pcap_11.UseVisualStyleBackColor = true;
+            // 
+            // ckBox_cmd17_pcap_2
+            // 
+            this.ckBox_cmd17_pcap_2.AutoSize = true;
+            this.ckBox_cmd17_pcap_2.Location = new System.Drawing.Point(149, 196);
+            this.ckBox_cmd17_pcap_2.Name = "ckBox_cmd17_pcap_2";
+            this.ckBox_cmd17_pcap_2.Size = new System.Drawing.Size(143, 21);
+            this.ckBox_cmd17_pcap_2.TabIndex = 42;
+            this.ckBox_cmd17_pcap_2.Text = "02: accepts U/S/B";
+            this.ckBox_cmd17_pcap_2.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(47, 52);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(106, 17);
+            this.label1.TabIndex = 33;
+            this.label1.Text = "Mach. Type (H)";
+            // 
+            // ckBox_cmd17_pcap_1
+            // 
+            this.ckBox_cmd17_pcap_1.AutoSize = true;
+            this.ckBox_cmd17_pcap_1.Location = new System.Drawing.Point(149, 169);
+            this.ckBox_cmd17_pcap_1.Name = "ckBox_cmd17_pcap_1";
+            this.ckBox_cmd17_pcap_1.Size = new System.Drawing.Size(112, 21);
+            this.ckBox_cmd17_pcap_1.TabIndex = 41;
+            this.ckBox_cmd17_pcap_1.Text = "01: crc error ";
+            this.ckBox_cmd17_pcap_1.UseVisualStyleBackColor = true;
+            // 
+            // ckBox_cmd17_pcap_10
+            // 
+            this.ckBox_cmd17_pcap_10.AutoSize = true;
+            this.ckBox_cmd17_pcap_10.Location = new System.Drawing.Point(150, 413);
+            this.ckBox_cmd17_pcap_10.Name = "ckBox_cmd17_pcap_10";
+            this.ckBox_cmd17_pcap_10.Size = new System.Drawing.Size(133, 21);
+            this.ckBox_cmd17_pcap_10.TabIndex = 50;
+            this.ckBox_cmd17_pcap_10.Text = "10: STC support";
+            this.ckBox_cmd17_pcap_10.UseVisualStyleBackColor = true;
+            // 
+            // ckBox_cmd17_pcap_0
+            // 
+            this.ckBox_cmd17_pcap_0.AutoSize = true;
+            this.ckBox_cmd17_pcap_0.Location = new System.Drawing.Point(149, 142);
+            this.ckBox_cmd17_pcap_0.Name = "ckBox_cmd17_pcap_0";
+            this.ckBox_cmd17_pcap_0.Size = new System.Drawing.Size(99, 21);
+            this.ckBox_cmd17_pcap_0.TabIndex = 40;
+            this.ckBox_cmd17_pcap_0.Text = "00: Msg “r”";
+            this.ckBox_cmd17_pcap_0.UseVisualStyleBackColor = true;
+            // 
+            // textBox_cmd17_Machine_Type
+            // 
+            this.textBox_cmd17_Machine_Type.Location = new System.Drawing.Point(157, 49);
+            this.textBox_cmd17_Machine_Type.Name = "textBox_cmd17_Machine_Type";
+            this.textBox_cmd17_Machine_Type.Size = new System.Drawing.Size(85, 22);
+            this.textBox_cmd17_Machine_Type.TabIndex = 34;
+            // 
+            // ckBox_cmd17_pcap_4
+            // 
+            this.ckBox_cmd17_pcap_4.AutoSize = true;
+            this.ckBox_cmd17_pcap_4.Location = new System.Drawing.Point(150, 251);
+            this.ckBox_cmd17_pcap_4.Name = "ckBox_cmd17_pcap_4";
+            this.ckBox_cmd17_pcap_4.Size = new System.Drawing.Size(260, 21);
+            this.ckBox_cmd17_pcap_4.TabIndex = 44;
+            this.ckBox_cmd17_pcap_4.Text = "04: accepts FW download messages";
+            this.ckBox_cmd17_pcap_4.UseVisualStyleBackColor = true;
+            // 
+            // ckBox_cmd17_pcap_9
+            // 
+            this.ckBox_cmd17_pcap_9.AutoSize = true;
+            this.ckBox_cmd17_pcap_9.Location = new System.Drawing.Point(150, 386);
+            this.ckBox_cmd17_pcap_9.Name = "ckBox_cmd17_pcap_9";
+            this.ckBox_cmd17_pcap_9.Size = new System.Drawing.Size(239, 21);
+            this.ckBox_cmd17_pcap_9.TabIndex = 49;
+            this.ckBox_cmd17_pcap_9.Text = "09: Modbus File transfert support";
+            this.ckBox_cmd17_pcap_9.UseVisualStyleBackColor = true;
+            // 
+            // textBox_CMD17_HW_Code
+            // 
+            this.textBox_CMD17_HW_Code.Location = new System.Drawing.Point(150, 109);
+            this.textBox_CMD17_HW_Code.Name = "textBox_CMD17_HW_Code";
+            this.textBox_CMD17_HW_Code.Size = new System.Drawing.Size(85, 22);
+            this.textBox_CMD17_HW_Code.TabIndex = 39;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(47, 79);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(82, 17);
+            this.label2.TabIndex = 35;
+            this.label2.Text = "FW Rel. (H)";
+            // 
+            // ckBox_cmd17_pcap_5
+            // 
+            this.ckBox_cmd17_pcap_5.AutoSize = true;
+            this.ckBox_cmd17_pcap_5.Location = new System.Drawing.Point(150, 278);
+            this.ckBox_cmd17_pcap_5.Name = "ckBox_cmd17_pcap_5";
+            this.ckBox_cmd17_pcap_5.Size = new System.Drawing.Size(253, 21);
+            this.ckBox_cmd17_pcap_5.TabIndex = 45;
+            this.ckBox_cmd17_pcap_5.Text = "05: accepts EEPROM direct wr msg";
+            this.ckBox_cmd17_pcap_5.UseVisualStyleBackColor = true;
+            // 
+            // ckBox_cmd17_pcap_8
+            // 
+            this.ckBox_cmd17_pcap_8.AutoSize = true;
+            this.ckBox_cmd17_pcap_8.Location = new System.Drawing.Point(150, 359);
+            this.ckBox_cmd17_pcap_8.Name = "ckBox_cmd17_pcap_8";
+            this.ckBox_cmd17_pcap_8.Size = new System.Drawing.Size(284, 21);
+            this.ckBox_cmd17_pcap_8.TabIndex = 48;
+            this.ckBox_cmd17_pcap_8.Text = "08: Exception 5 (ACKNOWLEDGE) man.";
+            this.ckBox_cmd17_pcap_8.UseVisualStyleBackColor = true;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(47, 138);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(89, 17);
+            this.label4.TabIndex = 38;
+            this.label4.Text = "Protocol Cap";
+            // 
+            // textBox_CMD17_FW_Rel
+            // 
+            this.textBox_CMD17_FW_Rel.Location = new System.Drawing.Point(150, 79);
+            this.textBox_CMD17_FW_Rel.Name = "textBox_CMD17_FW_Rel";
+            this.textBox_CMD17_FW_Rel.Size = new System.Drawing.Size(85, 22);
+            this.textBox_CMD17_FW_Rel.TabIndex = 36;
+            // 
+            // ckBox_cmd17_pcap_6
+            // 
+            this.ckBox_cmd17_pcap_6.AutoSize = true;
+            this.ckBox_cmd17_pcap_6.Location = new System.Drawing.Point(150, 305);
+            this.ckBox_cmd17_pcap_6.Name = "ckBox_cmd17_pcap_6";
+            this.ckBox_cmd17_pcap_6.Size = new System.Drawing.Size(203, 21);
+            this.ckBox_cmd17_pcap_6.TabIndex = 46;
+            this.ckBox_cmd17_pcap_6.Text = "06: reserved for bootloader";
+            this.ckBox_cmd17_pcap_6.UseVisualStyleBackColor = true;
+            // 
+            // ckBox_cmd17_pcap_7
+            // 
+            this.ckBox_cmd17_pcap_7.AutoSize = true;
+            this.ckBox_cmd17_pcap_7.Location = new System.Drawing.Point(150, 332);
+            this.ckBox_cmd17_pcap_7.Name = "ckBox_cmd17_pcap_7";
+            this.ckBox_cmd17_pcap_7.Size = new System.Drawing.Size(213, 21);
+            this.ckBox_cmd17_pcap_7.TabIndex = 47;
+            this.ckBox_cmd17_pcap_7.Text = "07: host of CAN bus board ...";
+            this.ckBox_cmd17_pcap_7.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(47, 109);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(92, 17);
+            this.label3.TabIndex = 37;
+            this.label3.Text = "HW Code (H)";
+            // 
             // tabPage2
             // 
             this.tabPage2.BackColor = System.Drawing.Color.BurlyWood;
@@ -198,396 +513,6 @@
             this.tabPage2.Size = new System.Drawing.Size(720, 510);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "2";
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.BackColor = System.Drawing.Color.SteelBlue;
-            this.tabPage3.Controls.Add(this.textBox_applica_zone_idx);
-            this.tabPage3.Controls.Add(this.textBox_applica_layout_crc);
-            this.tabPage3.Controls.Add(this.textBox_applica_layout_id);
-            this.tabPage3.Controls.Add(this.textBox_applica_ov_mach_code);
-            this.tabPage3.Controls.Add(this.textBox_applica_ov_oem_id);
-            this.tabPage3.Controls.Add(this.textBox_Applica_Machine_Code);
-            this.tabPage3.Controls.Add(this.textBox_applica_OEM_Id);
-            this.tabPage3.Controls.Add(this.textBox_applica_prj_release);
-            this.tabPage3.Controls.Add(this.textBox_applica_prj_guid);
-            this.tabPage3.Controls.Add(this.textBox_applica_version);
-            this.tabPage3.Controls.Add(this.textBox_applica_type);
-            this.tabPage3.Controls.Add(this.textBox_applica_lenght);
-            this.tabPage3.Controls.Add(this.label27);
-            this.tabPage3.Controls.Add(this.label26);
-            this.tabPage3.Controls.Add(this.label25);
-            this.tabPage3.Controls.Add(this.label24);
-            this.tabPage3.Controls.Add(this.label23);
-            this.tabPage3.Controls.Add(this.label22);
-            this.tabPage3.Controls.Add(this.label21);
-            this.tabPage3.Controls.Add(this.label20);
-            this.tabPage3.Controls.Add(this.label19);
-            this.tabPage3.Controls.Add(this.label18);
-            this.tabPage3.Controls.Add(this.label17);
-            this.tabPage3.Controls.Add(this.label16);
-            this.tabPage3.Location = new System.Drawing.Point(4, 25);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(720, 510);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "APPLICA";
-            // 
-            // tabPage4
-            // 
-            this.tabPage4.BackColor = System.Drawing.Color.MediumPurple;
-            this.tabPage4.Location = new System.Drawing.Point(4, 25);
-            this.tabPage4.Name = "tabPage4";
-            this.tabPage4.Size = new System.Drawing.Size(720, 510);
-            this.tabPage4.TabIndex = 3;
-            this.tabPage4.Text = "TODO";
-            // 
-            // tabPage5
-            // 
-            this.tabPage5.BackColor = System.Drawing.Color.SandyBrown;
-            this.tabPage5.Controls.Add(this.textBox_cpco_core_type);
-            this.tabPage5.Controls.Add(this.textBox_cpco_active_plug_in);
-            this.tabPage5.Controls.Add(this.textBox_cpco_cfg_name);
-            this.tabPage5.Controls.Add(this.textBox_cpco_prj_name);
-            this.tabPage5.Controls.Add(this.textBox_cpco_tool_version);
-            this.tabPage5.Controls.Add(this.textBox_cpco_version);
-            this.tabPage5.Controls.Add(this.textBox_cpco_type);
-            this.tabPage5.Controls.Add(this.textBox_cpco_lenght);
-            this.tabPage5.Controls.Add(this.label35);
-            this.tabPage5.Controls.Add(this.label34);
-            this.tabPage5.Controls.Add(this.label33);
-            this.tabPage5.Controls.Add(this.label32);
-            this.tabPage5.Controls.Add(this.label31);
-            this.tabPage5.Controls.Add(this.label30);
-            this.tabPage5.Controls.Add(this.label29);
-            this.tabPage5.Controls.Add(this.label28);
-            this.tabPage5.Location = new System.Drawing.Point(4, 25);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Size = new System.Drawing.Size(720, 510);
-            this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "cpCO";
-            // 
-            // tabPage6
-            // 
-            this.tabPage6.BackColor = System.Drawing.Color.IndianRed;
-            this.tabPage6.Location = new System.Drawing.Point(4, 25);
-            this.tabPage6.Name = "tabPage6";
-            this.tabPage6.Size = new System.Drawing.Size(720, 510);
-            this.tabPage6.TabIndex = 5;
-            this.tabPage6.Text = "TODO";
-            // 
-            // tabPage7
-            // 
-            this.tabPage7.BackColor = System.Drawing.Color.Maroon;
-            this.tabPage7.Location = new System.Drawing.Point(4, 25);
-            this.tabPage7.Name = "tabPage7";
-            this.tabPage7.Size = new System.Drawing.Size(720, 510);
-            this.tabPage7.TabIndex = 6;
-            this.tabPage7.Text = "TODO";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(47, 109);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(92, 17);
-            this.label3.TabIndex = 37;
-            this.label3.Text = "HW Code (H)";
-            // 
-            // ckBox_cmd17_pcap_7
-            // 
-            this.ckBox_cmd17_pcap_7.AutoSize = true;
-            this.ckBox_cmd17_pcap_7.Location = new System.Drawing.Point(150, 332);
-            this.ckBox_cmd17_pcap_7.Name = "ckBox_cmd17_pcap_7";
-            this.ckBox_cmd17_pcap_7.Size = new System.Drawing.Size(213, 21);
-            this.ckBox_cmd17_pcap_7.TabIndex = 47;
-            this.ckBox_cmd17_pcap_7.Text = "07: host of CAN bus board ...";
-            this.ckBox_cmd17_pcap_7.UseVisualStyleBackColor = true;
-            // 
-            // ckBox_cmd17_pcap_6
-            // 
-            this.ckBox_cmd17_pcap_6.AutoSize = true;
-            this.ckBox_cmd17_pcap_6.Location = new System.Drawing.Point(150, 305);
-            this.ckBox_cmd17_pcap_6.Name = "ckBox_cmd17_pcap_6";
-            this.ckBox_cmd17_pcap_6.Size = new System.Drawing.Size(203, 21);
-            this.ckBox_cmd17_pcap_6.TabIndex = 46;
-            this.ckBox_cmd17_pcap_6.Text = "06: reserved for bootloader";
-            this.ckBox_cmd17_pcap_6.UseVisualStyleBackColor = true;
-            // 
-            // textBox_CMD17_FW_Rel
-            // 
-            this.textBox_CMD17_FW_Rel.Location = new System.Drawing.Point(150, 79);
-            this.textBox_CMD17_FW_Rel.Name = "textBox_CMD17_FW_Rel";
-            this.textBox_CMD17_FW_Rel.Size = new System.Drawing.Size(85, 22);
-            this.textBox_CMD17_FW_Rel.TabIndex = 36;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(47, 138);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 17);
-            this.label4.TabIndex = 38;
-            this.label4.Text = "Protocol Cap";
-            // 
-            // ckBox_cmd17_pcap_8
-            // 
-            this.ckBox_cmd17_pcap_8.AutoSize = true;
-            this.ckBox_cmd17_pcap_8.Location = new System.Drawing.Point(150, 359);
-            this.ckBox_cmd17_pcap_8.Name = "ckBox_cmd17_pcap_8";
-            this.ckBox_cmd17_pcap_8.Size = new System.Drawing.Size(284, 21);
-            this.ckBox_cmd17_pcap_8.TabIndex = 48;
-            this.ckBox_cmd17_pcap_8.Text = "08: Exception 5 (ACKNOWLEDGE) man.";
-            this.ckBox_cmd17_pcap_8.UseVisualStyleBackColor = true;
-            // 
-            // ckBox_cmd17_pcap_5
-            // 
-            this.ckBox_cmd17_pcap_5.AutoSize = true;
-            this.ckBox_cmd17_pcap_5.Location = new System.Drawing.Point(150, 278);
-            this.ckBox_cmd17_pcap_5.Name = "ckBox_cmd17_pcap_5";
-            this.ckBox_cmd17_pcap_5.Size = new System.Drawing.Size(253, 21);
-            this.ckBox_cmd17_pcap_5.TabIndex = 45;
-            this.ckBox_cmd17_pcap_5.Text = "05: accepts EEPROM direct wr msg";
-            this.ckBox_cmd17_pcap_5.UseVisualStyleBackColor = true;
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(47, 79);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(82, 17);
-            this.label2.TabIndex = 35;
-            this.label2.Text = "FW Rel. (H)";
-            // 
-            // textBox_CMD17_HW_Code
-            // 
-            this.textBox_CMD17_HW_Code.Location = new System.Drawing.Point(150, 109);
-            this.textBox_CMD17_HW_Code.Name = "textBox_CMD17_HW_Code";
-            this.textBox_CMD17_HW_Code.Size = new System.Drawing.Size(85, 22);
-            this.textBox_CMD17_HW_Code.TabIndex = 39;
-            // 
-            // ckBox_cmd17_pcap_9
-            // 
-            this.ckBox_cmd17_pcap_9.AutoSize = true;
-            this.ckBox_cmd17_pcap_9.Location = new System.Drawing.Point(150, 386);
-            this.ckBox_cmd17_pcap_9.Name = "ckBox_cmd17_pcap_9";
-            this.ckBox_cmd17_pcap_9.Size = new System.Drawing.Size(239, 21);
-            this.ckBox_cmd17_pcap_9.TabIndex = 49;
-            this.ckBox_cmd17_pcap_9.Text = "09: Modbus File transfert support";
-            this.ckBox_cmd17_pcap_9.UseVisualStyleBackColor = true;
-            // 
-            // ckBox_cmd17_pcap_4
-            // 
-            this.ckBox_cmd17_pcap_4.AutoSize = true;
-            this.ckBox_cmd17_pcap_4.Location = new System.Drawing.Point(150, 251);
-            this.ckBox_cmd17_pcap_4.Name = "ckBox_cmd17_pcap_4";
-            this.ckBox_cmd17_pcap_4.Size = new System.Drawing.Size(260, 21);
-            this.ckBox_cmd17_pcap_4.TabIndex = 44;
-            this.ckBox_cmd17_pcap_4.Text = "04: accepts FW download messages";
-            this.ckBox_cmd17_pcap_4.UseVisualStyleBackColor = true;
-            // 
-            // textBox_cmd17_Machine_Type
-            // 
-            this.textBox_cmd17_Machine_Type.Location = new System.Drawing.Point(157, 49);
-            this.textBox_cmd17_Machine_Type.Name = "textBox_cmd17_Machine_Type";
-            this.textBox_cmd17_Machine_Type.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_Machine_Type.TabIndex = 34;
-            // 
-            // ckBox_cmd17_pcap_0
-            // 
-            this.ckBox_cmd17_pcap_0.AutoSize = true;
-            this.ckBox_cmd17_pcap_0.Location = new System.Drawing.Point(149, 142);
-            this.ckBox_cmd17_pcap_0.Name = "ckBox_cmd17_pcap_0";
-            this.ckBox_cmd17_pcap_0.Size = new System.Drawing.Size(99, 21);
-            this.ckBox_cmd17_pcap_0.TabIndex = 40;
-            this.ckBox_cmd17_pcap_0.Text = "00: Msg “r”";
-            this.ckBox_cmd17_pcap_0.UseVisualStyleBackColor = true;
-            // 
-            // ckBox_cmd17_pcap_10
-            // 
-            this.ckBox_cmd17_pcap_10.AutoSize = true;
-            this.ckBox_cmd17_pcap_10.Location = new System.Drawing.Point(150, 413);
-            this.ckBox_cmd17_pcap_10.Name = "ckBox_cmd17_pcap_10";
-            this.ckBox_cmd17_pcap_10.Size = new System.Drawing.Size(133, 21);
-            this.ckBox_cmd17_pcap_10.TabIndex = 50;
-            this.ckBox_cmd17_pcap_10.Text = "10: STC support";
-            this.ckBox_cmd17_pcap_10.UseVisualStyleBackColor = true;
-            // 
-            // ckBox_cmd17_pcap_1
-            // 
-            this.ckBox_cmd17_pcap_1.AutoSize = true;
-            this.ckBox_cmd17_pcap_1.Location = new System.Drawing.Point(149, 169);
-            this.ckBox_cmd17_pcap_1.Name = "ckBox_cmd17_pcap_1";
-            this.ckBox_cmd17_pcap_1.Size = new System.Drawing.Size(112, 21);
-            this.ckBox_cmd17_pcap_1.TabIndex = 41;
-            this.ckBox_cmd17_pcap_1.Text = "01: crc error ";
-            this.ckBox_cmd17_pcap_1.UseVisualStyleBackColor = true;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(47, 52);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(106, 17);
-            this.label1.TabIndex = 33;
-            this.label1.Text = "Mach. Type (H)";
-            // 
-            // ckBox_cmd17_pcap_2
-            // 
-            this.ckBox_cmd17_pcap_2.AutoSize = true;
-            this.ckBox_cmd17_pcap_2.Location = new System.Drawing.Point(149, 196);
-            this.ckBox_cmd17_pcap_2.Name = "ckBox_cmd17_pcap_2";
-            this.ckBox_cmd17_pcap_2.Size = new System.Drawing.Size(143, 21);
-            this.ckBox_cmd17_pcap_2.TabIndex = 42;
-            this.ckBox_cmd17_pcap_2.Text = "02: accepts U/S/B";
-            this.ckBox_cmd17_pcap_2.UseVisualStyleBackColor = true;
-            // 
-            // ckBox_cmd17_pcap_11
-            // 
-            this.ckBox_cmd17_pcap_11.AutoSize = true;
-            this.ckBox_cmd17_pcap_11.Location = new System.Drawing.Point(150, 440);
-            this.ckBox_cmd17_pcap_11.Name = "ckBox_cmd17_pcap_11";
-            this.ckBox_cmd17_pcap_11.Size = new System.Drawing.Size(251, 21);
-            this.ckBox_cmd17_pcap_11.TabIndex = 51;
-            this.ckBox_cmd17_pcap_11.Text = "11: unlock special features present";
-            this.ckBox_cmd17_pcap_11.UseVisualStyleBackColor = true;
-            // 
-            // ckBox_cmd17_pcap_3
-            // 
-            this.ckBox_cmd17_pcap_3.AutoSize = true;
-            this.ckBox_cmd17_pcap_3.Location = new System.Drawing.Point(150, 223);
-            this.ckBox_cmd17_pcap_3.Name = "ckBox_cmd17_pcap_3";
-            this.ckBox_cmd17_pcap_3.Size = new System.Drawing.Size(183, 21);
-            this.ckBox_cmd17_pcap_3.TabIndex = 43;
-            this.ckBox_cmd17_pcap_3.Text = "03: Carel/Modbus switch";
-            this.ckBox_cmd17_pcap_3.UseVisualStyleBackColor = true;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(491, 52);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(89, 17);
-            this.label5.TabIndex = 52;
-            this.label5.Text = "Reg Max Var";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(494, 227);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(85, 17);
-            this.label6.TabIndex = 53;
-            this.label6.Text = "Customer C.";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(494, 200);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(72, 17);
-            this.label7.TabIndex = 54;
-            this.label7.Text = "App.code ";
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(494, 169);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(89, 17);
-            this.label8.TabIndex = 55;
-            this.label8.Text = "App Release";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(494, 142);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(89, 17);
-            this.label9.TabIndex = 56;
-            this.label9.Text = "Export Code ";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(494, 112);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(87, 17);
-            this.label10.TabIndex = 57;
-            this.label10.Text = "Option Code";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(492, 82);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(90, 17);
-            this.label11.TabIndex = 58;
-            this.label11.Text = "Coil Max Var ";
-            // 
-            // textBox_cmd17_reg_max_var
-            // 
-            this.textBox_cmd17_reg_max_var.Location = new System.Drawing.Point(589, 52);
-            this.textBox_cmd17_reg_max_var.Name = "textBox_cmd17_reg_max_var";
-            this.textBox_cmd17_reg_max_var.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_reg_max_var.TabIndex = 59;
-            // 
-            // textBox_cmd17_coil_max_var
-            // 
-            this.textBox_cmd17_coil_max_var.Location = new System.Drawing.Point(589, 82);
-            this.textBox_cmd17_coil_max_var.Name = "textBox_cmd17_coil_max_var";
-            this.textBox_cmd17_coil_max_var.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_coil_max_var.TabIndex = 60;
-            // 
-            // textBox_cmd17_option_code
-            // 
-            this.textBox_cmd17_option_code.Location = new System.Drawing.Point(589, 110);
-            this.textBox_cmd17_option_code.Name = "textBox_cmd17_option_code";
-            this.textBox_cmd17_option_code.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_option_code.TabIndex = 61;
-            // 
-            // textBox_cmd17_export_code
-            // 
-            this.textBox_cmd17_export_code.Location = new System.Drawing.Point(589, 142);
-            this.textBox_cmd17_export_code.Name = "textBox_cmd17_export_code";
-            this.textBox_cmd17_export_code.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_export_code.TabIndex = 62;
-            // 
-            // textBox_cmd17_app_release
-            // 
-            this.textBox_cmd17_app_release.Location = new System.Drawing.Point(589, 170);
-            this.textBox_cmd17_app_release.Name = "textBox_cmd17_app_release";
-            this.textBox_cmd17_app_release.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_app_release.TabIndex = 63;
-            // 
-            // textBox_cmd17_app_code
-            // 
-            this.textBox_cmd17_app_code.Location = new System.Drawing.Point(589, 200);
-            this.textBox_cmd17_app_code.Name = "textBox_cmd17_app_code";
-            this.textBox_cmd17_app_code.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_app_code.TabIndex = 64;
-            // 
-            // textBox_cmd17_customer_code
-            // 
-            this.textBox_cmd17_customer_code.Location = new System.Drawing.Point(589, 228);
-            this.textBox_cmd17_customer_code.Name = "textBox_cmd17_customer_code";
-            this.textBox_cmd17_customer_code.Size = new System.Drawing.Size(85, 22);
-            this.textBox_cmd17_customer_code.TabIndex = 65;
-            // 
-            // textBox_cmd17_pcap
-            // 
-            this.textBox_cmd17_pcap.Location = new System.Drawing.Point(52, 166);
-            this.textBox_cmd17_pcap.Name = "textBox_cmd17_pcap";
-            this.textBox_cmd17_pcap.Size = new System.Drawing.Size(83, 22);
-            this.textBox_cmd17_pcap.TabIndex = 66;
-            // 
-            // label14
-            // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(-49, -56);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(54, 17);
-            this.label14.TabIndex = 36;
-            this.label14.Text = "label14";
             // 
             // textBox_UID_Carel
             // 
@@ -638,60 +563,94 @@
             this.label12.TabIndex = 41;
             this.label12.Text = "Back comp.";
             // 
+            // tabPage3
+            // 
+            this.tabPage3.BackColor = System.Drawing.Color.SteelBlue;
+            this.tabPage3.Controls.Add(this.textBox_applica_zone_idx);
+            this.tabPage3.Controls.Add(this.textBox_applica_layout_crc);
+            this.tabPage3.Controls.Add(this.textBox_applica_layout_id);
+            this.tabPage3.Controls.Add(this.textBox_applica_ov_mach_code);
+            this.tabPage3.Controls.Add(this.textBox_applica_ov_oem_id);
+            this.tabPage3.Controls.Add(this.textBox_Applica_Machine_Code);
+            this.tabPage3.Controls.Add(this.textBox_applica_OEM_Id);
+            this.tabPage3.Controls.Add(this.textBox_applica_prj_release);
+            this.tabPage3.Controls.Add(this.textBox_applica_prj_guid);
+            this.tabPage3.Controls.Add(this.textBox_applica_version);
+            this.tabPage3.Controls.Add(this.textBox_applica_type);
+            this.tabPage3.Controls.Add(this.textBox_applica_lenght);
+            this.tabPage3.Controls.Add(this.label27);
+            this.tabPage3.Controls.Add(this.label26);
+            this.tabPage3.Controls.Add(this.label25);
+            this.tabPage3.Controls.Add(this.label24);
+            this.tabPage3.Controls.Add(this.label23);
+            this.tabPage3.Controls.Add(this.label22);
+            this.tabPage3.Controls.Add(this.label21);
+            this.tabPage3.Controls.Add(this.label20);
+            this.tabPage3.Controls.Add(this.label19);
+            this.tabPage3.Controls.Add(this.label18);
+            this.tabPage3.Controls.Add(this.label17);
+            this.tabPage3.Controls.Add(this.label16);
+            this.tabPage3.Location = new System.Drawing.Point(4, 25);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(720, 510);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "APPLICA";
+            // 
             // textBox_applica_zone_idx
             // 
             this.textBox_applica_zone_idx.Location = new System.Drawing.Point(262, 404);
             this.textBox_applica_zone_idx.Name = "textBox_applica_zone_idx";
-            this.textBox_applica_zone_idx.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_zone_idx.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_zone_idx.TabIndex = 84;
             // 
             // textBox_applica_layout_crc
             // 
             this.textBox_applica_layout_crc.Location = new System.Drawing.Point(262, 375);
             this.textBox_applica_layout_crc.Name = "textBox_applica_layout_crc";
-            this.textBox_applica_layout_crc.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_layout_crc.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_layout_crc.TabIndex = 83;
             // 
             // textBox_applica_layout_id
             // 
             this.textBox_applica_layout_id.Location = new System.Drawing.Point(262, 346);
             this.textBox_applica_layout_id.Name = "textBox_applica_layout_id";
-            this.textBox_applica_layout_id.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_layout_id.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_layout_id.TabIndex = 82;
             // 
             // textBox_applica_ov_mach_code
             // 
             this.textBox_applica_ov_mach_code.Location = new System.Drawing.Point(262, 317);
             this.textBox_applica_ov_mach_code.Name = "textBox_applica_ov_mach_code";
-            this.textBox_applica_ov_mach_code.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_ov_mach_code.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_ov_mach_code.TabIndex = 81;
+            this.textBox_applica_ov_mach_code.TextChanged += new System.EventHandler(this.textBox_applica_ov_mach_code_TextChanged);
             // 
             // textBox_applica_ov_oem_id
             // 
             this.textBox_applica_ov_oem_id.Location = new System.Drawing.Point(262, 288);
             this.textBox_applica_ov_oem_id.Name = "textBox_applica_ov_oem_id";
-            this.textBox_applica_ov_oem_id.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_ov_oem_id.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_ov_oem_id.TabIndex = 80;
             // 
             // textBox_Applica_Machine_Code
             // 
             this.textBox_Applica_Machine_Code.Location = new System.Drawing.Point(262, 259);
             this.textBox_Applica_Machine_Code.Name = "textBox_Applica_Machine_Code";
-            this.textBox_Applica_Machine_Code.Size = new System.Drawing.Size(132, 22);
+            this.textBox_Applica_Machine_Code.Size = new System.Drawing.Size(314, 22);
             this.textBox_Applica_Machine_Code.TabIndex = 79;
             // 
             // textBox_applica_OEM_Id
             // 
             this.textBox_applica_OEM_Id.Location = new System.Drawing.Point(262, 230);
             this.textBox_applica_OEM_Id.Name = "textBox_applica_OEM_Id";
-            this.textBox_applica_OEM_Id.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_OEM_Id.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_OEM_Id.TabIndex = 78;
             // 
             // textBox_applica_prj_release
             // 
             this.textBox_applica_prj_release.Location = new System.Drawing.Point(262, 201);
             this.textBox_applica_prj_release.Name = "textBox_applica_prj_release";
-            this.textBox_applica_prj_release.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_prj_release.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_prj_release.TabIndex = 77;
             // 
             // textBox_applica_prj_guid
@@ -705,21 +664,21 @@
             // 
             this.textBox_applica_version.Location = new System.Drawing.Point(262, 143);
             this.textBox_applica_version.Name = "textBox_applica_version";
-            this.textBox_applica_version.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_version.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_version.TabIndex = 75;
             // 
             // textBox_applica_type
             // 
             this.textBox_applica_type.Location = new System.Drawing.Point(262, 114);
             this.textBox_applica_type.Name = "textBox_applica_type";
-            this.textBox_applica_type.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_type.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_type.TabIndex = 74;
             // 
             // textBox_applica_lenght
             // 
             this.textBox_applica_lenght.Location = new System.Drawing.Point(262, 85);
             this.textBox_applica_lenght.Name = "textBox_applica_lenght";
-            this.textBox_applica_lenght.Size = new System.Drawing.Size(132, 22);
+            this.textBox_applica_lenght.Size = new System.Drawing.Size(314, 22);
             this.textBox_applica_lenght.TabIndex = 73;
             // 
             // label27
@@ -829,6 +788,58 @@
             this.label16.Size = new System.Drawing.Size(52, 17);
             this.label16.TabIndex = 61;
             this.label16.Text = "Lenght";
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.BackColor = System.Drawing.Color.MediumPurple;
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_version_3);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_version_2);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_version_1);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_type_3);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_type_2);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_type_1);
+            this.tabPage4.Controls.Add(this.label45);
+            this.tabPage4.Controls.Add(this.label46);
+            this.tabPage4.Controls.Add(this.label41);
+            this.tabPage4.Controls.Add(this.label42);
+            this.tabPage4.Controls.Add(this.label40);
+            this.tabPage4.Controls.Add(this.label39);
+            this.tabPage4.Controls.Add(this.label38);
+            this.tabPage4.Controls.Add(this.label37);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_version);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_type);
+            this.tabPage4.Controls.Add(this.textBox_cpco_os_lenght);
+            this.tabPage4.Controls.Add(this.label36);
+            this.tabPage4.Location = new System.Drawing.Point(4, 25);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Size = new System.Drawing.Size(720, 510);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "cpCO OS";
+            // 
+            // tabPage5
+            // 
+            this.tabPage5.BackColor = System.Drawing.Color.SandyBrown;
+            this.tabPage5.Controls.Add(this.textBox_cpco_core_type);
+            this.tabPage5.Controls.Add(this.textBox_cpco_active_plug_in);
+            this.tabPage5.Controls.Add(this.textBox_cpco_cfg_name);
+            this.tabPage5.Controls.Add(this.textBox_cpco_prj_name);
+            this.tabPage5.Controls.Add(this.textBox_cpco_tool_version);
+            this.tabPage5.Controls.Add(this.textBox_cpco_version);
+            this.tabPage5.Controls.Add(this.textBox_cpco_type);
+            this.tabPage5.Controls.Add(this.textBox_cpco_lenght);
+            this.tabPage5.Controls.Add(this.label35);
+            this.tabPage5.Controls.Add(this.label34);
+            this.tabPage5.Controls.Add(this.label33);
+            this.tabPage5.Controls.Add(this.label32);
+            this.tabPage5.Controls.Add(this.label31);
+            this.tabPage5.Controls.Add(this.label30);
+            this.tabPage5.Controls.Add(this.label29);
+            this.tabPage5.Controls.Add(this.label28);
+            this.tabPage5.Location = new System.Drawing.Point(4, 25);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Size = new System.Drawing.Size(720, 510);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "cpCO APP";
             // 
             // textBox_cpco_core_type
             // 
@@ -958,11 +969,182 @@
             this.label28.TabIndex = 53;
             this.label28.Text = "Lenght";
             // 
+            // tabPage6
+            // 
+            this.tabPage6.BackColor = System.Drawing.Color.IndianRed;
+            this.tabPage6.Location = new System.Drawing.Point(4, 25);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Size = new System.Drawing.Size(720, 510);
+            this.tabPage6.TabIndex = 5;
+            this.tabPage6.Text = "TODO";
+            // 
+            // tabPage7
+            // 
+            this.tabPage7.BackColor = System.Drawing.Color.Maroon;
+            this.tabPage7.Location = new System.Drawing.Point(4, 25);
+            this.tabPage7.Name = "tabPage7";
+            this.tabPage7.Size = new System.Drawing.Size(720, 510);
+            this.tabPage7.TabIndex = 6;
+            this.tabPage7.Text = "TODO";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(-49, -56);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(54, 17);
+            this.label14.TabIndex = 36;
+            this.label14.Text = "label14";
+            // 
+            // textBox_cpco_os_version_3
+            // 
+            this.textBox_cpco_os_version_3.Location = new System.Drawing.Point(256, 372);
+            this.textBox_cpco_os_version_3.Name = "textBox_cpco_os_version_3";
+            this.textBox_cpco_os_version_3.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_version_3.TabIndex = 117;
+            // 
+            // textBox_cpco_os_version_2
+            // 
+            this.textBox_cpco_os_version_2.Location = new System.Drawing.Point(256, 308);
+            this.textBox_cpco_os_version_2.Name = "textBox_cpco_os_version_2";
+            this.textBox_cpco_os_version_2.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_version_2.TabIndex = 116;
+            // 
+            // textBox_cpco_os_version_1
+            // 
+            this.textBox_cpco_os_version_1.Location = new System.Drawing.Point(256, 244);
+            this.textBox_cpco_os_version_1.Name = "textBox_cpco_os_version_1";
+            this.textBox_cpco_os_version_1.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_version_1.TabIndex = 115;
+            // 
+            // textBox_cpco_os_type_3
+            // 
+            this.textBox_cpco_os_type_3.Location = new System.Drawing.Point(256, 340);
+            this.textBox_cpco_os_type_3.Name = "textBox_cpco_os_type_3";
+            this.textBox_cpco_os_type_3.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_type_3.TabIndex = 114;
+            // 
+            // textBox_cpco_os_type_2
+            // 
+            this.textBox_cpco_os_type_2.Location = new System.Drawing.Point(256, 276);
+            this.textBox_cpco_os_type_2.Name = "textBox_cpco_os_type_2";
+            this.textBox_cpco_os_type_2.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_type_2.TabIndex = 113;
+            // 
+            // textBox_cpco_os_type_1
+            // 
+            this.textBox_cpco_os_type_1.Location = new System.Drawing.Point(256, 212);
+            this.textBox_cpco_os_type_1.Name = "textBox_cpco_os_type_1";
+            this.textBox_cpco_os_type_1.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_type_1.TabIndex = 112;
+            // 
+            // label45
+            // 
+            this.label45.AutoSize = true;
+            this.label45.Location = new System.Drawing.Point(150, 375);
+            this.label45.Name = "label45";
+            this.label45.Size = new System.Drawing.Size(68, 17);
+            this.label45.TabIndex = 111;
+            this.label45.Text = "Version 3";
+            // 
+            // label46
+            // 
+            this.label46.AutoSize = true;
+            this.label46.Location = new System.Drawing.Point(150, 343);
+            this.label46.Name = "label46";
+            this.label46.Size = new System.Drawing.Size(52, 17);
+            this.label46.TabIndex = 110;
+            this.label46.Text = "Type 3";
+            // 
+            // label41
+            // 
+            this.label41.AutoSize = true;
+            this.label41.Location = new System.Drawing.Point(150, 311);
+            this.label41.Name = "label41";
+            this.label41.Size = new System.Drawing.Size(68, 17);
+            this.label41.TabIndex = 109;
+            this.label41.Text = "Version 2";
+            // 
+            // label42
+            // 
+            this.label42.AutoSize = true;
+            this.label42.Location = new System.Drawing.Point(150, 279);
+            this.label42.Name = "label42";
+            this.label42.Size = new System.Drawing.Size(52, 17);
+            this.label42.TabIndex = 108;
+            this.label42.Text = "Type 2";
+            // 
+            // label40
+            // 
+            this.label40.AutoSize = true;
+            this.label40.Location = new System.Drawing.Point(150, 247);
+            this.label40.Name = "label40";
+            this.label40.Size = new System.Drawing.Size(68, 17);
+            this.label40.TabIndex = 107;
+            this.label40.Text = "Version 1";
+            // 
+            // label39
+            // 
+            this.label39.AutoSize = true;
+            this.label39.Location = new System.Drawing.Point(150, 215);
+            this.label39.Name = "label39";
+            this.label39.Size = new System.Drawing.Size(52, 17);
+            this.label39.TabIndex = 106;
+            this.label39.Text = "Type 1";
+            // 
+            // label38
+            // 
+            this.label38.AutoSize = true;
+            this.label38.Location = new System.Drawing.Point(150, 183);
+            this.label38.Name = "label38";
+            this.label38.Size = new System.Drawing.Size(56, 17);
+            this.label38.TabIndex = 105;
+            this.label38.Text = "Version";
+            // 
+            // label37
+            // 
+            this.label37.AutoSize = true;
+            this.label37.Location = new System.Drawing.Point(150, 151);
+            this.label37.Name = "label37";
+            this.label37.Size = new System.Drawing.Size(40, 17);
+            this.label37.TabIndex = 102;
+            this.label37.Text = "Type";
+            // 
+            // textBox_cpco_os_version
+            // 
+            this.textBox_cpco_os_version.Location = new System.Drawing.Point(256, 180);
+            this.textBox_cpco_os_version.Name = "textBox_cpco_os_version";
+            this.textBox_cpco_os_version.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_version.TabIndex = 101;
+            // 
+            // textBox_cpco_os_type
+            // 
+            this.textBox_cpco_os_type.Location = new System.Drawing.Point(256, 148);
+            this.textBox_cpco_os_type.Name = "textBox_cpco_os_type";
+            this.textBox_cpco_os_type.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_type.TabIndex = 104;
+            // 
+            // textBox_cpco_os_lenght
+            // 
+            this.textBox_cpco_os_lenght.Location = new System.Drawing.Point(256, 116);
+            this.textBox_cpco_os_lenght.Name = "textBox_cpco_os_lenght";
+            this.textBox_cpco_os_lenght.Size = new System.Drawing.Size(314, 22);
+            this.textBox_cpco_os_lenght.TabIndex = 103;
+            // 
+            // label36
+            // 
+            this.label36.AutoSize = true;
+            this.label36.Location = new System.Drawing.Point(150, 119);
+            this.label36.Name = "label36";
+            this.label36.Size = new System.Drawing.Size(52, 17);
+            this.label36.TabIndex = 100;
+            this.label36.Text = "Lenght";
+            // 
             // FormDecodeCMD17
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(753, 568);
+            this.ClientSize = new System.Drawing.Size(748, 568);
             this.Controls.Add(this.label14);
             this.Controls.Add(this.tabControl1);
             this.Name = "FormDecodeCMD17";
@@ -975,6 +1157,8 @@
             this.tabPage2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.tabPage5.ResumeLayout(false);
             this.tabPage5.PerformLayout();
             this.ResumeLayout(false);
@@ -1073,5 +1257,23 @@
         private System.Windows.Forms.Label label30;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.TextBox textBox_cpco_os_version_3;
+        private System.Windows.Forms.TextBox textBox_cpco_os_version_2;
+        private System.Windows.Forms.TextBox textBox_cpco_os_version_1;
+        private System.Windows.Forms.TextBox textBox_cpco_os_type_3;
+        private System.Windows.Forms.TextBox textBox_cpco_os_type_2;
+        private System.Windows.Forms.TextBox textBox_cpco_os_type_1;
+        private System.Windows.Forms.Label label45;
+        private System.Windows.Forms.Label label46;
+        private System.Windows.Forms.Label label41;
+        private System.Windows.Forms.Label label42;
+        private System.Windows.Forms.Label label40;
+        private System.Windows.Forms.Label label39;
+        private System.Windows.Forms.Label label38;
+        private System.Windows.Forms.Label label37;
+        private System.Windows.Forms.TextBox textBox_cpco_os_version;
+        private System.Windows.Forms.TextBox textBox_cpco_os_type;
+        private System.Windows.Forms.TextBox textBox_cpco_os_lenght;
+        private System.Windows.Forms.Label label36;
     }
 }

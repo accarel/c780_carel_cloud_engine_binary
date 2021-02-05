@@ -225,6 +225,11 @@
             this.label55 = new System.Windows.Forms.Label();
             this.button_Decode_File = new System.Windows.Forms.Button();
             this.timer_post_processing = new System.Windows.Forms.Timer(this.components);
+            this.checkBox_Show_Usr_Pwd = new System.Windows.Forms.CheckBox();
+            this.textBox_Errors = new System.Windows.Forms.TextBox();
+            this.label57 = new System.Windows.Forms.Label();
+            this.button_error_notification = new System.Windows.Forms.Button();
+            this.button_get_ulock_info = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -243,12 +248,12 @@
             // 
             this.txtConsole.AcceptsReturn = true;
             this.txtConsole.AcceptsTab = true;
-            this.txtConsole.Location = new System.Drawing.Point(27, 465);
+            this.txtConsole.Location = new System.Drawing.Point(28, 290);
             this.txtConsole.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtConsole.Multiline = true;
             this.txtConsole.Name = "txtConsole";
             this.txtConsole.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.txtConsole.Size = new System.Drawing.Size(457, 260);
+            this.txtConsole.Size = new System.Drawing.Size(457, 211);
             this.txtConsole.TabIndex = 3;
             this.txtConsole.Text = "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
             // 
@@ -276,18 +281,18 @@
             // 
             // textBoxPublish
             // 
-            this.textBoxPublish.Location = new System.Drawing.Point(27, 210);
+            this.textBoxPublish.Location = new System.Drawing.Point(28, 185);
             this.textBoxPublish.Margin = new System.Windows.Forms.Padding(4);
             this.textBoxPublish.Multiline = true;
             this.textBoxPublish.Name = "textBoxPublish";
             this.textBoxPublish.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxPublish.Size = new System.Drawing.Size(457, 189);
+            this.textBoxPublish.Size = new System.Drawing.Size(457, 76);
             this.textBoxPublish.TabIndex = 6;
             // 
             // labelPublish
             // 
             this.labelPublish.AutoSize = true;
-            this.labelPublish.Location = new System.Drawing.Point(30, 183);
+            this.labelPublish.Location = new System.Drawing.Point(30, 164);
             this.labelPublish.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelPublish.Name = "labelPublish";
             this.labelPublish.Size = new System.Drawing.Size(54, 17);
@@ -297,7 +302,7 @@
             // labelResponse
             // 
             this.labelResponse.AutoSize = true;
-            this.labelResponse.Location = new System.Drawing.Point(27, 439);
+            this.labelResponse.Location = new System.Drawing.Point(30, 267);
             this.labelResponse.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.labelResponse.Name = "labelResponse";
             this.labelResponse.Size = new System.Drawing.Size(72, 17);
@@ -309,7 +314,7 @@
             this.buttonClear.Location = new System.Drawing.Point(300, 158);
             this.buttonClear.Margin = new System.Windows.Forms.Padding(4);
             this.buttonClear.Name = "buttonClear";
-            this.buttonClear.Size = new System.Drawing.Size(57, 42);
+            this.buttonClear.Size = new System.Drawing.Size(57, 23);
             this.buttonClear.TabIndex = 10;
             this.buttonClear.Text = "CLS";
             this.buttonClear.UseVisualStyleBackColor = true;
@@ -476,7 +481,7 @@
             // 
             // button_Unlock_Device
             // 
-            this.button_Unlock_Device.Location = new System.Drawing.Point(340, 23);
+            this.button_Unlock_Device.Location = new System.Drawing.Point(337, 344);
             this.button_Unlock_Device.Margin = new System.Windows.Forms.Padding(4);
             this.button_Unlock_Device.Name = "button_Unlock_Device";
             this.button_Unlock_Device.Size = new System.Drawing.Size(129, 46);
@@ -630,10 +635,10 @@
             // 
             // buttonClearResponse
             // 
-            this.buttonClearResponse.Location = new System.Drawing.Point(301, 420);
+            this.buttonClearResponse.Location = new System.Drawing.Point(300, 265);
             this.buttonClearResponse.Margin = new System.Windows.Forms.Padding(4);
             this.buttonClearResponse.Name = "buttonClearResponse";
-            this.buttonClearResponse.Size = new System.Drawing.Size(57, 42);
+            this.buttonClearResponse.Size = new System.Drawing.Size(57, 23);
             this.buttonClearResponse.TabIndex = 23;
             this.buttonClearResponse.Text = "CLS";
             this.buttonClearResponse.UseVisualStyleBackColor = true;
@@ -669,7 +674,7 @@
             this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox2.Size = new System.Drawing.Size(195, 346);
+            this.groupBox2.Size = new System.Drawing.Size(195, 332);
             this.groupBox2.TabIndex = 24;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Modbus Value Req HR";
@@ -700,7 +705,7 @@
             this.button_MB_Write_HR.Location = new System.Drawing.Point(100, 298);
             this.button_MB_Write_HR.Margin = new System.Windows.Forms.Padding(4);
             this.button_MB_Write_HR.Name = "button_MB_Write_HR";
-            this.button_MB_Write_HR.Size = new System.Drawing.Size(85, 32);
+            this.button_MB_Write_HR.Size = new System.Drawing.Size(85, 23);
             this.button_MB_Write_HR.TabIndex = 43;
             this.button_MB_Write_HR.Text = "Write";
             this.button_MB_Write_HR.UseVisualStyleBackColor = true;
@@ -711,7 +716,7 @@
             this.button_MB_Read_HR.Location = new System.Drawing.Point(12, 298);
             this.button_MB_Read_HR.Margin = new System.Windows.Forms.Padding(4);
             this.button_MB_Read_HR.Name = "button_MB_Read_HR";
-            this.button_MB_Read_HR.Size = new System.Drawing.Size(85, 32);
+            this.button_MB_Read_HR.Size = new System.Drawing.Size(85, 23);
             this.button_MB_Read_HR.TabIndex = 42;
             this.button_MB_Read_HR.Text = "Read";
             this.button_MB_Read_HR.UseVisualStyleBackColor = true;
@@ -927,7 +932,7 @@
             this.groupBox3.Controls.Add(this.label21);
             this.groupBox3.Controls.Add(this.textBox_MB_COIL_Val);
             this.groupBox3.Controls.Add(this.label22);
-            this.groupBox3.Location = new System.Drawing.Point(500, 498);
+            this.groupBox3.Location = new System.Drawing.Point(500, 474);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(4);
@@ -1339,7 +1344,7 @@
             this.button_MB_Write_COIL.Location = new System.Drawing.Point(100, 143);
             this.button_MB_Write_COIL.Margin = new System.Windows.Forms.Padding(4);
             this.button_MB_Write_COIL.Name = "button_MB_Write_COIL";
-            this.button_MB_Write_COIL.Size = new System.Drawing.Size(85, 32);
+            this.button_MB_Write_COIL.Size = new System.Drawing.Size(85, 23);
             this.button_MB_Write_COIL.TabIndex = 43;
             this.button_MB_Write_COIL.Text = "Write";
             this.button_MB_Write_COIL.UseVisualStyleBackColor = true;
@@ -1350,7 +1355,7 @@
             this.button_MB_Read_COIL.Location = new System.Drawing.Point(12, 143);
             this.button_MB_Read_COIL.Margin = new System.Windows.Forms.Padding(4);
             this.button_MB_Read_COIL.Name = "button_MB_Read_COIL";
-            this.button_MB_Read_COIL.Size = new System.Drawing.Size(85, 32);
+            this.button_MB_Read_COIL.Size = new System.Drawing.Size(85, 23);
             this.button_MB_Read_COIL.TabIndex = 42;
             this.button_MB_Read_COIL.Text = "Read";
             this.button_MB_Read_COIL.UseVisualStyleBackColor = true;
@@ -1444,7 +1449,7 @@
             this.groupBox7.Controls.Add(this.label42);
             this.groupBox7.Controls.Add(this.textBox_MB_DI_R_Func);
             this.groupBox7.Controls.Add(this.label43);
-            this.groupBox7.Location = new System.Drawing.Point(712, 497);
+            this.groupBox7.Location = new System.Drawing.Point(712, 474);
             this.groupBox7.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Padding = new System.Windows.Forms.Padding(4);
@@ -1587,7 +1592,7 @@
             this.button_MB_Read_DI.Location = new System.Drawing.Point(12, 143);
             this.button_MB_Read_DI.Margin = new System.Windows.Forms.Padding(4);
             this.button_MB_Read_DI.Name = "button_MB_Read_DI";
-            this.button_MB_Read_DI.Size = new System.Drawing.Size(85, 32);
+            this.button_MB_Read_DI.Size = new System.Drawing.Size(85, 23);
             this.button_MB_Read_DI.TabIndex = 42;
             this.button_MB_Read_DI.Text = "Read";
             this.button_MB_Read_DI.UseVisualStyleBackColor = true;
@@ -1678,7 +1683,7 @@
             this.groupBox8.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox8.Size = new System.Drawing.Size(170, 346);
+            this.groupBox8.Size = new System.Drawing.Size(170, 332);
             this.groupBox8.TabIndex = 45;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Modbus Value Req IR";
@@ -1709,7 +1714,7 @@
             this.button_MB_Read_IR.Location = new System.Drawing.Point(12, 298);
             this.button_MB_Read_IR.Margin = new System.Windows.Forms.Padding(4);
             this.button_MB_Read_IR.Name = "button_MB_Read_IR";
-            this.button_MB_Read_IR.Size = new System.Drawing.Size(85, 32);
+            this.button_MB_Read_IR.Size = new System.Drawing.Size(85, 23);
             this.button_MB_Read_IR.TabIndex = 42;
             this.button_MB_Read_IR.Text = "Read";
             this.button_MB_Read_IR.UseVisualStyleBackColor = true;
@@ -1889,10 +1894,10 @@
             // 
             // button_JSON_Validate_Resp
             // 
-            this.button_JSON_Validate_Resp.Location = new System.Drawing.Point(367, 420);
+            this.button_JSON_Validate_Resp.Location = new System.Drawing.Point(365, 265);
             this.button_JSON_Validate_Resp.Margin = new System.Windows.Forms.Padding(4);
             this.button_JSON_Validate_Resp.Name = "button_JSON_Validate_Resp";
-            this.button_JSON_Validate_Resp.Size = new System.Drawing.Size(119, 42);
+            this.button_JSON_Validate_Resp.Size = new System.Drawing.Size(119, 23);
             this.button_JSON_Validate_Resp.TabIndex = 48;
             this.button_JSON_Validate_Resp.Text = "CBOR WEB";
             this.button_JSON_Validate_Resp.UseVisualStyleBackColor = true;
@@ -1903,7 +1908,7 @@
             this.button_JSON_Validate_Pub.Location = new System.Drawing.Point(366, 158);
             this.button_JSON_Validate_Pub.Margin = new System.Windows.Forms.Padding(4);
             this.button_JSON_Validate_Pub.Name = "button_JSON_Validate_Pub";
-            this.button_JSON_Validate_Pub.Size = new System.Drawing.Size(119, 42);
+            this.button_JSON_Validate_Pub.Size = new System.Drawing.Size(119, 23);
             this.button_JSON_Validate_Pub.TabIndex = 49;
             this.button_JSON_Validate_Pub.Text = "CBOR WEB";
             this.button_JSON_Validate_Pub.UseVisualStyleBackColor = true;
@@ -1914,7 +1919,7 @@
             this.checkBox_ShowMsg.AutoSize = true;
             this.checkBox_ShowMsg.Checked = true;
             this.checkBox_ShowMsg.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_ShowMsg.Location = new System.Drawing.Point(27, 154);
+            this.checkBox_ShowMsg.Location = new System.Drawing.Point(92, 163);
             this.checkBox_ShowMsg.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_ShowMsg.Name = "checkBox_ShowMsg";
             this.checkBox_ShowMsg.Size = new System.Drawing.Size(94, 21);
@@ -1975,6 +1980,7 @@
             this.textBox_timer_pub2res.Name = "textBox_timer_pub2res";
             this.textBox_timer_pub2res.Size = new System.Drawing.Size(139, 22);
             this.textBox_timer_pub2res.TabIndex = 1;
+            this.textBox_timer_pub2res.TextChanged += new System.EventHandler(this.textBox_timer_pub2res_TextChanged);
             // 
             // label46
             // 
@@ -1988,6 +1994,7 @@
             // 
             // textBox_Message
             // 
+            this.textBox_Message.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox_Message.Location = new System.Drawing.Point(1252, 597);
             this.textBox_Message.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_Message.Multiline = true;
@@ -2127,7 +2134,7 @@
             this.checkBox_Split_Resp.AutoSize = true;
             this.checkBox_Split_Resp.Checked = true;
             this.checkBox_Split_Resp.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox_Split_Resp.Location = new System.Drawing.Point(104, 439);
+            this.checkBox_Split_Resp.Location = new System.Drawing.Point(108, 267);
             this.checkBox_Split_Resp.Margin = new System.Windows.Forms.Padding(4);
             this.checkBox_Split_Resp.Name = "checkBox_Split_Resp";
             this.checkBox_Split_Resp.Size = new System.Drawing.Size(94, 21);
@@ -2170,6 +2177,7 @@
             this.textBox_MQTT_PWD.Location = new System.Drawing.Point(68, 103);
             this.textBox_MQTT_PWD.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_MQTT_PWD.Name = "textBox_MQTT_PWD";
+            this.textBox_MQTT_PWD.PasswordChar = '*';
             this.textBox_MQTT_PWD.Size = new System.Drawing.Size(168, 22);
             this.textBox_MQTT_PWD.TabIndex = 69;
             this.textBox_MQTT_PWD.Text = "3oxKrOS1CtDJcp4I";
@@ -2335,24 +2343,25 @@
             this.textBox_MQTT_USR.Location = new System.Drawing.Point(68, 73);
             this.textBox_MQTT_USR.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_MQTT_USR.Name = "textBox_MQTT_USR";
+            this.textBox_MQTT_USR.PasswordChar = '*';
             this.textBox_MQTT_USR.Size = new System.Drawing.Size(168, 22);
             this.textBox_MQTT_USR.TabIndex = 78;
             this.textBox_MQTT_USR.Text = "ecd26d8b2b78094d12c046f93a9d66fc";
             // 
             // textBox_upload_file_info
             // 
-            this.textBox_upload_file_info.Location = new System.Drawing.Point(1414, 461);
+            this.textBox_upload_file_info.Location = new System.Drawing.Point(27, 533);
             this.textBox_upload_file_info.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_upload_file_info.Multiline = true;
             this.textBox_upload_file_info.Name = "textBox_upload_file_info";
             this.textBox_upload_file_info.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_upload_file_info.Size = new System.Drawing.Size(318, 78);
+            this.textBox_upload_file_info.Size = new System.Drawing.Size(460, 92);
             this.textBox_upload_file_info.TabIndex = 79;
             // 
             // label55
             // 
             this.label55.AutoSize = true;
-            this.label55.Location = new System.Drawing.Point(1411, 434);
+            this.label55.Location = new System.Drawing.Point(30, 507);
             this.label55.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label55.Name = "label55";
             this.label55.Size = new System.Drawing.Size(102, 17);
@@ -2361,7 +2370,7 @@
             // 
             // button_Decode_File
             // 
-            this.button_Decode_File.Location = new System.Drawing.Point(1660, 428);
+            this.button_Decode_File.Location = new System.Drawing.Point(412, 508);
             this.button_Decode_File.Name = "button_Decode_File";
             this.button_Decode_File.Size = new System.Drawing.Size(72, 23);
             this.button_Decode_File.TabIndex = 81;
@@ -2373,12 +2382,70 @@
             // 
             this.timer_post_processing.Tick += new System.EventHandler(this.timer_post_processing_Tick);
             // 
+            // checkBox_Show_Usr_Pwd
+            // 
+            this.checkBox_Show_Usr_Pwd.AutoSize = true;
+            this.checkBox_Show_Usr_Pwd.Location = new System.Drawing.Point(27, 130);
+            this.checkBox_Show_Usr_Pwd.Margin = new System.Windows.Forms.Padding(4);
+            this.checkBox_Show_Usr_Pwd.Name = "checkBox_Show_Usr_Pwd";
+            this.checkBox_Show_Usr_Pwd.Size = new System.Drawing.Size(134, 21);
+            this.checkBox_Show_Usr_Pwd.TabIndex = 83;
+            this.checkBox_Show_Usr_Pwd.Text = "Show User/PWD";
+            this.checkBox_Show_Usr_Pwd.UseVisualStyleBackColor = true;
+            this.checkBox_Show_Usr_Pwd.CheckedChanged += new System.EventHandler(this.checkBox_Show_Usr_Pwd_CheckedChanged);
+            // 
+            // textBox_Errors
+            // 
+            this.textBox_Errors.Location = new System.Drawing.Point(28, 667);
+            this.textBox_Errors.Multiline = true;
+            this.textBox_Errors.Name = "textBox_Errors";
+            this.textBox_Errors.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBox_Errors.Size = new System.Drawing.Size(457, 61);
+            this.textBox_Errors.TabIndex = 84;
+            // 
+            // label57
+            // 
+            this.label57.AutoSize = true;
+            this.label57.Location = new System.Drawing.Point(25, 640);
+            this.label57.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label57.Name = "label57";
+            this.label57.Size = new System.Drawing.Size(114, 17);
+            this.label57.TabIndex = 86;
+            this.label57.Text = "Error Notification";
+            // 
+            // button_error_notification
+            // 
+            this.button_error_notification.Location = new System.Drawing.Point(430, 637);
+            this.button_error_notification.Margin = new System.Windows.Forms.Padding(4);
+            this.button_error_notification.Name = "button_error_notification";
+            this.button_error_notification.Size = new System.Drawing.Size(57, 23);
+            this.button_error_notification.TabIndex = 87;
+            this.button_error_notification.Text = "CLS";
+            this.button_error_notification.UseVisualStyleBackColor = true;
+            this.button_error_notification.Click += new System.EventHandler(this.button_error_notification_Click);
+            // 
+            // button_get_ulock_info
+            // 
+            this.button_get_ulock_info.Location = new System.Drawing.Point(1414, 478);
+            this.button_get_ulock_info.Margin = new System.Windows.Forms.Padding(4);
+            this.button_get_ulock_info.Name = "button_get_ulock_info";
+            this.button_get_ulock_info.Size = new System.Drawing.Size(129, 46);
+            this.button_get_ulock_info.TabIndex = 57;
+            this.button_get_ulock_info.Text = "Get ULock Info";
+            this.button_get_ulock_info.UseVisualStyleBackColor = true;
+            this.button_get_ulock_info.Click += new System.EventHandler(this.button_get_ulock_info_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1768, 745);
+            this.ClientSize = new System.Drawing.Size(1738, 745);
+            this.Controls.Add(this.button_get_ulock_info);
+            this.Controls.Add(this.button_error_notification);
+            this.Controls.Add(this.label57);
+            this.Controls.Add(this.textBox_Errors);
+            this.Controls.Add(this.checkBox_Show_Usr_Pwd);
             this.Controls.Add(this.button_Decode_File);
             this.Controls.Add(this.label55);
             this.Controls.Add(this.textBox_upload_file_info);
@@ -2430,7 +2497,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.3.0b";
+            this.Text = "IoT Server Simulator Binary Edition V.3.1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_Closing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_Closed);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -2657,6 +2724,11 @@
         private System.Windows.Forms.Button button_Unlock_Device;
         private System.Windows.Forms.Timer timer_post_processing;
         private System.Windows.Forms.Button button_decode_cmd17;
+        private System.Windows.Forms.CheckBox checkBox_Show_Usr_Pwd;
+        private System.Windows.Forms.TextBox textBox_Errors;
+        private System.Windows.Forms.Label label57;
+        private System.Windows.Forms.Button button_error_notification;
+        private System.Windows.Forms.Button button_get_ulock_info;
     }
 }
 

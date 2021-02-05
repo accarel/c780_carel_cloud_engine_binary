@@ -34,6 +34,8 @@ using PeterO;
 using PeterO.Cbor;
 using PeterO.Numbers;
 
+using Soft160.Data.Cryptography;
+
 
 
 
@@ -44,6 +46,7 @@ namespace MqttClientSimulatorBinary
     {
 
         const int CBOR_CMD_SCAN_LINE = 3;
+        const int CBOR_CMD_READ_HR = 6;
         const int CBOR_CMD_FULL_FILE_UPLOAD = 19;
         const int CBOR_CMD_RANGE_FILE_UPLOAD = 20;
 
@@ -64,7 +67,7 @@ namespace MqttClientSimulatorBinary
         const string JSON_VALIDATOR = "http://cbor.me/";
         // "https://jsonformatter.org/";    
         // "https://jsonformatter.curiousconcept.com/"
-
+     
         const string VAL_REQ_carel  = @"/req";
         public string val_req_post;
 
@@ -105,6 +108,111 @@ namespace MqttClientSimulatorBinary
 
         string post_processing = @"";
         string last_cmd17_payload = @"";
+
+
+        bool decode_read_msg_flag = false;
+        int decode_read_msg_error = -1;
+        UInt16 val_value_returned = 0;
+        const double DEVICE_RESPONSE_TOUT_MSEC = 10 * 1000;//sec to msec 
+
+        bool Decode_Upload_Msg_file_complete_msg = true;
+
+
+        /* variables for the unlock feature */
+        public UInt16 v_mb_addr_srv_ver_maj = 0;
+        public UInt16 v_mb_addr_srv_ver_min = 0;
+           
+        public UInt16 v_mb_addr_pn_0 = 0;
+        public UInt16 v_mb_addr_pn_1 = 0;
+        public UInt16 v_mb_addr_pn_2 = 0;
+        public UInt16 v_mb_addr_pn_3 = 0;
+        public UInt16 v_mb_addr_pn_4 = 0;
+        public UInt16 v_mb_addr_pn_5 = 0;
+        public UInt16 v_mb_addr_pn_6 = 0;
+        public UInt16 v_mb_addr_pn_7 = 0;
+        public UInt16 v_mb_addr_pn_8 = 0;
+               
+        public UInt16 v_mb_addr_rnd_num_h = 0;
+        public UInt16 v_mb_addr_rnd_num_l = 0;
+               
+        public UInt16 v_mb_addr_unlock_bits_h = 0;
+        public UInt16 v_mb_addr_unlock_bits_l = 0;
+               
+        public UInt16 v_mb_addr_rw_status = 0;
+
+        byte[] oem_id_array = new byte[16];
+
+        byte[] secret_carel = new byte[] { 0x39, 0x57, 0x61, 0x13, 0x72, 0xd5, 0x4e, 0x44, 0xa2, 0x67, 0x8f, 0x72, 0xce, 0x4e, 0x4f, 0x37 };
+
+        List<byte> ulock_par_list = new List<byte>();
+
+        byte[] lctx_buffer = new byte[0x36];
+        int lctx_pointer = 0;
+
+        /* ------------------------------ */
+
+        static readonly uint[] crc32_tab = {
+            0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
+            0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
+            0x09b64c2b, 0x7eb17cbd, 0xe7b82d07, 0x90bf1d91, 0x1db71064, 0x6ab020f2,
+            0xf3b97148, 0x84be41de, 0x1adad47d, 0x6ddde4eb, 0xf4d4b551, 0x83d385c7,
+            0x136c9856, 0x646ba8c0, 0xfd62f97a, 0x8a65c9ec, 0x14015c4f, 0x63066cd9,
+            0xfa0f3d63, 0x8d080df5, 0x3b6e20c8, 0x4c69105e, 0xd56041e4, 0xa2677172,
+            0x3c03e4d1, 0x4b04d447, 0xd20d85fd, 0xa50ab56b, 0x35b5a8fa, 0x42b2986c,
+            0xdbbbc9d6, 0xacbcf940, 0x32d86ce3, 0x45df5c75, 0xdcd60dcf, 0xabd13d59,
+            0x26d930ac, 0x51de003a, 0xc8d75180, 0xbfd06116, 0x21b4f4b5, 0x56b3c423,
+            0xcfba9599, 0xb8bda50f, 0x2802b89e, 0x5f058808, 0xc60cd9b2, 0xb10be924,
+            0x2f6f7c87, 0x58684c11, 0xc1611dab, 0xb6662d3d, 0x76dc4190, 0x01db7106,
+            0x98d220bc, 0xefd5102a, 0x71b18589, 0x06b6b51f, 0x9fbfe4a5, 0xe8b8d433,
+            0x7807c9a2, 0x0f00f934, 0x9609a88e, 0xe10e9818, 0x7f6a0dbb, 0x086d3d2d,
+            0x91646c97, 0xe6635c01, 0x6b6b51f4, 0x1c6c6162, 0x856530d8, 0xf262004e,
+            0x6c0695ed, 0x1b01a57b, 0x8208f4c1, 0xf50fc457, 0x65b0d9c6, 0x12b7e950,
+            0x8bbeb8ea, 0xfcb9887c, 0x62dd1ddf, 0x15da2d49, 0x8cd37cf3, 0xfbd44c65,
+            0x4db26158, 0x3ab551ce, 0xa3bc0074, 0xd4bb30e2, 0x4adfa541, 0x3dd895d7,
+            0xa4d1c46d, 0xd3d6f4fb, 0x4369e96a, 0x346ed9fc, 0xad678846, 0xda60b8d0,
+            0x44042d73, 0x33031de5, 0xaa0a4c5f, 0xdd0d7cc9, 0x5005713c, 0x270241aa,
+            0xbe0b1010, 0xc90c2086, 0x5768b525, 0x206f85b3, 0xb966d409, 0xce61e49f,
+            0x5edef90e, 0x29d9c998, 0xb0d09822, 0xc7d7a8b4, 0x59b33d17, 0x2eb40d81,
+            0xb7bd5c3b, 0xc0ba6cad, 0xedb88320, 0x9abfb3b6, 0x03b6e20c, 0x74b1d29a,
+            0xead54739, 0x9dd277af, 0x04db2615, 0x73dc1683, 0xe3630b12, 0x94643b84,
+            0x0d6d6a3e, 0x7a6a5aa8, 0xe40ecf0b, 0x9309ff9d, 0x0a00ae27, 0x7d079eb1,
+            0xf00f9344, 0x8708a3d2, 0x1e01f268, 0x6906c2fe, 0xf762575d, 0x806567cb,
+            0x196c3671, 0x6e6b06e7, 0xfed41b76, 0x89d32be0, 0x10da7a5a, 0x67dd4acc,
+            0xf9b9df6f, 0x8ebeeff9, 0x17b7be43, 0x60b08ed5, 0xd6d6a3e8, 0xa1d1937e,
+            0x38d8c2c4, 0x4fdff252, 0xd1bb67f1, 0xa6bc5767, 0x3fb506dd, 0x48b2364b,
+            0xd80d2bda, 0xaf0a1b4c, 0x36034af6, 0x41047a60, 0xdf60efc3, 0xa867df55,
+            0x316e8eef, 0x4669be79, 0xcb61b38c, 0xbc66831a, 0x256fd2a0, 0x5268e236,
+            0xcc0c7795, 0xbb0b4703, 0x220216b9, 0x5505262f, 0xc5ba3bbe, 0xb2bd0b28,
+            0x2bb45a92, 0x5cb36a04, 0xc2d7ffa7, 0xb5d0cf31, 0x2cd99e8b, 0x5bdeae1d,
+            0x9b64c2b0, 0xec63f226, 0x756aa39c, 0x026d930a, 0x9c0906a9, 0xeb0e363f,
+            0x72076785, 0x05005713, 0x95bf4a82, 0xe2b87a14, 0x7bb12bae, 0x0cb61b38,
+            0x92d28e9b, 0xe5d5be0d, 0x7cdcefb7, 0x0bdbdf21, 0x86d3d2d4, 0xf1d4e242,
+            0x68ddb3f8, 0x1fda836e, 0x81be16cd, 0xf6b9265b, 0x6fb077e1, 0x18b74777,
+            0x88085ae6, 0xff0f6a70, 0x66063bca, 0x11010b5c, 0x8f659eff, 0xf862ae69,
+            0x616bffd3, 0x166ccf45, 0xa00ae278, 0xd70dd2ee, 0x4e048354, 0x3903b3c2,
+            0xa7672661, 0xd06016f7, 0x4969474d, 0x3e6e77db, 0xaed16a4a, 0xd9d65adc,
+            0x40df0b66, 0x37d83bf0, 0xa9bcae53, 0xdebb9ec5, 0x47b2cf7f, 0x30b5ffe9,
+            0xbdbdf21c, 0xcabac28a, 0x53b39330, 0x24b4a3a6, 0xbad03605, 0xcdd70693,
+            0x54de5729, 0x23d967bf, 0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94,
+            0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
+        };
+
+
+        /// <summary>
+        /// Calculate the crc32 checksum of the given memory block.
+        /// </summary>
+        /// <param name="crc">The start value for the crc</param>
+        /// <param name="buf">Pointer to the memory block</param>
+        /// <param name="size">Number of bytes</param>
+        unsafe public static uint func_crc32(uint crc, byte* buf, int size)
+        {
+            crc = crc ^ ~0U; //0xFFFFFFFF
+            while (size-- > 0)
+                crc = crc32_tab[(crc ^ *buf++) & 0xFF] ^ (crc >> 8);
+
+            return crc ^ ~0U; //0xFFFFFFFF
+        }
+
 
         private void MessageBoxInfo(string message, string caption)
         {
@@ -219,7 +327,7 @@ namespace MqttClientSimulatorBinary
             TimeSpan t = DateTime.UtcNow - new DateTime(1970, 1, 1);
             s_msg2 = ((int)t.TotalSeconds).ToString();
             s_msg = Environment.NewLine + s_msg2 + @" - " + msg_line_count.ToString() + @" " + msg;
-            textBox_Message.Invoke(new Action(() => textBox_Message.AppendText(s_msg)));
+            textBox_Message.Invoke(new Action(() => textBox_Message.AppendText(s_msg + "\r\n")));
             msg_line_count += 1;
         }
 
@@ -265,6 +373,72 @@ namespace MqttClientSimulatorBinary
             return ret;
         }
 
+        void Decode_Read_Msg(string data_in) 
+        {
+            read_file_struct my_J_data;
+
+            if (decode_read_msg_flag == false) return; //nothing scheduled
+          
+            string data = ans_filter(data_in);
+
+            //to test simply change data > data1 in the row below
+            JObject o = JObject.Parse(data);
+
+            string o_ver = (string)o["ver"];
+            string o_rto = (string)o["rto"];
+            string o_cmd = (string)o["cmd"];
+
+            //not a cmd
+            if (o_cmd == null) return;
+
+            int cmd_value = 0;
+            if (!(int.TryParse(o_cmd, out cmd_value)))
+            {
+                textBox_Errors.AppendText("Decode_Read_Msg Error in the o_cmd buffer abort!");
+                return;
+            }
+
+            //check if is a file upload cmd full or range
+            if (cmd_value != CBOR_CMD_READ_HR)  return;
+
+            string o_ali = (string)o["ali"];
+
+            if (o_ali.Length == 0) return;
+            
+            int ali_value = 0;
+            if (!(int.TryParse(o_ali, out ali_value)))
+            {
+                textBox_Errors.AppendText("Decode_Read_Msg Error in the o_ali buffer abort!");
+                decode_read_msg_error = -2;
+                goto Decode_Read_Msg_exit;
+            }
+
+            if (ali_value != 9999) goto Decode_Read_Msg_exit;  //msg not for us
+
+            string o_val = (string)o["val"];
+
+            if (o_val == null) 
+            {
+                //the echo of the request
+                return; 
+            }
+
+            UInt16 val_value = 0;
+            if (!(UInt16.TryParse(o_val, out val_value)))
+            {
+                textBox_Errors.AppendText("Decode_Read_Msg Error in the o_val buffer abort!");
+                decode_read_msg_error = -3;
+                goto Decode_Read_Msg_exit;
+            }
+            
+            decode_read_msg_error = 0;
+            val_value_returned = val_value;  //val_value is for us
+
+            Decode_Read_Msg_exit:
+              decode_read_msg_flag = false;
+
+        }
+
         void Decode_Upload_Msg(string data_in)
         {
             read_file_struct my_J_data;
@@ -297,14 +471,12 @@ namespace MqttClientSimulatorBinary
             int cmd_value = 0;
             if (!(int.TryParse(o_cmd, out cmd_value)))
             {
-                DialogResult result1 = MessageBox.Show("Error in the o_cmd buffer abort!",
-                                                       "Important Question",
-                                                       MessageBoxButtons.OK);
+                textBox_Errors.AppendText("Decode_Read_Msg Error in the o_cmd buffer abort!");
                 return;
             }
 
             //check if is a file upload cmd full or range
-            if ((cmd_value != CBOR_CMD_FULL_FILE_UPLOAD) || (cmd_value != CBOR_CMD_RANGE_FILE_UPLOAD)) return;
+            if ((cmd_value != CBOR_CMD_FULL_FILE_UPLOAD) && (cmd_value != CBOR_CMD_RANGE_FILE_UPLOAD)) return;
 
             string o_res = (string)o["res"];
             string o_fsz = (string)o["fsz"];
@@ -320,27 +492,21 @@ namespace MqttClientSimulatorBinary
             int fsz_value = 0;
             if (!(int.TryParse(o_fsz, out fsz_value)))
             {                
-                DialogResult result1 = MessageBox.Show("Error in the o_fsz buffer abort!",
-                                                       "Important Question",
-                                                       MessageBoxButtons.OK);
+                textBox_Errors.AppendText("Decode_Read_Msg Error in the o_fsz buffer abort!");
                 return;                                    
             }
 
             int fst_value = 0;
             if (!(int.TryParse(o_fst, out fst_value)))
             {
-                DialogResult result1 = MessageBox.Show("Error in the o_fst buffer abort!",
-                                                       "Important Question",
-                                                       MessageBoxButtons.OK);
+                textBox_Errors.AppendText("Decode_Read_Msg Error in the o_fst buffer abort!");
                 return;
             }
 
             int fle_value = 0;
             if (!(int.TryParse(o_fle, out fle_value)))
             {
-                DialogResult result1 = MessageBox.Show("Error in the o_fst buffer abort!",
-                                                       "Important Question",
-                                                       MessageBoxButtons.OK);
+                textBox_Errors.AppendText("Decode_Read_Msg Error in the o_fle buffer abort!");
                 return;
             }
 
@@ -356,7 +522,7 @@ namespace MqttClientSimulatorBinary
                         for (int i = 0; i < fsz_value; i++) writer.Write(value_to_write);
                     }
 
-                textBox_upload_file_info.AppendText("Created " + curFile + " size " + fsz_value.ToString());
+                textBox_upload_file_info.AppendText("Created " + curFile + " size " + fsz_value.ToString()+ "\r\n" );
                 latest_upload_file = curFile;
             }
 
@@ -367,10 +533,13 @@ namespace MqttClientSimulatorBinary
 
                 sdata = String.Format("{0} {1} of {2}", "File transfer reached the size", (fst_value + fle_value), fsz_value);
 
-                //take in mind that > (major) is not possible theoretichally anyway not to bad to have a feedback
-                DialogResult result1 = MessageBox.Show(sdata,
-                                                       "Try to decode!",
-                                                        MessageBoxButtons.OK);
+                if (Decode_Upload_Msg_file_complete_msg == false)
+                {
+                    //take in mind that > (major) is not possible theoretichally anyway not to bad to have a feedback
+                    textBox_Errors.AppendText(sdata + "Try to decode!");
+
+                    Decode_Upload_Msg_file_complete_msg = true;
+                }
             }
 
             using (FileStream fileStream = new FileStream(curFile, FileMode.Open))
@@ -396,7 +565,7 @@ namespace MqttClientSimulatorBinary
                    fileStream.WriteByte(val);
                }
                
-               textBox_upload_file_info.AppendText("Chunk " + fst_value.ToString() + ":" + fle_value.ToString());
+               textBox_upload_file_info.AppendText("Chunk " + fst_value.ToString() + ":" + fle_value.ToString() + "\r\n");
             }
            
         }
@@ -418,9 +587,7 @@ namespace MqttClientSimulatorBinary
            int cmd_value = 0;
            if (!(int.TryParse(o_cmd, out cmd_value)))
            {
-               DialogResult result1 = MessageBox.Show("Error in the o_cmd buffer abort!",
-                                                      "Important Question",
-                                                      MessageBoxButtons.OK);
+               textBox_Errors.AppendText("Error in the o_cmd buffer abort!\r\n");
                return;
            }
 
@@ -441,8 +608,6 @@ namespace MqttClientSimulatorBinary
 
         void client_MqttMsgPublished(object sender, MqttMsgPublishedEventArgs e)
         {
-            //Debug.WriteLine("MessageId = " + e.MessageId + " Published = " + e.IsPublished);
-
             MessageBoxUpdated("MessageId = " + e.MessageId + " Published = " + e.IsPublished);
             Timer_Pub2Res(false);
         }
@@ -556,7 +721,6 @@ namespace MqttClientSimulatorBinary
 
 
         //*    json     *//
-
         public class Account
         {
             public string Email { get; set; }
@@ -565,7 +729,6 @@ namespace MqttClientSimulatorBinary
             public IList<string> Roles { get; set; }
         }
 
-
         byte qos_selected()
         {
             byte retval = MqttMsgBase.QOS_LEVEL_AT_MOST_ONCE; ;
@@ -573,7 +736,6 @@ namespace MqttClientSimulatorBinary
             
             return retval;
         }
-
 
         private void PublishTestFile(string testfilepath)
         {
@@ -628,9 +790,6 @@ namespace MqttClientSimulatorBinary
             };
 
             Myjson = JsonConvert.SerializeObject(account, Formatting.Indented);
-
-            //Debug.WriteLine(Myjson);
-
             MessageBoxUpdated(Myjson);
         }
 
@@ -705,8 +864,6 @@ namespace MqttClientSimulatorBinary
             }
         }
 
-
-
         private void ButtonUpdate_gw_firmware_Click(object sender, EventArgs e)
         {
 
@@ -722,14 +879,10 @@ namespace MqttClientSimulatorBinary
 
         }
 
-
         private void ButtonConnect_Click(object sender, EventArgs e)
         {
             mqtt_connect(false);
         }
-
-
-
 
         public void mqtt_connect(bool force_reconn)
         {
@@ -882,16 +1035,8 @@ namespace MqttClientSimulatorBinary
         private void TextBox1_TextChanged_1(object sender, EventArgs e)
         {
 
-        }
-
-
-
-
-
-
-    
-
-
+        }               
+        
         private void Button_MB_Read_HR_Click(object sender, EventArgs e)
         {
             int value;
@@ -911,7 +1056,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > fun ");
+                textBox_Message.AppendText("Error during conversion of > fun \r\n");
             }
 
             value = 0;
@@ -921,7 +1066,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > adr ");
+                textBox_Message.AppendText("Error during conversion of > adr \r\n");
             }
 
             value = 0;
@@ -931,7 +1076,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > dim ");
+                textBox_Message.AppendText("Error during conversion of > dim \r\n");
             }
 
             value = 0;
@@ -941,7 +1086,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > pos ");
+                textBox_Message.AppendText("Error during conversion of > pos \r\n");
             }
 
             value = 0;
@@ -951,7 +1096,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > len ");
+                textBox_Message.AppendText("Error during conversion of > len \r\n");
             }
             
             cbor.Add(@"a", textBox_A.Text);
@@ -966,7 +1111,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > flg ");
+                textBox_Message.AppendText("Error during conversion of > flg \r\n");
             }
 
 
@@ -980,9 +1125,9 @@ namespace MqttClientSimulatorBinary
             }
             catch (System.NullReferenceException)
             {
-                MessageBoxUpdated("MQTT not initialized !");
-                
+                MessageBoxUpdated("MQTT not initialized !");                
             }
+
         }
 
         private void Button_MB_Write_HR_Click(object sender, EventArgs e)
@@ -1007,7 +1152,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > dim ");
+                textBox_Message.AppendText("Error during conversion of > dim \r\n");
             }
 
             if (dim_value == 32)
@@ -1027,7 +1172,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > fun ");
+                textBox_Message.AppendText("Error during conversion of > fun \r\n");
             }
 
             value = 0;
@@ -1037,7 +1182,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > adr ");
+                textBox_Message.AppendText("Error during conversion of > adr \r\n");
             }
 
 
@@ -1049,7 +1194,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > pos ");
+                textBox_Message.AppendText("Error during conversion of > pos \r\n");
             }
 
             value = 0;
@@ -1059,7 +1204,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > len ");
+                textBox_Message.AppendText("Error during conversion of > len \r\n");
             }
 
             cbor.Add(@"a", textBox_A.Text);
@@ -1072,7 +1217,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > flg ");
+                textBox_Message.AppendText("Error during conversion of > flg \r\n");
             }
 
             cbor.Add(@"val", textBox_HR_Val.Text);
@@ -1109,7 +1254,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > fun ");
+                textBox_Message.AppendText("Error during conversion of > fun \r\n");
             }
 
             value = 0;
@@ -1119,7 +1264,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > adr ");
+                textBox_Message.AppendText("Error during conversion of > adr \r\n");
             }
 
             value = 0;
@@ -1129,7 +1274,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > dim ");
+                textBox_Message.AppendText("Error during conversion of > dim \r\n");
             }
 
             value = 0;
@@ -1139,7 +1284,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > pos ");
+                textBox_Message.AppendText("Error during conversion of > pos \r\n");
             }
 
             value = 0;
@@ -1149,7 +1294,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > len ");
+                textBox_Message.AppendText("Error during conversion of > len \r\n");
             }
 
             cbor.Add(@"a", @"1.0");
@@ -1162,7 +1307,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > flg ");
+                textBox_Message.AppendText("Error during conversion of > flg \r\n");
             }
 
             // The following converts the map to canonical CBOR
@@ -1197,7 +1342,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > fun ");
+                textBox_Message.AppendText("Error during conversion of > fun \r\n");
             }
 
             value = 0;
@@ -1207,7 +1352,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > adr ");
+                textBox_Message.AppendText("Error during conversion of > adr \r\n");
             }
 
             value = 0;
@@ -1217,7 +1362,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > dim ");
+                textBox_Message.AppendText("Error during conversion of > dim \r\n");
             }
 
             value = 0;
@@ -1227,7 +1372,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > pos ");
+                textBox_Message.AppendText("Error during conversion of > pos \r\n");
             }
 
             value = 0;
@@ -1237,7 +1382,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > len ");
+                textBox_Message.AppendText("Error during conversion of > len \r\n");
             }
 
             cbor.Add(@"a", @"1.0");
@@ -1250,7 +1395,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > flg ");
+                textBox_Message.AppendText("Error during conversion of > flg \r\n");
             }
 
             cbor.Add(@"val", textBox_MB_COIL_Val.Text);
@@ -1288,7 +1433,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > fun ");
+                textBox_Message.AppendText("Error during conversion of > fun \r\n");
             }
 
             value = 0;
@@ -1298,7 +1443,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > adr ");
+                textBox_Message.AppendText("Error during conversion of > adr \r\n");
             }
 
             value = 0;
@@ -1308,7 +1453,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > dim ");
+                textBox_Message.AppendText("Error during conversion of > dim \r\n");
             }
 
             value = 0;
@@ -1318,7 +1463,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > pos ");
+                textBox_Message.AppendText("Error during conversion of > pos \r\n");
             }
 
             value = 0;
@@ -1328,7 +1473,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > len ");
+                textBox_Message.AppendText("Error during conversion of > len \r\n");
             }
 
             cbor.Add(@"a", @"1.0");
@@ -1341,7 +1486,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > flg ");
+                textBox_Message.AppendText("Error during conversion of > flg \r\n");
             }
 
             // The following converts the map to canonical CBOR
@@ -1376,7 +1521,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > fun ");
+                textBox_Message.AppendText("Error during conversion of > fun \r\n");
             }
 
             value = 0;
@@ -1386,7 +1531,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > adr ");
+                textBox_Message.AppendText("Error during conversion of > adr \r\n");
             }
 
             value = 0;
@@ -1396,7 +1541,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > dim ");
+                textBox_Message.AppendText("Error during conversion of > dim \r\n");
             }
 
             value = 0;
@@ -1406,7 +1551,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > pos ");
+                textBox_Message.AppendText("Error during conversion of > pos \r\n");
             }
 
             value = 0;
@@ -1416,7 +1561,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > len ");
+                textBox_Message.AppendText("Error during conversion of > len \r\n");
             }
 
             cbor.Add(@"a", textBox_A_IR.Text);
@@ -1431,7 +1576,7 @@ namespace MqttClientSimulatorBinary
             }
             else
             {
-                textBox_Message.AppendText("Error during conversion of > flg ");
+                textBox_Message.AppendText("Error during conversion of > flg \r\n");
             }
 
 
@@ -1501,7 +1646,6 @@ namespace MqttClientSimulatorBinary
 
         private void Button_test_set_gw_config_req_Click(object sender, EventArgs e)
         {
-            //string textFilePath = @"test-set_gw_config-req.json";
             string textFilePath = @".\cbor_cloud\REQ_SET_GW_CONFIG.cbor";
             PublishTestFile(textFilePath);
         }
@@ -1594,8 +1738,6 @@ namespace MqttClientSimulatorBinary
 
         }
 
-
-
         private void Save_Last_Used_Values()
         {
             string cfg_file;
@@ -1641,7 +1783,6 @@ namespace MqttClientSimulatorBinary
             MyIni.Write("MQTT_USR", textBox_MQTT_USR.Text);
 
         }
-
 
         private void Load_Last_Used_Values()
         {
@@ -1718,7 +1859,6 @@ namespace MqttClientSimulatorBinary
                 textBox_MQTT_USR.Text = par_val;
 
         }
-
 
         private void Button_Load_settings_Click(object sender, EventArgs e)
         {
@@ -1990,25 +2130,646 @@ namespace MqttClientSimulatorBinary
             if (result1 == DialogResult.Yes)
             {
                 textBox_upload_file_info.Text = "";
+                Decode_Upload_Msg_file_complete_msg = false;
                 PublishTestFile(textFilePath);
             }
         }
 
         private void button_Decode_File_Click(object sender, EventArgs e)
         {
-            //latest_upload_file = @"ciao"; //if you need to test the program call 
-            System.Diagnostics.Process.Start(DECODE_FILE_PRG, latest_upload_file);
+            //latest_upload_file = @"ciao"; //if you need to test the program call 1=txt 2=bin
+            System.Diagnostics.Process.Start(DECODE_FILE_PRG, "2 " + latest_upload_file);
         }
+
+
+         /* 
+         true= SUCCESS
+         false = fail
+         */
+        bool manage_tout(bool monitored_var)
+        {
+            bool ret_val = false;
+
+            double start_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+
+            start_time += DEVICE_RESPONSE_TOUT_MSEC;
+            bool exitfromloop = true;
+
+            while (exitfromloop)
+            {
+                if (monitored_var == false) exitfromloop = false; //msg received
+                double elapsed_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+                if (elapsed_time > start_time)
+                {
+                    //ok timout reached 
+                    exitfromloop = false;
+                }
+
+                Application.DoEvents();
+            }
+
+            if (monitored_var == false) ret_val = true;
+
+            return ret_val;
+        }
+
+
+        /*
+         * hr_request
+         * 
+         true= SUCCESS
+         false = fail
+         */
+        public bool hr_request(string targetname, int hraddress)
+        {
+            int value;
+            int dim_value;
+            bool ret_val=false;
+
+            var cbor = CBORObject.NewMap();
+
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", targetname + @"/hr_w_val");
+            value = 6;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", @"9999");
+
+            dim_value = 16;
+            cbor.Add(@"dim", dim_value);
+
+            int dim_fun_n = 3;  
+            cbor.Add(@"fun", dim_fun_n);
+            cbor.Add(@"adr", hraddress);
+
+            int pos_value = 1;
+            cbor.Add(@"pos", pos_value);
+
+            int len_value = 16;
+            cbor.Add(@"len", len_value);
+
+            cbor.Add(@"a", "1.0");
+            cbor.Add(@"b", "0.0");
+
+            int flg_value = 0;
+            cbor.Add("flg", flg_value);
+
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
+
+            try
+            {
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
+                decode_read_msg_error = -1;
+                val_value_returned = 0;
+                decode_read_msg_flag = true;
+            }
+            catch (System.NullReferenceException)
+            {
+                MessageBoxUpdated("MQTT Not Initialized");
+                ret_val = false;
+                goto hr_request_exit;
+            }
+
+            //now wait for the answer or maybe error                                     
+            double start_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+
+            start_time += DEVICE_RESPONSE_TOUT_MSEC;
+            bool exitfromloop = true;
+
+            while (exitfromloop)
+            {
+                if (decode_read_msg_flag == false) exitfromloop = false; //msg received
+                double elapsed_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+                if (elapsed_time > start_time)
+                {
+                    //ok timout reached 
+                    exitfromloop = false;
+                }
+
+                Application.DoEvents();
+            }
+
+            if (decode_read_msg_flag == false) ret_val = true;
+
+            hr_request_exit:
+            Task.Delay(1500);
+            return ret_val;
+
+        }
+
+        public bool hr_w_request(string targetname, int hraddress, UInt16 value4target)
+        {
+            int value;
+            int dim_value;
+            bool ret_val = false;
+
+            var cbor = CBORObject.NewMap();
+
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", targetname + @"/hr_w_val");
+            value = 7;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", @"9999");
+           
+            dim_value = 16;
+            cbor.Add(@"dim", dim_value);
+
+            value = 6;
+            cbor.Add(@"fun", value);
+
+            cbor.Add(@"adr", hraddress);
+
+            value = 1;
+            cbor.Add(@"pos", value);
+
+            int len_value = 16;
+            cbor.Add(@"len", len_value);
+
+            cbor.Add(@"a", "1.0");
+            cbor.Add(@"b", "0.0");
+
+            int flg_value = 0;
+            cbor.Add("flg", flg_value);
+
+            cbor.Add(@"val", value4target.ToString());
+
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
+
+            try
+            {
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
+                decode_read_msg_error = -1;
+                val_value_returned = 0;
+                decode_read_msg_flag = false;
+            }
+            catch (System.NullReferenceException)
+            {
+                MessageBoxUpdated("MQTT Not Initialized");
+                ret_val = false;
+                goto hr_w_request_exit;
+            }
+
+            //now wait for the answer or maybe error                                
+            //if (manage_tout(decode_read_msg_flag) == true) ret_val = true;
+
+
+            double start_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+
+            start_time += DEVICE_RESPONSE_TOUT_MSEC;
+            bool exitfromloop = true;
+
+            while (exitfromloop)
+            {
+                if (decode_read_msg_flag == false) exitfromloop = false; //msg received
+                double elapsed_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+                if (elapsed_time > start_time)
+                {
+                    //ok timout reached 
+                    exitfromloop = false;
+                }
+
+                Application.DoEvents();
+            }
+
+            if (decode_read_msg_flag == false) ret_val = true;
+
+
+         hr_w_request_exit:
+            Task.Delay(1500);
+            return ret_val;
+        }
+
+        private void Dump_Unlock_Values(bool show_oem_id)
+        {
+            string sline;
+            sline = String.Format("MAJ/MIN - {0}{1}\r\n", v_mb_addr_srv_ver_maj, v_mb_addr_srv_ver_min);
+            textBox_Message.AppendText(sline);
+
+            sline = String.Format("PN - {0}{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}{14}{15}{16}{17}  \r\n",
+                                 (char)(v_mb_addr_pn_0 >> 8), (char)(v_mb_addr_pn_0 & 0xFF),
+                                 (char)(v_mb_addr_pn_1 >> 8), (char)(v_mb_addr_pn_1 & 0xFF),
+                                 (char)(v_mb_addr_pn_2 >> 8), (char)(v_mb_addr_pn_2 & 0xFF),
+                                 (char)(v_mb_addr_pn_3 >> 8), (char)(v_mb_addr_pn_3 & 0xFF),
+                                 (char)(v_mb_addr_pn_4 >> 8), (char)(v_mb_addr_pn_4 & 0xFF),
+                                 (char)(v_mb_addr_pn_5 >> 8), (char)(v_mb_addr_pn_5 & 0xFF),
+                                 (char)(v_mb_addr_pn_6 >> 8), (char)(v_mb_addr_pn_6 & 0xFF),
+                                 (char)(v_mb_addr_pn_7 >> 8), (char)(v_mb_addr_pn_7 & 0xFF),
+                                 (char)(v_mb_addr_pn_8 >> 8), (char)(v_mb_addr_pn_8 & 0xFF)
+                                 );
+            textBox_Message.AppendText(sline);
+
+            sline = String.Format("RND H/L - {0:X} {1:X}\r\n", v_mb_addr_rnd_num_h, v_mb_addr_rnd_num_l);
+            textBox_Message.AppendText(sline);
+
+            int vl;
+            sline = String.Format("Unlock bits H/L\r\n");
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x01;
+            sline = String.Format("bit 0: Stc(file 11)       ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x02;
+            sline = String.Format("bit 1: logs(file 1000)    ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x04;
+            sline = String.Format("bit 2: allarmi(file 3000) ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x08;
+            sline = String.Format("bit 3: upgrade(file 5000) ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x10;
+            sline = String.Format("bit 4: block register/coil={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x20;
+            sline = String.Format("bit 5: NA                 ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x40;
+            sline = String.Format("bit 6: NA                 ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x80;
+            sline = String.Format("bit 7: NA                 ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x0100;
+            sline = String.Format("bit 8: NA                 ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x200;
+            sline = String.Format("bit 9: NA                 ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x400;
+            sline = String.Format("bit 10: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x800;
+            sline = String.Format("bit 11: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x1000;
+            sline = String.Format("bit 12: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x2000;
+            sline = String.Format("bit 13: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x4000;
+            sline = String.Format("bit 14: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_l & 0x8000;
+            sline = String.Format("bit 15: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+            //change the reg
+            vl = v_mb_addr_unlock_bits_h & 0x01;
+            sline = String.Format("bit 16: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x02;
+            sline = String.Format("bit 17: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x04;
+            sline = String.Format("bit 18: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x08;
+            sline = String.Format("bit 19: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x10;
+            sline = String.Format("bit 20: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x20;
+            sline = String.Format("bit 21: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x40;
+            sline = String.Format("bit 22: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x80;
+            sline = String.Format("bit 23: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x0100;
+            sline = String.Format("bit 24: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x200;
+            sline = String.Format("bit 25: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x400;
+            sline = String.Format("bit 26: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x800;
+            sline = String.Format("bit 27: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x1000;
+            sline = String.Format("bit 28: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x2000;
+            sline = String.Format("bit 28: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x4000;
+            sline = String.Format("bit 30: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_unlock_bits_h & 0x8000;
+            sline = String.Format("bit 31: NA                ={0}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+
+            /* ---------------------------- */
+            sline = String.Format("Status bits H/L\r\n");
+            textBox_Message.AppendText(sline);
+
+            vl = v_mb_addr_rw_status; 
+            sline = String.Format("0=blocked 1=unblock {0:X}\r\n", vl.ToString());
+            textBox_Message.AppendText(sline);
+
+
+            /* ---------------------------- */
+            if (show_oem_id == true)
+            {
+                sline = "OEM ID \r\n";
+                for (int count = 0; count < 16; count++)
+                {
+                    sline += String.Format("{0:X} ", oem_id_array[count]);
+                }
+                textBox_Message.AppendText(sline + "\r\n");
+            }
+            /* ---------------------------- */
+
+        }
+
+
+        private int copy_and_increase(UInt16 in_val, int count)
+        {
+            int counter;            
+            byte h_val = 0;
+            byte l_val = 0;
+
+            counter = count;
+
+            h_val = (byte)(((in_val & 0xFF00) >> 8));
+            l_val = (byte)((in_val & 0xFF));
+
+            lctx_buffer[counter] = h_val; counter++;
+            lctx_buffer[counter] = l_val; counter++;
+            return counter;
+        }
+
+
+        bool read_ulock_block_60000() 
+        {    /* reset all vars */
+             v_mb_addr_srv_ver_maj = 0;
+             v_mb_addr_srv_ver_min = 0;
+             
+             v_mb_addr_pn_0 = 0;
+             v_mb_addr_pn_1 = 0;
+             v_mb_addr_pn_2 = 0;
+             v_mb_addr_pn_3 = 0;
+             v_mb_addr_pn_4 = 0;
+             v_mb_addr_pn_5 = 0;
+             v_mb_addr_pn_6 = 0;
+             v_mb_addr_pn_7 = 0;
+             v_mb_addr_pn_8 = 0;
+             
+             v_mb_addr_rnd_num_h = 0;
+             v_mb_addr_rnd_num_l = 0;
+             
+             v_mb_addr_unlock_bits_h = 0;
+             v_mb_addr_unlock_bits_l = 0;
+             
+             v_mb_addr_rw_status = 0;
+
+            /* OK now we need to read some HR @ 60000 */
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_SRV_VER_MAJ)) goto read_ulock_block_60000_exit; v_mb_addr_srv_ver_maj = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_SRV_VER_MIN)) goto read_ulock_block_60000_exit; v_mb_addr_srv_ver_min = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_0)) goto read_ulock_block_60000_exit; v_mb_addr_pn_0 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_1)) goto read_ulock_block_60000_exit; v_mb_addr_pn_1 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_2)) goto read_ulock_block_60000_exit; v_mb_addr_pn_2 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_3)) goto read_ulock_block_60000_exit; v_mb_addr_pn_3 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_4)) goto read_ulock_block_60000_exit; v_mb_addr_pn_4 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_5)) goto read_ulock_block_60000_exit; v_mb_addr_pn_5 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_6)) goto read_ulock_block_60000_exit; v_mb_addr_pn_6 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_7)) goto read_ulock_block_60000_exit; v_mb_addr_pn_7 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_PN_8)) goto read_ulock_block_60000_exit; v_mb_addr_pn_8 = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_RND_NUM_H)) goto read_ulock_block_60000_exit; v_mb_addr_rnd_num_h = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_RND_NUM_L)) goto read_ulock_block_60000_exit; v_mb_addr_rnd_num_l = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_UNLOCK_BITS_H)) goto read_ulock_block_60000_exit; v_mb_addr_unlock_bits_h = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_UNLOCK_BITS_L)) goto read_ulock_block_60000_exit; v_mb_addr_unlock_bits_l = val_value_returned;
+            if (!hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_RW_STATUS)) goto read_ulock_block_60000_exit; v_mb_addr_rw_status = val_value_returned;
+
+            return false;
+
+            read_ulock_block_60000_exit:
+            return true;
+
+        }
+
+        unsafe private void Unlock_Device_Routine()
+        {
+            const double DEVICE_RESPONSE_TOUT_MSEC = 10 * 1000;//sec to msec 
+
+            last_cmd17_payload = "";
+            string textFilePath = @".\cbor_cloud\REQ_SCAN_DEVICES.cbor";
+            PublishTestFile(textFilePath);
+            Application.DoEvents();
+
+            //WAIT for answer with timeout
+            double start_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+
+            start_time += DEVICE_RESPONSE_TOUT_MSEC;
+            bool exitfromloop = true;
+
+            while (exitfromloop)
+            {
+                if (last_cmd17_payload.Length > 0) exitfromloop = false; //msg received
+                double elapsed_time = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+                if (elapsed_time > start_time)
+                {
+                    //ok timout reached 
+                    exitfromloop = false;
+                }
+
+                Application.DoEvents();
+            }
+
+            if (last_cmd17_payload.Length == 0)
+            {
+                MessageBoxInfo(("Timeout! the device not respond in " + DEVICE_RESPONSE_TOUT_MSEC.ToString() + " msec"),
+                               "Info");
+                goto unlock_device_end;
+            }
+
+            FormDecodeCMD17 frm = new FormDecodeCMD17();
+            frm.set_data(last_cmd17_payload);
+            frm.Silent_Decoding();
+            bool locked = frm.is_Control_Locked();
+
+            if (!locked)
+            {
+                textBox_upload_file_info.AppendText("Unlock - locked bit NOT present ... end \r\n");
+                goto unlock_device_end;
+            }
+            textBox_Message.AppendText("Unlock - locked bit present go ahead \r\n");
+
+
+            string oem_id_str;
+            byte[] oem_id_data = new byte[16];
+
+            string tmp_oem_id_str = frm.get_OEM_ID();
+            string temp_ov_oem_id_str = frm.get_OV_OEM_ID();
+
+            /* check if we use the OV in this case we use it*/
+            if (temp_ov_oem_id_str.Length > 0)
+            {
+                oem_id_str = temp_ov_oem_id_str;
+                oem_id_data = frm.get_OV_OEM_ID_array();
+            }
+            else 
+            {
+                oem_id_str = tmp_oem_id_str;
+                oem_id_data = frm.get_OEM_ID_array();
+            }
+
+
+            /* OK now we need to read some HR @ 60000 */     
+            if (read_ulock_block_60000() == true) goto unlock_device_fail;
+
+            /* convert oem id string into a byte array */
+            string stmp;
+            for (int count = 0; count < oem_id_str.Length; count += 2)
+            {
+                stmp = oem_id_str.Substring(count, 2);
+                int idx = count / 2;
+                oem_id_array[idx] = Convert.ToByte(stmp, 16);
+            }
+
+
+            /* all data retrieved just for reference show it */
+            Dump_Unlock_Values(true);
+            /* --------------------------------------------- */
+
+            /* put all in the buffer for CRC calculation of the passpartout */
+            uint oem_unlock_key = 0; 
+            lctx_pointer = 0;
+
+            /* PART NUMBER */
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_0, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_1, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_2, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_3, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_4, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_5, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_6, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_7, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_pn_8, lctx_pointer);
+
+            /* OEM ID or OV OEM ID see above */
+            for (int count = 0; count < 16; count++)
+            {
+                lctx_buffer[lctx_pointer] = oem_id_array[count]; 
+                lctx_pointer++;
+            }
+            
+            /* UNCLOCK BITS all */
+            UInt16[] val_split_ulock = new UInt16[2];
+            val_split_ulock[0] = (UInt16)((unlock_feat_data.UNLOCK_BITS & 0x0000FFFF));
+            val_split_ulock[1] = (UInt16)((unlock_feat_data.UNLOCK_BITS & 0xFFFF0000) >> 16);
+
+            lctx_pointer = copy_and_increase(val_split_ulock[0], lctx_pointer);
+            lctx_pointer = copy_and_increase(val_split_ulock[1], lctx_pointer);
+
+
+            /* CAREL SECRET */
+            for (int count = 0; count < 16; count++) 
+            {
+                lctx_buffer[lctx_pointer] = secret_carel[count];
+                lctx_pointer++;
+            }
+
+            oem_unlock_key = CRC.Crc32(lctx_buffer, oem_unlock_key);  //this is the passpartout base
+
+            /* now compute the session key based on RND + oem_unlock_key */
+            lctx_pointer = 0;
+            lctx_pointer = copy_and_increase(v_mb_addr_rnd_num_h, lctx_pointer);
+            lctx_pointer = copy_and_increase(v_mb_addr_rnd_num_l, lctx_pointer);
+
+            UInt16 v;
+            v = (UInt16)((oem_unlock_key & 0xFFFF0000) >> 16);
+            lctx_pointer = copy_and_increase(v, lctx_pointer);
+
+            v = (UInt16)((oem_unlock_key & 0x0000FFFF));
+            lctx_pointer = copy_and_increase(v, lctx_pointer);
+
+
+            /* a buffer of exact size for the CRC routine */
+            byte[] session_buff = new byte[lctx_pointer];
+            for (int ii=0; ii< lctx_pointer; ii++) 
+            {
+                session_buff[ii] = lctx_buffer[ii];
+            }
+
+            uint session_unlock_key = 0;
+            session_unlock_key = CRC.Crc32(session_buff, session_unlock_key);
+
+
+            /* session_unlock_key contains now the unlock key now write it to the controller */
+            UInt16 session_l = 0;
+            UInt16 session_h = 0;
+
+            session_h = (UInt16)(((session_unlock_key & 0xFFFF0000) >> 16));
+            session_l = (UInt16)((session_unlock_key & 0x0000FFFF));
+
+            textBox_Message.AppendText(String.Format("Session H = {0:X} \r\n", session_h));
+            textBox_Message.AppendText(String.Format("Session L = {0:X} \r\n", session_l));
+
+            /* write and try to unlock */
+            hr_w_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_UNLOCK_BITS_H, val_split_ulock[1]);
+            hr_w_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_UNLOCK_BITS_L, val_split_ulock[0]);
+
+            hr_w_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_SESSION_UNLOCK_KEY_H, session_h);
+            hr_w_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_SESSION_UNLOCK_KEY_L, session_l);
+
+            /* trigger */
+            hr_w_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_RW_STATUS, unlock_feat_data.RW_STATUS_KEY_WRITTEN);
+
+
+            /* check the locking status */
+            get_ulock_info();
+
+            unlock_device_end:
+            button_Unlock_Device.Enabled = true;
+            return;
+
+            unlock_device_fail:
+            button_Unlock_Device.Enabled = true;
+            return;
+        }
+
 
         private void button_Unlock_Device_Click(object sender, EventArgs e)
         {
-            
-            //cmd 17
-            string textFilePath = @".\cbor_cloud\REQ_SCAN_DEVICES.cbor";
-            PublishTestFile(textFilePath);
-            
-            //wait for data and extract
-         
+            button_Unlock_Device.Enabled = false;
+            Unlock_Device_Routine();
         }
 
         private void Form1_Closing(object sender, FormClosingEventArgs e)
@@ -2024,7 +2785,10 @@ namespace MqttClientSimulatorBinary
 
         private void Form1_Closed(object sender, FormClosedEventArgs e)
         {
-
+            if (MQTT_Connect == true)
+            {
+                mqtt_connect(false);
+            }
         }
 
         private void timer_post_processing_Tick(object sender, EventArgs e)
@@ -2039,11 +2803,11 @@ namespace MqttClientSimulatorBinary
                    {
                       Decode_Upload_Msg(post_processing);
                       Decode_Scan_Line_Msg(post_processing);
+                      Decode_Read_Msg(post_processing);
                       post_processing = @"";
                    }
                 }
-            }
-         
+            }         
         }
 
         private void button_decode_cmd17_Click(object sender, EventArgs e)
@@ -2051,12 +2815,58 @@ namespace MqttClientSimulatorBinary
             FormDecodeCMD17 frm = new FormDecodeCMD17();
             //pan   
             //last_cmd17_payload   = "0111B4BDFF01380406015400067D07D00000000000000000000005004300000000E3575E010189E9B200975E45729862C6B67352C13D010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000019332404F0036030204074D6F646275735F53616C76655F53696D756C61746370434F4D696E690000000000000000000000000000000000000000013A60";
-            //chieb 
-            //last_cmd17_payload = "0111B4BDFF01380407015400067D07D0000000000000000000000500000000000003E85E010189E9B200975E45729862C6B67352C13D0100000000000000000000000000000000000000000000000000000000000000000000008ADD804A739B4F33BF4A763EA3C19DA67465737400000000000000000000000000009332404F0036030204074D6F646275735F53616C76655F53696D756C61746370434F4D696E69000000000000000000000000000000000000000002F650";            
-
             frm.set_data(last_cmd17_payload);
             frm.Show();
             frm.VisibleChanged += formVisibleChanged;
+        }
+
+        private void textBox_timer_pub2res_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void checkBox_Show_Usr_Pwd_CheckedChanged(object sender, EventArgs e)
+        {
+
+            if (checkBox_Show_Usr_Pwd.Checked == true)
+            {
+                textBox_MQTT_USR.PasswordChar = (char)(0);
+                textBox_MQTT_PWD.PasswordChar = (char)(0); 
+            }
+            else
+            {
+                textBox_MQTT_USR.PasswordChar = '*';
+                textBox_MQTT_PWD.PasswordChar = '*';
+            }
+
+        }
+
+        private void button_error_notification_Click(object sender, EventArgs e)
+        {
+            textBox_Errors.Text = "";
+        }
+
+        private void get_ulock_info() 
+        {
+            if (hr_w_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_RW_STATUS, unlock_feat_data.RW_STATUS_GET_SERVICE) == true)
+            {
+                if (hr_request(textBox_Target.Text, unlock_feat_data.MB_ADDR_RW_STATUS))
+                {
+                    v_mb_addr_rw_status = val_value_returned;
+                    string sline;
+                    sline = String.Format("Status bits H/L\r\n");
+                    textBox_Message.AppendText(sline);
+                    sline = String.Format("0=blocked 1=unblock NOW = {0:X}\r\n", v_mb_addr_rw_status.ToString());
+                    textBox_Message.AppendText(sline);
+                }
+
+            }
+
+        }
+
+        private void button_get_ulock_info_Click(object sender, EventArgs e)
+        {
+            get_ulock_info();
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
