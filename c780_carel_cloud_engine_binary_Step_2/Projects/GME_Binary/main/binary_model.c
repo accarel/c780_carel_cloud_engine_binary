@@ -24,6 +24,9 @@
 
 // locale define
 
+static const char *TAG = "binary_model";
+
+
 /**
  * @brief WANT_DUMP_MODEL
  *        set 1 to obtain in debug mode the dump of the device model through the serial
@@ -487,7 +490,9 @@ static void GetDeviceInfo(uint8_t *val)
 			else if (c == 1) { PRINTF_DEBUG("Disc   %d %s", pt->numOfDISC, "\n");}
 			else if (c == 2) { PRINTF_DEBUG("HR     %d %s", pt->numOfHR,   "\n");}
 			else if (c == 3) { PRINTF_DEBUG("IR     %d %s", pt->numOfIR,   "\n\n");}
+			P_COV_LN;
 		}
+		P_COV_LN;
 	}
 	// end show
 }
@@ -509,7 +514,7 @@ uint8_t* BinaryModel_GetChunk(long sz){
 	uint8_t* chunk = (uint8_t *)malloc(sz);
 	if (chunk == NULL)
 	{
-		DEBUG_BINARY_MODEL("NO MEMORY FOR MODEL!!! \n");
+		DEBUG_BINARY_MODEL("NO MEMORY FOR MODEL!\n");
 		return NULL;
 	}
 
@@ -528,7 +533,7 @@ uint8_t* BinaryModel_GetChunk(long sz){
 
 	// close streaming
 	fclose(input_file_ptr);
-
+	P_COV_LN;
 	return chunk;
 }
 
@@ -551,7 +556,7 @@ uint16_t BinaryModel_GetCrc(void){
 	Crc = CRC16(chunk, sz-2);
 
 	free(chunk);
-
+	P_COV_LN;
 	return Crc;
 }
 
@@ -576,7 +581,7 @@ C_RES BinaryModel_CheckCrc(void){
                ((uint16_t)(*(chunk + sz - 1)))<<8;
 
 	free(chunk);
-
+	P_COV_LN;
 	if (Crc == ModelCrc) 
 		return C_SUCCESS;
 	else
@@ -601,11 +606,13 @@ int BinaryModel_Init (void)
 
 	if (sz <= 0) {
 		DEBUG_BINARY_MODEL("ERROR: No Model on board!\n");
+		P_COV_LN;
 		valid_model = FALSE;
 		return C_FAIL;
 	}
 	if (sz > GME_MODEL_MAX_SIZE) {
 		DEBUG_BINARY_MODEL("ERROR: Model too large!\n");
+		P_COV_LN;
 		valid_model = FALSE;
 		return C_FAIL;
 	}
@@ -613,6 +620,7 @@ int BinaryModel_Init (void)
 
 	if (chunk == NULL)
 	{
+		P_COV_LN;
 		valid_model = FALSE;
 		return C_FAIL;
 	}
@@ -625,12 +633,14 @@ int BinaryModel_Init (void)
 	if (Crc != ModelCrc) {
 		DEBUG_BINARY_MODEL("ERROR: Wrong CRC Model!\n");
 		valid_model = FALSE;
+		P_COV_LN;
 		return C_FAIL;
 	}
 	// Check model header
 	if (memcmp(tmpHeaderModel->signature, GME_MODEL, strlen(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION)) {
 		DEBUG_BINARY_MODEL("ERROR: Wrong signature Model!\n");
 		valid_model = FALSE;
+		P_COV_LN;
 		return C_FAIL;
 	}
 
@@ -650,6 +660,7 @@ int BinaryModel_Init (void)
 	free(chunk);
 
 	valid_model = TRUE;
+	P_COV_LN;
 	return C_SUCCESS;
 
 }
@@ -662,6 +673,7 @@ int BinaryModel_Init (void)
  * @return TRUE/FALSE
  */
 bool CheckModelValidity(void){
+	P_COV_LN;
 	return valid_model;
 }
 
@@ -674,6 +686,7 @@ bool CheckModelValidity(void){
  */
 void BinaryModel__GetNum(uint8_t arr[MAX_POLLING][MAX_REG]){
 
+	P_COV_LN;
 	for (int d = 0; d < MAX_POLLING; d++)
 	{
 		struct NumOfPoll *pt;
@@ -689,6 +702,7 @@ void BinaryModel__GetNum(uint8_t arr[MAX_POLLING][MAX_REG]){
 			else if (c == 2) { arr[d][c] = pt->numOfHR;}
 			else if (c == 3) { arr[d][c] = pt->numOfIR;}
 		}
+
 	}
 }
 
@@ -710,18 +724,23 @@ uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type){
 			switch(reg_type){
 				case COIL:
 					temp = p_coil_low_sect;
+					P_COV_LN;
 					break;
 				case DI:
 					temp = p_di_low_sect;
+					P_COV_LN;
 					break;
 				case HR:
 					temp = p_hr_low_sect;
+					P_COV_LN;
 					break;
 				case IR:
 					temp = p_ir_low_sect;
+					P_COV_LN;
 					break;
 
 				default:
+					P_COV_LN;
 					return NULL;
 			}
 			break;
@@ -731,18 +750,23 @@ uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type){
 			switch(reg_type){
 				case COIL:
 					temp = p_coil_high_sect;
+					P_COV_LN;
 					break;
 				case DI:
 					temp = p_di_high_sect;
+					P_COV_LN;
 					break;
 				case HR:
 					temp = p_hr_high_sect;
+					P_COV_LN;
 					break;
 				case IR:
 					temp = p_ir_high_sect;
+					P_COV_LN;
 					break;
 
 				default:
+					P_COV_LN;
 					return NULL;
 			}
 			break;
@@ -752,23 +776,29 @@ uint8_t* BinaryModel__GetPtrSec(PollType_t polling_type, RegType_t reg_type){
 			switch(reg_type){
 				case COIL:
 					temp = p_coil_alarm_sect;
+					P_COV_LN;
 					break;
 				case DI:
 					temp = p_di_alarm_sect;
+					P_COV_LN;
 					break;
 				case HR:
 					temp = p_hr_alarm_sect;
+					P_COV_LN;
 					break;
 				case IR:
 					temp = p_ir_alarm_sect;
+					P_COV_LN;
 					break;
 
 				default:
+					P_COV_LN;
 					return NULL;
 			}
 			break;
 
 		default:
+			P_COV_LN;
 			return NULL;
 
 	}

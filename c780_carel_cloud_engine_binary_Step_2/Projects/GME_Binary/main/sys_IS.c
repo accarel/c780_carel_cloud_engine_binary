@@ -59,6 +59,7 @@ void Sys__ResetCheck(void){
 				PRINTF_DEBUG_SYS("start button pressure at %d\n", RTC_Get_UTC_Current_Time());
 				button_state = BUTTON_PRESSED;
 				Sys__Delay(100);
+				P_COV_LN;
 			}
 		break;
 
@@ -69,17 +70,20 @@ void Sys__ResetCheck(void){
 					PRINTF_DEBUG_SYS("button released after %d, before 5 seconds\n", CurrentTime - TimerForButton);
 					TimerForButton = 0;
 					button_state = BUTTON_WAIT;
+					P_COV_LN;
 					return;
 				}
 				else if ( (CurrentTime - TimerForButton) > 5 && (CurrentTime - TimerForButton) <= 10) {
 					// do a reboot
 					PRINTF_DEBUG_SYS("button released after %d, between 5 and 10 seconds\n", CurrentTime - TimerForButton);
 					GME__Reboot();
+					P_COV_LN;
 				}
 			}
 			if ( (CurrentTime - TimerForButton) > 10) {
 				PRINTF_DEBUG_SYS("button not released after %d, 10 seconds\n", CurrentTime - TimerForButton);
 				button_state = BUTTON_SLOWBLINK;
+				P_COV_LN;
 			}
 		break;
 
@@ -89,6 +93,7 @@ void Sys__ResetCheck(void){
 			Update_Led_Status(LED_STAT_FACT_DEF_A, LED_STAT_ON);
 			TimerForButton = RTC_Get_UTC_Current_Time();
 			button_state = BUTTON_WAITRELEASE;
+			P_COV_LN;
 		break;
 
 		case BUTTON_WAITRELEASE:
@@ -98,6 +103,7 @@ void Sys__ResetCheck(void){
 					PRINTF_DEBUG_SYS("button released after %d, between 0 and 5 seconds\n", CurrentTime - TimerForButton);
 					TimerForButton = CurrentTime;
 					button_state = BUTTON_FASTBLINK;
+					P_COV_LN;
 				}
 				else {
 					PRINTF_DEBUG_SYS("factory setting procedure aborted\n");
@@ -114,6 +120,7 @@ void Sys__ResetCheck(void){
 			Update_Led_Status(LED_STAT_FACT_DEF_B, LED_STAT_ON);
 			TimerForButton = RTC_Get_UTC_Current_Time();
 			button_state = BUTTON_WAITFACTORY;
+			P_COV_LN;
 		break;
 
 		case BUTTON_WAITFACTORY:
@@ -127,12 +134,14 @@ void Sys__ResetCheck(void){
 					unlink(MODEL_FILE);
 					PRINTF_DEBUG_SYS("Rebooting after factory setting\n");
 					GME__Reboot();
+					P_COV_LN;
 				}
 			}
 			else {
 				PRINTF_DEBUG_SYS("factory setting procedure aborted\n");
 				button_state = BUTTON_WAIT;
 				Update_Led_Status(LED_STAT_FACT_DEF_B, LED_STAT_OFF);
+				P_COV_LN;
 			}
 			break;
 		}

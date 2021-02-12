@@ -34,6 +34,7 @@ static void modem_event_handler(void *event_handler_arg, esp_event_base_t event_
     switch (event_id) {
     case MODEM_EVENT_PPP_START:
         ESP_LOGI(TAG, "Modem PPP Started");
+	    P_COV_LN;
         break;
     case MODEM_EVENT_PPP_CONNECT:
         ESP_LOGI(TAG, "Modem Connect to PPP Server");
@@ -47,19 +48,24 @@ static void modem_event_handler(void *event_handler_arg, esp_event_base_t event_
         ESP_LOGI(TAG, "~~~~~~~~~~~~~~");
         xEventGroupSetBits(mobile_event_group, CONNECT_BIT);
         Mobile__SetStatus(CONNECTED);
+		P_COV_LN;
         break;
     case MODEM_EVENT_PPP_DISCONNECT:
         ESP_LOGI(TAG, "Modem Disconnect from PPP Server");
         Mobile__SetStatus(DISCONNECTED);
+		P_COV_LN;
         break;
     case MODEM_EVENT_PPP_STOP:
         ESP_LOGI(TAG, "Modem PPP Stopped");
         xEventGroupSetBits(mobile_event_group, STOP_BIT);
+		P_COV_LN;
         break;
     case MODEM_EVENT_UNKNOWN:
         ESP_LOGW(TAG, "Unknow line received: %s", (char *)event_data);
+		P_COV_LN;
         break;
     default:
+		P_COV_LN;
         break;
     }
 }
@@ -74,6 +80,7 @@ gme_sm_t Mobile__Init(void){
     dte = esp_modem_dte_init(&config, uart_pins);
     if (dte == NULL) {
         // manage the case dte cannot be created
+		P_COV_LN;
         return GME_REBOOT;
     }
     /* Register event handler */
@@ -86,6 +93,7 @@ gme_sm_t Mobile__Init(void){
 #endif
     if (dce == NULL) {
         // manage the case dce cannot be created
+		P_COV_LN;
         return GME_REBOOT;
     }
 
@@ -246,29 +254,34 @@ void Mobile_QuerySignalQuality(void){
 	printf("did we enter command mode?\n");
 	err = dce->sync(dce);
 	if(err == C_FAIL) {
-		printf("no, really\n");
+		PRINTF_DEBUG("no, really\n");
 		Mobile_SetCommandMode(0);
+		P_COV_LN;
 		return;
 	}
 	else if(err == 2){ // NO CARRIER in response to AT ---> not currently captured... TODO
 		err = dte->change_mode(dte,MODEM_PPP_MODE); // maybe better to reboot...
-		printf("try to reconnect %d\n", err);
+		PRINTF_DEBUG("try to reconnect %d\n", err);
 		Mobile_SetCommandMode(0);
+		P_COV_LN;
 		return;
 	}
 	else
-		printf("it seems we are in command mode\n");
+	{
+		PRINTF_DEBUG("it seems we are in command mode\n");
+		P_COV_LN;
+	}
 
-	printf("Get signal quality\n");
+	PRINTF_DEBUG("Get signal quality\n");
 	err = dce->get_signal_quality(dce, &rssi, &ber);
-	printf("Get signal quality result %d\n", err);
-	printf("Set PPP mode\n");
+	PRINTF_DEBUG("Get signal quality result %d\n", err);
+	PRINTF_DEBUG("Set PPP mode\n");
 	err = dte->change_mode(dte,MODEM_PPP_MODE_AGAIN);
 	Mobile_SetCommandMode(0);
-	printf("PPP mode result: %d\n", err);
+	PRINTF_DEBUG("PPP mode result: %d\n", err);
 	Mobile_SetSignalQuality(rssi);
 
-	printf("Read %d rssi, %d ber\n", rssi, ber);
+	PRINTF_DEBUG("Read %d rssi, %d ber\n", rssi, ber);
 
 	return;
 }
@@ -281,7 +294,7 @@ void Mobile_SendGenericCommand(char* line, char* answer){
 
 void Mobile_SetSignalQuality(uint16_t rssi){
 	static uint16_t count=0;
-	printf("Mobile_SetSignalQuality element %d has rssi %d\n", count, rssi);
+	PRINTF_DEBUG("Mobile_SetSignalQuality element %d has rssi %d\n", count, rssi);
 	rssibuf[count++] = rssi;
 	count %= 4;
 }
@@ -289,12 +302,12 @@ void Mobile_SetSignalQuality(uint16_t rssi){
 int16_t Mobile_GetSignalQuality(void){
 	int16_t rssi_mean = 0;
 	int l=0;
-	printf("Mobile_GetSignalQuality\n");
+	PRINTF_DEBUG("Mobile_GetSignalQuality\n");
 	for (int i=0; i < GW_SAMPLES_MOBILE; i++) {
 		rssi_mean += rssibuf[i];
 		if(rssibuf[i] != 0)
 			l++;
-		printf("rssibuf[i]:%d\n", rssibuf[i]);
+		PRINTF_DEBUG("rssibuf[i]:%d\n", rssibuf[i]);
 	}
 	rssi_mean = (rssi_mean / l);
 	rssi_mean = (-113 + 2*rssi_mean);

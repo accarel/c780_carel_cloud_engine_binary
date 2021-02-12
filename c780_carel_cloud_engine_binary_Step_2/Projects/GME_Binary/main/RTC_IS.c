@@ -36,7 +36,7 @@ C_RES RTC_Init(C_URI ntp_server, C_UINT16 ntp_port)
 
   #ifdef INCLUDE_PLATFORM_DEPENDENT  
   #ifdef __DEBUG_RTC_IS_LEV_2
-  printf("Initializing SNTP, server: %s, port: %d\n", ntp_server, ntp_port);
+  PRINTF_DEBUG("Initializing SNTP, server: %s, port: %d\n", ntp_server, ntp_port);
   #endif
   sntp_stop();
   sntp_setoperatingmode(SNTP_OPMODE_POLL);
@@ -65,7 +65,7 @@ C_RES RTC_Sync(void)
 
 	while (stat == SNTP_SYNC_STATUS_RESET && ++retry < retry_count) {
         #ifdef __DEBUG_RTC_IS_LEV_2
-		printf("Waiting for system time to be set... (%d/%d)\n", retry, retry_count);
+		PRINTF_DEBUG("Waiting for system time to be set... (%d/%d)\n", retry, retry_count);
         #endif
 		Sys__Delay(2000);
 		stat = sntp_get_sync_status();
@@ -82,11 +82,15 @@ C_RES RTC_Sync(void)
 
 	if(stat == SNTP_SYNC_STATUS_COMPLETED && now != 0) {
         #ifdef __DEBUG_RTC_IS_LEV_2
-		printf("got time: year:%d, month:%d, day:%d, hour:%d. minute:%d\n", timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
+		PRINTF_DEBUG("got time: year:%d, month:%d, day:%d, hour:%d. minute:%d\n", timeinfo.tm_year, timeinfo.tm_mon, timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min);
         #endif
 		return C_SUCCESS;
 	}
-	else return C_FAIL;
+	else
+	{
+		P_COV_LN;
+		return C_FAIL;
+	}
 }
 
 /**
@@ -132,7 +136,9 @@ C_TIME RTC_Get_UTC_Boot_Time(void)
 void RTC_Set_UTC_Boot_Time(void)
 {
 	if (Boot_Time == 0)
+	{
 		Boot_Time = RTC_Get_UTC_Current_Time();
+	}
 	
 	return;
 }

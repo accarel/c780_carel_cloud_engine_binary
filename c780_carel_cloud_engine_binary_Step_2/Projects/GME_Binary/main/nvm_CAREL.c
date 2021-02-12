@@ -29,6 +29,7 @@ C_RES NVM__ReadU8Value(const C_CHAR* var, C_BYTE* val)
 		err = NVM__GetU8(var, val);
 		NVM__Close();
 	}
+	P_COV_LN;
     return err;
 }
 
@@ -50,6 +51,7 @@ C_RES NVM__ReadU32Value(const C_CHAR* var, C_UINT32* val)
 		err = NVM__GetU32(var, val);
 		NVM__Close();
 	}
+	P_COV_LN;
 	return err;
 }
 
@@ -72,6 +74,7 @@ C_RES NVM__ReadString(const C_CHAR* var, C_CHAR* str, size_t* len)
 		err = NVM__GetString(var, str, len);
 		NVM__Close();
 	}
+	P_COV_LN;
     return err;
 }
 
@@ -91,6 +94,7 @@ C_RES NVM__WriteU8Value(const C_CHAR* var, C_BYTE val)
 		err = NVM__SetU8(var, val);
 		NVM__Close();
 	}
+	P_COV_LN;
     return err;
 }
 
@@ -110,6 +114,7 @@ C_RES NVM__WriteU32Value(const C_CHAR* var, C_UINT32 val)
 		err = NVM__SetU32(var, val);
 		NVM__Close();
 	}
+	P_COV_LN;
 	return err;
 }
 
@@ -129,6 +134,7 @@ C_RES NVM__WriteString(const C_CHAR* var, C_CHAR* str)
 		err = NVM__SetString(var, str);
 		NVM__Close();
 	}
+	P_COV_LN;
 	return err;
 }
 
@@ -147,6 +153,7 @@ C_RES NVM__EraseKey(const C_CHAR* var)
 		err = NVM__EraseK(var);
 		NVM__Close();
 	}
+	P_COV_LN;
 	return err;
 }
 
@@ -165,6 +172,7 @@ C_RES NVM__EraseAll(void)
 		err = NVM__Erase();
 		NVM__Close();
 	}
+	P_COV_LN;
 	return err;
 }
 
@@ -186,7 +194,7 @@ C_RES NVM__ReadBlob(const C_CHAR* var, void* vec, size_t* len)
 		err = NVM__GetBlob(var, vec, len);
 		NVM__Close();
 	}
-
+	P_COV_LN;
     return err;
 }
 
@@ -208,6 +216,6 @@ C_RES NVM__WriteBlob (const C_CHAR* var, void* vec, size_t len)
     	err = NVM__SetBlob(var, vec, len);
         NVM__Close();
     }
-
+    P_COV_LN;
     return err;
 }

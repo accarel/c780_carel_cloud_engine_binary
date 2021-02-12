@@ -24,6 +24,8 @@
 
 #include "SoftWDT.h"
 
+#include "filelog_CAREL.h"
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 static xTaskHandle xPollingEngine;
 #endif
@@ -64,6 +66,11 @@ void Polling_Engine_Init_IS(void)
 	{
 		// don't remove this line...main function for polling
 		DoPolling_CAREL(polling_times);
+
+		// add the download log function...best effort if is active.
+		// in idle state if not triggered by a cbor message
+		// ...TODO step 2
+		Dev_LogFile_CAREL();
 
         Sys__Delay(10);
 	}

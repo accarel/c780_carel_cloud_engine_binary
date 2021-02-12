@@ -50,4 +50,7 @@ C_UINT16 Modbus__GetAddress(void);
 void Modbus__Delay(void);
 C_UINT16 Modbus__GetStatus(void);
 
+C_RES app_file_read(unsigned char* data_tx, uint8_t packet_len, unsigned char * data_rx);
+
+
 #endif   /* #ifndef __MODBUS_IS_H */

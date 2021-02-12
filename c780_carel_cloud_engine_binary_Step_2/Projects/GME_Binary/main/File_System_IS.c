@@ -58,6 +58,7 @@ esp_err_t init_spiffs(void)
         } else {
             ESP_LOGE(TAG, "Failed to initialize SPIFFS (%s)", esp_err_to_name(ret));
         }
+        P_COV_LN;
         return ESP_FAIL;
     }
 
@@ -65,10 +66,11 @@ esp_err_t init_spiffs(void)
     ret = esp_spiffs_info(NULL, &total, &used);
     if (ret != ESP_OK) {
         ESP_LOGE(TAG, "Failed to get SPIFFS partition information (%s)", esp_err_to_name(ret));
+        P_COV_LN;
         return ESP_FAIL;
     }
     ESP_LOGI(TAG, "Partition size: total: %d, used: %d", total, used);
-
+    P_COV_LN;
     return ESP_OK;
 }
 #endif
@@ -153,12 +155,15 @@ C_RES Get_Gateway_ID(C_SBYTE *s_id)
 				s_id_tmp[5]
 			   );
 		#endif
+		P_COV_LN;
 	}
 	else if (PLATFORM(PLATFORM_DETECTED_2G)) {
 		/* this function returns the IMEI of the GSM module*/
 		strcpy(s_id, Mobile__GetImeiCode());
 		rv = C_SUCCESS;
+		P_COV_LN;
 	}
+
 
 	return rv;
 }

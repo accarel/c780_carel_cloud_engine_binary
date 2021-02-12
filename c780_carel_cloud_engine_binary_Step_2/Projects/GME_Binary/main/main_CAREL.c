@@ -145,6 +145,7 @@ void Carel_Main_Task(void)
 		  //System Initialization
 		  case GME_INIT:
 		  {
+			  P_COV_LN;
 			  Init_IO_IS();
 
 			  if PLATFORM(PLATFORM_DETECTED_2G)
@@ -167,16 +168,20 @@ void Carel_Main_Task(void)
 	        case GME_CHECK_FILES:
 	        {
 	        	if (checked_files == 0){
+	        		P_COV_LN;
 	        		if(C_SUCCESS == FS_CheckFiles()){
+	        			P_COV_LN;
 	        			uint8_t cfg_def_status = 0;
 	        			if(C_SUCCESS != NVM__ReadU8Value(CFG_DEF_NVM, &cfg_def_status) || (cfg_def_status != 1)) {
 	        				SaveCfgDefDataToNVM();
+	        				P_COV_LN;
 	        			}
 	        			sm = GME_RADIO_CONFIG;
 
 	        			if PLATFORM(PLATFORM_DETECTED_2G) {
 	        				GSM_Module_PwrKey_On_Off(GSM_PWRKEY_ON);
 	        				Mobile__Init();
+	        				P_COV_LN;
 	        			}
 
 					}else{
@@ -193,6 +198,7 @@ void Carel_Main_Task(void)
 	        //Start and configure Radio interface
 			case GME_RADIO_CONFIG:
 			{
+				P_COV_LN;
 				PRINTF_DEBUG("SM__Start .... GME_RADIO_CONFIG\n");
 
 				// wait until network is up to connect (only applies to 2g model)
@@ -200,6 +206,7 @@ void Carel_Main_Task(void)
 				if(res == C_FAIL){ // if 2g network is not available, just repeat this attempt in 10s
 					sm = GME_RADIO_CONFIG;
 					Sys__Delay(10000);
+					P_COV_LN;
 				}
 				else
 					sm = Radio__Config();
@@ -210,11 +217,12 @@ void Carel_Main_Task(void)
 	        case GME_WAITING_FOR_INTERNET:
 	        {
 				if(CONNECTED == Radio__GetStatus()){
+					P_COV_LN;
 					PRINTF_DEBUG("SM__Start .... GME_WAITING_FOR_INTERNET\n");
 					sm = GME_STRAT_NTC;
 				}
 				GME__CheckHTMLConfig();
-
+				P_COV_LN;
 	        	break;
 	        }
 
@@ -226,6 +234,7 @@ void Carel_Main_Task(void)
 				PRINTF_DEBUG("Radio__Config .... GME_STRAT_MQTT_NTC\n");
 				once = true;
 				Radio__WaitConnection();
+				P_COV_LN;
 			}
 
             //NB. the esp library use always the default port 123...so the file system contain the ntp port value but is not used!!!
@@ -235,6 +244,7 @@ void Carel_Main_Task(void)
 			CAREL_CHECK(retval, "TIME");
 
 			if (retval == C_SUCCESS) {
+				P_COV_LN;
 				//Set boot time
 				RTC_Set_UTC_Boot_Time();
 				Mobile__SetConnTime();
@@ -245,7 +255,7 @@ void Carel_Main_Task(void)
 			}
 
 			GME__CheckHTMLConfig();
-
+			P_COV_LN;
 			break;
 		  }
 
@@ -253,6 +263,7 @@ void Carel_Main_Task(void)
 		  //Start and configure Radio interface
 		  case GME_CHECK_GW_CONFIG:
 		  {
+			P_COV_LN;
 			//Look for model's file, GW config and Line config
             PRINTF_DEBUG("Radio__Config .... GME_CHECK_GW_CONFIG\n");
 
@@ -267,6 +278,7 @@ void Carel_Main_Task(void)
 				// GME configured, switch on leds accordingly
 				Update_Led_Status(LED_STAT_MODEL_CFG, LED_STAT_ON);
 				sm = GME_SYSTEM_PREPARATION;
+				P_COV_LN;
 			}else{
                 PRINTF_DEBUG("gw_config_status = %d \nline_config_status= %d \ndevs_config_status = %d\n", gw_config_status, line_config_status, devs_config_status);
 				sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
@@ -282,7 +294,7 @@ void Carel_Main_Task(void)
 
 
         case GME_WAITING_FOR_CONFIG_FROM_MQTT:
-        {
+          {
         	if(RTC_Get_UTC_Current_Time() > waiting_conf_timer + WAITING_CONF_COUNTER){
         		NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status);
         		NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
@@ -292,18 +304,23 @@ void Carel_Main_Task(void)
 					CONFIGURED == line_config_status &&			//Set_Line_config
 					CONFIGURED == devs_config_status)			//Set_devs_config
 				{
+					P_COV_LN;
 					sm = GME_REBOOT;
 				}else{
 					waiting_conf_timer = RTC_Get_UTC_Current_Time();
 				}
         	}
-        	if(MQTT_GetFlags() == 1)			// make sure that CBOR tx buffer was already allocated
+
+        	if(MQTT_GetFlags() == 1)
+        	{      			                    // make sure that CBOR tx buffer was already allocated
         		MQTT_PeriodicTasks();			// manage the MQTT subscribes even before configuration is done
+        		P_COV_LN;
+        	}
 
         	GME__CheckHTMLConfig();
 
-        }
-        	break;
+          }
+          break;
 
 
           case GME_SYSTEM_PREPARATION:
@@ -311,7 +328,7 @@ void Carel_Main_Task(void)
           	Radio__WaitConnection();
 
             sm = GME_START_POLLING_ENGINE;
-
+            P_COV_LN;
   			break;
           }
 
@@ -325,6 +342,7 @@ void Carel_Main_Task(void)
           	    	// hence, clear SET_DEVS_CONFIG_NVM flag in nvm and go waiting for a new configuration
           	    	NVM__WriteU8Value(SET_DEVS_CONFIG_NVM, DEFAULT);
           	    	sm = GME_WAITING_FOR_CONFIG_FROM_MQTT;
+          	    	P_COV_LN;
           	    	break;
           	    }
           	    
@@ -349,10 +367,12 @@ void Carel_Main_Task(void)
 
 
   				sm = GME_IDLE_INTERNET_CONNECTED;
+  				P_COV_LN;
   			}else{
   				sm = GME_START_POLLING_ENGINE;
   				GME__CheckHTMLConfig();			// this is needed in case MQTT is not connected
   												// and we want a new config from web to reboot gme (differently reboot won't happen)
+  				P_COV_LN;
   			}
 
   			break;
@@ -367,10 +387,15 @@ void Carel_Main_Task(void)
               {
 
                  if (MQTT_Check_Status() == C_FAIL)
+                 {
                     MQTT_Start();
+                    P_COV_LN;
+                 }
 
-                 if(MQTT_GetFlags() == 1)            // make sure that CBOR tx buffer was already allocated
+                 if(MQTT_GetFlags() == 1)
+                 {                                   // make sure that CBOR tx buffer was already allocated
                       MQTT_PeriodicTasks();          // manage the MQTT subscribes
+                 }
               }
               else
               {
@@ -388,6 +413,7 @@ void Carel_Main_Task(void)
           //Reboot GME after 5 seconds
           case GME_REBOOT:
         	  GME__Reboot();
+        	  P_COV_LN;
               break;
 
           default:
@@ -396,7 +422,9 @@ void Carel_Main_Task(void)
 
           //Check reboot/factory reset button
           if (Get_Button_Pin() >= 0)
+          {
               Sys__ResetCheck();
+          }
 
 
           #ifdef __DEBUG_MAIN_CAREL_LEV_1
@@ -411,7 +439,6 @@ void Carel_Main_Task(void)
           RetriveDataDebug(WEBDBG_MAIN_DEVICE, sm);
           RetriveDataDebug(WEBDBG_WIFI, Radio__GetStatus());
           RetriveDataDebug(WEBDBG_MQTT, MQTT_GetFlags());
-
 
       }
 }
@@ -434,6 +461,7 @@ void GME__CheckHTMLConfig(void){
 		PRINTF_DEBUG("IsConfigReceived\n");
 		sm = GME_RADIO_CONFIG;
 		WiFi_SetConfigSM(WAITING_FOR_HTML_CONF_PARAMETERS);
+		P_COV_LN;
 	}
 }
 
@@ -445,7 +473,7 @@ void GME__CheckHTMLConfig(void){
  * @return none
  */
 void GME__Reboot(void){
-
+	P_COV_LN;
 	Update_Led_Status(LED_STAT_ALL_OFF, LED_STAT_OFF);
 	Sys__Delay(500);
 	Update_Led_Status(LED_STAT_TEST, LED_STAT_ON);
@@ -456,6 +484,7 @@ void GME__Reboot(void){
 		Sys__Delay(12000);
 		PRINTF_DEBUG("Powering down 2G module... power down\n");
 		GSM_Module_Pwr_Supply_On_Off(GSM_POWER_SUPPLY_OFF);
+		P_COV_LN;
 	}
 
 	for(int i=5; i>0; i--)

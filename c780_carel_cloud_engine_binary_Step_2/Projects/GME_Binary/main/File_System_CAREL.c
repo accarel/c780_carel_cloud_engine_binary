@@ -175,11 +175,13 @@ C_RES FS_SaveFile(const char* data_to_save, size_t data_size, const char* filena
 		file = fopen(filename, "w");
 		if(NULL == file){
 			PRINTF_DEBUG("%s - File not found\n",filename);
+			P_COV_LN;
 			return C_FAIL;
 		}else{
 			PRINTF_DEBUG("%s - File found\n",filename);
 			fwrite(data_to_save , 1 , data_size , file );
 			fclose(file);
+			P_COV_LN;
 			return C_SUCCESS;
 		}
 
@@ -227,11 +229,13 @@ C_RES Check_spiffs_compatibility(void)
     if(act_spf_ver == spf_ver)
 	{
     	err = C_SUCCESS;
+    	P_COV_LN;
     }
     else
     {
     	// bisogna capire se la versione pu� supportare lo spiffs presente
     	err = C_FAIL;
+    	P_COV_LN;
     }
     return err;
 }
@@ -304,6 +308,7 @@ char* GetNtpServer(char* tmp_ntp_server){
 	if (C_FAIL == NVM__ReadString(NTP_SERVER, tmp_ntp_server, &len))
 	{
 	   *tmp_ntp_server='\0'; //return empty string
+	   P_COV_LN;
 	}
 
 	return tmp_ntp_server;
@@ -322,6 +327,7 @@ char* GetMqttBroker(char* tmp_mqtt_broker){
 	if (C_FAIL== NVM__ReadString(MQTT_BROKER, tmp_mqtt_broker, &len))
 	{
 		*tmp_mqtt_broker = '\x0';//return empty string
+		P_COV_LN;
 	}
 	return tmp_mqtt_broker;
 }
@@ -339,6 +345,7 @@ char* GetMqttPort(char* tmp_mqtt_port){
 	if (C_FAIL == NVM__ReadString(MQTT_PORT, tmp_mqtt_port, &len))
 	{
 		*tmp_mqtt_port='\x0'; //return empty string
+		P_COV_LN;
 	}
 	return tmp_mqtt_port;
 }
@@ -357,6 +364,7 @@ char* GetMqttUser(char* tmp_mqtt_user){
 	if (C_FAIL == NVM__ReadString(MQTT_USER, tmp_mqtt_user, &len))
 	{
 		*tmp_mqtt_user='\0'; //return empty string
+		P_COV_LN;
 	}
 	return tmp_mqtt_user;
 }
@@ -373,6 +381,7 @@ char* GetMqttPassword(char* tmp_mqtt_password){
 	if (C_FAIL == NVM__ReadString(MQTT_PASSWORD, tmp_mqtt_password, &len))
 	{
 		*tmp_mqtt_password='\0';  //return empty string
+		P_COV_LN;
 	}
 	return tmp_mqtt_password;
 }
@@ -389,6 +398,7 @@ char* GetApnName(char* tmp_apn_name){
 	if (C_FAIL ==  NVM__ReadString(APN_NAME, tmp_apn_name, &len))
 	{
 		*tmp_apn_name='\0';		//return empty string
+		P_COV_LN;
 	}
 	return tmp_apn_name;
 }
@@ -405,6 +415,7 @@ char* GetApnUserName(char* tmp_apn_username){
 	if (C_FAIL == NVM__ReadString(APN_USERNAME, tmp_apn_username, &len))
 	{
 		*tmp_apn_username='\0';
+		P_COV_LN;
 	}
 	return tmp_apn_username;
 }
@@ -422,6 +433,7 @@ char* GetApnPassword(char* tmp_apn_password){
 	if (C_FAIL == NVM__ReadString(APN_PASSWORD, tmp_apn_password, &len))
 	{
 		*tmp_apn_password='\0';
+		P_COV_LN;
 	}
 	return tmp_apn_password;
 }

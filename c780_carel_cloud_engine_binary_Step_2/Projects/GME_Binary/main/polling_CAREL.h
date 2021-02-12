@@ -57,7 +57,7 @@
  *				(1024 * 5) --->  ~238 variables
  *   
  */
-#define SENSE_TRIGGER_TASK_STACK_SIZE   (1024 * 6)
+#define SENSE_TRIGGER_TASK_STACK_SIZE   (1024 * 7)  //(1024 * 6)
 #define SENSE_TRIGGER_TASK_PRIO         (6)
 
 #define T_LOW_POLL	(30)   //(120)   //120

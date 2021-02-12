@@ -47,7 +47,7 @@
  */
 void GSM_BypassEsp32(void)
 {
-    printf("FW for 2G model certification\n");
+	PRINTF_DEBUG("FW for 2G model certification\n");
 
 	// Init IOs
     Init_IO_IS();
@@ -78,7 +78,7 @@ void GSM_BypassEsp32(void)
           Mobile_SendGenericCommand(line, answer);
 
           // return answer from M95
-          printf("%s", answer);
+          PRINTF_DEBUG("%s", answer);
     	}
     }
 }

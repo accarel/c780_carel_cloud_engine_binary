@@ -88,11 +88,13 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)
      {
    	    err = uart_set_pin(port, Get_TEST_TXD(), Get_TEST_RXD(), Get_TEST_RTS(), -1);
    	    PRINTF_DEBUG("RS485 selected\n");
+   	    P_COV_LN;
      }
    	 else
    	 {
         err = uart_set_pin(port, Get_TTL_TXD(), Get_TTL_RXD(), Get_TTL_RTS(), -1);
     	PRINTF_DEBUG("TTL selected\n");
+    	P_COV_LN;
    	 }
 
    	 if(err != 0)
@@ -108,21 +110,29 @@ C_RES Modbus_Init(C_INT32 baud, C_SBYTE parity, C_SBYTE stopbit, C_BYTE port)
 
     		// Set driver mode to Half Duplex
     		if(port == MB_PORTNUM_485)
+    		{
     		  err = uart_set_mode(port, UART_MODE_RS485_HALF_DUPLEX);
+    		  P_COV_LN;
+    		}
     		else
+    		{
     		  err = uart_set_mode(port, UART_MODE_RS485_HALF_DUPLEX);
+    		  P_COV_LN;
+    		}
 
     		if (ESP_FAIL == err) return C_FAIL;
-
+    		P_COV_LN;
     		return C_SUCCESS;
     	}
     	else{
     		PRINTF_DEBUG("MODBUS initialize fail\n");
+    		P_COV_LN;
     		return C_FAIL;
     	}
      }
      else{
 		 PRINTF_DEBUG("MODBUS initialize fail\n");
+		 P_COV_LN;
 		 return C_FAIL;
      }
 
@@ -496,6 +506,73 @@ do{
     Modbus__Delay();
     return result;
 }
+
+
+
+/*
+ *
+ *  TODO WORK IN PROGRESS step 2
+ *
+ *
+ * */
+
+
+
+C_RES app_file_read(unsigned char* data_tx, uint8_t packet_len, unsigned char* data_rx)
+{
+   //char data_rx[260];
+   int retrycount=0;
+   int retrypacket=0;
+   uint16_t data_rx_len;
+   const long timeout = MODBUS_TIME_OUT;
+   const int MAX_RETRY = 10;
+
+	C_RES result = C_SUCCESS;
+
+#ifdef INCLUDE_PLATFORM_DEPENDENT
+
+	do{
+
+	  eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
+	  memset(ucMBFileTransfer, 0, 256);   /* zeroed the rx buffer */
+
+	  errorCode = eMBMasterReqFileRead(Modbus__GetAddress(), data_tx, packet_len, timeout);
+
+	  result = errorCode;
+
+	  retrycount++;
+
+	  #ifdef __CCL_DEBUG_MODE
+	  if (errorCode != MB_MRE_NO_ERR) printf("app_file_transfer #1 err %X \r\n", result);
+	  #endif
+
+	}while((result != MB_MRE_NO_ERR) && (retrycount < MAX_RETRY)) ;
+
+	if(result != MB_MRE_NO_ERR)
+	{
+		vMBMasterRunResRelease();
+		result = C_FAIL;
+	}
+	else
+	{
+		memset(data_rx, 0, 260);
+		data_rx_len = usMBFileTransferLen + 3;
+		//data_rx[0]  = ucMBFileTransfer[0];
+
+		// get response
+		for (C_INT16 i = 0; i < data_rx_len + 2; i++)
+		{
+			data_rx[i] = 	ucMBFileTransfer[i];
+		}
+
+		result = C_SUCCESS;
+	}
+#endif
+
+	return result;
+}
+
+
 
 
 /**

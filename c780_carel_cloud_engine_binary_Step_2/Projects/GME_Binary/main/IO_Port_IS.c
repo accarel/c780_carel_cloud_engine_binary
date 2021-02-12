@@ -207,17 +207,7 @@ void Init_IO_IS(void)
 	  gpio_set_level(GSM_PWRKEY_PIN, 0);
 
 	  PRINTF_DEBUG("GSM_Module_IO_Init Done! \r\n");
-
-
   }
-
-
-
-
-
-  //TODO BILATO set unused I/O to a well know state
-
-
 
   #endif
 }
@@ -237,15 +227,18 @@ void GSM_Module_Pwr_Supply_On_Off(C_BYTE set_status)
 	{
 	   case GSM_POWER_SUPPLY_OFF:
 		   gpio_set_level(GSM_POWER_CTRL_PIN, 0);
+		   P_COV_LN;
 		   break;
 
 	   case	GSM_POWER_SUPPLY_ON:
 		   gpio_set_level(GSM_POWER_CTRL_PIN, 1);
-		   Sys__Delay(5000);		// TODO, set to a reasonable value, this way it works
+		   Sys__Delay(5000);		//set to a reasonable value, this way it works
+		   P_COV_LN;
 		   break;
 
 	   default:
          //TODO Bilato raise an error
+		 P_COV_LN;
 		 break;
 	}
 }
@@ -289,6 +282,7 @@ void GSM_Module_PwrKey_On_Off(C_BYTE set_status)
 
 	   default:
 		   //TODO Bilato raise an error
+		   P_COV_LN;
 		   break;
 	}
 }

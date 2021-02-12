@@ -54,30 +54,12 @@ C_RES MQTT_Check_Status(void)
     if ((MQTT_BITS & MQTT_DISCONNECTED_BIT) != 0 ){
     	mqtt_client_destroy();                  //return value not checked anyway the MQTT is stopped in our system we have only one instance
     	PRINTF_DEBUG("MQTT_Check_Status FAIL \n");
+    	P_COV_LN;
         return C_FAIL;
     }
 
     return C_SUCCESS;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 /**
@@ -126,10 +108,14 @@ C_RES MQTT_Start(void)
 		NVM__ReadBlob(SET_GW_PARAM_NVM,(void*)&gw_config_nvm,&gw_config_len);
 
 		mqtt_cfg_nvm.keepalive = gw_config_nvm.mqttKeepAliveInterval;
+		P_COV_LN;
 	}
 
 	if(C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+	{
 		cert_num = CERT_1;
+		P_COV_LN;
+	}
 	mqtt_cfg_nvm.cert_pem = Sys__GetCert(cert_num);
 
 	//check if username == '?', then use deviceid as username (to make spiffs image independent from MAC or IMEI)

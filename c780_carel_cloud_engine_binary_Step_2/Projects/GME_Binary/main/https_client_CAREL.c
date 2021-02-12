@@ -54,12 +54,14 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
     if (buffer == NULL) 
     {
         if (url != NULL) free(url);
+		P_COV_LN;
 		return NO_HEAP_MEMORY;
     }
 	
 	if (url == NULL)
 	{
 		free(buffer);
+		P_COV_LN;
 		return NO_HEAP_MEMORY;
 	}
 
@@ -86,6 +88,7 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 		
 		free(buffer);
 		free(url);
+		P_COV_LN;
 		return CONN_FAIL;
 	}
 
@@ -122,6 +125,8 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 			  tmpHeaderModel = (struct HeaderModel *)buffer;
 			  if (memcmp(tmpHeaderModel->signature, GME_MODEL, strlen(GME_MODEL)) || (tmpHeaderModel->version != HEADER_VERSION))
 				  err = WRONG_FILE;
+
+			  P_COV_LN;
 		  }
 		  else if ((memcmp(filename, CERT1_SPIFFS, strlen(CERT1_SPIFFS)) == 0) || (memcmp(filename, CERT2_SPIFFS, strlen(CERT2_SPIFFS)) == 0)) {
 			  err = CONN_OK;
@@ -130,13 +135,14 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 			  	err = WRONG_CRC;
 			  if (memcmp(buffer, "-----BEGIN", strlen("-----BEGIN")))
 				  err = WRONG_FILE;
-
+			  P_COV_LN;
 		  }
 		  else if ((memcmp(filename,LOGIN_HTML, strlen(LOGIN_HTML)))==0 ||
 				  	  (memcmp(filename,CHANGE_CRED_HTML, strlen(CHANGE_CRED_HTML)))==0 ||
 					  (memcmp(filename,CONFIG_HTML, strlen(CONFIG_HTML)))==0 ||
 					  (memcmp(filename,STYLE_CSS, strlen(STYLE_CSS)))==0 ||
 					  (memcmp(filename,FAV_ICON, strlen(FAV_ICON)))==0) {
+			  P_COV_LN;
 			  err = CONN_OK;
 		  }
 
@@ -150,6 +156,7 @@ C_RES HttpsClient__DownloadFile(c_cborreqdwldevsconfig *download_devs_config, ui
 			#ifdef _DEBUG_HTTPS_CLIENT_CAREL 
 			PRINTF_DEBUG("HttpsClient__DownloadModelFile - Error read data");			
 			#endif
+			P_COV_LN;
 		}
 
 		
@@ -205,9 +212,15 @@ C_RES HttpsClient__UpdateCertificate(c_cborrequpdatecacert *update_ca_cert)
 	if (err == CONN_OK){
 		cert_num = (cert_num == CERT_1) ? CERT_2 : CERT_1;
 		if(C_SUCCESS == NVM__WriteU8Value(MB_CERT_NVM, cert_num))
+		{
+			P_COV_LN;
 			return CONN_OK;
+		}
 		else
+		{
+			P_COV_LN;
 			return CONN_FAIL;
+		}
 	}
 	return err;
 }

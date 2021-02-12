@@ -15,6 +15,7 @@
 /* ========================================================================== */
 /* include                                                                    */
 /* ========================================================================== */
+#include "CAREL_GLOBAL_DEF.h"
 #include "data_types_CAREL.h"
 #include "https_client_IS.h"
 #include "common.h"

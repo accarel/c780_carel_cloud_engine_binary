@@ -8,7 +8,6 @@
  
 /* Includes ------------------------------------------------------------------------ */
 
-#include "CAREL_GLOBAL_DEF.h"
 #include "ota_IS.h"
 #include "https_client_IS.h"
 #include "ota_CAREL.h"
@@ -34,12 +33,15 @@ static esp_err_t _ota_http_event_handler(esp_http_client_event_t *evt)
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
             ESP_LOGD(TAG, "HTTP_EVENT_ERROR");
+            P_COV_LN;
             break;
         case HTTP_EVENT_ON_CONNECTED:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_CONNECTED");
+            P_COV_LN;
             break;
         case HTTP_EVENT_HEADER_SENT:
             ESP_LOGD(TAG, "HTTP_EVENT_HEADER_SENT");
+            P_COV_LN;
             break;
         case HTTP_EVENT_ON_HEADER:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
@@ -49,11 +51,14 @@ static esp_err_t _ota_http_event_handler(esp_http_client_event_t *evt)
             break;
         case HTTP_EVENT_ON_FINISH:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");
+            P_COV_LN;
             break;
         case HTTP_EVENT_DISCONNECTED:
             ESP_LOGD(TAG, "HTTP_EVENT_DISCONNECTED");
+            P_COV_LN;
             break;
         default:
+            P_COV_LN;
         	ESP_LOGD(TAG, "HTTP EVENT UNKNOW %d", evt->event_id);
         	break;
     }
@@ -126,7 +131,7 @@ C_RES https_ota(c_http_client_config_t* c_config)
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
 	};
 
-	printf("url : %s\n",config.url);
+	PRINTF_DEBUG("url : %s\n",config.url);
 
 	//This function manage the ota operation, the checksum validation and the ota partition switch
 	ret = esp_https_ota(&config);
@@ -276,6 +281,9 @@ void OTAGroup (bool ota_res){
 	uint8_t pe_status;
 	NVM__ReadU8Value(PE_STATUS_NVM, &pe_status);
 	if (pe_status == RUNNING)
+	{
+		P_COV_LN;
 		PollEngine_StartEngine_CAREL();	// restart polling
+	}
 #endif
 }

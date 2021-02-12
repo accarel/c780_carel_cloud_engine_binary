@@ -68,7 +68,10 @@ void SoftWDT_DeInit(uint8_t which_one){
  */
 void SoftWDT_Reset(uint8_t which_one){
   if (which_one >= MAX_SOFTWDT) 
+  {
+	P_COV_LN;
     return; //it trigger some other error
+  }
   
   if (softwdt_items[which_one].is_enabled == 1)
     softwdt_items[which_one].wdt_counter_value = softwdt_items[which_one].wdt_counter_preset;
@@ -109,6 +112,7 @@ void SoftWDT_Manager(void){
     if (softwdt_fired == 1){
       //TODO something like fire wd or what else?      
       softwdt_fired = 0;      
+      P_COV_LN;
       // Reset del sistema in base alla piattaforma su cui si sta lavorando
     }
    

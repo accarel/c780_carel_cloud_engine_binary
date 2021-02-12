@@ -36,7 +36,7 @@
 /* ========================================================================== */
 /* uncomment for development platform                                         */
 /* ========================================================================== */
-//#define __USE_ESP_WROVER_KIT
+#define __USE_ESP_WROVER_KIT
 
 /* ========================================================================== */
 /*  uncomment for bcu PLATFORM                                                */
@@ -86,6 +86,29 @@
 	#define	PRINTF_DEBUG(...)
 #endif
 
+
+
+
+/*
+ * The below row are used to perform a coverage test, not all the part are covered
+ * but is possible to modulate the memory occupation selectively enable the coverage
+ * for some file simply put #define__CCL_COVERAGE_MODE 1 locally to the files
+ * the below enable globally.
+ * REMEMBER disable the DEBUG_MODE to obtain a better result and reduce the num. of
+ * printf
+ * */
+//#define __CCL_COVERAGE_MODE
+
+#define COV_MARK "!#!"
+#ifdef __CCL_COVERAGE_MODE
+    #define	P_COV_LN  printf("%s|%s|%d|\r\n",COV_MARK,__FILE__, __LINE__)
+#else
+    #define P_COV_LN ;
+#endif
+
+
+
+
 /* ========================================================================== */
 /* general purpose                                                            */
 /* ========================================================================== */
@@ -106,7 +129,7 @@
  *
  */
 #define GW_HW_REV  "100"
-#define GW_FW_REV  "092"
+#define GW_FW_REV  "093" // upgrade to 093
 
 #define GW_SPIFFS_REV  "101"
 

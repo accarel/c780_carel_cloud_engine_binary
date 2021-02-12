@@ -49,6 +49,7 @@ static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 		ESP_LOGE(TAG, "Failed to stat dir : %s", filename);
 		httpd_resp_send_err(req, HTTPD_404_NOT_FOUND, "Directory does not exist");
 		fclose(fd);
+		P_COV_LN;
 		return ESP_FAIL;
 	}else{
 
@@ -72,11 +73,12 @@ static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 				httpd_resp_sendstr_chunk(req, NULL);
 				/* Respond with 500 Internal Server Error */
 				httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to send file");
+				P_COV_LN;
 				return ESP_FAIL;
 			}
 
 		} while (chunksize != 0);
-
+		P_COV_LN;
 	}
 
 	fclose(fd);
@@ -84,14 +86,21 @@ static C_RES file_get_handler(httpd_req_t *req, const char* filename)
 	httpd_resp_sendstr_chunk(req, NULL);
 
 
-	if(0 == strcmp(filename,LOGIN_HTML)){
+	if(0 == strcmp(filename,LOGIN_HTML))
+	{
 		LastPageSent = LOGIN;
-	}else if (0 == strcmp(filename,CONFIG_HTML)){
+		P_COV_LN;
+	}else if (0 == strcmp(filename,CONFIG_HTML))
+	{
 		LastPageSent = CONFIG;
-	}else if (0 == strcmp(filename,CHANGE_CRED_HTML)){
+		P_COV_LN;
+	}else if (0 == strcmp(filename,CHANGE_CRED_HTML))
+	{
 		LastPageSent = CHANGE_CRED;
+		P_COV_LN;
 	}else if (0 == strcmp(filename,DBG_HTML)){
 		LastPageSent = DBG_PG;
+		P_COV_LN;
 	}
 
     return ESP_OK;
@@ -122,6 +131,7 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 	if(ESP_OK != NVM__ReadString(HTMLCONF_AP_SSID, ap_ssid_temp, &len)){
 		strcpy(ap_ssid_temp, HTTPServer__SetAPDefSSID(AP_DEF_SSID));
 		PRINTF_DEBUG_SERVER("ap_ssid_temp : %s\n",ap_ssid_temp);
+		P_COV_LN;
 	}
 	cJSON_AddItemToObject(html_config, HTMLCONF_AP_SSID, cJSON_CreateString(ap_ssid_temp));
 
@@ -151,12 +161,14 @@ static C_RES http_resp_config_json(httpd_req_t *req)
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_GATEWAY_IP, cJSON_CreateString(wifi_config->sta_gateway_ip));
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_PRI_DNS, cJSON_CreateString(wifi_config->sta_primary_dns));
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_SCND_DNS, cJSON_CreateString(wifi_config->sta_secondary_dns));
+		P_COV_LN;
 	}else{
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_STATIC_IP, cJSON_CreateNull());
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_NETMASK, cJSON_CreateNull());
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_GATEWAY_IP, cJSON_CreateNull());
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_PRI_DNS, cJSON_CreateNull());
 		cJSON_AddItemToObject(html_config, HTMLCONF_STA_SCND_DNS, cJSON_CreateNull());
+		P_COV_LN;
 	}
 
 	char tmp_ntp_server[SERVER_SIZE];
@@ -316,6 +328,7 @@ static esp_err_t download_get_handler(httpd_req_t *req)
         ESP_LOGE(TAG, "Filename is too long");
         /* Respond with 500 Internal Server Error */
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Filename too long");
+		P_COV_LN;
         return ESP_FAIL;
     }
 
@@ -323,14 +336,18 @@ static esp_err_t download_get_handler(httpd_req_t *req)
     if (filename[strlen(filename) - 1] == '/') {
     	if(ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
 #ifdef GW_GSM_WIFI		// this is required for certification tests, in final version actual page shoudl be shown
+			P_COV_LN;
     		return httpd_resp_sendstr_chunk(req, "This is 2G GME\n");
 #else
+			P_COV_LN;
     		return file_get_handler(req, LOGIN_HTML);
 #endif
     		}else{
 #ifdef GW_GSM_WIFI		// this is required for certification tests, in final version actual page shoudl be shown
+			P_COV_LN;
     		return httpd_resp_sendstr_chunk(req, "This is 2G GME\n");
 #else
+			P_COV_LN;
     		return file_get_handler(req, CHANGE_CRED_HTML);
 #endif
     		}
@@ -375,6 +392,7 @@ static esp_err_t download_get_handler(httpd_req_t *req)
         ESP_LOGE(TAG, "Failed to read existing file : %s", filepath);
         /* Respond with 500 Internal Server Error */
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Failed to read existing file");
+		P_COV_LN;
         return ESP_FAIL;
     }
 
@@ -489,6 +507,7 @@ static esp_err_t delete_post_handler(httpd_req_t *req)
     if (!filename) {
         /* Respond with 500 Internal Server Error */
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Filename too long");
+		P_COV_LN;
         return ESP_FAIL;
     }
 
@@ -496,6 +515,7 @@ static esp_err_t delete_post_handler(httpd_req_t *req)
     if (filename[strlen(filename) - 1] == '/') {
         ESP_LOGE(TAG, "Invalid filename : %s", filename);
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Invalid filename");
+		P_COV_LN;
         return ESP_FAIL;
     }
 
@@ -503,6 +523,7 @@ static esp_err_t delete_post_handler(httpd_req_t *req)
         ESP_LOGE(TAG, "File does not exist : %s", filename);
         /* Respond with 400 Bad Request */
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "File does not exist");
+		P_COV_LN;
         return ESP_FAIL;
     }
 
@@ -514,6 +535,7 @@ static esp_err_t delete_post_handler(httpd_req_t *req)
     httpd_resp_set_status(req, "303 See Other");
     httpd_resp_set_hdr(req, "Location", "/");
     httpd_resp_sendstr(req, "File deleted successfully");
+	P_COV_LN;
     return ESP_OK;
 }
 
@@ -540,11 +562,13 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 	// Validate file storage base path
 	if (!base_path || strcmp(base_path, "/spiffs") != 0) {
 		ESP_LOGE(TAG, "File server presently supports only '/spiffs' as base path");
+		P_COV_LN;
 		return ESP_ERR_INVALID_ARG;
 	}
 
 	if (server_data) {
 		ESP_LOGE(TAG, "File server already started");
+		P_COV_LN;
 		return ESP_ERR_INVALID_STATE;
 	}
 
@@ -552,6 +576,7 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 	server_data = calloc(1, sizeof(struct file_server_data));
 	if (!server_data) {
 		ESP_LOGE(TAG, "Failed to allocate memory for server data");
+		P_COV_LN;
 		return ESP_ERR_NO_MEM;
 	}
 	strlcpy(server_data->base_path, base_path,
@@ -570,6 +595,7 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 	ESP_LOGI(TAG, "Starting HTTP Server");
 	if (httpd_start(&server, &config) != ESP_OK) {
 		ESP_LOGE(TAG, "Failed to start file server!");
+		P_COV_LN;
 		return ESP_FAIL;
 	}
 
@@ -663,6 +689,7 @@ C_RES HTTPServer__StartFileServer (httpd_handle_t server, const char *base_path)
 
 	if (ESP_OK == NVM__ReadU8Value(HTMLLOGIN_CONF_NVM, &cred_conf) && (cred_conf == CONFIGURED)){
 		HTTPServer__ParseCredfromNVM();
+		P_COV_LN;
 	}
 
 	return ESP_OK;

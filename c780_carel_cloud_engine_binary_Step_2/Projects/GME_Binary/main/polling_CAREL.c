@@ -44,6 +44,7 @@
 #define TIMEOUT_UPDATE_CIDS_MS          (1000) 
 #define TIMEOUT_UPDATE_CIDS_TICS        (TIMEOUT_UPDATE_CIDS_MS / portTICK_RATE_MS)
 
+#define REDUCE_SPEED_ALARM 				(5)  // seconds
 
 static const char *TAG = "POLLING_CAREL";
 
@@ -175,6 +176,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			COILLowPollTab.reg[i].info =  *((r_coil_di*)(p_coil_low_sect + (i * sizeof(r_coil_di))));
 		}
+		P_COV_LN;
 	}
 
 
@@ -186,7 +188,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			COILHighPollTab.reg[i].info =  *((r_coil_di*)(p_coil_high_sect + (i * sizeof(r_coil_di))));
 		}
-
+		P_COV_LN;
 	}
 
 
@@ -198,6 +200,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			COILAlarmPollTab[i].info =  *((r_coil_di_alarm*)(p_coil_alarm_sect + (i * sizeof(r_coil_di_alarm))));
 		}
+		P_COV_LN;
 	}
 
 	//Descrete Input
@@ -210,6 +213,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			DILowPollTab.reg[i].info =  *((r_coil_di*)(p_di_low_sect + (i * sizeof(r_coil_di))));
 		}
+		P_COV_LN;
 	}
 
 
@@ -221,6 +225,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			DIHighPollTab.reg[i].info =  *((r_coil_di*)(p_di_high_sect + (i * sizeof(r_coil_di))));
 		}
+		P_COV_LN;
 	}
 
 
@@ -232,6 +237,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			DIAlarmPollTab[i].info =  *((r_coil_di_alarm*)(p_di_alarm_sect + (i * sizeof(r_coil_di_alarm))));
 		}
+		P_COV_LN;
 	}
 
 	//Holding Register
@@ -245,6 +251,7 @@ void PollEngine__CreateTables(void){
 			HRLowPollTab.tab[i].info =  *((r_hr_ir*)(p_hr_low_sect + (i * sizeof(r_hr_ir))));
 			HRLowPollTab.tab[i].read_type = check_hr_ir_reg_type(HRLowPollTab.tab[i].info);
 		}
+		P_COV_LN;
 	}
 
 
@@ -257,6 +264,7 @@ void PollEngine__CreateTables(void){
 			HRHighPollTab.tab[i].info =  *((r_hr_ir*)(p_hr_high_sect + (i * sizeof(r_hr_ir))));
 			HRHighPollTab.tab[i].read_type = check_hr_ir_reg_type(HRHighPollTab.tab[i].info);
 		}
+		P_COV_LN;
 	}
 
 
@@ -268,6 +276,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			HRAlarmPollTab[i].info =  *((r_hr_ir_alarm*)(p_hr_alarm_sect + (i * sizeof(r_hr_ir_alarm))));
 		}
+		P_COV_LN;
 	}
 
 	//Input Register
@@ -282,6 +291,7 @@ void PollEngine__CreateTables(void){
 			IRLowPollTab.tab[i].info =  *((r_hr_ir*)(p_ir_low_sect + (i * sizeof(r_hr_ir))));
 			IRLowPollTab.tab[i].read_type = check_hr_ir_reg_type(IRLowPollTab.tab[i].info);
 		}
+		P_COV_LN;
 	}
 
 
@@ -294,6 +304,7 @@ void PollEngine__CreateTables(void){
 			IRHighPollTab.tab[i].info =  *((r_hr_ir*)(p_ir_high_sect + (i * sizeof(r_hr_ir))));
 			IRHighPollTab.tab[i].read_type = check_hr_ir_reg_type(IRHighPollTab.tab[i].info);
 		}
+		P_COV_LN;
 	}
 
 
@@ -305,6 +316,7 @@ void PollEngine__CreateTables(void){
 		for(int i=0;i<temp;i++){
 			IRAlarmPollTab[i].info =  *((r_hr_ir_alarm*)(p_ir_alarm_sect + (i * sizeof(r_hr_ir_alarm))));
 		}
+		P_COV_LN;
 	}
 	SetAllErrors(MB_MRE_TIMEDOUT);
 	create_modbus_tables();
@@ -359,10 +371,7 @@ void create_values_buffers(void){
 	// to test buffering TEMPORARY
 	// values_buffer_len = 20;
 
-
 	PRINTF_DEBUG("create_values_buffers %d \n",values_buffer_len);
-
-
 
 	values_buffer = malloc(values_buffer_len * sizeof(values_buffer_t));						// malloc
 	memset((void*)values_buffer, 0, values_buffer_len * sizeof(values_buffer_t));
@@ -547,6 +556,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 			values_buffer_count++;
 			if (values_buffer_count > values_buffer_len)
 				values_buffer_count = values_buffer_len;
+			P_COV_LN;
 		}
 		else if (arr->tab[i].error == 0){	// manage read values only if there is no error
 			// reinit value otherwise all variables will be considered changed
@@ -576,7 +586,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 					PRINTF_DEBUG("TYPE_A c_read = %f\n",c_read);
 					PRINTF_DEBUG("TYPE_A Value = %Lf\n",value);
                     #endif
+					P_COV_LN;
 				}
+				P_COV_LN;
 			}
 				break;
 
@@ -605,7 +617,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 					PRINTF_DEBUG("TYPE_B c_read = %f\n",c_read);
 					PRINTF_DEBUG("TYPE_B Value = %Lf\n",value);
                     #endif
+					P_COV_LN;
 				}
+				P_COV_LN;
 			}
 				break;
 
@@ -627,7 +641,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 					arr->tab[i].p_value = arr->tab[i].c_value;
 					value = (long double)c_read;
 					changed = 1;
+					P_COV_LN;
 				}
+				P_COV_LN;
 			}
 				break;
 
@@ -647,7 +663,9 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 					arr->tab[i].p_value = arr->tab[i].c_value;
 					value = (long double)c_read;
 					changed = 1;
+					P_COV_LN;
 				}
+				P_COV_LN;
 			}
 				break;
 
@@ -659,14 +677,17 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				uint8_t c_read, p_read= 0;
 				c_read = get_type_d(&arr->tab[i], CURRENT);
 				p_read = get_type_d(&arr->tab[i], PREVIOUS);
-				if(c_read != p_read  || first_run){
+				if(c_read != p_read  || first_run)
+				{
 					arr->tab[i].p_value = arr->tab[i].c_value;
 					value = (long double)c_read;
 					changed = 1;
+					P_COV_LN;
 				}
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
                 #endif
+				P_COV_LN;
 			}
 				break;
 
@@ -679,16 +700,17 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				c_read = get_type_e(&arr->tab[i], CURRENT);
 				p_read = get_type_e(&arr->tab[i], PREVIOUS);
 				temp = abs(c_read - p_read);
-				if(temp > arr->tab[i].info.Hyster || first_run){
-
+				if(temp > arr->tab[i].info.Hyster || first_run)
+				{
 					arr->tab[i].p_value = arr->tab[i].c_value;
 					value = (long double)c_read;
 					changed = 1;
+					P_COV_LN;
 				}
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d\n",c_read, p_read);
                 #endif
-
+				P_COV_LN;
 			}
 				break;
 
@@ -704,11 +726,14 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
                 #endif
-				if(temp > arr->tab[i].info.Hyster || first_run){
+				if(temp > arr->tab[i].info.Hyster || first_run)
+				{
 					arr->tab[i].p_value = arr->tab[i].c_value;
 					value = (long double)c_read;
 					changed = 1;
+					P_COV_LN;
 				}
+				P_COV_LN;
 			}
 					break;
 
@@ -724,11 +749,14 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 				PRINTF_DEBUG("c_read: %d, p_read: %d, temp: %d\n",c_read, p_read, temp);
                 #endif
-				if(temp > arr->tab[i].info.Hyster || first_run){
+				if(temp > arr->tab[i].info.Hyster || first_run)
+				{
 					arr->tab[i].p_value = arr->tab[i].c_value;
 					value = (long double)c_read;
 					changed = 1;
+					P_COV_LN;
 				}
+				P_COV_LN;
 			}
 				break;
 
@@ -745,6 +773,7 @@ static void check_hr_ir_read_val(hr_ir_poll_tables_t *arr, uint8_t arr_len, uint
 				values_buffer_count++;
 				if (values_buffer_count > values_buffer_len)
 					values_buffer_count = values_buffer_len;
+				P_COV_LN;
 			}
 		}
 	}
@@ -779,7 +808,6 @@ static void check_coil_di_read_val(coil_di_poll_tables_t *arr, uint8_t arr_len, 
 			values_buffer_count++;
 			if (values_buffer_count > values_buffer_len)
 				values_buffer_count = values_buffer_len;
-
 		}
 		//value changed and no error
 		else if((arr->reg[i].error == 0) && (arr->reg[i].c_value != arr->reg[i].p_value || (first_run))){
@@ -858,25 +886,33 @@ hr_ir_read_type_t check_hr_ir_reg_type(r_hr_ir info)
 	if(info.dim > 16){
 		if(1 == info.flag.bit.ieee){
 			type = TYPE_A;
+			P_COV_LN;
 		}else{
 			if(1 == info.flag.bit.signed_f){
 				type = TYPE_C_SIGNED;
+				P_COV_LN;
 			}else{
 				type = TYPE_C_UNSIGNED;
+				P_COV_LN;
 			}
 		}
 	}else{
 		if((1 == info.len) && ((info.bitposition >= 0) && (info.bitposition < 16))){
 			type = TYPE_D;
+			P_COV_LN;
 		}else if(1 == info.flag.bit.fixedpoint){
 			type = TYPE_B;
+			P_COV_LN;
 		}else if(info.len == 4 && (info.bitposition >= 0)){
 			type = TYPE_E;
+			P_COV_LN;
 		}else{
 			if(1 == info.flag.bit.signed_f){
 				type = TYPE_F_SIGNED;
+				P_COV_LN;
 			}else{
 				type = TYPE_F_UNSIGNED;
+				P_COV_LN;
 			}
 		}
 	}
@@ -978,6 +1014,7 @@ static void save_coil_di_value(coil_di_low_high_t *arr, void* instance_ptr){
 
 	temp == 0 ? (temp = 0) : (temp = 1);
 	arr->c_value = temp;
+	P_COV_LN;
 }
 
 
@@ -1034,10 +1071,12 @@ static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* insta
 			alarm->data.stop_time = 0;
 			alarm->data.value = 1;
 			alarm->data.send_flag = 1;
+			P_COV_LN;
 		}else{
 			alarm->data.stop_time = RTC_Get_UTC_Current_Time();
 			alarm->data.value = 0;
 			alarm->data.send_flag = 1;
+			P_COV_LN;
 		}
 	}
 }
@@ -1067,10 +1106,12 @@ static void save_alarm_hr_ir_value(hr_ir_alarm_tables_t *alarm, void* instance_p
 			alarm->data.stop_time = 0;
 			alarm->data.value = 1;
 			alarm->data.send_flag = 1;
+			P_COV_LN;
 		}else{
 			alarm->data.stop_time = RTC_Get_UTC_Current_Time();
 			alarm->data.value = 0;
 			alarm->data.send_flag = 1;
+			P_COV_LN;
 		}
 	}
 }
@@ -1263,6 +1304,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
+			P_COV_LN;
 			return C_FAIL; //this is the start of offline
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1300,6 +1342,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
+			P_COV_LN;
 			return C_FAIL;
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1340,6 +1383,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
+			P_COV_LN;
 			return C_FAIL;
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1380,6 +1424,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
+			P_COV_LN;
 			return C_FAIL;
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1441,6 +1486,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 
 		if(is_offline == 2)
 		{
+			P_COV_LN;
 			return C_FAIL; //this is an offline
 		}
 
@@ -1480,7 +1526,10 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		}
 
 		if(is_offline == 2)
+		{
+			P_COV_LN;
 			return C_FAIL; //this is an offline
+		}
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
@@ -1513,7 +1562,10 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		}
 
 		if(is_offline == 2)
+		{
+			P_COV_LN;
 			return C_FAIL; //this is an offline
+		}
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
@@ -1546,7 +1598,10 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		}
 
 		if(is_offline == 2)
+		{
+			P_COV_LN;
 			return C_FAIL; //this is an offline
+		}
 
 		param_buffer[0] = param_buffer[1] = 0;
 	}
@@ -1593,6 +1648,7 @@ void SendOffline(C_RES poll_done) {
 
 			// avoid Modbus engine to stop
 			vMBMasterRunResRelease();
+			P_COV_LN;
 		}
 	}else{
 		Update_Led_Status(LED_STAT_RS485, LED_STAT_ON);
@@ -1601,6 +1657,7 @@ void SendOffline(C_RES poll_done) {
 			send_cbor_offalarm("", start_offline, end_offline);
 			start_offline = end_offline = 0;
 			ForceSending();
+			P_COV_LN;
 		}
 	}
 }
@@ -1634,18 +1691,22 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 		if(RUNNING == PollEngine_Status.engine && Mobile_GetCommandMode() == 0)
 		{
-		SoftWDT_Reset(SWWDT_POLLING);
+		    SoftWDT_Reset(SWWDT_POLLING);
 
 			PollEngine_Status.polling = RUNNING;
 
 			timeout = RTC_Get_UTC_Current_Time();
 
-			if(timeout > (timestamp.current_alarm) && alarm_n.total > 0) {  // + ALARM_POLLING_TIME
+			if(timeout > (timestamp.current_alarm) && alarm_n.total > 0) {
 			   //ALARM POLLING
                 #ifdef __DEBUG_POLLING_CAREL_LEV_2
 	//			PRINTF_DEBUG("ALR %X\n", timeout);
                 #endif
-				timestamp.current_alarm = RTC_Get_UTC_Current_Time();
+
+				if((Dev_LogFile_GetSM() == LOGFILE_INIT) || (Dev_LogFile_GetSM() == LOGFILE_IDLE))
+				   timestamp.current_alarm = RTC_Get_UTC_Current_Time();  // Polling allarm best effort
+				else
+					timestamp.current_alarm = RTC_Get_UTC_Current_Time() + REDUCE_SPEED_ALARM;  // reduce the polling of alarm during download log
 
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1
 				cronometro = RTC_Get_UTC_Current_Time();
@@ -1662,7 +1723,6 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				SendOffline(poll_done);
 
 				check_alarms_change();
-
 			}
 
 			timeout = RTC_Get_UTC_Current_Time();
@@ -1789,7 +1849,10 @@ C_RES PollEngine__Read_HR_IR_Req(C_UINT16 func, C_UINT16 addr, C_BYTE dim, C_UIN
 		return C_SUCCESS;
 	}
 	else
+	{
+		P_COV_LN;
 	  	return C_FAIL;
+	}
 }
 
 
@@ -1819,7 +1882,10 @@ C_RES PollEngine__Read_COIL_DI_Req(C_UINT16 func, C_UINT16 addr, C_UINT16* read_
 		return C_SUCCESS;
 	}
 	else
+	{
+		P_COV_LN;
 	  	return C_FAIL;
+	}
 }
 
 
@@ -1870,9 +1936,14 @@ C_RES PollEngine__Write_HR_Req(C_FLOAT write_value, uint16_t addr, C_CHAR num, C
 		errorReq = MB_MRE_ILL_ARG;	// invalid fun
 
 	if(errorReq == MB_MRE_NO_ERR)
+	{
 		return C_SUCCESS;
+	}
 	else
+	{
+		P_COV_LN;
 		return C_FAIL;
+	}
 }
 
 
@@ -1923,9 +1994,15 @@ C_RES PollEngine__Write_HR_Req_Int(C_INT32 write_value, uint16_t addr, C_CHAR nu
 		errorReq = MB_MRE_ILL_ARG; 	// invalid fun
 
 	if(errorReq == MB_MRE_NO_ERR)
+	{
+		P_COV_LN;
 		return C_SUCCESS;
+	}
 	else
+	{
+		P_COV_LN;
 		return C_FAIL;
+	}
 }
 
 /**
@@ -1957,9 +2034,15 @@ C_RES PollEngine__Write_COIL_Req(uint16_t write_value, uint16_t addr, C_UINT16 f
 		errorReq = MB_MRE_ILL_ARG;	// invalid fun
 
 	if(errorReq == MB_MRE_NO_ERR)
+	{
+		P_COV_LN;
 		return C_SUCCESS;
+	}
 	else
+	{
+		P_COV_LN;
 		return C_FAIL;
+	}
 }
 
 /**
@@ -2012,8 +2095,10 @@ uint8_t PollEngine_GetStatusForSending_CAREL(void){
 		case RUNNING:
 			return 1;
 		case NOT_INITIALIZED:
+			P_COV_LN;
 			return 3;
 		default:
+			P_COV_LN;
 			return 0;
 	}
 }

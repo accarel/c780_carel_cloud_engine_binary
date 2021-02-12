@@ -59,24 +59,26 @@ void url_decoder(char *buf) {
 
     for(i=0;i<strlen(buf);++i) {
 
-        if(buf[i] == '%') {
-        if(buf[i+1] == 0)
-            return;
+        if(buf[i] == '%')
+        {
+           if(buf[i+1] == 0)
+             return;
 
-        if(isxdigit((int)buf[i+1]) && isxdigit((int)buf[i+2])) {
+           if(isxdigit((int)buf[i+1]) && isxdigit((int)buf[i+2]))
+           {
 
-            /* combine the next to numbers into one */
-            eStr[0] = buf[i+1];
-            eStr[1] = buf[i+2];
+              /* combine the next to numbers into one */
+              eStr[0] = buf[i+1];
+              eStr[1] = buf[i+2];
 
-            /* convert it to decimal */
-            long int x = strtol(eStr, NULL, 16);
+              /* convert it to decimal */
+              long int x = strtol(eStr, NULL, 16);
 
-            /* remove the hex */
-            memmove(&buf[i+1], &buf[i+3], strlen(&buf[i+3])+1);
+              /* remove the hex */
+              memmove(&buf[i+1], &buf[i+3], strlen(&buf[i+3])+1);
 
-            buf[i] = x;
-        }
+              buf[i] = x;
+           }
         }
         else if(buf[i] == '+') { buf[i] = ' '; }
     }
@@ -103,14 +105,17 @@ const char* get_path_from_uri(char *dest, const char *base_path, const char *uri
     const char *quest = strchr(uri, '?');
     if (quest) {
         pathlen = MIN(pathlen, quest - uri);
+        P_COV_LN;
     }
     const char *hash = strchr(uri, '#');
     if (hash) {
         pathlen = MIN(pathlen, hash - uri);
+        P_COV_LN;
     }
 
     if (base_pathlen + pathlen + 1 > destsize) {
         /* Full path string won't fit into destination buffer */
+    	P_COV_LN;
         return NULL;
     }
 
@@ -118,6 +123,7 @@ const char* get_path_from_uri(char *dest, const char *base_path, const char *uri
     strcpy(dest, base_path);
     strlcpy(dest + base_pathlen, uri, pathlen + 1);
 
+    P_COV_LN;
     /* Return pointer to path, skipping the base */
     return dest + base_pathlen;
 }
@@ -144,9 +150,11 @@ static void get_value_from_string(char* received_buf, const char* value_key, uns
 		unsigned char len = (unsigned char)(and_key_buff - key_buff);
 		memcpy((void*)req_value,(void*)key_buff ,(len));
 		req_value[len]='\0';
+		P_COV_LN;
 	}
 	else{
 		req_value[0]='\0';
+		P_COV_LN;
 	}
 }
 
@@ -188,11 +196,18 @@ int get_html_change_credentials(char* sent_parameters){
     	if (ESP_OK == err1 && ESP_OK == err2){
 
     		if (C_SUCCESS == NVM__WriteU8Value(HTMLLOGIN_CONF_NVM, CONFIGURED))
+    		{
+    			P_COV_LN;
     			return 1;
+    		}
     		else
+    		{
+    			P_COV_LN;
     			return 0;
+    		}
 
     	}else{
+    		P_COV_LN;
     		return 0;
     	}
     }
@@ -248,6 +263,7 @@ int check_html_credentials(char* sent_parameters){
 
 
     if ((strcmp(html_login.login_usr, HTMLLogin.login_usr) == 0) && (strcmp(html_login.login_pswd, HTMLLogin.login_pswd) == 0)){
+    	P_COV_LN;
     	login_done = TRUE;
     	return 1;
     }
@@ -380,6 +396,7 @@ C_RES get_html_config_received_data(char* sent_parameters){
      	if (err != ESP_OK) retval = C_FAIL;
      	err = NVM__WriteString(HTMLLOGIN_PSWD, HTMLConfig.login_pswd);
      	if (err != ESP_OK) retval = C_FAIL;
+     	P_COV_LN;
     }
 
     return retval;

@@ -23,6 +23,8 @@
 #include "binary_model.h"
 #include "polling_CAREL.h"
 
+#include "filelog_CAREL.h"
+
 /* ========================================================================== */
 /* debugging purpose                                                          */
 /* ========================================================================== */
@@ -64,6 +66,12 @@ enum CBOR_CmdResponse{
 	INVALID_CMD = -1,
 	SUCCESS_CMD,
 	ERROR_CMD,
+	ERROR_HEAD_NOTFOUND,
+	ERROR_HEAD_VERSION,
+	ERROR_MODBUS,
+	ERROR_ALREADY_RUN,
+	ERROR_UNLOCK_FAIL,
+	ERROR_NO_ONGOING
 };
 
 typedef enum{
@@ -95,6 +103,9 @@ typedef enum CloudtoGME_Commands_l{
 	CHANGE_CREDENTIALS,
 	START_ENGINE,
 	STOP_ENGINE,
+	FULL_DOWNLOAD,
+	RANGE_DOWNLOAD,
+	ABORT_DOWNLOAD,
 	UPDATE_FILE = 50,
 }cloud_req_commands_t;
 
@@ -240,6 +251,41 @@ typedef struct C_CBORALARMS{
 #pragma pack()
 
 
+/*
+ *
+ *   STEP 2
+ *
+ * */
+
+///*
+// * @brief C_CBORREQFILELOG
+// *
+// * full log/file
+// * */
+#pragma pack(1)
+typedef struct C_CBORREQFILELOG{
+	uint16_t fid;
+	C_UINT32 fst;
+	C_UINT32 fle;
+}c_cborreqfilelog;
+#pragma pack()
+
+
+/*
+ * @brief C_CBORFILEVALUE
+ *
+ * VALUE log/file
+ * */
+#pragma pack(1)
+typedef struct C_CBORFILEVALUE{
+	C_UINT32 fsz;
+	C_UINT32 fst;
+	C_UINT32 fle;
+	C_BYTE ans[400];
+}c_cborfilevalue;
+#pragma pack()
+
+
 
 
 /*----------------------------------------------------------------------------------------*/
@@ -274,6 +320,18 @@ CborError CBOR_ReqSendMbAdu(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* se
 CborError CBOR_ReqReboot(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cid);
 CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UINT16* cbor_pass);
 
+// step 2
+CborError CBOR_ReqFileLog(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqfilelog* RangeFileData);
+C_INT32 CBOR_SendAsync_FileLog(filelog_info_t data);
+
+#define CBOR_ReqRangeFile CBOR_ReqFileLog
+#define CBOR_ReqFullFile  CBOR_ReqFileLog
+typedef c_cborreqfilelog  c_cborreqfullfile;
+typedef c_cborreqfilelog  c_cborreqrangefile;
+
+
+void RetrieveFileLog_Info(c_cborreqfilelog data);
+
 int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len);
 CborError CBOR_DiscardElement(CborValue* recursed);
 CborError CBOR_ExtractInt(CborValue* recursed, int64_t* read);
@@ -286,6 +344,7 @@ typedef 	c_cborrequpddevfw				c_cborrequpdgmefw;
 typedef		c_cborreqdwldevsconfig			c_cborrequpdatefile;
 #define 	CBOR_ReqUpdateGMEFW 			CBOR_ReqUpdateDevFW
 #define		CBOR_ReqUpdateFile				CBOR_ReqSetDevsConfig
+
 
 C_RES execute_set_line_config(c_cborreqlinesconfig set_line_cfg);
 C_RES execute_set_gw_config(c_cborreqsetgwconfig set_gw_config );

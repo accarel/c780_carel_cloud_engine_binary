@@ -40,18 +40,22 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     switch(evt->event_id) {
         case HTTP_EVENT_ERROR:
             ESP_LOGD(TAG, "HTTP_EVENT_ERROR");
+			P_COV_LN;
             break;
 			
         case HTTP_EVENT_ON_CONNECTED:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_CONNECTED");
+			P_COV_LN;
             break;
 			
         case HTTP_EVENT_HEADER_SENT:
             ESP_LOGD(TAG, "HTTP_EVENT_HEADER_SENT");
+			P_COV_LN;
             break;
 			
         case HTTP_EVENT_ON_HEADER:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
+			P_COV_LN;
             break;
 			
         case HTTP_EVENT_ON_DATA:
@@ -81,14 +85,17 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 			
         case HTTP_EVENT_ON_FINISH:
             ESP_LOGD(TAG, "HTTP_EVENT_ON_FINISH");
+			P_COV_LN;
             break;
 			
         case HTTP_EVENT_DISCONNECTED:
             ESP_LOGD(TAG, "HTTP_EVENT_DISCONNECTED");
+			P_COV_LN;
             break;
 
         default:
         	ESP_LOGD(TAG, "HTTP EVENT UNKNOW");
+			P_COV_LN;
         	break;
     }
     return ESP_OK;
@@ -119,7 +126,7 @@ static esp_err_t _http_event_handler(esp_http_client_event_t *evt)
 	client_http_client_init_IS = NULL;
 
 
-	printf("%s CERTIFICATO %d \r\n", TAG, cert_num);
+	PRINTF_DEBUG("%s CERTIFICATO %d \r\n", TAG, cert_num);
 
 	#ifdef INCLUDE_PLATFORM_DEPENDENT 
 

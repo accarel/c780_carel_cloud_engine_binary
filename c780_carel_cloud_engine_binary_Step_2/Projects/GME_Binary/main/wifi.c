@@ -171,6 +171,8 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 			xEventGroupSetBits(s_wifi_event_group, CONNECTED_BIT);
 
 			WIFI__SetSTAStatus(CONNECTED);
+
+			P_COV_LN;
 		break;
 
 		case SYSTEM_EVENT_STA_DISCONNECTED:
@@ -191,6 +193,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
 			xEventGroupClearBits(s_wifi_event_group, CONNECTED_BIT);
 			WIFI__SetSTAStatus(DISCONNECTED);
+			P_COV_LN;
 		break;
 
 		case SYSTEM_EVENT_SCAN_DONE:
@@ -273,11 +276,12 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
 			SetWpsParameters(wifi_config_temp);
 			SetConfigReceived();
-
+			P_COV_LN;
 		break;
 
 		default:
 			ESP_LOGI(TAG, "event; %d\n",event->event_id);
+			P_COV_LN;
 		break;
     }
     return ESP_OK;
@@ -434,7 +438,9 @@ gme_sm_t WiFi__Config (config_sm_t sm)
             	ESP_ERROR_CHECK(esp_wifi_wps_enable(&config));
             	ESP_ERROR_CHECK(esp_wifi_wps_start(0));
             	UnSetWpsMode();
+            	P_COV_LN;
             }
+            P_COV_LN;
             break;
 
         case CONFIGURE_GME:
@@ -450,6 +456,7 @@ gme_sm_t WiFi__Config (config_sm_t sm)
 
 
         default:
+        	//P_COV_SINGLE("%s|%s|%d|%d\r\n",COV_MARK,__FILE__, __LINE__, config_sm);
             break;
         }
 
@@ -771,6 +778,7 @@ esp_err_t WiFi__SetCustomConfig(html_config_param_t config){
 						config.sta_netmask,					
 						config.sta_primary_dns,
 						config.sta_secondary_dns);
+		P_COV_LN;
 	}
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
 	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config_STA));

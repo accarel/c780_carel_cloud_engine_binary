@@ -32,11 +32,13 @@ C_RES Sys__Init (void)
 {
     if (C_SUCCESS != NVM_Init()){
     	PRINTF_DEBUG_SYS("NVS PROBLEM\n");
+    	P_COV_LN;
         return C_FAIL;
     }
 
     if (C_SUCCESS != File_System_Init()){
     	PRINTF_DEBUG_SYS("SPIFFS PROBLEM\n");
+    	P_COV_LN;
         return C_FAIL;
     }
 

@@ -1,3 +1,13 @@
+/**
+ * @file   test_hw.c
+ * @author carel
+ * @date   9 Sep 2019
+ * @brief  functions related to the production test
+ *         IMPORTANT NOTE
+ *         this routine use the printf function and is right this because the TTL port in test mode
+ *         is available and after the test nothing is "printed"
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
