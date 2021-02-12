@@ -1,0 +1,10 @@
+{                                                          //TAG TYPE
+                                                           //    this is in addition to request header.
+    
+                                                           //                This is a string of max. 64 char 
+    "rid": "acme/53BCE4F1DFA0FE8E7CA126F91B35D3A6",        //RID C_RTO       48 char max.  string zero terminated  
+	                                                       //                this is the same RTO value the cloud sent for the request
+                                                           //                
+
+}
+
