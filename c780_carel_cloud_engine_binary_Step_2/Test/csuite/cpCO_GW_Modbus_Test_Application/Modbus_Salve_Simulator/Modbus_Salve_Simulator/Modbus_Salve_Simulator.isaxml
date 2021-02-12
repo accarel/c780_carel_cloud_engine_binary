@@ -266,6 +266,9 @@
     <DefineWord Name="BAC_PROP_LIST_OF_OBJECT_PROPERTY_REFS" Define="54" Comment="" Access="ReadOnly" />
     <DefineWord Name="BAC_PROP_COV_INCREMENT" Define="22" Comment="" Access="ReadOnly" />
     <DefineWord Name="BAC_OBJ_ANALOG_OUTPUT" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ATMOSPHERIC_PRESSURE" Define="1.01325" Comment="Atmospheric pressure in bar" Access="ReadOnly" />
+    <DefineWord Name="e" Define="2.7182818284590452353602874713526624977572470936999595749" Comment="Euler's number" Access="ReadOnly" />
+    <DefineWord Name="GAS_NUMBER" Define="40" Comment="Number of gas supported by thermodynamic functions (indexes from 0 to GAS_NUMBER-1)" Access="ReadOnly" />
   </DefineWords>
   <DataTypes>
     <DataType Name="TEEV" Comment="" Access="ReadOnly">
@@ -295,6 +298,16 @@
         <Variable Name="Trigger" DataType="BOOL" Comment="Alarm status Trigger" StringSize="0" Order="1" />
         <Variable Name="Active" DataType="BOOL" Comment="Alarm status" StringSize="0" Order="2" />
       </Struct>
+    </DataType>
+    <DataType Name="sys_read_value" Comment="" Access="UserDefined">
+      <Array Order="1" DataType="UDINT" StringSize="0">
+        <Dimension Lower="1" Upper="5" />
+      </Array>
+    </DataType>
+    <DataType Name="sys_write_value" Comment="" Access="UserDefined">
+      <Array Order="1" DataType="UDINT" StringSize="0">
+        <Dimension Lower="1" Upper="5" />
+      </Array>
     </DataType>
   </DataTypes>
   <Networks>

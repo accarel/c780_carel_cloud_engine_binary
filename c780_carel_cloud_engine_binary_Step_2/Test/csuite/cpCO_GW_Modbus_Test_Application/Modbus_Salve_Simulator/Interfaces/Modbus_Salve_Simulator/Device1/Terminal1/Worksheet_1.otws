@@ -94,9 +94,11 @@
     <Mask Name="Mask_6" Type="Normal" X="0" Y="8">
       <Fields>
         <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
-        <Field Type="Text" Name="Text" Row="0" Column="6" Content="SETUP RS485" />
+        <Field Type="Text" Name="Text" Row="0" Column="9" Content="SETUP" />
         <Field Type="Text" Name="Text_2" Row="2" Column="0" Content="BAUD" />
-        <Field Type="Variable" Name="Variable" Row="2" Column="6" Content="RS485_BaudRate" Min="9600" Max="38400" Class="CL_UDINT" Format="io6" />
+        <Field Type="Variable" Name="Variable" Row="2" Column="15" Content="RS485_BaudRate" Min="9600" Max="38400" Class="CL_UDINT" Format="io6" />
+        <Field Type="Text" Name="Text_3" Row="4" Column="0" Content="Auto ALR Dly" />
+        <Field Type="Variable" Name="Variable_2" Row="4" Column="15" Content="update_vars_time" Class="CL_UDINT" Format="io6" Min="0" Max="999999" />
       </Fields>
     </Mask>
     <Mask Name="Mask_7" Type="Normal" X="0" Y="9">
@@ -165,6 +167,41 @@
         <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
         <Field Type="Image" Name="Image" Row="0" Column="0" Content="Switch_18x16.bmp" />
         <Field Type="Image" Name="Image_2" Row="3" Column="2" Content="Black_rows_114x16.bmp" />
+      </Fields>
+    </Mask>
+    <Mask Name="Mask_12" Type="Normal" X="0" Y="14">
+      <Fields>
+        <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+        <Field Type="Text" Name="Text" Row="0" Column="1" Content="EN:" />
+        <Field Type="Variable" Name="Variable" Row="0" Column="4" Content="Prog2.enable" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Text" Name="Text_2" Row="0" Column="9" Content="Status:" />
+        <Field Type="Variable" Name="Variable_2" Row="0" Column="16" Content="Prog2.sys_read_value_array[1]" Class="CL_UDINT" Format="io6" Min="0" Max="999999" />
+        <Field Type="Text" Name="Text_3" Row="1" Column="9" Content="Error:" />
+        <Field Type="Variable" Name="Variable_3" Row="1" Column="15" Content="Prog2.sys_write_error" Class="CL_DINT" Format="io+6" Min="-999999" Max="999999" />
+        <Field Type="Text" Name="Text_4" Row="2" Column="0" Content="HD RGS (  ):" />
+        <Field Type="Variable" Name="Variable_4" Row="2" Column="8" Content="Hold_reg_last_free_addr" Class="CL_UINT" Format="o2" Min="0" Max="99" />
+        <Field Type="Text" Name="Text_5" Row="2" Column="12" Content="10:" />
+        <Field Type="Variable" Name="Variable_5" Row="2" Column="15" Content="Hold_reg_1" Class="CL_UINT" Format="io5" Min="0" Max="65535" />
+        <Field Type="Text" Name="Text_6" Row="3" Column="12" Content="11:" />
+        <Field Type="Text" Name="Text_7" Row="4" Column="12" Content="20:" />
+        <Field Type="Text" Name="Text_8" Row="5" Column="12" Content="30:" />
+        <Field Type="Text" Name="Text_9" Row="6" Column="12" Content="31:" />
+        <Field Type="Text" Name="Text_10" Row="7" Column="12" Content="40:" />
+        <Field Type="Text" Name="Text_11" Row="4" Column="0" Content="COILS  (  ):" />
+        <Field Type="Text" Name="Text_12" Row="5" Column="0" Content="INPUTS (  ):" />
+        <Field Type="Text" Name="Text_13" Row="7" Column="0" Content="DC INS (  ):" />
+        <Field Type="Text" Name="Text_14" Row="4" Column="18" Content="21:" />
+        <Field Type="Text" Name="Text_15" Row="7" Column="18" Content="41:" />
+        <Field Type="Variable" Name="Variable_6" Row="3" Column="15" Content="Hold_reg_2" Class="CL_UINT" Format="io5" Min="0" Max="65535" />
+        <Field Type="Variable" Name="Variable_7" Row="4" Column="8" Content="Coils_last_free_addr" Class="CL_UINT" Format="o2" Min="0" Max="99" />
+        <Field Type="Variable" Name="Variable_8" Row="5" Column="8" Content="Inputs_last_free_addr" Class="CL_UINT" Format="o2" Min="0" Max="99" />
+        <Field Type="Variable" Name="Variable_9" Row="7" Column="8" Content="Discrete_Inputs_last_free_addr" Class="CL_UINT" Format="o2" Min="0" Max="99" />
+        <Field Type="Variable" Name="Variable_10" Row="4" Column="15" Content="Output_2" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_11" Row="4" Column="21" Content="Output_3" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_12" Row="5" Column="15" Content="Input_1" Class="CL_UINT" Format="io5" Min="0" Max="65535" />
+        <Field Type="Variable" Name="Variable_13" Row="6" Column="15" Content="Input_2" Class="CL_UINT" Format="io5" Min="0" Max="65535" />
+        <Field Type="Variable" Name="Variable_14" Row="7" Column="15" Content="Discrete_Input_2" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+        <Field Type="Variable" Name="Variable_15" Row="7" Column="21" Content="Discrete_Input_3" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
       </Fields>
     </Mask>
   </Loop>

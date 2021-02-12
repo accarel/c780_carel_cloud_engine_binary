@@ -30,8 +30,24 @@ Setpoint
 HR_L_00
 Autoincrement
 HR_L_01
-SETUP RS485
+SETUP
 BAUD
+Auto ALR Dly
 INFO
 ReBoot
+EN:
+Status:
+Error:
+HD RGS (  ):
+10:
+11:
+20:
+30:
+31:
+40:
+COILS  (  ):
+INPUTS (  ):
+DC INS (  ):
+21:
+41:
 [DEFAULT]

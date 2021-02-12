@@ -153,12 +153,17 @@ msgstr ""
 
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_6][Field:Text]"
-msgid "SETUP RS485"
+msgid "SETUP"
 msgstr ""
 
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_6][Field:Text_2]"
 msgid "BAUD"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_6][Field:Text_3]"
+msgid "Auto ALR Dly"
 msgstr ""
 
 #: Worksheet_1.otws
@@ -169,6 +174,81 @@ msgstr ""
 #: Worksheet_1.otws
 msgctxt "[Mask:Mask_7][Field:Text_2]"
 msgid "ReBoot"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text]"
+msgid "EN:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_2]"
+msgid "Status:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_3]"
+msgid "Error:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_4]"
+msgid "HD RGS (  ):"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_5]"
+msgid "10:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_6]"
+msgid "11:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_7]"
+msgid "20:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_8]"
+msgid "30:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_9]"
+msgid "31:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_10]"
+msgid "40:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_11]"
+msgid "COILS  (  ):"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_12]"
+msgid "INPUTS (  ):"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_13]"
+msgid "DC INS (  ):"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_14]"
+msgid "21:"
+msgstr ""
+
+#: Worksheet_1.otws
+msgctxt "[Mask:Mask_12][Field:Text_15]"
+msgid "41:"
 msgstr ""
 
 #: Worksheet_1.otws
