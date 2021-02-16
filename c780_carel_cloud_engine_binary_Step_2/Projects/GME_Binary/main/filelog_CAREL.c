@@ -140,6 +140,8 @@ void Dev_LogFile_CAREL(void)
 
        case LOGFILE_FULL:
        {
+    	   P_COV_LN;
+
 #ifdef __DEBUG_CBOR_CAREL_LEV_1
 	       printf("LOG OPERATION RUNNING...\n");
 #endif
@@ -158,13 +160,14 @@ void Dev_LogFile_CAREL(void)
 
        case LOGFILE_ABORT:
        {
-
+    	   P_COV_LN;
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
 
        case LOGFILE_ERR_HEADER_NOTFOUND:
        {
+    	   P_COV_LN;
     	   CBOR_SendAsyncResponse(ERROR_HEAD_NOTFOUND);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
@@ -172,6 +175,7 @@ void Dev_LogFile_CAREL(void)
 
        case LOGFILE_ERR_HEADER_VER:
        {
+    	   P_COV_LN;
     	   CBOR_SendAsyncResponse(ERROR_HEAD_VERSION);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
@@ -179,6 +183,7 @@ void Dev_LogFile_CAREL(void)
 
        case LOGFILE_ERR_MODBUS:
        {
+    	   P_COV_LN;
     	   CBOR_SendAsyncResponse(ERROR_MODBUS);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
@@ -186,6 +191,7 @@ void Dev_LogFile_CAREL(void)
 
        case LOGFILE_ERR_LOCK:
        {
+    	   P_COV_LN;
     	   CBOR_SendAsyncResponse(ERROR_UNLOCK_FAIL);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
@@ -193,9 +199,11 @@ void Dev_LogFile_CAREL(void)
 
        case LOGFILE_FINISH:
        {
-			#ifdef __DEBUG_CBOR_CAREL_LEV_1
-    	   	   printf("DOWNLOAD OPERATION FINISH\n");
-			#endif
+    	   P_COV_LN;
+
+		   #ifdef __DEBUG_CBOR_CAREL_LEV_1
+    	   	 printf("DOWNLOAD OPERATION FINISH\n");
+		   #endif
 
     	   Dev_LogFile_SetSM(LOGFILE_INIT);
     	   break;
@@ -352,6 +360,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 				  }while((err == C_FAIL) && (retry++ <= NUM_OF_RETRY_READ));
 
 				if(err == C_FAIL){
+					P_COV_LN;
 
 					Reset_Full_SM();
 					ret = LOGFILE_ERR_MODBUS;
@@ -363,6 +372,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 
 				if(index_data.pt_of_chunk == 100)
 				{
+					P_COV_LN;
 					// we have reach the 20000 byte of first file...go to the next!!!
 					index_data.pt_of_files++;
 					index_data.pt_reg = 0;
@@ -387,7 +397,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 			  }while((err == C_FAIL) && (retry++ <= NUM_OF_RETRY_READ));
 
 			if(err == C_FAIL){
-
+				P_COV_LN;
 				Reset_Full_SM();
 				ret = LOGFILE_ERR_MODBUS;
 				break;
@@ -425,6 +435,8 @@ static logfile_sm_t FileLog_Full_SM(void)
 
 	    case SM_READ_FINISH:
 	    {
+	    	P_COV_LN;
+
 	    	Reset_Full_SM();
 	    	ret = LOGFILE_FINISH;
 	    	break;
