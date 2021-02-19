@@ -138,6 +138,16 @@ namespace MqttClientSimulatorBinary
 
         private void buttonUploadFileFromCtrlFull_Cancel_Click(object sender, EventArgs e)
         {
+            this.Close();
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBoxUploadFile_rto_TextChanged(object sender, EventArgs e)
+        {
 
         }
     }

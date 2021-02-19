@@ -64,6 +64,7 @@
             this.label3.Size = new System.Drawing.Size(25, 17);
             this.label3.TabIndex = 24;
             this.label3.Text = "rto";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
             // 
             // textBoxUploadFile_rto
             // 
@@ -71,6 +72,7 @@
             this.textBoxUploadFile_rto.Name = "textBoxUploadFile_rto";
             this.textBoxUploadFile_rto.Size = new System.Drawing.Size(291, 22);
             this.textBoxUploadFile_rto.TabIndex = 23;
+            this.textBoxUploadFile_rto.TextChanged += new System.EventHandler(this.textBoxUploadFile_rto_TextChanged);
             // 
             // textBoxUploadFile_fid
             // 

@@ -170,6 +170,9 @@ namespace MqttClientSimulatorBinary
 
             }
 
-
+        private void buttonUploadFileFromController_Cancel_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 }

@@ -230,6 +230,8 @@
             this.label57 = new System.Windows.Forms.Label();
             this.button_error_notification = new System.Windows.Forms.Button();
             this.button_get_ulock_info = new System.Windows.Forms.Button();
+            this.button_upload_abort = new System.Windows.Forms.Button();
+            this.button_Setup_uploadAbort = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -440,6 +442,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button_Setup_uploadAbort);
+            this.groupBox1.Controls.Add(this.button_upload_abort);
             this.groupBox1.Controls.Add(this.button_decode_cmd17);
             this.groupBox1.Controls.Add(this.button_Unlock_Device);
             this.groupBox1.Controls.Add(this.button_SetUploadLogCfg);
@@ -2435,6 +2439,28 @@
             this.button_get_ulock_info.UseVisualStyleBackColor = true;
             this.button_get_ulock_info.Click += new System.EventHandler(this.button_get_ulock_info_Click);
             // 
+            // button_upload_abort
+            // 
+            this.button_upload_abort.Location = new System.Drawing.Point(337, 285);
+            this.button_upload_abort.Margin = new System.Windows.Forms.Padding(4);
+            this.button_upload_abort.Name = "button_upload_abort";
+            this.button_upload_abort.Size = new System.Drawing.Size(129, 46);
+            this.button_upload_abort.TabIndex = 57;
+            this.button_upload_abort.Text = "Upload ABORT";
+            this.button_upload_abort.UseVisualStyleBackColor = true;
+            this.button_upload_abort.Click += new System.EventHandler(this.button_upload_abort_Click);
+            // 
+            // button_Setup_uploadAbort
+            // 
+            this.button_Setup_uploadAbort.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_Setup_uploadAbort.Location = new System.Drawing.Point(473, 286);
+            this.button_Setup_uploadAbort.Name = "button_Setup_uploadAbort";
+            this.button_Setup_uploadAbort.Size = new System.Drawing.Size(21, 23);
+            this.button_Setup_uploadAbort.TabIndex = 58;
+            this.button_Setup_uploadAbort.Text = "<";
+            this.button_Setup_uploadAbort.UseVisualStyleBackColor = true;
+            this.button_Setup_uploadAbort.Click += new System.EventHandler(this.button_Setup_uploadAbort_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -2497,7 +2523,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.3.1";
+            this.Text = "IoT Server Simulator Binary Edition V.3.2";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_Closing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_Closed);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -2729,6 +2755,8 @@
         private System.Windows.Forms.Label label57;
         private System.Windows.Forms.Button button_error_notification;
         private System.Windows.Forms.Button button_get_ulock_info;
+        private System.Windows.Forms.Button button_Setup_uploadAbort;
+        private System.Windows.Forms.Button button_upload_abort;
     }
 }
 

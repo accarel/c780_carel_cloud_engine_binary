@@ -64,6 +64,7 @@
             this.buttonUploadFileFromController_Cancel.TabIndex = 14;
             this.buttonUploadFileFromController_Cancel.Text = "Cancel";
             this.buttonUploadFileFromController_Cancel.UseVisualStyleBackColor = true;
+            this.buttonUploadFileFromController_Cancel.Click += new System.EventHandler(this.buttonUploadFileFromController_Cancel_Click);
             // 
             // buttonUploadFileFromController_Save
             // 

@@ -62,7 +62,8 @@ namespace MqttClientSimulatorBinary
             public string ans_arr;
         };
 
-        const string DECODE_FILE_PRG = "LogtransferAnalyzer.exe";
+        const string DECODE_FILE_PRG = ".\\LogtransferAnalyzer.exe";
+
 
         const string JSON_VALIDATOR = "http://cbor.me/";
         // "https://jsonformatter.org/";    
@@ -148,6 +149,10 @@ namespace MqttClientSimulatorBinary
 
         byte[] lctx_buffer = new byte[0x36];
         int lctx_pointer = 0;
+
+        /* ------------------------------ */
+
+        double file_upload_start, file_upload_stop;
 
         /* ------------------------------ */
 
@@ -464,20 +469,7 @@ namespace MqttClientSimulatorBinary
             }
 
             //insert the given file chunk in the right position
-            if ((fst_value + fle_value) >= fsz_value) 
-            {
-                string sdata;
 
-                sdata = String.Format("{0} {1} of {2}", "File transfer reached the size", (fst_value + fle_value), fsz_value);
-
-                if (Decode_Upload_Msg_file_complete_msg == false)
-                {
-                    //take in mind that > (major) is not possible theoretichally anyway not to bad to have a feedback
-                    textBox_Errors.AppendText(sdata + "Try to decode!");
-
-                    Decode_Upload_Msg_file_complete_msg = true;
-                }
-            }
 
             using (FileStream fileStream = new FileStream(curFile, FileMode.Open))
             {
@@ -501,10 +493,47 @@ namespace MqttClientSimulatorBinary
                
                    fileStream.WriteByte(val);
                }
-               
-               textBox_upload_file_info.AppendText("Chunk " + fst_value.ToString() + ":" + fle_value.ToString() + "\r\n");
+
+                string s = "Chunk " + fst_value.ToString() + ":" + fle_value.ToString() + "\r\n";
+
+               textBox_upload_file_info.AppendText(s);
+
+                if (s.Contains("Chunk 0:200"))
+                {
+                    file_upload_start = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+                }
+
             }
-           
+
+            if ((fst_value + fle_value) >= fsz_value)
+            {
+                string sdata;
+                int total_size;
+
+                total_size = fst_value + fle_value;
+                sdata = String.Format("{0} {1} of {2}", "File transfer reached the size", (total_size), fsz_value);
+
+                if (Decode_Upload_Msg_file_complete_msg == false)
+                {
+                    Decode_Upload_Msg_file_complete_msg = true;
+
+                    //take in mind that > (major) is not possible theoretichally anyway not to bad to have a feedback
+                    textBox_upload_file_info.AppendText(sdata + " Try to decode!\r\n");
+
+                    file_upload_stop = (new TimeSpan(DateTime.Now.Ticks)).TotalMilliseconds;
+                    double time_val = (file_upload_stop - file_upload_start) / 1000;
+
+                    double speed = (double)(total_size) / time_val;
+
+                    sdata = String.Format("Speed {0:0.0} bytes/sec.\r\n", speed);
+                    textBox_upload_file_info.AppendText(sdata);
+
+                    sdata = String.Format("Trasf. time {0:0.0} sec.\r\n", time_val);
+                    textBox_upload_file_info.AppendText(sdata);
+                }
+            }
+
+
         }
         
         void Decode_Scan_Line_Msg(string data_in)
@@ -819,6 +848,7 @@ namespace MqttClientSimulatorBinary
         private void ButtonConnect_Click(object sender, EventArgs e)
         {
             mqtt_connect(false);
+            Save_Last_Used_Values();
         }
 
         public void mqtt_connect(bool force_reconn)
@@ -2804,6 +2834,28 @@ namespace MqttClientSimulatorBinary
         private void button_get_ulock_info_Click(object sender, EventArgs e)
         {
             get_ulock_info();
+        }
+
+        private void button_upload_abort_Click(object sender, EventArgs e)
+        {
+            string textFilePath = @".\cbor_cloud\REQ_abort_upload.cbor";
+
+            DialogResult result1 = MessageBox.Show("ABORT are you really sure ?",
+               "Important Question",
+               MessageBoxButtons.YesNo);
+
+            if (result1 == DialogResult.Yes)
+            {
+                textBox_upload_file_info.Text = "";
+                PublishTestFile(textFilePath);
+            }
+        }
+
+        private void button_Setup_uploadAbort_Click(object sender, EventArgs e)
+        {
+            Form_Abort_Upload frm = new Form_Abort_Upload();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
         }
 
         private void Button_send_mb_adu_Click_1(object sender, EventArgs e)
