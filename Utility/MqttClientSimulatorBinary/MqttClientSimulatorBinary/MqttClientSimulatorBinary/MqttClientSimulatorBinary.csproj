@@ -78,6 +78,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AutoCmdGeneration.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="CRC.cs" />
     <Compile Include="FormAbortUpload.cs">
       <SubType>Form</SubType>

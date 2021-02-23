@@ -187,6 +187,7 @@ namespace MqttClientSimulatorBinary
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.CenterToScreen();
             Debug.WriteLine("MessageId 1");
             Load_Last_Used_Values();
             SessionLog = new LogFile();
@@ -317,7 +318,7 @@ namespace MqttClientSimulatorBinary
 
         void Decode_Read_Msg(string data_in) 
         {
-            read_file_struct my_J_data;
+            //read_file_struct my_J_data;
 
             if (decode_read_msg_flag == false) return; //nothing scheduled
           
@@ -452,8 +453,8 @@ namespace MqttClientSimulatorBinary
                 return;
             }
 
-            
 
+            latest_upload_file = curFile;
             //create an empty but filled with zero file if not exist
             if (!(File.Exists(curFile)))
             {                
@@ -465,7 +466,6 @@ namespace MqttClientSimulatorBinary
                     }
 
                 textBox_upload_file_info.AppendText("Created " + curFile + " size " + fsz_value.ToString()+ "\r\n" );
-                latest_upload_file = curFile;
             }
 
             //insert the given file chunk in the right position
@@ -2849,6 +2849,73 @@ namespace MqttClientSimulatorBinary
                 textBox_upload_file_info.Text = "";
                 PublishTestFile(textFilePath);
             }
+        }
+
+        private void button_Auto_Cmd_Generation_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void textBox_AutoCmdIteration_TextChanged(object sender, EventArgs e)
+        {
+            int value;
+
+            value = 0;
+            if (!(Int32.TryParse(textBox_AutoCmdIteration.Text, out value)))
+            {
+                MessageBoxInfo("Error invalid value !", "ERROR");
+            }
+
+        }
+
+        private void textBox_IterationDelay_TextChanged(object sender, EventArgs e)
+        {
+            int value;
+
+            value = 0;
+            if (!(Int32.TryParse(textBox_IterationDelay.Text, out value)))
+            { 
+                MessageBoxInfo("Error invalid value !", "ERROR");
+            }
+        }
+
+        private void button_Test_Suite_Click(object sender, EventArgs e)
+        {
+            Color prev;
+
+            prev = button_Test_Suite.BackColor;
+            button_Test_Suite.BackColor = Color.Red;
+            CmdTestSuite();
+            button_Test_Suite.BackColor = prev;
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+
+
+
+        public static void ProcessDirectory(string targetDirectory)
+        {
+            // Process the list of files found in the directory.
+            string[] fileEntries = Directory.GetFiles(".", "*.ts");
+            foreach (string fileName in fileEntries)
+            {
+                //comboBox_TestSequence.Items.Add(fileName);
+            }
+        }
+
+
+        private void tabPage4_Click(object sender, EventArgs e)
+        {
+
+
+
+
+
+
         }
 
         private void button_Setup_uploadAbort_Click(object sender, EventArgs e)

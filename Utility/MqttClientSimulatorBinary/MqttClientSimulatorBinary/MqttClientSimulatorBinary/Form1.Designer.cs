@@ -49,6 +49,8 @@
             this.textBoxMQTT_Server_Port = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button_Setup_uploadAbort = new System.Windows.Forms.Button();
+            this.button_upload_abort = new System.Windows.Forms.Button();
             this.button_decode_cmd17 = new System.Windows.Forms.Button();
             this.button_Unlock_Device = new System.Windows.Forms.Button();
             this.button_SetUploadLogCfg = new System.Windows.Forms.Button();
@@ -230,8 +232,21 @@
             this.label57 = new System.Windows.Forms.Label();
             this.button_error_notification = new System.Windows.Forms.Button();
             this.button_get_ulock_info = new System.Windows.Forms.Button();
-            this.button_upload_abort = new System.Windows.Forms.Button();
-            this.button_Setup_uploadAbort = new System.Windows.Forms.Button();
+            this.tabControl_Functions = new System.Windows.Forms.TabControl();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.button_Test_Suite = new System.Windows.Forms.Button();
+            this.textBox_Test_File = new System.Windows.Forms.TextBox();
+            this.label61 = new System.Windows.Forms.Label();
+            this.label60 = new System.Windows.Forms.Label();
+            this.textBox_TestNo = new System.Windows.Forms.TextBox();
+            this.label59 = new System.Windows.Forms.Label();
+            this.textBox_IterationDelay = new System.Windows.Forms.TextBox();
+            this.label58 = new System.Windows.Forms.Label();
+            this.label56 = new System.Windows.Forms.Label();
+            this.textBox_AutoCmdIteration = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -244,6 +259,11 @@
             this.groupBox9.SuspendLayout();
             this.groupBox11.SuspendLayout();
             this.groupBox12.SuspendLayout();
+            this.tabControl_Functions.SuspendLayout();
+            this.tabPage1.SuspendLayout();
+            this.tabPage2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtConsole
@@ -463,7 +483,7 @@
             this.groupBox1.Controls.Add(this.buttonScanLine);
             this.groupBox1.Controls.Add(this.buttonSet_Lines_Config);
             this.groupBox1.Controls.Add(this.buttonChangeCredential);
-            this.groupBox1.Location = new System.Drawing.Point(890, 134);
+            this.groupBox1.Location = new System.Drawing.Point(406, 7);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
@@ -471,6 +491,29 @@
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
+            this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // button_Setup_uploadAbort
+            // 
+            this.button_Setup_uploadAbort.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_Setup_uploadAbort.Location = new System.Drawing.Point(473, 286);
+            this.button_Setup_uploadAbort.Name = "button_Setup_uploadAbort";
+            this.button_Setup_uploadAbort.Size = new System.Drawing.Size(21, 23);
+            this.button_Setup_uploadAbort.TabIndex = 58;
+            this.button_Setup_uploadAbort.Text = "<";
+            this.button_Setup_uploadAbort.UseVisualStyleBackColor = true;
+            this.button_Setup_uploadAbort.Click += new System.EventHandler(this.button_Setup_uploadAbort_Click);
+            // 
+            // button_upload_abort
+            // 
+            this.button_upload_abort.Location = new System.Drawing.Point(337, 285);
+            this.button_upload_abort.Margin = new System.Windows.Forms.Padding(4);
+            this.button_upload_abort.Name = "button_upload_abort";
+            this.button_upload_abort.Size = new System.Drawing.Size(129, 46);
+            this.button_upload_abort.TabIndex = 57;
+            this.button_upload_abort.Text = "Upload ABORT";
+            this.button_upload_abort.UseVisualStyleBackColor = true;
+            this.button_upload_abort.Click += new System.EventHandler(this.button_upload_abort_Click);
             // 
             // button_decode_cmd17
             // 
@@ -674,7 +717,7 @@
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.textBox_HR_Val);
             this.groupBox2.Controls.Add(this.label1);
-            this.groupBox2.Location = new System.Drawing.Point(500, 134);
+            this.groupBox2.Location = new System.Drawing.Point(19, 15);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(4);
@@ -936,7 +979,7 @@
             this.groupBox3.Controls.Add(this.label21);
             this.groupBox3.Controls.Add(this.textBox_MB_COIL_Val);
             this.groupBox3.Controls.Add(this.label22);
-            this.groupBox3.Location = new System.Drawing.Point(500, 474);
+            this.groupBox3.Location = new System.Drawing.Point(19, 354);
             this.groupBox3.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Padding = new System.Windows.Forms.Padding(4);
@@ -1453,11 +1496,11 @@
             this.groupBox7.Controls.Add(this.label42);
             this.groupBox7.Controls.Add(this.textBox_MB_DI_R_Func);
             this.groupBox7.Controls.Add(this.label43);
-            this.groupBox7.Location = new System.Drawing.Point(712, 474);
+            this.groupBox7.Location = new System.Drawing.Point(222, 353);
             this.groupBox7.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox7.Name = "groupBox7";
             this.groupBox7.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox7.Size = new System.Drawing.Size(170, 186);
+            this.groupBox7.Size = new System.Drawing.Size(179, 186);
             this.groupBox7.TabIndex = 47;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Modbus Value Req DI";
@@ -1683,11 +1726,11 @@
             this.groupBox8.Controls.Add(this.label36);
             this.groupBox8.Controls.Add(this.label44);
             this.groupBox8.Controls.Add(this.label45);
-            this.groupBox8.Location = new System.Drawing.Point(712, 134);
+            this.groupBox8.Location = new System.Drawing.Point(222, 15);
             this.groupBox8.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox8.Name = "groupBox8";
             this.groupBox8.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox8.Size = new System.Drawing.Size(170, 332);
+            this.groupBox8.Size = new System.Drawing.Size(179, 332);
             this.groupBox8.TabIndex = 45;
             this.groupBox8.TabStop = false;
             this.groupBox8.Text = "Modbus Value Req IR";
@@ -1943,7 +1986,7 @@
             this.groupBox9.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox9.Name = "groupBox9";
             this.groupBox9.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox9.Size = new System.Drawing.Size(553, 102);
+            this.groupBox9.Size = new System.Drawing.Size(349, 102);
             this.groupBox9.TabIndex = 51;
             this.groupBox9.TabStop = false;
             this.groupBox9.Text = "Timers";
@@ -1999,12 +2042,12 @@
             // textBox_Message
             // 
             this.textBox_Message.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox_Message.Location = new System.Drawing.Point(1252, 597);
+            this.textBox_Message.Location = new System.Drawing.Point(1426, 608);
             this.textBox_Message.Margin = new System.Windows.Forms.Padding(4);
             this.textBox_Message.Multiline = true;
             this.textBox_Message.Name = "textBox_Message";
             this.textBox_Message.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBox_Message.Size = new System.Drawing.Size(480, 142);
+            this.textBox_Message.Size = new System.Drawing.Size(344, 142);
             this.textBox_Message.TabIndex = 52;
             this.textBox_Message.Text = "Welcome !";
             // 
@@ -2031,19 +2074,19 @@
             // 
             this.textBox_Resp_Hash.AcceptsReturn = true;
             this.textBox_Resp_Hash.AcceptsTab = true;
-            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1414, 159);
+            this.textBox_Resp_Hash.Location = new System.Drawing.Point(1426, 166);
             this.textBox_Resp_Hash.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_Resp_Hash.Multiline = true;
             this.textBox_Resp_Hash.Name = "textBox_Resp_Hash";
             this.textBox_Resp_Hash.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBox_Resp_Hash.Size = new System.Drawing.Size(319, 115);
+            this.textBox_Resp_Hash.Size = new System.Drawing.Size(344, 107);
             this.textBox_Resp_Hash.TabIndex = 55;
             this.textBox_Resp_Hash.Text = "\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n";
             // 
             // label50
             // 
             this.label50.AutoSize = true;
-            this.label50.Location = new System.Drawing.Point(1411, 134);
+            this.label50.Location = new System.Drawing.Point(1423, 134);
             this.label50.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label50.Name = "label50";
             this.label50.Size = new System.Drawing.Size(94, 17);
@@ -2073,7 +2116,7 @@
             // label51
             // 
             this.label51.AutoSize = true;
-            this.label51.Location = new System.Drawing.Point(1249, 573);
+            this.label51.Location = new System.Drawing.Point(1419, 579);
             this.label51.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label51.Name = "label51";
             this.label51.Size = new System.Drawing.Size(38, 17);
@@ -2098,10 +2141,10 @@
             // button_Save_settings
             // 
             this.button_Save_settings.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F);
-            this.button_Save_settings.Location = new System.Drawing.Point(1661, 9);
+            this.button_Save_settings.Location = new System.Drawing.Point(4, 18);
             this.button_Save_settings.Margin = new System.Windows.Forms.Padding(4);
             this.button_Save_settings.Name = "button_Save_settings";
-            this.button_Save_settings.Size = new System.Drawing.Size(72, 36);
+            this.button_Save_settings.Size = new System.Drawing.Size(129, 46);
             this.button_Save_settings.TabIndex = 62;
             this.button_Save_settings.Text = "Savecfg";
             this.button_Save_settings.UseVisualStyleBackColor = true;
@@ -2148,7 +2191,7 @@
             // 
             // button_CLS_Infos
             // 
-            this.button_CLS_Infos.Location = new System.Drawing.Point(1675, 563);
+            this.button_CLS_Infos.Location = new System.Drawing.Point(1709, 572);
             this.button_CLS_Infos.Margin = new System.Windows.Forms.Padding(4);
             this.button_CLS_Infos.Name = "button_CLS_Infos";
             this.button_CLS_Infos.Size = new System.Drawing.Size(57, 23);
@@ -2271,7 +2314,7 @@
             this.groupBox12.Controls.Add(this.buttonUpdate_dev_firmware);
             this.groupBox12.Controls.Add(this.buttonUpdate_gw_firmware);
             this.groupBox12.Controls.Add(this.buttonSet_Devs_Config);
-            this.groupBox12.Location = new System.Drawing.Point(890, 547);
+            this.groupBox12.Location = new System.Drawing.Point(408, 424);
             this.groupBox12.Name = "groupBox12";
             this.groupBox12.Size = new System.Drawing.Size(337, 135);
             this.groupBox12.TabIndex = 75;
@@ -2324,9 +2367,9 @@
             // 
             // button_web_test
             // 
-            this.button_web_test.Location = new System.Drawing.Point(1252, 13);
+            this.button_web_test.Location = new System.Drawing.Point(140, 19);
             this.button_web_test.Name = "button_web_test";
-            this.button_web_test.Size = new System.Drawing.Size(88, 40);
+            this.button_web_test.Size = new System.Drawing.Size(129, 46);
             this.button_web_test.TabIndex = 76;
             this.button_web_test.Text = "Web Test";
             this.button_web_test.UseVisualStyleBackColor = true;
@@ -2430,7 +2473,7 @@
             // 
             // button_get_ulock_info
             // 
-            this.button_get_ulock_info.Location = new System.Drawing.Point(1414, 478);
+            this.button_get_ulock_info.Location = new System.Drawing.Point(7, 18);
             this.button_get_ulock_info.Margin = new System.Windows.Forms.Padding(4);
             this.button_get_ulock_info.Name = "button_get_ulock_info";
             this.button_get_ulock_info.Size = new System.Drawing.Size(129, 46);
@@ -2439,35 +2482,176 @@
             this.button_get_ulock_info.UseVisualStyleBackColor = true;
             this.button_get_ulock_info.Click += new System.EventHandler(this.button_get_ulock_info_Click);
             // 
-            // button_upload_abort
+            // tabControl_Functions
             // 
-            this.button_upload_abort.Location = new System.Drawing.Point(337, 285);
-            this.button_upload_abort.Margin = new System.Windows.Forms.Padding(4);
-            this.button_upload_abort.Name = "button_upload_abort";
-            this.button_upload_abort.Size = new System.Drawing.Size(129, 46);
-            this.button_upload_abort.TabIndex = 57;
-            this.button_upload_abort.Text = "Upload ABORT";
-            this.button_upload_abort.UseVisualStyleBackColor = true;
-            this.button_upload_abort.Click += new System.EventHandler(this.button_upload_abort_Click);
+            this.tabControl_Functions.Controls.Add(this.tabPage1);
+            this.tabControl_Functions.Controls.Add(this.tabPage4);
+            this.tabControl_Functions.Controls.Add(this.tabPage2);
+            this.tabControl_Functions.Controls.Add(this.tabPage3);
+            this.tabControl_Functions.Location = new System.Drawing.Point(491, 142);
+            this.tabControl_Functions.Name = "tabControl_Functions";
+            this.tabControl_Functions.SelectedIndex = 0;
+            this.tabControl_Functions.Size = new System.Drawing.Size(928, 612);
+            this.tabControl_Functions.TabIndex = 89;
             // 
-            // button_Setup_uploadAbort
+            // tabPage1
             // 
-            this.button_Setup_uploadAbort.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button_Setup_uploadAbort.Location = new System.Drawing.Point(473, 286);
-            this.button_Setup_uploadAbort.Name = "button_Setup_uploadAbort";
-            this.button_Setup_uploadAbort.Size = new System.Drawing.Size(21, 23);
-            this.button_Setup_uploadAbort.TabIndex = 58;
-            this.button_Setup_uploadAbort.Text = "<";
-            this.button_Setup_uploadAbort.UseVisualStyleBackColor = true;
-            this.button_Setup_uploadAbort.Click += new System.EventHandler(this.button_Setup_uploadAbort_Click);
+            this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage1.Controls.Add(this.groupBox2);
+            this.tabPage1.Controls.Add(this.groupBox8);
+            this.tabPage1.Controls.Add(this.groupBox3);
+            this.tabPage1.Controls.Add(this.groupBox7);
+            this.tabPage1.Controls.Add(this.groupBox12);
+            this.tabPage1.Controls.Add(this.groupBox1);
+            this.tabPage1.Location = new System.Drawing.Point(4, 25);
+            this.tabPage1.Name = "tabPage1";
+            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage1.Size = new System.Drawing.Size(920, 583);
+            this.tabPage1.TabIndex = 0;
+            this.tabPage1.Text = "ModBus";
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.BackColor = System.Drawing.Color.DimGray;
+            this.tabPage2.Controls.Add(this.button_get_ulock_info);
+            this.tabPage2.Location = new System.Drawing.Point(4, 25);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(920, 583);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Cmd\'s";
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.button_Save_settings);
+            this.tabPage3.Controls.Add(this.button_web_test);
+            this.tabPage3.Location = new System.Drawing.Point(4, 25);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(920, 583);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Other";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // tabPage4
+            // 
+            this.tabPage4.BackColor = System.Drawing.Color.DarkGray;
+            this.tabPage4.Controls.Add(this.textBox_Test_File);
+            this.tabPage4.Controls.Add(this.label61);
+            this.tabPage4.Controls.Add(this.label60);
+            this.tabPage4.Controls.Add(this.textBox_TestNo);
+            this.tabPage4.Controls.Add(this.label59);
+            this.tabPage4.Controls.Add(this.textBox_IterationDelay);
+            this.tabPage4.Controls.Add(this.label58);
+            this.tabPage4.Controls.Add(this.label56);
+            this.tabPage4.Controls.Add(this.textBox_AutoCmdIteration);
+            this.tabPage4.Controls.Add(this.button_Test_Suite);
+            this.tabPage4.Location = new System.Drawing.Point(4, 25);
+            this.tabPage4.Name = "tabPage4";
+            this.tabPage4.Size = new System.Drawing.Size(920, 583);
+            this.tabPage4.TabIndex = 3;
+            this.tabPage4.Text = "AutoCmd";
+            this.tabPage4.Click += new System.EventHandler(this.tabPage4_Click);
+            // 
+            // button_Test_Suite
+            // 
+            this.button_Test_Suite.Location = new System.Drawing.Point(773, 100);
+            this.button_Test_Suite.Margin = new System.Windows.Forms.Padding(4);
+            this.button_Test_Suite.Name = "button_Test_Suite";
+            this.button_Test_Suite.Size = new System.Drawing.Size(129, 46);
+            this.button_Test_Suite.TabIndex = 94;
+            this.button_Test_Suite.Text = "Test suite Cmd Gen.";
+            this.button_Test_Suite.UseVisualStyleBackColor = true;
+            this.button_Test_Suite.Click += new System.EventHandler(this.button_Test_Suite_Click);
+            // 
+            // textBox_Test_File
+            // 
+            this.textBox_Test_File.Location = new System.Drawing.Point(415, 240);
+            this.textBox_Test_File.Name = "textBox_Test_File";
+            this.textBox_Test_File.Size = new System.Drawing.Size(168, 22);
+            this.textBox_Test_File.TabIndex = 113;
+            this.textBox_Test_File.Text = "AutomaticSequence.ts";
+            // 
+            // label61
+            // 
+            this.label61.AutoSize = true;
+            this.label61.Location = new System.Drawing.Point(338, 240);
+            this.label61.Name = "label61";
+            this.label61.Size = new System.Drawing.Size(62, 17);
+            this.label61.TabIndex = 112;
+            this.label61.Text = "Test File";
+            // 
+            // label60
+            // 
+            this.label60.AutoSize = true;
+            this.label60.Location = new System.Drawing.Point(338, 267);
+            this.label60.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label60.Name = "label60";
+            this.label60.Size = new System.Drawing.Size(48, 17);
+            this.label60.TabIndex = 111;
+            this.label60.Text = "Test #";
+            // 
+            // textBox_TestNo
+            // 
+            this.textBox_TestNo.Enabled = false;
+            this.textBox_TestNo.Location = new System.Drawing.Point(415, 267);
+            this.textBox_TestNo.Name = "textBox_TestNo";
+            this.textBox_TestNo.Size = new System.Drawing.Size(48, 22);
+            this.textBox_TestNo.TabIndex = 110;
+            this.textBox_TestNo.Text = "---";
+            // 
+            // label59
+            // 
+            this.label59.AutoSize = true;
+            this.label59.Location = new System.Drawing.Point(481, 326);
+            this.label59.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label59.Name = "label59";
+            this.label59.Size = new System.Drawing.Size(34, 17);
+            this.label59.TabIndex = 109;
+            this.label59.Text = "sec.";
+            // 
+            // textBox_IterationDelay
+            // 
+            this.textBox_IterationDelay.Location = new System.Drawing.Point(415, 321);
+            this.textBox_IterationDelay.Name = "textBox_IterationDelay";
+            this.textBox_IterationDelay.Size = new System.Drawing.Size(48, 22);
+            this.textBox_IterationDelay.TabIndex = 108;
+            this.textBox_IterationDelay.Text = "5000";
+            // 
+            // label58
+            // 
+            this.label58.AutoSize = true;
+            this.label58.Location = new System.Drawing.Point(338, 326);
+            this.label58.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label58.Name = "label58";
+            this.label58.Size = new System.Drawing.Size(44, 17);
+            this.label58.TabIndex = 107;
+            this.label58.Text = "Delay";
+            // 
+            // label56
+            // 
+            this.label56.AutoSize = true;
+            this.label56.Location = new System.Drawing.Point(338, 299);
+            this.label56.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label56.Name = "label56";
+            this.label56.Size = new System.Drawing.Size(59, 17);
+            this.label56.TabIndex = 106;
+            this.label56.Text = "Iteration";
+            // 
+            // textBox_AutoCmdIteration
+            // 
+            this.textBox_AutoCmdIteration.Location = new System.Drawing.Point(415, 294);
+            this.textBox_AutoCmdIteration.Name = "textBox_AutoCmdIteration";
+            this.textBox_AutoCmdIteration.Size = new System.Drawing.Size(48, 22);
+            this.textBox_AutoCmdIteration.TabIndex = 105;
+            this.textBox_AutoCmdIteration.Text = "10";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
-            this.ClientSize = new System.Drawing.Size(1738, 745);
-            this.Controls.Add(this.button_get_ulock_info);
+            this.ClientSize = new System.Drawing.Size(1779, 769);
+            this.Controls.Add(this.tabControl_Functions);
             this.Controls.Add(this.button_error_notification);
             this.Controls.Add(this.label57);
             this.Controls.Add(this.textBox_Errors);
@@ -2477,8 +2661,6 @@
             this.Controls.Add(this.textBox_upload_file_info);
             this.Controls.Add(this.textBox_MQTT_USR);
             this.Controls.Add(this.label54);
-            this.Controls.Add(this.button_web_test);
-            this.Controls.Add(this.groupBox12);
             this.Controls.Add(this.checkBox_mqtt_alive);
             this.Controls.Add(this.radioButton_alive);
             this.Controls.Add(this.groupBox11);
@@ -2490,7 +2672,6 @@
             this.Controls.Add(this.checkBox_Split_Resp);
             this.Controls.Add(this.checkBox_Cfg_Dbg_Rel);
             this.Controls.Add(this.button_Load_settings);
-            this.Controls.Add(this.button_Save_settings);
             this.Controls.Add(this.checkBox_TLS);
             this.Controls.Add(this.label51);
             this.Controls.Add(this.textBox_Target);
@@ -2504,10 +2685,6 @@
             this.Controls.Add(this.checkBox_ShowMsg);
             this.Controls.Add(this.button_JSON_Validate_Pub);
             this.Controls.Add(this.button_JSON_Validate_Resp);
-            this.Controls.Add(this.groupBox8);
-            this.Controls.Add(this.groupBox7);
-            this.Controls.Add(this.groupBox3);
-            this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.buttonClearResponse);
             this.Controls.Add(this.buttonConnect);
             this.Controls.Add(this.textBoxMQTT_Server_Port);
@@ -2519,11 +2696,10 @@
             this.Controls.Add(this.labelPublish);
             this.Controls.Add(this.textBoxPublish);
             this.Controls.Add(this.txtConsole);
-            this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.3.2";
+            this.Text = "IoT Server Simulator Binary Edition V.3.3";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_Closing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_Closed);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -2549,6 +2725,12 @@
             this.groupBox11.ResumeLayout(false);
             this.groupBox11.PerformLayout();
             this.groupBox12.ResumeLayout(false);
+            this.tabControl_Functions.ResumeLayout(false);
+            this.tabPage1.ResumeLayout(false);
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -2757,6 +2939,21 @@
         private System.Windows.Forms.Button button_get_ulock_info;
         private System.Windows.Forms.Button button_Setup_uploadAbort;
         private System.Windows.Forms.Button button_upload_abort;
+        private System.Windows.Forms.TabControl tabControl_Functions;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TabPage tabPage2;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TabPage tabPage4;
+        private System.Windows.Forms.Button button_Test_Suite;
+        private System.Windows.Forms.TextBox textBox_Test_File;
+        private System.Windows.Forms.Label label61;
+        private System.Windows.Forms.Label label60;
+        private System.Windows.Forms.TextBox textBox_TestNo;
+        private System.Windows.Forms.Label label59;
+        private System.Windows.Forms.TextBox textBox_IterationDelay;
+        private System.Windows.Forms.Label label58;
+        private System.Windows.Forms.Label label56;
+        private System.Windows.Forms.TextBox textBox_AutoCmdIteration;
     }
 }
 
