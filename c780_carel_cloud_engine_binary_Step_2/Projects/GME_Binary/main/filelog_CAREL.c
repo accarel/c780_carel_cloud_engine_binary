@@ -16,6 +16,8 @@
 #include "filelog_CAREL.h"
 
 #include "unlock_CAREL.h"
+#include "radio.h"
+#include "MQTT_Interface_CAREL.h"
 
 // prototipe
 static logfile_sm_t FileLog_Full_SM(void);
@@ -33,8 +35,6 @@ enum SM_Read_File{
 
 
 
-static const char *TAG = "LOG";
-
 //
 // data from CBOR message
 //
@@ -43,6 +43,8 @@ static C_UINT32 file_start  = 0;
 static C_UINT32 file_len    = 0;
 
 static unsigned char data_rx[260];
+
+static C_BOOL   want_abort = FALSE;
 
 /**
  * @brief ReadDevFile
@@ -142,24 +144,30 @@ void Dev_LogFile_CAREL(void)
        {
     	   P_COV_LN;
 
-#ifdef __DEBUG_CBOR_CAREL_LEV_1
+		   #ifdef __DEBUG_CBOR_CAREL_LEV_1
 	       printf("LOG OPERATION RUNNING...\n");
-#endif
+           #endif
     	   st = FileLog_Full_SM();
 
     	   if(Dev_LogFile_GetSM() != st)
     		   Dev_LogFile_SetSM(st);
+
+    	   if(GetAbort() == TRUE)
+    		 Dev_LogFile_SetSM(LOGFILE_ABORT);
 
     	   break;
        }
 
        case LOGFILE_RANGE:
        {
+    	   // TODO ...
     	   break;
        }
 
        case LOGFILE_ABORT:
        {
+    	   Reset_Full_SM();
+    	   ResetAbort();
     	   P_COV_LN;
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
@@ -168,7 +176,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_HEADER_NOTFOUND:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_HEAD_NOTFOUND);
+    	   CBOR_SendAsyncResponse(ERROR_HEAD_NOTFOUND, ASYNC_LOG);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -176,7 +184,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_HEADER_VER:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_HEAD_VERSION);
+    	   CBOR_SendAsyncResponse(ERROR_HEAD_VERSION, ASYNC_LOG);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -184,7 +192,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_MODBUS:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_MODBUS);
+    	   CBOR_SendAsyncResponse(ERROR_MODBUS, ASYNC_LOG);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -192,7 +200,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_LOCK:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_UNLOCK_FAIL);
+    	   CBOR_SendAsyncResponse(ERROR_UNLOCK_FAIL, ASYNC_LOG);
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -219,6 +227,8 @@ static C_UINT16 sm_full_file = SM_READ_INIT;
 static index_data_t 	   index_data = { 0 };  //                                     <--|
 static const index_data_t EmptyStruct = { 0 };  // used to reset the previously struct ---|
 
+static int msg_id;
+
 /**
  * @brief Reset_Full_SM
  * Reset all parameters used in the state machine FileLog_Full_SM
@@ -229,15 +239,6 @@ static const index_data_t EmptyStruct = { 0 };  // used to reset the previously 
  */
 void Reset_Full_SM(void)
 {
-//	index_data.actual_chunk  = 0;
-//	index_data.last_of_chunk = 0;
-//	index_data.num_of_chunk = 0;
-//	index_data.num_of_files = 0;
-//	index_data.pt_of_chunk = 0;
-//	index_data.pt_of_files = 0;
-//	index_data.pt_reg = 0;
-//	index_data.total_dim_file = 0;
-
 	index_data = EmptyStruct;
 	sm_full_file = SM_READ_INIT;
 }
@@ -251,11 +252,8 @@ void Reset_Full_SM(void)
  */
 static logfile_sm_t FileLog_Full_SM(void)
 {
-	// return value for the main switch
-	logfile_sm_t ret = Dev_LogFile_GetSM();
-
-	// for modbus read
-	C_RES err = C_FAIL;
+	logfile_sm_t ret = Dev_LogFile_GetSM();   // return value for the main switch
+	C_RES err = C_FAIL;						  // for modbus read
     C_UINT16 retry = 0;
 
 	C_UINT16 calc_crc = 0;
@@ -263,6 +261,8 @@ static logfile_sm_t FileLog_Full_SM(void)
 	// variable useful to manage the upload from device
 	CompressionHeader_t DevHeader;
 	filelog_info_t      actual_data = { 0 };
+
+	static uint32_t timer = 0;
 
 	switch(sm_full_file)
 	{
@@ -330,10 +330,10 @@ static logfile_sm_t FileLog_Full_SM(void)
 			// calcolo dimensione totale del file !!!
 			index_data.total_dim_file = (DevHeader.data.CompressedSize + SIZE_OF_COMP_HEADER);
 
-			// calcolation of number of chunk (200) and number of modbus files
+			// calculation of number of chunk (200) and number of modbus files
 			index_data.num_of_chunk = (index_data.total_dim_file) / 200;
 
-			// calcolation of the remain data
+			// calculation of the remain data
 			if(((index_data.total_dim_file) % 200) != 0)
 			  index_data.last_of_chunk =  (index_data.total_dim_file) - (index_data.num_of_chunk * 200);
 
@@ -341,7 +341,10 @@ static logfile_sm_t FileLog_Full_SM(void)
 			index_data.num_of_files = (index_data.total_dim_file) / 20000;
 
 			index_data.pt_reg = 0;  		// start from 0
+			index_data.pt_of_chunk = 0;
 			sm_full_file = SM_READ_CHUNK;
+
+			ret = Dev_LogFile_GetSM();
 	    	break;
 	    }
 
@@ -352,7 +355,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 				index_data.actual_chunk = SIZE_OF_READ_CHUNK;
 
 				// read compression header
-				// if somenthing goes wrong, retry 10 times
+				// if something goes wrong, retry 2 times (there is another retry inside the function)
 				do{
 				   err = ReadDevFile(SIZE_OF_READ_CHUNK, (file_id + index_data.pt_of_files), (index_data.pt_reg * SIZE_OF_READ_CHUNK/2));
 
@@ -370,7 +373,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 				index_data.pt_reg += 1;
 				index_data.pt_of_chunk++;
 
-				if(index_data.pt_of_chunk == 100)
+				if(index_data.pt_reg == 100)
 				{
 					P_COV_LN;
 					// we have reach the 20000 byte of first file...go to the next!!!
@@ -383,6 +386,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 			else
 				sm_full_file = SM_READ_LAST_CHUNK;
 
+			ret = Dev_LogFile_GetSM();
 	    	break;
 	    }
 
@@ -407,30 +411,89 @@ static logfile_sm_t FileLog_Full_SM(void)
 			index_data.pt_of_chunk++;
 
 			sm_full_file = SM_READ_SEND;
+
+			ret = Dev_LogFile_GetSM();
 			break;
 		}
 
 	    case SM_READ_SEND:
 	    {
-			memcpy(&actual_data.value[0], &data_rx[4], SIZE_OF_READ_CHUNK);  // start from [4] to cut the first part of modbus msg
-
-	    	//it is in bytes and not registry
-	    	actual_data.file_start = (index_data.pt_of_files * 20000) + ((index_data.pt_reg - 1)*SIZE_OF_READ_CHUNK);
-	    	actual_data.file_chunk_len = index_data.actual_chunk;    // 200 or less if is the last chunk to send!!!
-	    	actual_data.file_size = index_data.total_dim_file;
-
-	    	// connessione??? da gestire
-	    	CBOR_SendAsync_FileLog(actual_data);
-
-	    	// check if file ended
-	    	if(index_data.pt_of_chunk > index_data.num_of_chunk)
+	    	if((Radio__GetStatus() == CONNECTED) && (MQTT_GetFlags() ==1))
 	    	{
-	    		// end of file
-	    		sm_full_file = SM_READ_FINISH;
-	    	}else
-	    	    sm_full_file = SM_READ_CHUNK;
+	    		memcpy(&actual_data.value[0], &data_rx[4], SIZE_OF_READ_CHUNK);  // start from [4] to cut the first part of modbus msg
 
-	    	break;
+	    		//it is in bytes and not registry
+	    		actual_data.file_start = (index_data.pt_of_files * 20000) + ((index_data.pt_reg - 1)*SIZE_OF_READ_CHUNK);
+	    		actual_data.file_chunk_len = index_data.actual_chunk;    // 200 or less if is the last chunk to send!!!
+	    		actual_data.file_size = index_data.total_dim_file;
+
+
+	    		msg_id = CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
+				#ifdef __DEBUG_CBOR_CAREL_LEV_1
+	    		PRINTF_DEBUG("PUBLISH RES %d \r\n", msg_id);
+				#endif
+	    		timer = RTC_Get_UTC_Current_Time() + 30;
+
+	    		C_BYTE exit = 1;
+
+
+				while ((GetMsgIdCompare() != C_SUCCESS) && exit)
+				{
+					if(timer < RTC_Get_UTC_Current_Time())
+					{
+					  exit = 0;
+
+					  #ifdef __DEBUG_CBOR_CAREL_LEV_1
+					  PRINTF_DEBUG("WIFI OFF...CHUNCK NOT SENDED \r\n");
+					  #endif
+					}
+	    			else
+	    			 Sys__Delay(200);
+	    		}
+	    		SetMsgIdCompare(C_FAIL);
+
+	    		if(!exit)
+	    		{
+				  sm_full_file = SM_READ_SEND;
+				  P_COV_LN;
+
+				  ret = Dev_LogFile_GetSM();
+				  break;
+	    		}
+
+				#ifdef __DEBUG_CBOR_CAREL_LEV_1
+	    		PRINTF_DEBUG("WIFI ON...MQTT CHUNCK SENDED \r\n");
+				#endif
+	    		// check if file ended
+	    		if(index_data.pt_of_chunk > index_data.num_of_chunk)
+	    		{
+	    			// end of file
+	    			P_COV_LN;
+	    			sm_full_file = SM_READ_FINISH;
+	    		}else
+	    		{
+	    			P_COV_LN;
+	    			sm_full_file = SM_READ_CHUNK;
+	    		}
+
+	    		ret = Dev_LogFile_GetSM();
+	    		break;
+	    	}
+	    	else
+	    	{
+				#ifdef __DEBUG_CBOR_CAREL_LEV_1
+				PRINTF_DEBUG("WIFI OFF...MQTT OFF \r\n");
+				#endif
+
+				sm_full_file = SM_READ_SEND;
+				P_COV_LN;
+
+				Sys__Delay(5000);
+
+				ret = Dev_LogFile_GetSM();
+	    		break;
+	    	}
 	    }
 
 	    case SM_READ_FINISH:
@@ -446,6 +509,14 @@ static logfile_sm_t FileLog_Full_SM(void)
 }
 
 
+/**
+ * @brief GetActualMsgId
+ *        TODO
+ *
+ * @param  none
+ * @return int
+ */
+int GetActualMsgId(void) { return  msg_id;}
 
 
 /**
@@ -469,6 +540,36 @@ void Dev_LogFile_SetSM(logfile_sm_t log_state_m){
 logfile_sm_t Dev_LogFile_GetSM(void){
     return log_file_sm;
 }
+
+
+/**
+ * @brief SetAbort
+ *        if we want to abort the download file
+ *
+ * @param  none
+ * @return none
+ */
+void SetAbort(void) { want_abort = TRUE; }
+
+
+/**
+ * @brief ResetWantAbort
+ *        if we want to restore download file
+ *
+ * @param  none
+ * @return none
+ */
+void ResetAbort(void) { want_abort = FALSE; }
+
+
+/**
+ * @brief GetAbort
+ *        if we want know the state of a variable
+ *
+ * @param  none
+ * @return none
+ */
+C_BOOL GetAbort(void) { return want_abort; }
 
 
 /**

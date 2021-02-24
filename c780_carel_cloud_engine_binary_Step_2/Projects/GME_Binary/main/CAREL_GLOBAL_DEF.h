@@ -36,7 +36,7 @@
 /* ========================================================================== */
 /* uncomment for development platform                                         */
 /* ========================================================================== */
-#define __USE_ESP_WROVER_KIT
+//#define __USE_ESP_WROVER_KIT
 
 /* ========================================================================== */
 /*  uncomment for bcu PLATFORM                                                */
@@ -76,6 +76,9 @@
  *        WARNING! remember that the debug output take elaboration time 
  *        WARNING! this define MUST be DISABLE in the release version of the FW
  */
+
+//#define DEBUG_MODE 1
+
 #if DEBUG_MODE == 1
 	#define __CCL_DEBUG_MODE
 #endif
@@ -129,7 +132,7 @@
  *
  */
 #define GW_HW_REV  "100"
-#define GW_FW_REV  "093" // upgrade to 093
+#define GW_FW_REV  "095"
 
 #define GW_SPIFFS_REV  "101"
 

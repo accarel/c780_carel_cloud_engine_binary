@@ -387,7 +387,7 @@ void Model_ota_task(void * pvParameter)
 	}else
 		err = C_FAIL;
 
-	err == C_SUCCESS ? CBOR_SendAsyncResponseDid(0, myCborUpdate->did) : CBOR_SendAsyncResponseDid(1, myCborUpdate->did);
+	err == C_SUCCESS ? CBOR_SendAsyncResponseDid(0, myCborUpdate->did, ASYNC_DEVCONF) : CBOR_SendAsyncResponseDid(1, myCborUpdate->did, ASYNC_DEVCONF);
 
 	// reboot if everything went fine
 	if ( err == C_SUCCESS )
@@ -420,7 +420,7 @@ void CA_ota_task(void * pvParameter)
 	mySavedUpdate.crc = myCborUpdate->crc;
 
 	err = HttpsClient__UpdateCertificate(&mySavedUpdate);
-	err == C_SUCCESS ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);
+	err == C_SUCCESS ? CBOR_SendAsyncResponse(0, ASYNC_CA) : CBOR_SendAsyncResponse(1, ASYNC_CA);
 
     #ifdef __CCL_DEBUG_MODE
 	if (err == C_SUCCESS)

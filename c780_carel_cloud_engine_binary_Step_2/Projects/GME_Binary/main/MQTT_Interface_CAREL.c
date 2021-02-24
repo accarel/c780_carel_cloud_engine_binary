@@ -23,6 +23,9 @@
 #include "Led_Manager_IS.h"
 #include "sys_IS.h"
 #include "mobile.h"
+
+#include "filelog_CAREL.h"
+
 /**
  * @brief mqtt_engine_status contain the status of the MQTT engine 
  *        MQTT_IS_NOT_CONNECTED/MQTT_IS_CONNECTED    
@@ -422,6 +425,17 @@ C_RES EventHandler(mqtt_event_handle_t event)
             break;
 
         case MQTT_EVENT_PUBLISHED:
+        	/*
+        	 *   this check is done only for a file update, in this way we are sure
+        	 *   to have send the 200 bytes (or less)
+        	 *   in case we lost connection
+        	 *
+        	 * */
+        	if((event->msg_id) ==  GetActualMsgId())
+        	  SetMsgIdCompare(C_SUCCESS);
+        	else
+        	  SetMsgIdCompare(C_FAIL);
+
             #ifdef __DEBUG_MQTT_INTERFACE_LEV_2
             DEBUG_MQTT("MQTT_EVENT_PUBLISHED, msg_id=%d", event->msg_id);
             #endif
@@ -491,3 +505,23 @@ C_RES EventHandler(mqtt_event_handle_t event)
 C_BYTE MQTT_GetFlags(void){
 	return mqtt_init;
 }
+
+static int MsgIdCompare;
+/**
+ * @brief SetMsgId
+ *
+ * @param  int
+ * @return void
+ */
+void SetMsgIdCompare(int value) { MsgIdCompare = value; }
+
+/**
+ * @brief GetMsgId
+ *
+ * @param  void
+ * @return int
+ */
+int GetMsgIdCompare(void){ return MsgIdCompare;}
+
+
+

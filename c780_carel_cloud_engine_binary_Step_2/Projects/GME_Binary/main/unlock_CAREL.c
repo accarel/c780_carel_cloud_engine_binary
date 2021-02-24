@@ -1,5 +1,5 @@
 /**
- * @file unlock_CAREl.h
+ * @file    unlock_CAREl.c
  * @author  CAREL
  * @date    feb 2021
  * @brief   functions implementations specific related to the unlock device function
@@ -358,8 +358,6 @@ static C_UINT16 Decode_Variable_part(C_UINT16 len, C_BYTE * data)
 
 	switch(value)
 	{
-		default:
-			P_COV_LN;                      //TODO CHIEBAO è quello che volevi ?
 		case 1:
 		{
 			decode_cpCO_area(data);
@@ -405,6 +403,11 @@ static C_UINT16 Decode_Variable_part(C_UINT16 len, C_BYTE * data)
 			P_COV_LN;
 			break;
 		}
+
+		default:
+			P_COV_LN;
+			break;
+
 	}
 	return retval;
 }

@@ -120,6 +120,10 @@ C_RES EventHandler(mqtt_event_handle_t event);
 #endif
 C_BYTE MQTT_GetFlags(void);
 
+void SetMsgIdCompare(int value);
+int GetMsgIdCompare(void);
+
+
 #ifdef __cplusplus
 }
 #endif

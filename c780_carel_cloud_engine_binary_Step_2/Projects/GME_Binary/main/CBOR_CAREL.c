@@ -49,8 +49,9 @@ C_CHAR* txbuff;
 uint16_t txbuff_len = 0;
 
 C_UINT16 did;
-c_cborhreq async_req = {0};
-C_UINT16 async_cid = 0;
+c_cborhreq async_req[NUM_OF_ASYNC] = {{0},{0},{0},{0},{0}};
+C_UINT16 async_cid[NUM_OF_ASYNC] = {0, 0, 0, 0, 0};
+
 
 /**
  * @brief CBOR_SendAlarms
@@ -1678,6 +1679,60 @@ CborError CBOR_ReqFileLog(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqrange
 	return err;
 }
 
+/**
+ * @brief CBOR_ReqFileLog
+ *
+ * Interprets CBOR request abort log (full/range)
+ *
+ * @param Pointer to rid          This is a string of max. 64 char 48 char max.  string zero terminated
+ *								  this is the same RTO value the cloud sent for the request.
+ * @return CborError
+ */
+
+CborError CBOR_ReqAbort(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqabort* AbortData)
+{
+	CborError err = CborNoError;
+		size_t stlen;
+		char tag[TAG_SIZE];
+		char rid[RTO_SIZE];
+		CborValue it, recursed;
+		CborParser parser;
+
+		err = cbor_parser_init((unsigned char*)cbor_stream, cbor_len, 0, &parser, &it);
+		err |= cbor_value_enter_container(&it, &recursed);
+		DEBUG_DEC(err, "range file request");
+
+		int64_t tmp=0;
+
+		while (!cbor_value_at_end(&recursed)) {
+				stlen = TAG_SIZE;
+				memset(tag,'0',sizeof(tag));
+				err = cbor_value_copy_text_string(&recursed, tag, &stlen, &recursed);
+
+				if (strncmp(tag, "rid", 3) == 0)
+				{
+					stlen = RTO_SIZE;
+					err |= cbor_value_copy_text_string(&recursed, rid, &stlen, &recursed);
+					strcpy((char*)AbortData->rid, rid);
+					DEBUG_DEC(err, "req_id: rid");
+				}
+				else
+				{
+					err |= CBOR_DiscardElement(&recursed);
+					DEBUG_DEC(err, "req_: discard element");
+				}
+
+				if (err)
+				return err;
+			}
+
+			err = cbor_value_leave_container(&it, &recursed);
+			return err;
+
+
+}
+
+
 
 /**
  * @brief CBOR_ResFileLogValues
@@ -1741,23 +1796,23 @@ static size_t CBOR_ResFileLogValues(C_CHAR* cbor_response, c_cborhreq* cbor_req,
  *
  * @return C_INT32
  */
-C_INT32 CBOR_SendAsync_FileLog(filelog_info_t data)
+int CBOR_SendAsync_FileLog(filelog_info_t data, C_UINT16 numof)
 {
 	C_CHAR cbor_response[512];     // RESPONSE_SIZE modificare size su file CBOR_CAREL.h
-	CborError err;
     C_MQTT_TOPIC topic;
     C_INT32 res = C_FAIL;
 
-    async_req.res = SUCCESS_CMD;
+    async_req[numof].res = SUCCESS_CMD;
 
-    size_t len = CBOR_ResFileLogValues(cbor_response, &async_req, data.file_size, data.file_start, data.file_chunk_len, data.value);
+    size_t len = CBOR_ResFileLogValues(cbor_response, &async_req[numof], data.file_size, data.file_start, data.file_chunk_len, data.value);
 
 	sprintf(topic,"%s%s", "/res/", "upload");
 	res = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
 
-	// manage connection error from "mqtt_client_publish"
-
-	return res;
+	if(res == C_FAIL)
+	  return C_FAIL;
+	else
+	  return res;   // return res to compare the message id received with the msg_id send
 }
 
 
@@ -1864,7 +1919,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqSetDevsConfig(cbor_stream, cbor_len, &download_devs_config);
 			if (err == C_SUCCESS) {
-				CBOR_SaveAsyncRequest(cbor_req, download_devs_config.cid);
+				CBOR_SaveAsyncRequest(cbor_req, download_devs_config.cid, ASYNC_DEVCONF);
 
 				// empty uri means device has to be disactivated
 				// no model must be downloaded
@@ -1878,7 +1933,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 						err = C_SUCCESS;
 					else
 						err = C_FAIL;
-					err == C_SUCCESS ? CBOR_SendAsyncResponseDid(0, download_devs_config.did) : CBOR_SendAsyncResponseDid(1, download_devs_config.did);
+					err == C_SUCCESS ? CBOR_SendAsyncResponseDid(0, download_devs_config.did, ASYNC_DEVCONF) : CBOR_SendAsyncResponseDid(1, download_devs_config.did, ASYNC_DEVCONF);
 					if(err == C_SUCCESS)
 						GME__Reboot();
 
@@ -1976,7 +2031,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			err = CBOR_ReqUpdateGMEFW(cbor_stream, cbor_len, &update_gw_fw);
 			if (err == C_SUCCESS) {
 				Modbus_Disable();
-				CBOR_SaveAsyncRequest(cbor_req, update_gw_fw.cid);
+				CBOR_SaveAsyncRequest(cbor_req, update_gw_fw.cid, ASYNC_GMEFW);
 				OTA__GMEInit(update_gw_fw);
 			}
 			// response will be sent when ota task will come to its end
@@ -1991,7 +2046,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 			err = CBOR_ReqUpdateDevFW(cbor_stream, cbor_len, &update_dev_fw);
 			if (err == C_SUCCESS) {
-				CBOR_SaveAsyncRequest(cbor_req, 0);
+				CBOR_SaveAsyncRequest(cbor_req, 0, ASYNC_DEVFW);
 				OTA__DEVInit(update_dev_fw);
 				ret = 1;	// this let polling restart after update
 			}
@@ -2009,7 +2064,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 			if (err == C_SUCCESS) {
 				//Modbus is disabled to let resource available for other tasks (not for functional reasons)
 			//	Modbus_Disable();
-				CBOR_SaveAsyncRequest(cbor_req, 0);
+				CBOR_SaveAsyncRequest(cbor_req, 0, ASYNC_CA);
 				// start a task that performs a https read file from uri, using usr and pwd authentication data
 				OTA__CAInit(update_ca_config);
 				ret = 1;
@@ -2089,7 +2144,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				if(Dev_LogFile_GetSM() == LOGFILE_IDLE)
 				{
 					//save Request for the future response
-					CBOR_SaveAsyncRequest(cbor_req, 0);
+					CBOR_SaveAsyncRequest(cbor_req, 0, ASYNC_LOG);
 					// save info for read file state machine
 					RetrieveFileLog_Info(fullfile_info);
 					Dev_LogFile_SetSM(LOGFILE_FULL);
@@ -2110,12 +2165,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case RANGE_DOWNLOAD:
 		{
-			// range download of the device log
-
-			// first of all check if the device is lock/unlock/unlockable
-			//
-			// ... TODO
-			//
+			// range download of the device log TODO
 
 			c_cborreqrangefile rangefile_info = {0};
 			cbor_req.res = ERROR_CMD;
@@ -2129,7 +2179,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 				if(Dev_LogFile_GetSM() == LOGFILE_IDLE)
 				{
 					//save Request for the future response
-					CBOR_SaveAsyncRequest(cbor_req, 0);
+					CBOR_SaveAsyncRequest(cbor_req, 0, ASYNC_LOG);
 					// save info for read file state machine
 					RetrieveFileLog_Info(rangefile_info);
 					Dev_LogFile_SetSM(LOGFILE_RANGE);
@@ -2151,16 +2201,33 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		{
 			// abort download of the device log
 
-			if((Dev_LogFile_GetSM() == LOGFILE_FULL) || (Dev_LogFile_GetSM() == LOGFILE_RANGE))
-			{
-				// download  probably still running
-				Dev_LogFile_SetSM(LOGFILE_ABORT);
-			}
-			else
-			{
+			c_cborreqabort abort_info = {0};
+			cbor_req.res = ERROR_CMD;
 
-			}
+			err = CBOR_ReqAbort(cbor_stream, cbor_len, &abort_info);
 
+			cbor_req.res = (err == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+
+			if(cbor_req.res == SUCCESS_CMD)
+			{
+				if((Dev_LogFile_GetSM() == LOGFILE_FULL) || (Dev_LogFile_GetSM() == LOGFILE_RANGE))
+				{
+					// compare rid and rto
+					if(!strcmp(&abort_info.rid, &async_req[ASYNC_LOG].rto))
+					{
+						// download  probably still running...we set a flag and wait.
+						SetAbort();
+					}
+					else
+					{
+						cbor_req.res = ERROR_RID_NOMATCH;
+					}
+				}
+				else
+				{
+					cbor_req.res = ERROR_NO_ONGOING;  //send error 7, there isn't any ongoing transfer
+				}
+			}
 			// mqtt response
 			len = CBOR_ResSimple(cbor_response, &cbor_req);
 			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
@@ -2206,41 +2273,41 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 	return ret;
 }
 
-void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, C_UINT16 my_cid){
-	async_req = cbor_req;
-	async_cid = my_cid;
+void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, C_UINT16 my_cid, C_UINT16 numof){
+	async_req[numof] = cbor_req;
+	async_cid[numof] = my_cid;
 }
 
-void CBOR_SendAsyncResponse(C_INT16 res){
+void CBOR_SendAsyncResponse(C_INT16 res, C_UINT16 numof){
 	C_CHAR cbor_response[RESPONSE_SIZE];
 	C_MQTT_TOPIC topic;
 
-	async_req.res = res;
-	size_t len = CBOR_ResSimple(cbor_response, &async_req);
-	sprintf(topic,"%s%s", "/res/", async_req.rto);
+	async_req[numof].res = res;
+	size_t len = CBOR_ResSimple(cbor_response, &async_req[numof]);
+	sprintf(topic,"%s%s", "/res/", async_req[numof].rto);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 	if(res == SUCCESS_CMD){
 		// save cid for successive hello
-		if(async_cid != 0) {
-			NVM__WriteU32Value(MB_CID_NVM, async_cid);
+		if(async_cid[numof] != 0) {
+			NVM__WriteU32Value(MB_CID_NVM, async_cid[numof]);
 			GME__Reboot();
 		}
 	}
 }
 
-void CBOR_SendAsyncResponseDid(C_INT16 res, C_UINT16 did){
+void CBOR_SendAsyncResponseDid(C_INT16 res, C_UINT16 did, C_UINT16 numof){
 	C_CHAR cbor_response[RESPONSE_SIZE];
 	C_MQTT_TOPIC topic;
 
-	async_req.res = res;
-	size_t len = CBOR_ResSetDevsConfig(cbor_response, &async_req, did);
-	sprintf(topic,"%s%s", "/res/", async_req.rto);
+	async_req[numof].res = res;
+	size_t len = CBOR_ResSetDevsConfig(cbor_response, &async_req[numof], did);
+	sprintf(topic,"%s%s", "/res/", async_req[numof].rto);
 	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
 
 	if(res == SUCCESS_CMD){
 		// save cid for successive hello
-		if(async_cid != 0) {
-			NVM__WriteU32Value(MB_CID_NVM, async_cid);
+		if(async_cid[numof] != 0) {
+			NVM__WriteU32Value(MB_CID_NVM, async_cid[numof]);
 			GME__Reboot();
 		}
 	}

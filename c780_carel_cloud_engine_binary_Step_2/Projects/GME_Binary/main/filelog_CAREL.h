@@ -97,5 +97,9 @@ void Dev_LogFile_CAREL(void);
 void Dev_LogFile_SetSM(logfile_sm_t log_state_m);
 logfile_sm_t Dev_LogFile_GetSM(void);
 
+int GetActualMsgId(void);
+
+
+void Reset_Full_SM(void);
 
 #endif /* LOG_CAREl_H_ */

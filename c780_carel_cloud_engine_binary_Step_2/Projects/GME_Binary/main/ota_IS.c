@@ -13,6 +13,7 @@
 #include "ota_CAREL.h"
 #include "sys_CAREL.h"
 #include "nvm_CAREL.h"
+#include "CBOR_CAREL.h"
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 #include "esp_https_ota.h"
@@ -245,7 +246,7 @@ void OTADEVGroup (bool ota_res){
 	}
 	OTA_End(s_ota_dev_group);
 
-	ota_res == TRUE ? CBOR_SendAsyncResponse(0) : CBOR_SendAsyncResponse(1);
+	ota_res == TRUE ? CBOR_SendAsyncResponse(0, ASYNC_DEVFW) : CBOR_SendAsyncResponse(1, ASYNC_DEVFW);
 
 	// restart polling if needed
 	uint8_t pe_status;
@@ -276,7 +277,7 @@ void OTAGroup (bool ota_res){
 	C_INT16 res = ((OTA_GMEWaitCompletion() == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD);
 	OTA_End(s_ota_gme_group);
 
-	CBOR_SendAsyncResponse(res);
+	CBOR_SendAsyncResponse(res, ASYNC_GMEFW);
 	// restart polling if needed
 	uint8_t pe_status;
 	NVM__ReadU8Value(PE_STATUS_NVM, &pe_status);

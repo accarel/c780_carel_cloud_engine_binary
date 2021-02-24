@@ -71,7 +71,8 @@ enum CBOR_CmdResponse{
 	ERROR_MODBUS,
 	ERROR_ALREADY_RUN,
 	ERROR_UNLOCK_FAIL,
-	ERROR_NO_ONGOING
+	ERROR_NO_ONGOING,
+	ERROR_RID_NOMATCH
 };
 
 typedef enum{
@@ -271,6 +272,12 @@ typedef struct C_CBORREQFILELOG{
 #pragma pack()
 
 
+#pragma pack(1)
+typedef struct C_CBORREQFILEABORT{
+	C_BYTE rid[RTO_SIZE];   // the same length of rto
+}c_cborreqabort;
+#pragma pack()
+
 /*
  * @brief C_CBORFILEVALUE
  *
@@ -286,6 +293,14 @@ typedef struct C_CBORFILEVALUE{
 #pragma pack()
 
 
+enum{
+	ASYNC_DEVCONF = 0,
+	ASYNC_GMEFW,
+	ASYNC_DEVFW,
+	ASYNC_CA,
+	ASYNC_LOG,
+	NUM_OF_ASYNC
+};
 
 
 /*----------------------------------------------------------------------------------------*/
@@ -322,7 +337,9 @@ CborError CBOR_ReqSendMbPassThrough(C_CHAR* cbor_stream, C_UINT16 cbor_len, C_UI
 
 // step 2
 CborError CBOR_ReqFileLog(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqfilelog* RangeFileData);
-C_INT32 CBOR_SendAsync_FileLog(filelog_info_t data);
+int CBOR_SendAsync_FileLog(filelog_info_t data, C_UINT16 numof);
+
+CborError CBOR_ReqAbort(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqabort* AbortData);
 
 #define CBOR_ReqRangeFile CBOR_ReqFileLog
 #define CBOR_ReqFullFile  CBOR_ReqFileLog
@@ -359,9 +376,17 @@ C_UINT16 CBOR_GetDid (void);
 
 //long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read);
 void Manage_Report_SlaveId_CAREL( C_CHAR * pucFrame, C_UINT16 * usLen);
-void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, C_UINT16 cid);
-void CBOR_SendAsyncResponse(C_INT16 res);
-void CBOR_SendAsyncResponseDid(C_INT16 res, C_UINT16 did);
+void CBOR_SaveAsyncRequest(c_cborhreq cbor_req, C_UINT16 cid, C_UINT16 numof);
+void CBOR_SendAsyncResponse(C_INT16 res, C_UINT16 numof);
+void CBOR_SendAsyncResponseDid(C_INT16 res, C_UINT16 did, C_UINT16 numof);
+
+// for abort command
+void SetAbort(void);
+void ResetAbort(void);
+C_BOOL GetAbort(void);
+
+
+
 #ifdef __cplusplus
 }
 #endif
