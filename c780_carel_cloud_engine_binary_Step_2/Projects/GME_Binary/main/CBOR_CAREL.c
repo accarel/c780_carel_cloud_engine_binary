@@ -1806,7 +1806,7 @@ int CBOR_SendAsync_FileLog(filelog_info_t data, C_UINT16 numof)
 
     size_t len = CBOR_ResFileLogValues(cbor_response, &async_req[numof], data.file_size, data.file_start, data.file_chunk_len, data.value);
 
-	sprintf(topic,"%s%s", "/res/", "upload");
+	sprintf(topic,"%s", "/upload");
 	res = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
 
 	if(res == C_FAIL)
