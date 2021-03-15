@@ -21,12 +21,13 @@
 
 // prototipe
 static logfile_sm_t FileLog_Full_SM(void);
+static logfile_sm_t FileLog_Range_SM(void);
 
 
 enum SM_Read_File{
 	SM_READ_INIT = 0,
 	SM_READ_SBLOCK,
-	SM_READ_CMP_HEADER,
+	SM_READ_HOW_MANY,   //SM_READ_CMP_HEADER,
 	SM_READ_CHUNK,
 	SM_READ_LAST_CHUNK,
 	SM_READ_SEND,
@@ -102,8 +103,7 @@ C_RES ReadDevFile(C_UINT16 ch_size, C_UINT16 file_no, C_UINT16 starting_reg){
 
 
 /*
- *   TODO ...
- *
+ *  READ FILE PART ( FULL and RANGE )
  */
 
 #define NUM_OF_RETRY_READ   ( 2 )
@@ -160,7 +160,16 @@ void Dev_LogFile_CAREL(void)
 
        case LOGFILE_RANGE:
        {
-    	   // TODO ...
+    	   P_COV_LN;
+
+    	   st = FileLog_Range_SM();
+
+    	   if(Dev_LogFile_GetSM() != st)
+    		   Dev_LogFile_SetSM(st);
+
+    	   if(GetAbort() == TRUE)
+    		 Dev_LogFile_SetSM(LOGFILE_ABORT);
+
     	   break;
        }
 
@@ -222,7 +231,7 @@ void Dev_LogFile_CAREL(void)
 
 
 
-
+static C_UINT16 sm_range_file = SM_READ_INIT;
 static C_UINT16 sm_full_file = SM_READ_INIT;
 static index_data_t 	   index_data = { 0 };  //                                     <--|
 static const index_data_t EmptyStruct = { 0 };  // used to reset the previously struct ---|
@@ -240,7 +249,8 @@ static int msg_id;
 void Reset_Full_SM(void)
 {
 	index_data = EmptyStruct;
-	sm_full_file = SM_READ_INIT;
+	sm_full_file  = SM_READ_INIT;
+	sm_range_file = SM_READ_INIT;
 }
 
 /**
@@ -269,7 +279,6 @@ static logfile_sm_t FileLog_Full_SM(void)
 		default:
 	    case SM_READ_INIT:
 	    {
-	    	//sm_full_file = SM_READ_CMP_HEADER;
 	    	sm_full_file = SM_READ_SBLOCK;
 	    	ret = Dev_LogFile_GetSM();
 	    	break;
@@ -279,7 +288,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 	    {
 	    	if(unlock_feature_control() == C_SUCCESS)
 	    	{
-	    	  sm_full_file = SM_READ_CMP_HEADER;
+	    	  sm_full_file = SM_READ_HOW_MANY;
 	    	  ret = Dev_LogFile_GetSM();
 	    	}
 	    	else
@@ -291,7 +300,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 	    	break;
 	    }
 
-	    case SM_READ_CMP_HEADER:
+	    case SM_READ_HOW_MANY:
 	    {
 			// read compression header
 			// if something goes wrong, retry 10 times
@@ -354,7 +363,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 			{
 				index_data.actual_chunk = SIZE_OF_READ_CHUNK;
 
-				// read compression header
+				// read chunk
 				// if something goes wrong, retry 2 times (there is another retry inside the function)
 				do{
 				   err = ReadDevFile(SIZE_OF_READ_CHUNK, (file_id + index_data.pt_of_files), (index_data.pt_reg * SIZE_OF_READ_CHUNK/2));
@@ -509,14 +518,234 @@ static logfile_sm_t FileLog_Full_SM(void)
 }
 
 
+
+/**
+ * @brief FileLog_Range_SM
+ * Create a state machine to manage read log range
+ *
+ * @param  void
+ * @return logfile_sm_t
+ */
+static logfile_sm_t FileLog_Range_SM(void)
+{
+	logfile_sm_t ret = Dev_LogFile_GetSM();   // return value for the main switch
+	C_RES err = C_FAIL;						  // for modbus read
+    C_UINT16 retry = 0;
+
+	// variable useful to manage the upload from device
+	filelog_info_t      actual_data = { 0 };
+
+	static uint32_t timer = 0;
+
+	//static C_BYTE  exceed;
+
+	switch(sm_range_file)
+	{
+		case SM_READ_INIT:
+		{
+			sm_range_file = SM_READ_SBLOCK;
+	    	ret = Dev_LogFile_GetSM();
+	    	break;
+		}
+	    case SM_READ_SBLOCK:
+	    {
+	    	if(unlock_feature_control() == C_SUCCESS)
+	    	{
+	    	  sm_range_file = SM_READ_HOW_MANY;
+	    	  ret = Dev_LogFile_GetSM();
+	    	}
+	    	else
+	    	{
+	    		Reset_Full_SM();
+	    		ret = LOGFILE_ERR_LOCK;
+	    	}
+	    	break;
+	    }
+
+
+	    case SM_READ_HOW_MANY:
+	    {
+			// retrive file dimension
+			index_data.total_dim_file = file_len;
+
+			// integer number that tell me from which file we have start  0,1,2...etc
+			index_data.pt_of_files = file_start/20000;
+
+            index_data.st_reg = (file_start - (20000 * index_data.pt_of_files))/2;
+
+			// number of file that we exceed 0,1,2...etc
+
+			index_data.pt_reg =  index_data.st_reg;
+			index_data.num_of_files = file_start;
+
+			index_data.num_of_chunk = 0;
+
+			sm_range_file = SM_READ_CHUNK;
+			ret = Dev_LogFile_GetSM();
+	    	break;
+	    }
+
+		case SM_READ_CHUNK:
+		{
+			// check how many data can read before to pass to the next file
+
+			if((10000 - index_data.pt_reg) == 0)
+			{
+				// pass the 20000, start with another file
+				index_data.pt_of_files++;
+				index_data.pt_reg = 0;
+				index_data.st_reg = 0;
+			}
+
+			if((10000 - index_data.pt_reg) >= (SIZE_OF_READ_CHUNK/2))
+			{
+			   if((((file_len - (index_data.num_of_chunk))/SIZE_OF_READ_CHUNK)) > 0)
+			   {
+				  index_data.actual_chunk = SIZE_OF_READ_CHUNK;
+			   }
+			   else
+			   {
+				  index_data.actual_chunk = file_len - (index_data.num_of_chunk);
+			   }
+			}
+			else
+			{
+			   index_data.actual_chunk = (10000 - index_data.pt_reg)*2;
+			}
+
+			// read chunk
+			// if something goes wrong, retry 2 times (there is another retry inside the function)
+			do{
+			   err = ReadDevFile(index_data.actual_chunk, (file_id + index_data.pt_of_files), index_data.pt_reg);
+
+			   Sys__Delay(50);
+			  }while((err == C_FAIL) && (retry++ <= NUM_OF_RETRY_READ));
+
+			if(err == C_FAIL){
+				P_COV_LN;
+
+				Reset_Full_SM();
+				ret = LOGFILE_ERR_MODBUS;
+				break;
+			}
+
+			// go to next chunk
+			index_data.num_of_chunk += index_data.actual_chunk;
+
+			index_data.st_reg = index_data.pt_reg;
+			index_data.pt_reg += index_data.actual_chunk/2;
+
+		    sm_range_file = SM_READ_SEND;
+
+			ret = Dev_LogFile_GetSM();
+			break;
+		}
+
+		case SM_READ_SEND:
+		{
+	    	if((Radio__GetStatus() == CONNECTED) && (MQTT_GetFlags() ==1))
+	    	{
+	    		memcpy(&actual_data.value[0], &data_rx[4], index_data.actual_chunk);  // start from [4] to cut the first part of modbus msg
+
+	    		//it is in bytes and not registry
+	    		actual_data.file_start = ((index_data.pt_of_files * 20000) + (index_data.st_reg*2));
+	    		actual_data.file_chunk_len = index_data.actual_chunk;
+	    		actual_data.file_size = index_data.total_dim_file;
+
+	    		msg_id = CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
+				#ifdef __DEBUG_CBOR_CAREL_LEV_1
+	    		PRINTF_DEBUG("PUBLISH RES %d \r\n", msg_id);
+				#endif
+	    		timer = RTC_Get_UTC_Current_Time() + 30;
+
+	    		C_BYTE exit = 1;
+
+				while ((GetMsgIdCompare() != C_SUCCESS) && exit)
+				{
+					if(timer < RTC_Get_UTC_Current_Time())
+					{
+					  exit = 0;
+
+					  #ifdef __DEBUG_CBOR_CAREL_LEV_1
+					  PRINTF_DEBUG("WIFI OFF...CHUNCK NOT SENDED \r\n");
+					  #endif
+					}
+	    			else
+	    			 Sys__Delay(200);
+	    		}
+	    		SetMsgIdCompare(C_FAIL);
+
+	    		if(!exit)
+	    		{
+				  sm_full_file = SM_READ_SEND;
+				  P_COV_LN;
+
+				  ret = Dev_LogFile_GetSM();
+				  break;
+	    		}
+
+				#ifdef __DEBUG_CBOR_CAREL_LEV_1
+	    		PRINTF_DEBUG("WIFI ON...MQTT CHUNCK SENDED \r\n");
+				#endif
+				//
+	    		// check if file ended
+	    		//
+				if(file_len - (index_data.num_of_chunk) == 0)
+				{
+				 // finish end of file
+				 P_COV_LN;
+				 sm_range_file = SM_READ_FINISH;
+				}
+				else
+				{
+				  // go to next chunk
+				  P_COV_LN;
+				  sm_range_file = SM_READ_CHUNK;
+				}
+
+	    		ret = Dev_LogFile_GetSM();
+	    		break;
+	    	}
+	    	else
+	    	{
+				#ifdef __DEBUG_CBOR_CAREL_LEV_1
+				PRINTF_DEBUG("WIFI OFF...MQTT OFF \r\n");
+				#endif
+
+				sm_range_file = SM_READ_SEND;
+				P_COV_LN;
+
+				Sys__Delay(5000);
+
+				ret = Dev_LogFile_GetSM();
+	    		break;
+	    	}
+			break;
+		}
+
+		case SM_READ_FINISH:
+		{
+			P_COV_LN;
+
+	    	Reset_Full_SM();
+	    	ret = LOGFILE_FINISH;
+			break;
+		}
+	}
+	return ret;
+}
+
+
+
 /**
  * @brief GetActualMsgId
- *        TODO
+ *        useful to be sure to have send the packet
  *
  * @param  none
  * @return int
  */
-int GetActualMsgId(void) { return  msg_id;}
+int GetActualMsgId(void) { return  msg_id; }
 
 
 /**
@@ -527,7 +756,7 @@ int GetActualMsgId(void) { return  msg_id;}
  * @return void
  */
 void Dev_LogFile_SetSM(logfile_sm_t log_state_m){
-	log_file_sm = log_state_m;
+	  log_file_sm = log_state_m;
 }
 
 /**
@@ -588,8 +817,8 @@ C_BOOL GetAbort(void) { return want_abort; }
 void RetrieveFileLog_Info(c_cborreqfilelog data)
 {
 	file_id    = data.fid;
-	file_start = data.fle;
-	file_len   = data.fst;
+	file_start = data.fst;
+	file_len   = data.fle;
 }
 
 

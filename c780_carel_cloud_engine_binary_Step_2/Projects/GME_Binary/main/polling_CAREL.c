@@ -1671,7 +1671,7 @@ bool IsOffline(void) {
 /**
  * @brief DoPolling_CAREL
  *        function with the timing to apply for low check and high check
- *		  check also the allarm
+ *		  check also the alarm
  *
  * @param  req_set_gw_config_t * polling_times
  * @return none

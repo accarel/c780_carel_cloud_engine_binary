@@ -12,6 +12,10 @@
 #define GUID_SIZE  		( 16 )
 #define COMPHEADER_SIZE ( 40 )
 
+#define TYPE_FULL       (0)
+#define TYPE_RANGE		(1)
+
+
 #pragma pack(1)
 typedef union VM_CompressionHeader
 {
@@ -42,7 +46,7 @@ typedef struct indx_data{
 	uint32_t num_of_files;
 	uint32_t pt_of_files;
 	uint32_t pt_reg;
-	//char     data[200];   // TODO...remove, we use the final struct!!!
+	uint32_t st_reg;
 } index_data_t;
 #pragma pack()
 
