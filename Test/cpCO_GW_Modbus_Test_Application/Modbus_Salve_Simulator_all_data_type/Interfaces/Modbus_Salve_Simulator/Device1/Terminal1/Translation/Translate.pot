@@ -1,0 +1,83 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 19/04/2021 09:00:57\n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+
+#: Worksheet.otws
+#| msgctxt "[Mask:Mask][Field:Text]"
+msgctxt "[Mask:Mask_1][Field:Text]"
+msgid "All vars test"
+msgstr ""
+
+#: Worksheet.otws
+#| msgctxt "[Mask:Mask][Field:Text_2]"
+msgctxt "[Mask:Mask_1][Field:Text_2]"
+msgid "A_fix_16bit"
+msgstr ""
+
+#: Worksheet.otws
+#| msgctxt "[Mask:Mask][Field:Text_3]"
+msgctxt "[Mask:Mask_1][Field:Text_3]"
+msgid "Temperature_1"
+msgstr ""
+
+#: Worksheet.otws
+#| msgctxt "[Mask:Mask][Field:Text_4]"
+msgctxt "[Mask:Mask_1][Field:Text_4]"
+msgid "Float_A2_B1000"
+msgstr ""
+
+#: Worksheet.otws
+#| msgctxt "[Mask:Mask][Field:Text_5]"
+msgctxt "[Mask:Mask_1][Field:Text_5]"
+msgid "Float_A0_5_B100"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_2][Field:Text]"
+msgid "Rele_1"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_2][Field:Text_2]"
+msgid "Rele_2"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_3][Field:Text]"
+msgid "Nibble"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_3][Field:Text_2]"
+msgid "HR_Nib_4_7"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_3][Field:Text_3]"
+msgid "HR_Nib_8_11"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_3][Field:Text_4]"
+msgid "HR_Nib_12_15"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_3][Field:Text_5]"
+msgid "HR_Nib_0_3"
+msgstr ""
+
+#: Worksheet.otws
+msgctxt "[Mask:Mask_4][Field:Text]"
+msgid "HR_Low_AutoInc"
+msgstr ""
+

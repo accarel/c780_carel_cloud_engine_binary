@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Terminal Name="Terminal1" Display="PGD1" Language="EN" BeginFromMask="Mask_1" Layout="SixKeys" Font="CAREL_TERM_INT" ZoomCode="0" LoopFunction="TIMED_LOOP" Version="1.0">
+  <ShortCuts>
+    <ShortCut Name="ALARM" Code="12" />
+    <ShortCut Name="PRG" Code="5" />
+    <ShortCut Name="ESC" Code="0" />
+    <ShortCut Name="UP" Code="14" />
+    <ShortCut Name="ENTER" Code="13" />
+    <ShortCut Name="DOWN" Code="15" />
+  </ShortCuts>
+  <KeyBindings />
+  <Worksheet Name="Worksheet" Version="1.0.0">
+    <Group Name="Group_Mask">
+      <Mask Name="Mask_1" Type="Normal" X="0" Y="0">
+        <Fields>
+          <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+          <Field Type="Text" Name="Text" Row="0" Column="5" Content="0" />
+          <Field Type="Variable" Name="Variable" Row="7" Column="16" Content="Analog_fixed_16bit" Class="CL_REAL_1" Format="io+3.1" Min="-999.9" Max="999.9" />
+          <Field Type="Text" Name="Text_2" Row="7" Column="0" Content="1" />
+          <Field Type="Text" Name="Text_3" Row="1" Column="0" Content="2" />
+          <Field Type="Variable" Name="Variable_2" Row="1" Column="16" Content="Temperature_1" Class="CL_REAL_1" Format="io+3.1" Min="-999.9" Max="999.9" />
+          <Field Type="Text" Name="Text_4" Row="3" Column="0" Content="3" />
+          <Field Type="Variable" Name="Variable_3" Row="3" Column="16" Content="Float_A2_B1000" Class="CL_REAL_1" Format="io+3.1" Min="-999.9" Max="999.9" />
+          <Field Type="Text" Name="Text_5" Row="4" Column="0" Content="4" />
+          <Field Type="Variable" Name="Variable_4" Row="4" Column="16" Content="Float_A0_5_B100" Class="CL_REAL_1" Format="io+3.1" Min="-999.9" Max="999.9" />
+        </Fields>
+      </Mask>
+      <Mask Name="Mask_2" Type="Normal" X="0" Y="1">
+        <Fields>
+          <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+          <Field Type="Text" Name="Text" Row="2" Column="0" Content="5" />
+          <Field Type="Variable" Name="Variable" Row="2" Column="15" Content="Rele_1" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+          <Field Type="Variable" Name="Variable_2" Row="3" Column="15" Content="Rele_2" Min="0" Max="1" Class="CL_BOOL_SWAP" Format="iob" />
+          <Field Type="Text" Name="Text_2" Row="3" Column="0" Content="6" />
+        </Fields>
+      </Mask>
+      <Mask Name="Mask_3" Type="Normal" X="0" Y="2">
+        <Fields>
+          <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+          <Field Type="Text" Name="Text" Row="0" Column="8" Content="7" />
+          <Field Type="Text" Name="Text_2" Row="2" Column="0" Content="8" />
+          <Field Type="Variable" Name="Variable" Row="2" Column="15" Content="HR_Nib_4_7" Class="CL_INT" Format="io+6" Min="-32768" Max="32767" />
+          <Field Type="Variable" Name="Variable_2" Row="3" Column="15" Content="HR_Nib_8_11" Class="CL_INT" Format="io+6" Min="-32768" Max="32767" />
+          <Field Type="Text" Name="Text_3" Row="3" Column="0" Content="9" />
+          <Field Type="Text" Name="Text_4" Row="4" Column="0" Content="10" />
+          <Field Type="Variable" Name="Variable_3" Row="4" Column="15" Content="HR_Nib_12_15" Class="CL_INT" Format="io+6" Min="-32768" Max="32767" />
+          <Field Type="Text" Name="Text_5" Row="1" Column="0" Content="11" />
+          <Field Type="Variable" Name="Variable_4" Row="1" Column="15" Content="HR_Nib_0_3" Class="CL_INT" Format="io+6" Min="-32768" Max="32767" />
+        </Fields>
+      </Mask>
+      <Mask Name="Mask_4" Type="Normal" X="0" Y="3">
+        <Fields>
+          <Field Name="Move" Type="Variable" Content="dummy" Column="0" Row="0" Class="CL_Move" Format="ib" Min="0" Max="1" />
+          <Field Type="Variable" Name="Variable" Row="2" Column="16" Content="HR_Low_AutoInc" Class="CL_INT" Format="o6" Min="0" Max="32767" />
+          <Field Type="Text" Name="Text" Row="2" Column="0" Content="12" />
+        </Fields>
+      </Mask>
+    </Group>
+  </Worksheet>
+</Terminal>

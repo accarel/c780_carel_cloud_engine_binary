@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Name="Modbus_Salve_Simulator" ElementGuid="0d779997-876c-45fc-86bf-eb6ce0842c2f" FileVersion="200.00.003" Comment="" SingleTextLine="template" DbVersion="05.50.07" LibraryType="Project" LegacyBinding="true" Password="E4BDBA2BEF6CC4DC" ReadOnly="false">
+  <FileHeader CompanyName="Rockwell Automation Canada, Ltd." ProductName="CAM ISaGRAF 5" CompanyUrl="http://www.isagraf.com" ProductVersion="0" />
+  <Libraries />
+  <DefineWords>
+    <DefineWord Name="ERR_FILE_ACCESS" Define="-3" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_FILE_INVALID" Define="-5" Comment="" Access="ReadOnly" />
+    <DefineWord Name="COM_CHANNEL_BMS2" Define="3" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_NETWORK_SETTINGS" Define="13" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_BOARD_INFO" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_BUSY" Define="-10" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_VALUE_INVALID" Define="-6" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_POWER_SUPPLY_VOLT" Define="5" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_RETAINED_ERRORS" Define="8" Comment="" Access="ReadOnly" />
+    <DefineWord Name="COM_CHANNEL_FB1" Define="2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_DISK_ACCESS" Define="-2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_SUCCESS" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="COM_CHANNEL_FB2" Define="4" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_USB_STATUS" Define="16" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_GET_RETAIN_WRITE_HITS" Define="11" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_BUILTIN_DISPLAY_INFO" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_DISK_INTERNAL" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_FILE_EMPTY" Define="-8" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_NOT_IMPLEMENTED" Define="-14" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_REMOTE_DISPLAY_3_INFO" Define="4" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_EXPORT_LOG" Define="-12" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_ERROR_ON_DIV_BY_ZERO" Define="9" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_REMOTE_DISPLAY_2_INFO" Define="3" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_POWER_SUPPLY_FREQ" Define="6" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_BOARD_TEMP" Define="7" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_REMOTE_DISPLAY_1_INFO" Define="2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_PARAM_INVALID" Define="-13" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_FNAME_INVALID" Define="-1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_OS_VERSION" Define="14" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_NO_LOGGER" Define="-11" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_UNKNOWN" Define="-99" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_DATE_FILTER" Define="-9" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_DISK_USB" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_WIPE_NVRAM" Define="2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_BUFFER_SMALL" Define="-7" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_WIPE_ALL" Define="3" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_RESTART_ON_FATAL_ERROR" Define="10" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_FILE_IO" Define="-4" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_PLAN_INFO" Define="15" Comment="" Access="ReadOnly" />
+    <DefineWord Name="COM_CHANNEL_BMS1" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_VM_QUIT" Define="12" Comment="" Access="ReadOnly" />
+    <DefineWord Name="IO_NO_ERR" Define="10" Comment="Result is a valid value" Access="UserDefined" />
+    <DefineWord Name="SYS_FMODE_OVERWRITE" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="IO_ERR_UNKNOWN" Define="0" Comment="Default value" Access="UserDefined" />
+    <DefineWord Name="SYS_PARAM_IS_WATCHDOG_RESTART" Define="25" Comment="" Access="ReadOnly" />
+    <DefineWord Name="IO_ERR_OPEN" Define="-1" Comment="NTC/PTC input is open" Access="UserDefined" />
+    <DefineWord Name="IO_ERR_SHORT" Define="-2" Comment="NTC/PTC input is shorted" Access="UserDefined" />
+    <DefineWord Name="IO_ERR_OVERFLOW" Define="-3" Comment="Voltage input exceed max allowed value" Access="UserDefined" />
+    <DefineWord Name="IO_ERR_UNDERFLOW" Define="-4" Comment="Voltage input exceed min allowed value" Access="UserDefined" />
+    <DefineWord Name="IO_ERR_INVALID_PARAM" Define="-5" Comment="Channel is out of range" Access="UserDefined" />
+    <DefineWord Name="SYS_PARAM_SET_PLAN_ADDR" Define="32" Comment="" Access="ReadOnly" />
+    <DefineWord Name="IO_ERR_CHANNEL_NOTFREE" Define="-6" Comment="Channel is not readable due to previous bi-channel probe" Access="UserDefined" />
+    <DefineWord Name="SYS_PARAM_WIPE_MEMORIES" Define="29" Comment="" Access="ReadOnly" />
+    <DefineWord Name="IO_ERR_INTERNAL_TABLE" Define="-8" Comment="Only ISAI when scaling variable reference are invalid" Access="UserDefined" />
+    <DefineWord Name="SYS_PARAM_LIC_SNMP" Define="36" Comment="" Access="ReadOnly" />
+    <DefineWord Name="IO_ERR_INVALID_PROBE_TYPE" Define="-9" Comment="Out of range probe type selected" Access="UserDefined" />
+    <DefineWord Name="IO_ERR_CHIPIO_CONFIG_COMM" Define="-100" Comment="Io system has not started due to a severe error" Access="UserDefined" />
+    <DefineWord Name="SYS_PARAM_GET_PHYSICAL_RAM_SIZE" Define="27" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_7SEG_MNG" Define="33" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_SYSTEM_POWERDOWN" Define="18" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_RTC_SRC_NTP" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_SYSTEM_REBOOT" Define="17" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_WIPE_RETAIN" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="ERR_CFG" Define="-15" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_RTC_SRC" Define="20" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PASSWORD_1" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PERMISSION_LOCK_1" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PASSWORD_2" Define="2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="IO_ERR_INTERNAL_FULL" Define="-10" Comment="Linked variable already used in timed relays or no more timed relays free" Access="UserDefined" />
+    <DefineWord Name="SYS_VALUE_RTC_SRC_TERA" Define="2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PERMISSION_LOCK_2" Define="2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PASSWORD_3" Define="3" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_GET_UID" Define="28" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_GET_JST_INPUT" Define="26" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PERMISSION_LOCK_3" Define="3" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PASSWORD_NONE" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PERMISSION_NO_LOCK" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="NFC_PERMISSION_LOCK_4" Define="4" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_TICKS" Define="19" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_RTC_SRC_MANUAL" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_LIC_BACNET" Define="35" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_MEM_FREE" Define="31" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_MEM_USED" Define="30" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_FMODE_MODIFY" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_TRANSFER_PATH" Define="'HTTP\TRANSFER\'" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_BOOT_VERSION" Define="34" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_NETWORK_SETTINGS_IPv6_PA" Define="39" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_LIC_NET" Define="42" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_USBD_DISABLED" Define="0" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_NETWORK_SETTINGS_IPv6_DNS" Define="41" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_USBD_MSD" Define="6" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_NETWORK_SETTINGS_COMMON" Define="37" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_USBH_DISABLED" Define="1" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_USB_CFG" Define="44" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_USBD_IP" Define="5" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_USBH_MSD" Define="2" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_USBD_CDC" Define="4" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_VALUE_USBD_MSD_CDC" Define="3" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_NETWORK_SETTINGS_IPv6_GW" Define="40" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_NETWORK_SETTINGS_IPv6_LL" Define="38" Comment="" Access="ReadOnly" />
+    <DefineWord Name="SYS_PARAM_RETAIN_ALGORITHM_SETTINGS" Define="43" Comment="" Access="ReadOnly" />
+  </DefineWords>
+  <DataTypes>
+    <DataType Name="TEEV" Comment="" Access="ReadOnly">
+      <Struct FieldOrder="1" Order="3">
+        <Variable Name="Enable" DataType="BOOL" Comment="" StringSize="0" Order="1" />
+        <Variable Name="PositionToSet" DataType="UINT" Comment="" StringSize="0" Order="2" />
+        <Variable Name="VariationToSet" DataType="INT" Comment="" StringSize="0" Order="3" />
+        <Variable Name="CurrentEstimatedPosition" DataType="UINT" Comment="" StringSize="0" Order="4" />
+        <Variable Name="VariationRemaining" DataType="INT" Comment="" StringSize="0" Order="5" />
+        <Variable Name="MaxSteps" DataType="UINT" Comment="" StringSize="0" Order="6" />
+        <Variable Name="MinSteps" DataType="UINT" Comment="" StringSize="0" Order="7" />
+        <Variable Name="ClosingSteps" DataType="UINT" Comment="" StringSize="0" Order="8" />
+        <Variable Name="NominalCurrent" DataType="UINT" Comment="" StringSize="0" Order="9" />
+        <Variable Name="HoldingCurrent" DataType="UINT" Comment="" StringSize="0" Order="10" />
+        <Variable Name="Speed" DataType="UINT" Comment="" StringSize="0" Order="11" />
+        <Variable Name="DutyCycle" DataType="UINT" Comment="" StringSize="0" Order="12" />
+        <Variable Name="DutyCycleEnable" DataType="BOOL" Comment="" StringSize="0" Order="13" />
+        <Variable Name="OpeningXSteps" DataType="BOOL" Comment="" StringSize="0" Order="14" />
+        <Variable Name="ClosingXSteps" DataType="BOOL" Comment="" StringSize="0" Order="15" />
+        <Variable Name="FastClosingSpeed" DataType="UINT" Comment="" StringSize="0" Order="16" />
+        <Variable Name="FastClosingSpeedEnable" DataType="BOOL" Comment="" StringSize="0" Order="17" />
+        <Variable Name="Alarms" DataType="USINT" Comment="" StringSize="0" Order="18" />
+      </Struct>
+    </DataType>
+    <DataType Name="ALM" Comment="" Access="ReadOnly">
+      <Struct FieldOrder="1" Order="4">
+        <Variable Name="Trigger" DataType="BOOL" Comment="Alarm status Trigger" StringSize="0" Order="1" />
+        <Variable Name="Active" DataType="BOOL" Comment="Alarm status" StringSize="0" Order="2" />
+      </Struct>
+    </DataType>
+  </DataTypes>
+  <Networks>
+    <Network Name="HSD" SingleTextLine="" LocalNet="true" DistributedNet="false" Comment="" UsedForBinding="true" BindingService="false" AllowWorkbenchCommunications="true">
+      <Parameters />
+      <ConnectionParameters />
+      <ResourceParameters>
+        <Parameter Name="ValidityTime" Format="Long" Default="0" Access="UserDefined" SingleTextLine="Produced Variables validity time." LocalNet="false" DistributedNet="false" />
+      </ResourceParameters>
+      <VariableParameters />
+    </Network>
+    <Network Name="ETCP" SingleTextLine="" LocalNet="false" DistributedNet="true" Comment="" UsedForBinding="true" BindingService="false" AllowWorkbenchCommunications="true">
+      <Parameters />
+      <ConnectionParameters>
+        <Parameter Name="IPAddress" Format="String" Default="127.0.0.1" Access="UserDefined" SingleTextLine="IP address or Computer name" LocalNet="false" DistributedNet="true" />
+      </ConnectionParameters>
+      <ResourceParameters>
+        <Parameter Name="TimeOut" Format="Long" Default="10000" Access="UserDefined" SingleTextLine="Maximum allowed time (in ms) to transport a variable" LocalNet="false" DistributedNet="true" />
+      </ResourceParameters>
+      <VariableParameters />
+    </Network>
+    <Network Name="ISARSI" SingleTextLine="" LocalNet="false" DistributedNet="true" Comment="" UsedForBinding="true" BindingService="false" AllowWorkbenchCommunications="true">
+      <Parameters>
+        <Parameter Name="Port" Format="String" Default="COM6" Access="UserDefined" SingleTextLine="Workbench communication port" LocalNet="false" DistributedNet="true" />
+        <Parameter Name="BaudRate" Format="Long" Default="115200" Access="UserDefined" SingleTextLine="Data transfer baud rate" LocalNet="false" DistributedNet="true" />
+        <Parameter Name="Parity" Format="Character" Default="N" Access="UserDefined" SingleTextLine="N: None, E: Even, O: Odd" LocalNet="false" DistributedNet="true" />
+        <Parameter Name="StopBit" Format="Word" Default="1" Access="UserDefined" SingleTextLine="1 or 2 Stop bits" LocalNet="false" DistributedNet="true" />
+        <Parameter Name="HardwareFlowControl" Format="Boolean" Default="FALSE" Access="UserDefined" SingleTextLine="TRUE when using hardware flow control" LocalNet="false" DistributedNet="true" />
+      </Parameters>
+      <ConnectionParameters />
+      <ResourceParameters />
+      <VariableParameters />
+    </Network>
+  </Networks>
+  <NetworkInstances>
+    <NetworkInstance NetworkName="ISARSI" Name="USB1" />
+  </NetworkInstances>
+  <Targets>
+    <Target Name="CAREL_PCO" />
+    <Target Name="CAREL_PCO_LE" />
+  </Targets>
+  <Configurations>
+    <Configuration Name="Device1" ElementGuid="e5619c74-aed5-4bfa-87ad-8e4823a88b2d" />
+  </Configurations>
+</Project>

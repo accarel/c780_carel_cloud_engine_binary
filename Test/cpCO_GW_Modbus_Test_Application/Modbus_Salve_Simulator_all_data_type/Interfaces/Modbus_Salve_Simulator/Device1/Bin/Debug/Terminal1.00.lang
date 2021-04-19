@@ -1,0 +1,15 @@
+[DEFAULT]
+All vars test
+A_fix_16bit
+Temperature_1
+Float_A2_B1000
+Float_A0_5_B100
+Rele_1
+Rele_2
+Nibble
+HR_Nib_4_7
+HR_Nib_8_11
+HR_Nib_12_15
+HR_Nib_0_3
+HR_Low_AutoInc
+[DEFAULT]
