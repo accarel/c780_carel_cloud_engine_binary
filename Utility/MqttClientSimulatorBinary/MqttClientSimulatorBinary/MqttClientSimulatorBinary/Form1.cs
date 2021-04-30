@@ -429,6 +429,8 @@ namespace MqttClientSimulatorBinary
 
             string curFile = o_rto + @".bin";
 
+            string DefaultFile = "DefaultLog.bin";
+
             //if empty means the echo of the command sent
             if (o_ans == null) return;
 
@@ -456,16 +458,43 @@ namespace MqttClientSimulatorBinary
 
             latest_upload_file = curFile;
             //create an empty but filled with zero file if not exist
-            if (!(File.Exists(curFile)))
-            {                
+            if (!(File.Exists(curFile)) && !curFile.Contains("/"))
+            {
+                byte value_to_write = 0;
+                //we create a new file filled with zero 
+                using (BinaryWriter writer = new BinaryWriter(File.Open(curFile, FileMode.Create)))
+                {
+                    for (int i = 0; i < fsz_value; i++) writer.Write(value_to_write);
+                }
+
+                textBox_upload_file_info.AppendText("Created " + curFile + " size " + fsz_value.ToString() + "\r\n");
+            }
+            else
+            {   
+                //
+                // NOTE:
+                // we create a defaultfile to use the IOT RED command
+                // an rto example is rr/XMVKH4/ac3feb381e2e4c3baf447a115ca5456e...Windows doesn't accept slash [/]
+                // in a files namne, so we use a default name in this case
+                //
+               if(!(File.Exists(DefaultFile)))
+               {
                     byte value_to_write = 0;
                     //we create a new file filled with zero 
-                    using (BinaryWriter writer = new BinaryWriter(File.Open(curFile, FileMode.Create)))
+                    using (BinaryWriter writer = new BinaryWriter(File.Open(DefaultFile, FileMode.Create)))
                     {
                         for (int i = 0; i < fsz_value; i++) writer.Write(value_to_write);
                     }
 
-                textBox_upload_file_info.AppendText("Created " + curFile + " size " + fsz_value.ToString()+ "\r\n" );
+                    textBox_upload_file_info.AppendText("Created " + DefaultFile + " size " + fsz_value.ToString() + "\r\n");
+                }
+
+            }
+
+
+            if(curFile.Contains("/"))
+            {
+                latest_upload_file = curFile = DefaultFile;
             }
 
             //insert the given file chunk in the right position

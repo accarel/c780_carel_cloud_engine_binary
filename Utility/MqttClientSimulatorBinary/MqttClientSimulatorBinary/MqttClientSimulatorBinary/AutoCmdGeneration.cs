@@ -140,7 +140,7 @@ namespace MqttClientSimulatorBinary
                             Int32.TryParse(words[3], out par_dim_value_int);
                             Int32.TryParse(words[4], out par_pos_value);
                             Int32.TryParse(words[5], out par_len_value);
-                            Int32.TryParse(words[5], out par_flg_value);
+                            Int32.TryParse(words[6], out par_flg_value);
 
                             hr_set(par_addr_int, words[2], par_dim_value_int, par_pos_value, par_len_value, par_flg_value);
                             break;
@@ -149,7 +149,7 @@ namespace MqttClientSimulatorBinary
                             Int32.TryParse(words[3], out par_dim_value_int);
                             Int32.TryParse(words[4], out par_pos_value);
                             Int32.TryParse(words[5], out par_len_value);
-                            Int32.TryParse(words[5], out par_flg_value);
+                            Int32.TryParse(words[6], out par_flg_value);
 
                             ir_set(par_addr_int, words[2], par_dim_value_int, par_pos_value, par_len_value, par_flg_value);
                             break;
@@ -291,19 +291,24 @@ namespace MqttClientSimulatorBinary
             int func_num;
 
             cbor.Add(@"ver", CBOR_PAYLOAD_VER);
-            cbor.Add(@"rto", textBox_Target.Text + @"/hr_w_val");
+            cbor.Add(@"rto", textBox_Target.Text + @"/ir_r_val");
             cbor.Add(@"cmd", 6);
             cbor.Add(@"ali", textBox_Alias.Text);
             cbor.Add(@"dim", dim_value);
 
-            if (dim_value == 32) func_num = 16;
-            else func_num = 6;
+            //if (dim_value == 32) func_num = 16;
+            //else func_num = 6;
 
-            cbor.Add(@"fun", func_num);
+            cbor.Add(@"fun", 4);
             cbor.Add(@"adr", addr_val);
             cbor.Add(@"pos", pos_value);
             cbor.Add(@"len", len_value);
-            cbor.Add(@"a", "1.0");
+            
+            if(flg_value == 65)
+              cbor.Add(@"a", "0.1");
+            else
+                cbor.Add(@"a", "1.0");
+
             cbor.Add(@"b", "0.0");
             cbor.Add("flg", flg_value);
             cbor.Add(@"val", set_val);

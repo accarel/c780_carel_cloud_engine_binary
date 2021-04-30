@@ -234,10 +234,7 @@
             this.button_get_ulock_info = new System.Windows.Forms.Button();
             this.tabControl_Functions = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.button_Test_Suite = new System.Windows.Forms.Button();
             this.textBox_Test_File = new System.Windows.Forms.TextBox();
             this.label61 = new System.Windows.Forms.Label();
             this.label60 = new System.Windows.Forms.Label();
@@ -247,6 +244,9 @@
             this.label58 = new System.Windows.Forms.Label();
             this.label56 = new System.Windows.Forms.Label();
             this.textBox_AutoCmdIteration = new System.Windows.Forms.TextBox();
+            this.button_Test_Suite = new System.Windows.Forms.Button();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -261,9 +261,9 @@
             this.groupBox12.SuspendLayout();
             this.tabControl_Functions.SuspendLayout();
             this.tabPage1.SuspendLayout();
+            this.tabPage4.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
-            this.tabPage4.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtConsole
@@ -2510,28 +2510,6 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "ModBus";
             // 
-            // tabPage2
-            // 
-            this.tabPage2.BackColor = System.Drawing.Color.DimGray;
-            this.tabPage2.Controls.Add(this.button_get_ulock_info);
-            this.tabPage2.Location = new System.Drawing.Point(4, 25);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage2.Size = new System.Drawing.Size(920, 583);
-            this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Cmd\'s";
-            // 
-            // tabPage3
-            // 
-            this.tabPage3.Controls.Add(this.button_Save_settings);
-            this.tabPage3.Controls.Add(this.button_web_test);
-            this.tabPage3.Location = new System.Drawing.Point(4, 25);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Size = new System.Drawing.Size(920, 583);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "Other";
-            this.tabPage3.UseVisualStyleBackColor = true;
-            // 
             // tabPage4
             // 
             this.tabPage4.BackColor = System.Drawing.Color.DarkGray;
@@ -2551,17 +2529,6 @@
             this.tabPage4.TabIndex = 3;
             this.tabPage4.Text = "AutoCmd";
             this.tabPage4.Click += new System.EventHandler(this.tabPage4_Click);
-            // 
-            // button_Test_Suite
-            // 
-            this.button_Test_Suite.Location = new System.Drawing.Point(773, 100);
-            this.button_Test_Suite.Margin = new System.Windows.Forms.Padding(4);
-            this.button_Test_Suite.Name = "button_Test_Suite";
-            this.button_Test_Suite.Size = new System.Drawing.Size(129, 46);
-            this.button_Test_Suite.TabIndex = 94;
-            this.button_Test_Suite.Text = "Test suite Cmd Gen.";
-            this.button_Test_Suite.UseVisualStyleBackColor = true;
-            this.button_Test_Suite.Click += new System.EventHandler(this.button_Test_Suite_Click);
             // 
             // textBox_Test_File
             // 
@@ -2645,6 +2612,39 @@
             this.textBox_AutoCmdIteration.TabIndex = 105;
             this.textBox_AutoCmdIteration.Text = "10";
             // 
+            // button_Test_Suite
+            // 
+            this.button_Test_Suite.Location = new System.Drawing.Point(773, 100);
+            this.button_Test_Suite.Margin = new System.Windows.Forms.Padding(4);
+            this.button_Test_Suite.Name = "button_Test_Suite";
+            this.button_Test_Suite.Size = new System.Drawing.Size(129, 46);
+            this.button_Test_Suite.TabIndex = 94;
+            this.button_Test_Suite.Text = "Test suite Cmd Gen.";
+            this.button_Test_Suite.UseVisualStyleBackColor = true;
+            this.button_Test_Suite.Click += new System.EventHandler(this.button_Test_Suite_Click);
+            // 
+            // tabPage2
+            // 
+            this.tabPage2.BackColor = System.Drawing.Color.DimGray;
+            this.tabPage2.Controls.Add(this.button_get_ulock_info);
+            this.tabPage2.Location = new System.Drawing.Point(4, 25);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage2.Size = new System.Drawing.Size(920, 583);
+            this.tabPage2.TabIndex = 1;
+            this.tabPage2.Text = "Cmd\'s";
+            // 
+            // tabPage3
+            // 
+            this.tabPage3.Controls.Add(this.button_Save_settings);
+            this.tabPage3.Controls.Add(this.button_web_test);
+            this.tabPage3.Location = new System.Drawing.Point(4, 25);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Size = new System.Drawing.Size(920, 583);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "Other";
+            this.tabPage3.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -2699,7 +2699,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Form1";
-            this.Text = "IoT Server Simulator Binary Edition V.3.3";
+            this.Text = "IoT Server Simulator Binary Edition V.3.4";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_Closing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_Closed);
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -2727,10 +2727,10 @@
             this.groupBox12.ResumeLayout(false);
             this.tabControl_Functions.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
-            this.tabPage3.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
+            this.tabPage3.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
