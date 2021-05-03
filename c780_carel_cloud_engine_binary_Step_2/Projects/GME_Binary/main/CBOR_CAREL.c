@@ -2436,6 +2436,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 	switch(hr_to_read->read_type){
 		case TYPE_A:
 		{
+			P_COV_LN;
 			float c_read= 0.0;
 			c_read = get_type_a(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2447,6 +2448,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_B:
 		{
+			P_COV_LN;
 			float c_read= 0.0;
 			c_read = get_type_b(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2458,6 +2460,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_C_SIGNED:
 		{
+			P_COV_LN;
 			int32_t c_read = 0;
 			c_read = get_type_c_signed(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2469,6 +2472,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_C_UNSIGNED:
 		{
+			P_COV_LN;
 			uint32_t c_read = 0;
 			c_read = get_type_c_unsigned(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2480,6 +2484,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_D:
 		{
+			P_COV_LN;
 			uint8_t c_read = 0;
 			c_read = get_type_d(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2491,6 +2496,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_E:
 		{
+			P_COV_LN;
 			int16_t c_read = 0;
 			c_read = get_type_e(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2502,6 +2508,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_F_SIGNED:
 		{
+			P_COV_LN;
 			int16_t c_read = 0;
 			c_read = get_type_f_signed(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2513,6 +2520,7 @@ long double read_values_conversion(hr_ir_low_high_poll_t *hr_to_read){
 
 		case TYPE_F_UNSIGNED:
 		{
+			P_COV_LN;
 			uint16_t c_read = 0;
 			c_read = get_type_f_unsigned(hr_to_read, CURRENT);
             #ifdef __DEBUG_CBOR_CAREL_LEV_2
@@ -2722,7 +2730,12 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 			if(hr_to_read.info.dim > 16)
 			   sprintf((C_SCHAR*)cbor_rv->val,"%.1Lf", conv_value);
 			else
-			   itoa(conv_value, (C_SCHAR*)cbor_rv->val, 10);
+			{
+				if((hr_to_read.info.flag.bit.fixedpoint & 0x01) == 0x01) // FixedPoint
+				  sprintf((C_SCHAR*)cbor_rv->val,"%.1Lf", conv_value);
+				else
+			      itoa(conv_value, (C_SCHAR*)cbor_rv->val, 10);
+			}
 		}
 		else
 			itoa(0, (C_SCHAR*)cbor_rv->val, 10);

@@ -31,10 +31,10 @@
 #ifdef __CCL_DEBUG_MODE
 
  //this define enable the output of the errors
-#define __DEBUG_CBOR_CAREL_LEV_1
+//#define __DEBUG_CBOR_CAREL_LEV_1
 
 //this define enable the output of others debug informations
-#define __DEBUG_CBOR_CAREL_LEV_2
+//#define __DEBUG_CBOR_CAREL_LEV_2
 
 //this define enable the output of others debug informations
 //this option enable the cbor packet dump so a lot of serial traffic

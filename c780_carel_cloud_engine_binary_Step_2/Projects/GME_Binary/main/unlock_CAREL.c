@@ -181,12 +181,14 @@ C_RES unlock_feature_control(void)
 	// yellow part
 	//
 	// check if is locked or free
+	// if is free (special feature disable, no lock)...return C_SUCCESS and go on with the relative request
+	//
 	prot_cap = ((C_UINT16)data_rx[CMD17_PROTOCOLCAP]<< 8) + ((C_UINT16)data_rx[CMD17_PROTOCOLCAP+1]);
 
 	if((prot_cap & UNLOCK_SPECIAL_FEATURES_PRESENT_MASK) != UNLOCK_SPECIAL_FEATURES_PRESENT_MASK)
 	{
 		P_COV_LN;
-		res = C_FAIL;
+		res = C_SUCCESS;
 		return res;
 	}
 
@@ -254,6 +256,7 @@ C_RES unlock_feature_control(void)
 	session_unlock_key = crc32(0,(const void*)rnd, sizeof(rnd));
 	session_unlock_key = crc32(session_unlock_key, (const void*)key, sizeof(key));
 
+	// organize session_unlock_key
 	session_h = (session_unlock_key & 0xFFFF0000) >> 16;
 	session_l = (session_unlock_key & 0x0000FFFF);
 

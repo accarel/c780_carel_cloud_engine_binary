@@ -440,13 +440,13 @@ gme_sm_t WiFi__Config (config_sm_t sm)
             	UnSetWpsMode();
             	P_COV_LN;
             }
-            P_COV_LN;
             break;
 
         case CONFIGURE_GME:
         	PRINTF_DEBUG("WiFi__Config .... CONFIGURE_GME\n");
 
             if(CONFIGURED == wifi_conf){
+                P_COV_LN;
             	WiFi__SetCustomConfig(WiFi__GetCustomConfig());
                 config_sm = START_WIFI;
             }else{

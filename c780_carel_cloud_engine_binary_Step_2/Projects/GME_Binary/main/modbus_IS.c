@@ -412,7 +412,7 @@ do{
       result = errorCode;
       retrycount++;
 
-      #ifdef __CCL_DEBUG_MODE
+      #ifdef __DEBUG_MODBUS_INTERFACE_LEV_1
       if (errorCode != MB_MRE_NO_ERR) printf("app_file_transfer #1 err %X \r\n", result);
       #endif
 
@@ -421,7 +421,7 @@ do{
 
     if (retrycount >= MAX_RETRY)
     {
-        #ifdef __CCL_DEBUG_MODE
+        #ifdef __DEBUG_MODBUS_INTERFACE_LEV_1
     	printf("app_file_transfer MAX_RETRY\r\n");
         #endif
     	result = C_FAIL;
@@ -445,7 +445,7 @@ do{
     }
 
     if(data_rx_len != packet_len){
-        #ifdef __CCL_DEBUG_MODE
+        #ifdef __DEBUG_MODBUS_INTERFACE_LEV_1
     	printf("Received packet length %d doesn't match the transmitted packet length %d\n", data_rx_len, packet_len);
     	printf("uart_read_bytes len = %d\n",data_rx_len);
 
@@ -461,7 +461,7 @@ do{
 
 		if(data_rx[data_rx_len-1] != data_tx[packet_len-1] || data_rx[data_rx_len-2] != data_tx[packet_len-2]){
 
-            #ifdef __CCL_DEBUG_MODE
+            #ifdef __DEBUG_MODBUS_INTERFACE_LEV_1
 			printf("Received packet content doesn't match the transmitted packet content\r\n");
 			printf("  data_rx_len %x\r\n", data_rx_len);
 			printf("RECV***************\r\n");
@@ -484,7 +484,7 @@ do{
 			result = C_SUCCESS;
 
 			retrypacket = 0;
-            #ifdef __CCL_DEBUG_MODE
+            #ifdef __DEBUG_MODBUS_INTERFACE_LEV_1
 			printf("uart_read_bytes len = %d\n",data_rx_len);
 
 			for(int i=0; i<data_rx_len; i++){
@@ -542,7 +542,7 @@ C_RES app_file_read(unsigned char* data_tx, uint8_t packet_len, unsigned char* d
 
 	  retrycount++;
 
-	  #ifdef __CCL_DEBUG_MODE
+	  #ifdef __DEBUG_MODBUS_INTERFACE_LEV_1
 	  if (errorCode != MB_MRE_NO_ERR) printf("app_file_transfer #1 err %X \r\n", result);
 	  #endif
 

@@ -69,7 +69,7 @@ void Polling_Engine_Init_IS(void)
 
 		// add the download log function...best effort if is active.
 		// in idle state if not triggered by a cbor message
-		// ...TODO step 2
+		// (added on step 2 of project)
 		Dev_LogFile_CAREL();
 
         Sys__Delay(10);

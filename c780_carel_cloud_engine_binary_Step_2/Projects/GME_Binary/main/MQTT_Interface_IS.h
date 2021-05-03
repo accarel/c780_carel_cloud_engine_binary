@@ -30,9 +30,9 @@
  #ifdef __CCL_DEBUG_MODE
 
  //this define enable the output of the command and communications errors
- #define __DEBUG_MQTT_INTERFACE_IS_LEV_1
+// #define __DEBUG_MQTT_INTERFACE_IS_LEV_1
 
- #define	PRINTF_DEBUG_MQTT_INTERFACE_IS	printf
+// #define	PRINTF_DEBUG_MQTT_INTERFACE_IS	printf
 #else
   #define	PRINTF_DEBUG_MQTT_INTERFACE_IS(...)
 #endif

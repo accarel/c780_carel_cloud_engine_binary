@@ -406,9 +406,9 @@ float get_type_a(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 float get_type_b(hr_ir_low_high_poll_t *arr, uint8_t read_kind){
 
 	float temp, read= 0.0;
-	read_kind == CURRENT ? (temp = *((float*)(&arr->c_value.value))) : (temp = *((float*)(&arr->p_value.value)));
+	read_kind == CURRENT ? (temp = *((int16_t*)(&arr->c_value.value))) : (temp = *((int16_t*)(&arr->p_value.value)));  //(float*)
 	read = (temp * arr->info.linA) + arr->info.linB;
-	return read;
+	return (float)read;
 }
 
 /**
@@ -1719,7 +1719,9 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			//	PRINTF_DEBUG("ALR POLL TIME %X\n", cronometro);
                 #endif
 
+				#ifdef __DEBUG_POLLING_CAREL_LEV_1
 				PRINTF_DEBUG("%s DoAlarmPolling poll_done = %d \n", TAG, poll_done);
+				#endif
 				SendOffline(poll_done);
 
 				check_alarms_change();
