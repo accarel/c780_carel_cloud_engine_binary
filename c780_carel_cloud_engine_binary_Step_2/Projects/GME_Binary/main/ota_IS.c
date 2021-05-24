@@ -130,6 +130,7 @@ C_RES https_ota(c_http_client_config_t* c_config)
 		.cert_pem = Sys__GetCert(c_config->cert_num),
 		.event_handler = _ota_http_event_handler,
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
+		.timeout_ms = 30000,
 	};
 
 	PRINTF_DEBUG("url : %s\n",config.url);

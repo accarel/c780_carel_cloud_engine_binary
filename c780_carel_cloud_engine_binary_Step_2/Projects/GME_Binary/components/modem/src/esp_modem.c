@@ -396,6 +396,13 @@ modem_dte_t *esp_modem_dte_init(const esp_modem_dte_config_t *config, esp_uart_t
     res = uart_driver_install(esp_dte->uart_port, CONFIG_UART_RX_BUFFER_SIZE, CONFIG_UART_TX_BUFFER_SIZE,
                               CONFIG_UART_EVENT_QUEUE_SIZE, &(esp_dte->event_queue), 0);
     MODEM_CHECK(res == ESP_OK, "install uart driver failed", err_uart_config);
+
+    // CHIEBAO FIX HW FIFO Overflow 2021-05-14
+    uint32_t uart_reg1 = READ_PERI_REG(UART_CONF1_REG(1));
+    uart_reg1 = (uart_reg1 & 0xFFFFFF80) | 0x00000040;
+    WRITE_PERI_REG(UART_CONF1_REG(1), uart_reg1);
+    // CHIEBAO
+
     /* Set pattern interrupt, used to detect the end of a line. */
     res = uart_enable_pattern_det_intr(esp_dte->uart_port, '\n', 1, MIN_PATTERN_INTERVAL, MIN_POST_IDLE, MIN_PRE_IDLE);
     /* Set pattern queue size */

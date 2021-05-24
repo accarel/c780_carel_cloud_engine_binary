@@ -102,7 +102,7 @@ void SoftWDT_Manager(void){
       if ((softwdt_items[count].is_enabled) && (softwdt_items[count].wdt_counter_value == 0)){
         softwdt_fired = 1; 
 
-        #if __SWWDT_ENABLE_DEBUG_PRINT
+        #ifdef __SWWDT_ENABLE_DEBUG_PRINT
            printf("SoftWDT Fired!= %d\r\n",count);
         #endif
 

@@ -152,192 +152,192 @@ C_RES UpdateDevFirmware(C_BYTE *fw_chunk, C_UINT16 ch_size, C_UINT16 file_no, C_
  *
  * @return none
  */
-void DEV_ota_task(void * pvParameter){
-
-	c_cborrequpddevfw * dev_fw_config = (c_cborrequpddevfw*)pvParameter;
-
-	C_RES err = C_FAIL;
-	uint8_t cert_num;
-	c_http_client_config_t c_config;
-	http_client_handle_t client;
-
-	C_UINT16 url_len = strlen(dev_fw_config->uri) + strlen(dev_fw_config->pwd) + strlen(dev_fw_config->usr);
-	C_CHAR *url = malloc(url_len + 5);
-	if (url == NULL) {
-		PRINTF_DEBUG("cannot alloc url\n");
-		OTADEVGroup(false);
-		vTaskDelete(NULL);
-		P_COV_LN;
-	}
-
-	memset((void*)url, 0, url_len);
-	sprintf(url,"%.*s%s:%s@%s", 8, dev_fw_config->uri, dev_fw_config->usr,dev_fw_config->pwd, dev_fw_config->uri+8);
-	
-	c_config.url = url;
-	c_config.username = dev_fw_config->usr;
-	c_config.password = dev_fw_config->pwd;
-
-	if (C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
-		cert_num = CERT_1;
-
-
-	client = http_client_init_IS(&c_config, cert_num);
-	if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
-		
-		#ifdef __DEBUG_OTA_CAREL_LEV_1
-		PRINTF_DEBUG("%s DEV_ota_task Failed to open HTTPS connection\n", TAG);
-		PRINTF_DEBUG("%s \n", url);
-		#endif
-		free(url);
-		OTADEVGroup(false);
-		vTaskDelete(NULL);
-		P_COV_LN;
-	}
-
-	C_UINT16 file_number = dev_fw_config->fid;
-	C_UINT16 file_number_inc = 0;
-	C_UINT16 file_number_inc_old = 0;
-	C_INT32  data_read_len = 0;
-	C_UINT32 sent_data_per_file = 0;
-	C_UINT32 file_total_lenght = 0;
-	C_UINT16 starting_reg = 0;
-	C_BYTE   *upgrade_data_buf = NULL;
-	C_INT16  chunk_size = DEV_OTA_BUF_SIZE;
-	
-	C_BOOL new_file = C_FALSE;
-
-	upgrade_data_buf = (C_BYTE *)malloc(DEV_OTA_BUF_SIZE);
-
-	//TODO CPPCHECK da rivedere completamente dopo NULL check poi procede e non fa return e' sbagliato
-	if (upgrade_data_buf == NULL)
-	{
-		free(url); //TODO CPPCHECK questa viene chiamata 2 volte vedi riga 142
-        #ifdef __DEBUG_OTA_CAREL_LEV_1
-		PRINTF_DEBUG("DEV_ota_task cannot alloc upgrade_data_buf\n");
-        #endif
-		OTADEVGroup(false);
-		vTaskDelete(NULL);
-		P_COV_LN;
-	}
-	memset((void*)upgrade_data_buf, 0, DEV_OTA_BUF_SIZE * sizeof(C_BYTE));
-
-	content_length =  http_client_fetch_headers_IS(client);
-
-	dbg_Set_OTA_Status(OTA_RUNNING);
-	dbg_Set_OTA_Trasf_len(0);
-
-	RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
-	RetriveDataDebug(WEBDBG_OTA_CONLEN, dbg_Get_OTA_Content_Lenght());
-
-
-    #ifdef __DEBUG_OTA_CAREL_LEV_1
-	PRINTF_DEBUG("%s content_length = %d\n",TAG, content_length);
-	#endif
-
-	chunk_size = DEV_OTA_BUF_SIZE;
-
-	while(1){
-        #ifdef __DEBUG_OTA_CAREL_LEV_1
-		PRINTF_DEBUG("-----------------------------------------\n");
-		#endif
-		data_read_len = http_client_read_IS(client, (char*)upgrade_data_buf, DEV_OTA_BUF_SIZE);
-		
-		if (data_read_len > 0) {
-			err = UpdateDevFirmware(upgrade_data_buf, data_read_len, (file_number+file_number_inc), starting_reg);	//, content_length - sent_data_per_file
-
-			if (err != C_SUCCESS) {
-                #ifdef __DEBUG_OTA_CAREL_LEV_1
-                PRINTF_DEBUG("DEV_ota_task UpdateDevFirmware error - 1 ABORTED! \n");
-                #endif
-
-				free(url);
-				free(upgrade_data_buf);
-				dbg_Set_OTA_Status(OTA_IDLE);
-				OTADEVGroup(false);
-				vTaskDelete(NULL);
-				P_COV_LN;
-			}
-
-			sent_data_per_file = sent_data_per_file + data_read_len;
-			file_total_lenght += data_read_len;
-
-			RetriveDataDebug(WEBDBG_OTA_TRASLEN, file_total_lenght);
-
-			if (sent_data_per_file >= MB_FILE_MAX_BYTES)
-			{
-		    	file_number_inc++;
-		    	starting_reg = 0;
-		    	sent_data_per_file = 0;
-		    }
-		    else
-		    {
-		    	starting_reg = sent_data_per_file/2;
-		    }
-
-            #ifdef __DEBUG_OTA_CAREL_LEV_1
-			PRINTF_DEBUG("%s file_number_inc %d  Written image length %d\n", TAG, file_number_inc, sent_data_per_file);
-			#endif
-		}
-		else {
-            #ifdef __DEBUG_OTA_CAREL_LEV_1
-            PRINTF_DEBUG("%s Written file_total_lenght %d\n", TAG, file_total_lenght);
-			PRINTF_DEBUG("closing update\n");
-            #endif
-			http_client_close_IS(client);
-			http_client_cleanup_IS(client);
-
-			uart_flush_input_IS(modbusPort);
-			uart_flush_IS(modbusPort);
-
-			if (data_read_len == 0) {
-
-				err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
-
-				if (err != C_SUCCESS) {
-                    #ifdef __DEBUG_OTA_CAREL_LEV_1
-                    PRINTF_DEBUG("DEV_ota_task UpdateDevFirmware error - 2 ABORTED! \n");
-                    #endif
-					free(url);
-					free(upgrade_data_buf);
-					dbg_Set_OTA_Status(OTA_IDLE);
-					RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
-					OTADEVGroup(false);
-					vTaskDelete(NULL);
-					P_COV_LN;
-				}
-
-				#ifdef __DEBUG_OTA_CAREL_LEV_1
-				PRINTF_DEBUG("%s %s\r\n", TAG, "Connection closed,all data received");
-				#endif
-				free(url);
-				free(upgrade_data_buf);
-				OTADEVGroup(true);
-				dbg_Set_OTA_Status(OTA_IDLE);
-				RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
-				vTaskDelete(NULL);
-				P_COV_LN;
-			}
-
-			if (data_read_len < 0) {
-				#ifdef __DEBUG_OTA_CAREL_LEV_1
-				PRINTF_DEBUG("%s %s\r\n", TAG, "Error: SSL data read error");
-				#endif
-				free(url);
-				free(upgrade_data_buf);
-				dbg_Set_OTA_Status(OTA_IDLE);
-				RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
-				OTADEVGroup(false);
-				vTaskDelete(NULL);
-				P_COV_LN;
-			}
-		}
-	}
-
-	free(url);
-	free(upgrade_data_buf);
-	dbg_Set_OTA_Status(OTA_IDLE);
-	RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
-}
+//void DEV_ota_task(void * pvParameter){
+//
+//	c_cborrequpddevfw * dev_fw_config = (c_cborrequpddevfw*)pvParameter;
+//
+//	C_RES err = C_FAIL;
+//	uint8_t cert_num;
+//	c_http_client_config_t c_config;
+//	http_client_handle_t client;
+//
+//	C_UINT16 url_len = strlen(dev_fw_config->uri) + strlen(dev_fw_config->pwd) + strlen(dev_fw_config->usr);
+//	C_CHAR *url = malloc(url_len + 5);
+//	if (url == NULL) {
+//		PRINTF_DEBUG("cannot alloc url\n");
+//		OTADEVGroup(false);
+//		vTaskDelete(NULL);
+//		P_COV_LN;
+//	}
+//
+//	memset((void*)url, 0, url_len);
+//	sprintf(url,"%.*s%s:%s@%s", 8, dev_fw_config->uri, dev_fw_config->usr,dev_fw_config->pwd, dev_fw_config->uri+8);
+//
+//	c_config.url = url;
+//	c_config.username = dev_fw_config->usr;
+//	c_config.password = dev_fw_config->pwd;
+//
+//	if (C_SUCCESS != NVM__ReadU8Value(MB_CERT_NVM, &cert_num))
+//		cert_num = CERT_1;
+//
+//
+//	client = http_client_init_IS(&c_config, cert_num);
+//	if ((err = http_client_open_IS(client, 0)) != C_SUCCESS) {
+//
+//		#ifdef __DEBUG_OTA_CAREL_LEV_1
+//		PRINTF_DEBUG("%s DEV_ota_task Failed to open HTTPS connection\n", TAG);
+//		PRINTF_DEBUG("%s \n", url);
+//		#endif
+//		free(url);
+//		OTADEVGroup(false);
+//		vTaskDelete(NULL);
+//		P_COV_LN;
+//	}
+//
+//	C_UINT16 file_number = dev_fw_config->fid;
+//	C_UINT16 file_number_inc = 0;
+//	C_UINT16 file_number_inc_old = 0;
+//	C_INT32  data_read_len = 0;
+//	C_UINT32 sent_data_per_file = 0;
+//	C_UINT32 file_total_lenght = 0;
+//	C_UINT16 starting_reg = 0;
+//	C_BYTE   *upgrade_data_buf = NULL;
+//	C_INT16  chunk_size = DEV_OTA_BUF_SIZE;
+//
+//	C_BOOL new_file = C_FALSE;
+//
+//	upgrade_data_buf = (C_BYTE *)malloc(DEV_OTA_BUF_SIZE);
+//
+//	//TODO CPPCHECK da rivedere completamente dopo NULL check poi procede e non fa return e' sbagliato
+//	if (upgrade_data_buf == NULL)
+//	{
+//		free(url); //TODO CPPCHECK questa viene chiamata 2 volte vedi riga 142
+//        #ifdef __DEBUG_OTA_CAREL_LEV_1
+//		PRINTF_DEBUG("DEV_ota_task cannot alloc upgrade_data_buf\n");
+//        #endif
+//		OTADEVGroup(false);
+//		vTaskDelete(NULL);
+//		P_COV_LN;
+//	}
+//	memset((void*)upgrade_data_buf, 0, DEV_OTA_BUF_SIZE * sizeof(C_BYTE));
+//
+//	content_length =  http_client_fetch_headers_IS(client);
+//
+//	dbg_Set_OTA_Status(OTA_RUNNING);
+//	dbg_Set_OTA_Trasf_len(0);
+//
+//	RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
+//	RetriveDataDebug(WEBDBG_OTA_CONLEN, dbg_Get_OTA_Content_Lenght());
+//
+//
+//    #ifdef __DEBUG_OTA_CAREL_LEV_1
+//	PRINTF_DEBUG("%s content_length = %d\n",TAG, content_length);
+//	#endif
+//
+//	chunk_size = DEV_OTA_BUF_SIZE;
+//
+//	while(1){
+//        #ifdef __DEBUG_OTA_CAREL_LEV_1
+//		PRINTF_DEBUG("-----------------------------------------\n");
+//		#endif
+//		data_read_len = http_client_read_IS(client, (char*)upgrade_data_buf, DEV_OTA_BUF_SIZE);
+//
+//		if (data_read_len > 0) {
+//			err = UpdateDevFirmware(upgrade_data_buf, data_read_len, (file_number+file_number_inc), starting_reg);	//, content_length - sent_data_per_file
+//
+//			if (err != C_SUCCESS) {
+//                #ifdef __DEBUG_OTA_CAREL_LEV_1
+//                PRINTF_DEBUG("DEV_ota_task UpdateDevFirmware error - 1 ABORTED! \n");
+//                #endif
+//
+//				free(url);
+//				free(upgrade_data_buf);
+//				dbg_Set_OTA_Status(OTA_IDLE);
+//				OTADEVGroup(false);
+//				vTaskDelete(NULL);
+//				P_COV_LN;
+//			}
+//
+//			sent_data_per_file = sent_data_per_file + data_read_len;
+//			file_total_lenght += data_read_len;
+//
+//			RetriveDataDebug(WEBDBG_OTA_TRASLEN, file_total_lenght);
+//
+//			if (sent_data_per_file >= MB_FILE_MAX_BYTES)
+//			{
+//		    	file_number_inc++;
+//		    	starting_reg = 0;
+//		    	sent_data_per_file = 0;
+//		    }
+//		    else
+//		    {
+//		    	starting_reg = sent_data_per_file/2;
+//		    }
+//
+//            #ifdef __DEBUG_OTA_CAREL_LEV_1
+//			PRINTF_DEBUG("%s file_number_inc %d  Written image length %d\n", TAG, file_number_inc, sent_data_per_file);
+//			#endif
+//		}
+//		else {
+//            #ifdef __DEBUG_OTA_CAREL_LEV_1
+//            PRINTF_DEBUG("%s Written file_total_lenght %d\n", TAG, file_total_lenght);
+//			PRINTF_DEBUG("closing update\n");
+//            #endif
+//			http_client_close_IS(client);
+//			http_client_cleanup_IS(client);
+//
+//			uart_flush_input_IS(modbusPort);
+//			uart_flush_IS(modbusPort);
+//
+//			if (data_read_len == 0) {
+//
+//				err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
+//
+//				if (err != C_SUCCESS) {
+//                    #ifdef __DEBUG_OTA_CAREL_LEV_1
+//                    PRINTF_DEBUG("DEV_ota_task UpdateDevFirmware error - 2 ABORTED! \n");
+//                    #endif
+//					free(url);
+//					free(upgrade_data_buf);
+//					dbg_Set_OTA_Status(OTA_IDLE);
+//					RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
+//					OTADEVGroup(false);
+//					vTaskDelete(NULL);
+//					P_COV_LN;
+//				}
+//
+//				#ifdef __DEBUG_OTA_CAREL_LEV_1
+//				PRINTF_DEBUG("%s %s\r\n", TAG, "Connection closed,all data received");
+//				#endif
+//				free(url);
+//				free(upgrade_data_buf);
+//				OTADEVGroup(true);
+//				dbg_Set_OTA_Status(OTA_IDLE);
+//				RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
+//				vTaskDelete(NULL);
+//				P_COV_LN;
+//			}
+//
+//			if (data_read_len < 0) {
+//				#ifdef __DEBUG_OTA_CAREL_LEV_1
+//				PRINTF_DEBUG("%s %s\r\n", TAG, "Error: SSL data read error");
+//				#endif
+//				free(url);
+//				free(upgrade_data_buf);
+//				dbg_Set_OTA_Status(OTA_IDLE);
+//				RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
+//				OTADEVGroup(false);
+//				vTaskDelete(NULL);
+//				P_COV_LN;
+//			}
+//		}
+//	}
+//
+//	free(url);
+//	free(upgrade_data_buf);
+//	dbg_Set_OTA_Status(OTA_IDLE);
+//	RetriveDataDebug(WEBDBG_OTA_STATUS, dbg_Get_OTA_Status());
+//}
 
 
 /**
@@ -849,7 +849,7 @@ void DEV_ota_range_task(void * pvParameter){
 
 		memset((void*)upgrade_data_buf, 0, DEV_OTA_BUF_SIZE * sizeof(C_BYTE));
 
-		err = UpdateDevFirmware(upgrade_data_buf, 0, file_number, starting_reg);
+		err = UpdateDevFirmware(upgrade_data_buf, 2, file_number+file_number_inc, starting_reg); // 0
 
 		if(err != C_SUCCESS) {
             #ifdef __DEBUG_OTA_CAREL_LEV_1

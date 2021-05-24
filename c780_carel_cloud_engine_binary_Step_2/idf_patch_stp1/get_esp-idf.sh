@@ -34,4 +34,4 @@ patch components/freemodbus/modbus/include/mbfunc.h ~/esp/GME_Binary/patches/001
 patch components/freemodbus/modbus/functions/mbfuncother.c ~/esp/GME_Binary/patches/0014_add_read_filetransf_4.patch
 patch components/freemodbus/modbus/include/mbconfig.h ~/esp/GME_Binary/patches/0015_add_read_filetransf_5.patch
 patch components/freemodbus/modbus/include/mbproto.h ~/esp/GME_Binary/patches/0016_add_read_filetransf_6.patch
-
+patch components/esp_https_ota/src/esp_https_ota.c ~/esp/GME_Binary/patches/0017_fix_ota_2G_pt1.patch

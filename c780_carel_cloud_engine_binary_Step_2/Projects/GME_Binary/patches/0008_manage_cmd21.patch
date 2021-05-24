@@ -68,7 +68,7 @@ diff -Naur ./functions/mbfuncother.c.orig ./functions/mbfuncother.c
 +		for (USHORT i=0; i<datalen-1; i++)
 +			ucMBFrame[i] = databuf[i+1];
  
-+		vMBMasterSetPDUSndLength(datalen - 1);
++		vMBMasterSetPDUSndLength(datalen - 1- 2);  // -1 for byte ADDR / -2 for bytes CRC 
 +		xMBMasterPortEventPost( EV_MASTER_FRAME_SENT);
 +		eErrStatus = eMBMasterWaitRequestFinish( );
 +		printf("eMBMasterWaitRequestFinish eErrStatus %d\n", eErrStatus);

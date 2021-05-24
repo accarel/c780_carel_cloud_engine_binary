@@ -93,7 +93,7 @@ C_UINT32 dbg_Get_OTA_Content_Lenght(void);
 
 C_RES OTA__DevFWUpdate(c_cborrequpddevfw *dev_fw_config);
 
-void DEV_ota_task(void * pvParameter);
+//void DEV_ota_task(void * pvParameter);
 
 void DEV_ota_range_task(void * pvParameter);
 

@@ -1,0 +1,59 @@
+--- esp_https_ota.c.orig	2021-05-17 05:01:52.855681000 -0700
++++ esp_https_ota.c	2021-05-19 06:32:07.047671652 -0700
+@@ -18,10 +18,13 @@
+ #include <esp_https_ota.h>
+ #include <esp_log.h>
+ 
++
+ #define IMAGE_HEADER_SIZE sizeof(esp_image_header_t) + sizeof(esp_image_segment_header_t) + sizeof(esp_app_desc_t) + 1
+ #define DEFAULT_OTA_BUF_SIZE IMAGE_HEADER_SIZE
+ static const char *TAG = "esp_https_ota";
+ 
++static uint32_t dim_tot = 0;   
++
+ typedef enum {
+     ESP_HTTPS_OTA_INIT,
+     ESP_HTTPS_OTA_BEGIN,
+@@ -92,7 +95,7 @@
+             ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
+             return err;
+         }
+-        esp_http_client_fetch_headers(http_client);
++        dim_tot = esp_http_client_fetch_headers(http_client);  
+         status_code = esp_http_client_get_status_code(http_client);
+         if (_http_handle_response_code(http_client, status_code) != ESP_OK) {
+             return ESP_FAIL;
+@@ -258,14 +261,22 @@
+             data_read = esp_http_client_read(handle->http_client,
+                                              handle->ota_upgrade_buf,
+                                              handle->ota_upgrade_buf_size);
+-            if (data_read == 0) {
++
++	    dim_tot -= data_read;	    	    	
++            if (data_read == 0 && dim_tot == 0) {
+                 ESP_LOGI(TAG, "Connection closed, all data received");
+-            } else if (data_read < 0) {
++            } else if (data_read < 0) {		
+                 ESP_LOGE(TAG, "Error: SSL data read error");
+                 return ESP_FAIL;
+             } else if (data_read > 0) {
+                 return _ota_write(handle, (const void *)handle->ota_upgrade_buf, data_read);
+             }
++	       else if(dim_tot > 0)
++            {
++		ESP_LOGI(TAG,"the file is not finish, connection error!!!\r\n");	
++		break;
++            }	
++			
+             handle->state = ESP_HTTPS_OTA_SUCCESS;
+             break;
+          default:
+@@ -344,7 +355,7 @@
+         return ESP_FAIL;
+     }
+ 
+-    while (1) {
++    while (1) {				
+         err = esp_https_ota_perform(https_ota_handle);
+         if (err != ESP_ERR_HTTPS_OTA_IN_PROGRESS) {
+             break;

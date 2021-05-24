@@ -51,6 +51,8 @@
 #include "WebDebug.h"
 
 
+//#define __WANT_WDT
+
 #ifdef __DEBUG_MAIN_CAREL_LEV_2
 #define CAREL_CHECK(res, field)  (res == C_SUCCESS ? printf("OK %s\n", field) : printf("FAIL %s\n", field))
 #else
@@ -97,12 +99,13 @@ void app_main(void)  // main_Carel
   {
      Carel_Main_Task_Start();
      //software watchdog
+#ifdef __WANT_WDT
      while(1)
      {
 	   SoftWDT_Manager();
 	   Sys__Delay(1000);
      }
-
+#endif
   }
 
 }
