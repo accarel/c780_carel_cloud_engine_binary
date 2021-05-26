@@ -1,0 +1,1414 @@
+--[[
+BILLY
+Protocol   : Modbus (both: RTU and ASCII)
+Template by: IFTOOLS GmbH
+Version    : 15.08.001
+             Correct Write Multiple Coils function, thanks to Shinichi Hara
+	           from Watanabe Electric Industry Co., Ltd.
+Version			: 17.02.001
+							Handling Read Input Register Responses with wrong length
+Version			: 17.02.002
+							Unification of RTU and ASCII template
+Version			: 17.02.003
+							Improve query/response detection in (2) Read Discrete Inputs
+							Improve query/response detection in (3) Read Holding Register
+Version 		: 17.02.004
+							Add (24) Read FIFO Queue support
+							Improve handling for invalid telegrams
+Version			: 17.04.001
+							Improve handling for invalid telegrams in (1) Read Coils
+Version	     : 17.12.001
+							Fix wrong calculated dt for response time (not using the telegram
+							length). See line 156
+Version			: 18.08.001
+							Add a filter to show only telegrams to and from a given device address
+Version			: 19.02.001
+							Fix RESPONSE_TIME_DELAY bug (missing reset) in IsResponse function
+
+Brief: 
+Modbus is a multidrop network based communication protocol for
+master/client architecture. Originally published by Modicon (now
+Schneider electric) in 1979 is has become a de facto standard for its
+simplicity and robustness. Communication between the Modbus participants 
+is achieved with messages.
+Serial Modbus connections can use two basic transmission modes: 
+ASCII and RTU. This template covers both Modbus protocols.
+
+ASCII messages start with a ':'. The data is coded as a Base16 sequence to
+distinguish the raw data from the start and end character(s).
+A telegram ends with CR LF after the LRC checksum byte.
+
+Modbus ASCII frame format
+Start byte ':'
+Address byte (2 characters)
+Function byte (2 characters)
+Data field (up to 252 character pairs)
+Checksum field (2 characters LRC)
+
+RTU messages are exchanged in a binary format which reduces the number of
+bytes by half compared with the ASCII protocol.
+Because there is not any reserved start or end byte, messages must be precede 
+by a time gap with a minimum length of 3.5 byte. Every time a receiver detects
+a time gap (pause) of at least 1.5 byte, it assumes that a new message arrives.
+
+Modbus RTU Frame format (after gap): 
+Address byte
+Function byte
+Data field (up to 252 bytes)
+Checksum field (two bytes CRC16)
+
+Filter:
+The template offers a telegram type filter. You can hide diagnostic
+messages or show only messages with a certain device address and
+function number.
+--]]
+
+--[[
+	######################################################################
+	############### Application specific Modbus parameters ###############
+	######################################################################
+--]]
+-- Modbus type (ASCII=0 or RTU=1)
+MODBUS_TYPE = 1
+-- Defines the Master channel in segment mode, default is Data A (Bus CH1)
+MODBUS_MASTER_CHANNEL = 1
+-- A typical response time delays is 1s... (at 9600 baud)
+-- Set it to 0 if you don't like to use it for response recognition
+RESPONSE_TIME_DELAY = 0.7
+-- The turnaround must be long enough to process the broadcast and
+-- therefore should be shorter than the response time dely.
+-- Typical values are 100ms...200ms
+TURNAROUND_DELAY = 0.2
+
+--[[
+	Provides a preset list of filter arguments separated by a
+	comma which are selectable in the filter control
+--]]
+function filters()
+	return "Show all,Hide Diagnostic,Slave:75,Slave:1 & Func:1"
+end
+
+--[[
+	function split is called every time a data byte is received
+	with the following parameters:
+	data : the data value (9 bit) (unused)
+	intval : the time distance to the former data
+	alter : is true when the data source (direction) was changed
+	str : all received data bytes of the current telegram as a string
+	filter : contains the text selected or inputed in the filter control
+	returns the telegram state: UNCHANGED, STARTED, MODIFIED, COMPLETED
+--]]
+function split( data, intval, alter, str, filter )
+	if MODBUS_TYPE == 1 then	-- MODBUS RTU
+		if alter or intval > transmission.bytepause(3.5) then
+			return STARTED
+		end
+		if filter == "Hide Diagnostic" then
+			if #str == 2 and data == 8 then return REMOVED end
+		elseif filter:match( "Slave:%d+ & Func:%d+" ) then
+			-- extract slave address and function number
+			local slave,func = filter:match( "Slave:(%d+) & Func:(%d+)" )
+			if #str == 2 and str ~= string.char(slave)..string.char(func) then 
+				return REMOVED
+			end
+		elseif filter:match( "Slave:%d+" ) then
+			local slave = filter:match( "Slave:(%d+)" )
+			if #str == 2 then
+				if str:byte(1) ~= tonumber(slave) then
+					return REMOVED
+				end
+			end
+		end
+		return MODIFIED
+	elseif MODBUS_TYPE == 0 then -- MODBUS ASCII
+		-- a Modbus ASCII sequence always starts with the colon ':' (decimal 58)
+		if data == 58 then return STARTED end
+		-- the sequence ends with CR LF (we only check the LF)
+		if data == 10 then return COMPLETED end
+		-- all other bytes extend the current telegram
+		return MODIFIED
+	end
+end
+
+--[[
+	Function out() is called every time a telegram is displayed or
+	redrawn in the telegram winodw.
+	If the telegram window shows the telegrams 10...20 the out()
+	function is called exactly 11 times.
+	telegrams.this() therefore returns a telegram object of
+	telegram number 10, then 11 and at least 20.
+	When you scroll the window, a new number of telegrams must be
+	shown and out() is called again with the new telegrams passed
+	via telegrams.this()
+--]]
+function out()
+	--individual color definions
+	yellow_green =  0x99CC32
+	purple = 0xB000FF
+	orchid = 0xDB70DB
+	orange_red = 0xFF007F
+	violet_red = 0xCC3299
+	black = 0x000000
+	datacolor = 0xFFFF94
+	grey = 0xbebebe
+	green = 0x00FF00
+	medium_olive_green = 0x556B2F
+	medium_forest_green = 0x6B8E23
+	red = 0xFF0000
+	white = 0xFFFFFF
+	medium_blue = 0x0000CD
+	slate_blue = 0x007FFF
+	steel_blue = 0x236B8E
+	turquoise = 0xADEAEA
+	cadet_blue = 0x5F9EA0
+	fg = 0xFF0000
+	bg = 0xFFEEDD
+
+	local tc = ""
+	local tp = ""
+	
+	-- the telegram relating to the current output line
+	local tcurr = telegrams.this()
+	-- the previous telegram (for response time calculation)
+	local tprev = telegrams.prev()
+
+	-- indicates a direction of the current telegram
+	local dir = telegrams.this():dir()
+
+	local dt = RESPONSE_TIME_DELAY
+
+	if tprev then
+		-- dt: the time between the last byte (stopbit) of the former 
+		-- telegram and the start bit of the current telegram
+		dt = tcurr:time() - (tprev:time() + tprev:duration() )
+	end
+
+	-- the received checksum of the current telegram
+	local chksum = 0
+
+	if MODBUS_TYPE == 1 then
+		tc = tcurr:string()
+		if #tc >= 2 then
+			chksum = tc:byte(-1) * 256 + tc:byte(-2)
+		end
+		-- cut the crc16 checksum bytes
+		tc = tc:sub(1,-3)
+		if tprev then
+			tp = tprev:string():sub(1,-3)
+		end
+	else
+		tc = base16.decode( tcurr:string():sub(2,-3) )
+		chksum = tc:byte(-1)
+		tc = tc:sub(1,-2)
+		if tprev then
+			tp = base16.decode( tprev:string():sub(2,-5) )
+		end
+	end
+
+	if #tc < 2 then 
+		TelegramError( "Invalid telegram size: "..#tc )
+		return
+	end
+
+	-- the telegram display depends on the function number
+	local fncNo = tc:byte( 2 )
+
+	local err = 0
+	
+	-- box.text{ caption="LEN",text=#tc }
+
+	if fncNo == 1 then err = ReadCoils( tc, tp, dt, dir )
+	elseif fncNo == 2 then err = ReadDiscreteInputs( tc, tp, dt, dir  )
+	elseif fncNo == 3 then err = ReadHoldingRegisters( tc , tp, dt, dir)
+	elseif fncNo == 4 then err = ReadInputRegisters( tc, tp, dt )
+	elseif fncNo == 5 then err = WriteSingleCoil( tc, tp, dt, dir )
+	elseif fncNo == 6 then err = WriteSingleRegister( tc, tp, dt, dir )
+	elseif fncNo == 7 then err = ReadExceptionStatus( tc, tp, dt )
+	elseif fncNo == 8 then err = Diagnostics( tc, tp, dt , dir)
+	elseif fncNo == 11 then err = GetCommEventCounter( tc )
+	elseif fncNo == 12 then err = GetCommEventLog( tc )
+	elseif fncNo == 15 then err = WriteMultipleCoils( tc )
+	elseif fncNo == 16 then err = WriteMultipleRegisters( tc )
+	elseif fncNo == 18 then err = ReadFifoQueue( tc )
+	elseif fncNo == 17 then err = ReportSlaveID( tc )
+	elseif fncNo == 20 then err = ReadFileRecord( tc )
+	elseif fncNo == 21 then err = WriteFileRecord( tc )
+	elseif fncNo == 22 then err = MaskWriteRegister( tc,tp, dt, dir )
+	elseif fncNo == 23 then err = ReadWriteMultipleRegisters( tc, tp, dt, dir )
+	elseif fncNo == 24 then err = ReadFifoQueue( tc )
+	elseif fncNo == 43 then err = EncapsulatedInterfaceTransport( tc, tp, dt, dir )
+	elseif fncNo >= 128  then err = ErrorResponse( tc )
+	else
+		TelegramError( "Invalid function: "..fncNo )
+	end
+	-- validate and display the checksum
+	if MODBUS_TYPE == 1 then
+		ChecksumCRC16( tc, chksum )
+	else
+		ChecksumLRC( tc, chksum )
+	end
+end
+
+function DirBox( dir )
+	if dir == "Query" then
+		box.text{ caption="Transmission", text="Query =>", bg=0xAAD5FF, fg=0x444444 }
+	else
+		box.text{ caption="Transmission", text="Response <=", bg=0xFFCB6B, fg=0x444444 }
+	end
+end
+
+--[[
+	Checks if the current telegram tc is a response of the previous
+	telegram tp and returns true if so, false otherwise.
+	The response must be sent within the defined RESPONSE_DELAY_TIME.
+	When analyzing records made in the segment mode please set the global
+	variable MODBUS_MASTER_CHANNEL to the data channel assigned to the
+	master (bus/data source)
+--]]
+
+local lastResponse = 0
+
+function IsResponse( tc, tp, dt, dir )
+	if dir and record.buswiring() == 1 or record.buswiring() == 3 then
+		return dir ~=  MODBUS_MASTER_CHANNEL
+	end
+
+	if tc:byte(2) > 0x80 then
+		-- a error exception is always a response
+		return true
+	end
+
+	if #tp > 0 then
+		-- different address and/or function
+		if tc:byte(1) ~= tp:byte(1) or  tc:byte(2) ~= tp:byte(2) then
+			return false
+		end
+		if dt < RESPONSE_TIME_DELAY then
+			if lastResponse + 1 == telegrams.this():number() then
+				return false
+			else
+				lastResponse = telegrams.this():number()
+				return true
+			end
+			-- return true
+		end
+	end
+	return false
+end
+
+--[[
+	Function 0x01 Read Coils
+	** REQUEST (len always 8 bytes) **
+	Device Address			: 1 Byte
+	Function					: 1 Byte = 0x01
+	Starting Address 		: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of coils		: 2 Bytes (high,low) (1...0x07D0=2000)
+	** RESPONSE (len between 6...255) **
+	Device Address			: 1 Byte
+	Function					: 1 Byte = 0x01
+	Byte count N				: 1 byte
+	Coil status				: n Byte *1
+	*1 if N % 8 != 0 n = N + 1 else n = N
+--]]
+function ReadCoils( tc, tp, dt, dir )
+	if IsResponse( tc, tp, dt, dir ) then
+		DirBox( "Response" )
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=white , bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=white , bg=0xdd3333 }
+
+		if #tc >= 4 then
+			box.text{ caption="Function", text="Read Coils (1)",  fg = white, bg = violet_red }
+
+			box.text{ caption="Func Desc", text="Byte count="..tc:byte( 3 ),
+								fg = white, bg = violet_red }
+
+			box.text{ caption="Data", text=string.dump( tc:sub(4,-1) ), bg=datacolor }
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	else
+		DirBox( "Query" )
+		box.text{ caption="Source", text="Master", fg=white, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), 
+							fg=white, bg=0xff6666 }
+
+		if #tc >= 6 then
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local quantity = tc:byte(5) * 256 + tc:byte(6)
+
+			box.text{ caption="Function", text="Read Coils (1)", fg = bg, bg = orange_red }
+
+			box.text{ caption="Func Desc", 
+								text="Address="..address..", Quantity of Register="..quantity,
+								fg = bg, bg = orange_red }
+			-- no error
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x02 Read Discrete Inputs
+	** REQUEST **
+	Device Address			:	1 Byte
+	Function						: 1 Byte = 0x02
+	Starting Address 	: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of inputs	: 2 Bytes (high,low) (1...0x07D0=2000)
+	** RESPONSE **
+	Device Address			: 1 Byte
+	Function						: 1 Byte = 0x02
+	Byte count N				: 1 byte
+	Input status				: n Byte *1
+	*1 if N % 8 != 0 n = N + 1 else n = N
+--]]
+function ReadDiscreteInputs( tc, tp, dt, dir )
+	-- Check for a response by only analyze the telegram content!
+	function IsFnc2Response( tc, tp )
+		if #tp == 6 then
+			local needBytes = bit32.rshift( ( tp:byte(5) * 256 + tp:byte(6) ), 3 ) + 1
+			if #tc >= 3 then
+				if tc:byte(3) == needBytes then
+					return true
+				end
+			end
+		end
+		return false
+	end
+
+	if IsResponse( tc, tp, dt, dir ) or  IsFnc2Response( tc, tp ) then
+		DirBox( "Response" )
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=white , bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=white , bg=0xdd3333 }
+
+		box.text{ caption="Function", text="Read Discrete Inputs (2)", 
+							fg = white, bg = violet_red }
+
+		box.text{ caption="Func Desc", text="Byte count="..tc:byte( 3 ),
+							fg = white, bg = violet_red }
+
+		box.text{ caption="Data", text=tc:sub(4,-1):dump(), bg=datacolor }
+		return 0
+	else
+		DirBox( "Query" )
+		box.text{ caption="Source", text="Master", fg=white, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=white, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Read Discrete Inputs (2)", 
+							fg = bg, bg = orange_red }
+
+		if #tc >= 6 then
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local quantity = tc:byte(5) * 256 + tc:byte(6)
+
+			box.text{ caption="Func Desc", 
+								text="Address="..address..", Quantity of Register="..quantity,
+								fg = bg, bg = orange_red }
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x03 Read Holding Registers
+	** REQUEST **
+	Device Address				:	1 Byte
+	Function						: 1 Byte = 0x03
+	Starting Address	 		: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of register	: 2 Bytes (high,low) (1...0x7D=125)
+	** RESPONSE **
+	Device Address				: 1 Byte
+	Function						: 1 Byte = 0x03
+	Byte count N					: 1 byte
+	Register value				: N * 2 byte
+	** NOTE! **
+	The response is always a telegram with an odd length. This fact can
+	be used to distinguish between request and response when analysing
+	without segment mode!
+--]]
+function ReadHoldingRegisters( tc, tp, dt, dir )
+	if #tc % 2 == 1 and IsResponse( tc, tp, dt, dir ) then
+		DirBox("Response")
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=white , bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=white , bg=0xdd3333 }
+
+		box.text{ caption="Function", text="Read Holding Register (3)", 
+							fg = white, bg = orchid }
+
+		if #tc < 5  then
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		else
+
+			box.text{ caption="Func Desc", text="Byte count="..tc:byte( 3 ), fg = white, bg = orchid }
+
+			box.text{ caption="Data", text=string.dump( tc:sub(4,-1)),
+								 bg=datacolor }
+			return 0
+		end
+	else
+		DirBox( "Query")
+		box.text{ caption="Source", text="Master", fg=white, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=white, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Read Holding Register (3)",  fg = bg, bg = purple }
+
+		if #tc >= 6 then
+
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local quantity = tc:byte(5) * 256 + tc:byte(6)
+
+			box.text{ caption="Func Desc", 
+								text="Address="..address..", Quantity of Register="..quantity,
+								fg = bg, bg = purple }
+			
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x04 Read Input Registers
+	** REQUEST **
+	Device Address				:	1 Byte
+	Function							: 1 Byte = 0x04
+	Starting Address 		: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of register	: 2 Bytes (high,low) (1...0x7D=125)
+	** RESPONSE **
+	Device Address				: 1 Byte
+	Function							: 1 Byte = 0x03
+	Byte count N					: 1 byte
+	Register value				: N * 2 byte
+--]] 
+function ReadInputRegisters( tc, tp, dt)
+	-- distinguish between a request and answer, the request telegram has 
+	-- always an even length
+	if #tc % 2 == 0 then
+		DirBox( "Query" )
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+		if #tc >= 5 then
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local quantity = tc:byte(5) * 256 + tc:byte(6)
+			box.text{ caption="Function", text="Read Input Register (4)", fg = bg, bg = fg }
+			box.text{ caption="Func Desc", 
+								text="Address="..address..", Quantity of Register="..quantity,
+								fg = bg, bg = fg }
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+		return 0
+	else
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Function", text="Read Input Register (4)", 
+							fg = 0xffffff, bg = 0xdd2222 }
+
+		box.text{ caption="Func Desc", text="Byte count="..tc:byte( 3 ),
+							fg = 0xffffff, bg = 0xdd2222 }
+
+		box.text{ caption="Data", text=string.dump( tc:sub(4,-1)),
+							bg=datacolor }
+		return 0
+	end
+end
+
+--[[
+	Function 0x05 Write Single Coil
+	** REQUEST (size always 8) **
+	Device Address	:	1 Byte
+	Function				: 1 Byte = 0x05
+	Output Address : 2 Bytes (high,low) (0...0xFFFF=65535)
+	Output Value		: 2 Bytes (high, low) (0 or 0xFF00=65280)
+	** RESPONSE (size always 8) **
+	Device Address	: 1 Byte
+	Function				: 1 Byte = 0x05
+	Output Address	: 2 bytes (high,low) (0...0xFFFF=65535)
+	Output Value		: 2 bytes (high,low) (0 or 0xFF00=65280)
+--]]
+function WriteSingleCoil( tc, tp, dt, dir )
+	if tp == tc and IsResponse( tc, tp, dt, dir ) then
+		DirBox( "Response" )
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), 
+			fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Function", text="Write Single Coil (5)", 
+			fg = bg, bg = 0x8080ff }
+
+		local address = tc:byte(3) * 256 + tc:byte(4)
+		local output = tc:byte(5) * 256 + tc:byte(6)
+
+		box.text{ caption="Func Desc", text="Address="..address.."Output="..output,
+							fg = bg, bg = 0x8080ff }
+		return 0
+	else
+		DirBox( "Query" )
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=medium_blue }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), 
+			fg=0xffffff, bg=medium_blue }
+
+		box.text{ caption="Function", text="Write Single Coil (5)", 
+			fg = bg, bg = medium_blue }
+
+		if #tc >= 6 then
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local output = tc:byte(5) * 256 + tc:byte(6)
+			box.text{ caption="Func Desc", text="Adress="..address..", Output="..output,
+								fg = bg, bg = medium_blue }
+			return 0
+		else 
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x06 WriteSingleRegister
+	** REQUEST **
+	Device Address		:	1 Byte
+	Function					: 1 Byte = 0x06
+	Register Address : 2 Bytes (high,low) (0...0xFFFF=65535)
+	Register Value		: 2 Bytes (high, low) (0...0xFFFF=65535)
+	** RESPONSE **
+	Device Address		: 1 Byte
+	Function					: 1 Byte = 0x06
+	Register Address	: 2 bytes (high,low) (0...0xFFFF=65535)
+	Register Value		: 2 bytes (high,low) (0 or 0xFFFF=65535)
+--]]
+function WriteSingleRegister( tc, tp, dt, dir )
+	if IsResponse( tc, tp, dt, dir ) then
+		DirBox( "Response" )
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Function", text="Write Single Register (6)", 
+							fg = bg, bg = 0x8080ff }
+
+		if #tc >= 6 then
+
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local value = tc:byte(5) * 256 + tc:byte(6)
+
+			box.text{ caption="Func Desc", 
+				text="Address="..address..", Value="..value, 
+				fg = bg, bg = 0x8080ff }
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	else
+		DirBox( "Query" )
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=medium_blue }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=medium_blue }
+
+		box.text{ caption="Function", text="Write Single Register (6)", 
+			fg = bg, bg = medium_blue }
+	
+		if #tc >= 6 then
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local value = tc:byte(5) * 256 + tc:byte(6)
+
+			box.text{ caption="Func Desc", 
+				text="Address="..address..", Value="..value, 
+				fg = bg, bg = medium_blue }
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+ Function 0x07 Read Exception Status (Serial Line only)
+	** REQUEST **
+	Device Address		:	1 Byte
+	Function					: 1 Byte = 0x07
+	** RESPONSE **
+	Device Address		: 1 Byte
+	Function					: 1 Byte = 0x07
+	Output data			: 1 byte (0...0xFF=255)
+--]]
+function ReadExceptionStatus( tc )
+	-- the request (without checksum) has always 2 bytes
+	if #tc == 2 then
+
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Read Exception Status (7)", fg=bg, bg=fg }
+
+		return 0
+	else
+
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Function", text="Read Exception Status (7)", fg=bg, bg=fg }
+
+		box.text{ caption="Output Data", text=string.format( "%02X", tc:byte(3)),
+							fg=fg, bg=datacolor }
+		return 0
+	end
+end
+
+--[[
+	Function 0x08 Diagnostics (Serial Line only)
+	** REQUEST **
+	Device Address		:	1 Byte
+	Function					: 1 Byte = 0x08
+	Subfunction			: 2 Bytes
+	Data							: N * 2 Bytes
+	** RESPONSE **
+	Device Address		: 1 Byte
+	Function					: 1 Byte = 0x08
+	Subfunction			: 2 Bytes
+	Data							: N * 2 Bytes
+--]]
+function Diagnostics( tc, tp, dt, dir )
+	if IsResponse( tc, tp, dt, dir) then
+
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Function", text="Diagnostics (8)", fg = bg, bg = 0x8080ff }
+
+		if #tc > 4 then
+			-- the high byte (byte 3) of the sub-function is always 0
+			box.text{ caption="Func Desc", text="SubFnc="..tc:byte(4), fg = bg, bg = 0x8080ff }
+
+			box.text{ caption="Request", text=string.dump( tc:sub( 5, -1 ) ), fg = bg, bg = 0x8080ff }
+			
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	else
+
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Diagnostics (8)", fg = bg, bg = fg }
+
+		if #tc > 4 then
+			-- the high byte (byte 3) of the sub-function is always 0
+			box.text{ caption="Func Desc", text="SubFnc="..tc:byte(4), fg = bg, bg = fg }
+
+			box.text{ caption="Request", text=string.dump( tc:sub( 5, -1 ) ), fg = bg, bg = 0x8080ff }
+				
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x0B Get Comm Event Counter (Serial Line only)
+	** REQUEST **
+	Device Address		:	1 Byte
+	Function					: 1 Byte = 0x0B
+	** RESPONSE **
+	Device Address		: 1 Byte
+	Function					: 1 Byte = 0x0B
+	Status						: 2 Bytes (high,low)
+	Event count			: 2 Bytes (high,low)
+--]]
+function GetCommEventCounter( tc )
+
+	-- a request is always 2 bytes long (without checksum)
+	if #tc == 2 then
+
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Get Comm Event Counter (11)", fg=bg, bg=fg }
+
+		return 0
+
+	else
+
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Function", text="Get Comm Event Counter (11)", fg=bg, bg=fg }
+
+		if #tc == 6 then
+			box.text{ caption="Status", text=string.format("%02X%02X", tc:byte(3), tc:byte(4)),
+								fg=fg, bg=bg }
+
+			box.text{ caption="Event count", text=tc:byte(5)*256 + tc:byte(6), fg=fg, bg=bg }
+	
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x0C Get Comm Event Log (Serial Line only)
+	** REQUEST **
+	Device Address	:	1 Byte
+	Function				: 1 Byte = 0x0C
+	** RESPONSE **
+	Device Address	: 1 Byte
+	Function code	: 1 Byte = 0x0C
+	Byte count N		: 1 byte
+	Status					: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Event count		: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Message count	: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Events 					: (N-6) Bytes
+	N = Quantity of events + 3 * 2 Bytes (status, event count, message count)
+--]]
+function GetCommEventLog( tc )
+	if  #tc == 2 then
+		-- request
+		DirBox( "Query" )
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+		box.text{ caption="Function", text="Get Comm Event Counter (11)", fg=bg, bg=fg }
+		return 0
+	else
+		DirBox( "Response" )
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0x8080ff }
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0x8080ff }
+		box.text{ caption="Function", text="Get Comm Event Counter (11)", fg=bg, bg=fg }
+		if #tc > 9 then
+			box.text{ caption="Byte count", text=tc:byte(3) }
+			box.text{ caption="Status", text=tc:byte(4)*256 + tc:byte(5)}
+			box.text{ caption="Event count", text=tc:byte(6)*256 + tc:byte(7) }
+			box.text{ caption="Message count", text=tc:byte(8)*256+tc:byte(9) }
+			box.text{ caption="Events", text=string.dump( tc:sub(10,-1), 16, 2) }
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x0F Write Multiple Coils
+	** REQUEST **
+	Device Address				:	1 Byte
+	Function							: 1 Byte = 0x0F
+	Starting address			: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of outputs	: 2 Bytes (high,low) (0...0x07B0=1968)
+	Byte count N					: 1 Byte
+	Output values *1			: n * 1 Bytes
+	*1 if N % 8 != 0 n = N + 1 else n = N
+
+	** RESPONSE **
+	Device Address	: 1 Byte
+	Function				: 1 Byte = 0x0F
+	Starting address			: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of outputs	: 2 Bytes (high,low) (0...0x07B0=1968)
+--]]
+function WriteMultipleCoils( tc )
+	-- a response is always 6 byte long (without checksum)
+	if #tc == 6 then
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=medium_blue }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=medium_blue }
+
+		box.text{ caption="Function",text="Write Multiple Coils (15)", 
+							fg = bg, bg = medium_blue }
+
+		local address = tc:byte(3) * 256 + tc:byte(4)
+		local quantity = tc:byte(5) * 256 + tc:byte(6)
+
+		box.text{ caption="Func Desc", 
+							text="Adress="..address..", Quantity="..quantity, fg = bg, bg = medium_blue }
+		return 0
+	else
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0x8080ff }
+		
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0x8080ff }
+
+		box.text{ caption="Function", text="Write Multiple Coils (15)", 
+							fg = bg, bg = 0x8080ff }
+
+		if #tc > 7 then
+			local address = tc:byte(3) * 256 + tc:byte(4)
+			local quantity = tc:byte(5) * 256 + tc:byte(6)
+
+			box.text{ caption="Func Desc", 
+								text="Address="..address..", Quantity="..quantity..", Byte count="..tc:byte(7),
+								fg = bg, bg = 0x8080ff }
+
+			box.text{ caption="Output values", text=string.dump( tc:sub(8, -1) ), bg=datacolor }
+
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+ Function 0x10 Write Multiple Registers
+	** REQUEST **
+	Device Address					:	1 Byte
+	Function								: 1 Byte = 0x10
+	Starting address				: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of registers	: 2 Bytes (high,low) (0...0x07B0=1968)
+	Byte count N						: 1 Byte
+	Register value					: N * 2 Bytes
+	** RESPONSE **
+	Device Address					: 1 Byte
+	Function								: 1 Byte = 0x10
+	Starting address				: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity of registers	: 2 Bytes (high,low) (0...0x07B0=1968)
+--]]
+function WriteMultipleRegisters( tc )
+	-- a response has always 6 byte, all other is a request
+	if #tc == 6 then
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), 
+			fg=0xffffff, bg=0xff6666 }
+		
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Write Multiple Register (16)", 
+							fg = bg, bg = slate_blue}
+
+		local address = tc:byte(3)*256 + tc:byte(4)
+		local quantity = tc:byte(5)*256 + tc:byte(6)
+
+		box.text{ caption="Func Desc", 
+			text="Address="..address..", Quantity="..quantity,
+			fg = bg, bg = slate_blue}
+
+		return 0
+	else
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Function", text="Write Multiple Register (16)", 
+							fg = 0xffffff, bg = steel_blue}
+
+		if #tc >= 7 then
+			local address = tc:byte(3)*256 + tc:byte(4)
+			local quantity = tc:byte(5)*256 + tc:byte(6)
+
+			box.text{ caption="Func Desc", text="Address="..address..", Quantity="..quantity, 
+								fg = 0xffffff, bg = steel_blue}
+			
+			box.text{ caption="Byte count", text=tc:byte(7), fg=0xFFFFFF, bg=steel_blue }
+
+			box.text{ caption="Register values", text=tc:sub(8, -1 ):dump(),
+								bg=datacolor }
+
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x11 Report Slave ID (Serial Line only)
+	** REQUEST **
+	Device Address				: 1 Byte
+	Function					: 1 Byte = 0x11
+	** RESPONSE **
+	Device Address				: 1 Byte
+	Function					: 1 Byte = 0x11
+	Byte count					: 1 Byte
+	Slave ID					: device specific
+	Run indicator status    	: 1 Byte (0x00 = off, 0xFF = on)
+	Additional data			    : ?
+--]]
+function ReportSlaveID( tc )
+	-- the request has always 2 byte (address, function)
+	if #tc == 2 then
+		DirBox( "Query" )
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Report Slave ID (17)", fg = 0x000000, bg = turquoise}
+
+		return 0
+	else
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Function", text="Report Slave ID (17)", fg = black, bg = cadet_blue}
+
+		box.text{ caption="Byte count", text=tc:byte( 3 ),fg = black, bg = cadet_blue}
+
+		box.text{ caption="Slave ID", text=tc:sub(4,-2), fg = black, bg = cadet_blue}
+	
+		return 0
+	end
+end
+
+--[[
+	Function 0x14 Read File Record (not yet supported)
+	** REQUEST **
+	Device Address									:	1 Byte
+	Function												: 1 Byte = 0x14
+	Byte count											: 1 Byte (0x07...0xF5=245)
+	Sub-Req. x Reference Type			: 1 Byte (0x06)
+	Sub-Req. x, File number				: 2 Bytes (1...0xFFFF=65535)
+	Sub-Req. x, Record number			: 2 Bytes (0...0x270F=9999)
+	Sub-Req. x, Record length			: 2 Bytes N
+	Sub-Req. x+1,...
+	** RESPONSE **
+	Device Address									: 1 Byte
+	Function												: 1 Byte = 0x14
+	Response data length						: 1 Byte (0x07...0xF5=245)
+	Sub-Req. x, File Resp. length	: 1 Byte (0x07...0xF5=245)
+	Sub-Req. x, Reference Type		: 1 Byte (0x06)
+	Sub.Req. x, Record Data				: N * 2 Bytes
+	Sub.Req. x+1,...
+--]]
+function ReadFileRecord( tc )
+	TelegramError( "Not supported function: ",tc:byte(2) )
+
+
+end
+
+--[[
+	Function 0x15 Write File Record (not yet supported)
+	** REQUEST **
+	Device Address						: 1 Byte
+	Function							: 1 Byte = 0x15
+	Request data length					: 1 Byte (0x09...0xFB=251)
+	Sub-Req. x Reference Type			: 1 Byte (0x06)
+	Sub-Req. x, File number				: 2 Bytes (1...0xFFFF=65535)
+	Sub-Req. x, Record number			: 2 Bytes (0...0x270F=9999)
+	Sub-Req. x, Record length			: 2 Bytes N
+	Sub-Req. x, Record data				: N * 2 Bytes
+	Sub-Req. x+1,...
+	** RESPONSE **
+	Device Address									: 1 Byte
+	Function												: 1 Byte = 0x15
+	Response data length						: 1 Byte (0x07...0xFB=251)
+	Sub-Req. x, Reference Type		: 1 Byte (0x06)
+	Sub-Req. x, File Number				: 2 Bytes (1...0xFFFF=65535)
+	Sub-Req. x, Record number			: 2 Bytes (0...0x270F=9999)
+	Sub-Req. x, Record length			: 2 Bytes N
+	Sub-Req. x, Record data				: N * 2 Bytes
+	Sub-Req. x+1,...
+--]]
+
+local localdir = 1
+function WriteFileRecord( tc )
+	
+   --[[ 
+   TelegramError( "Not supported function: ",tc:byte(2) )
+   --]]
+
+
+        if localdir == 1 then
+   		  DirBox( "Query" )
+          localdir = 0
+        else
+   		  DirBox( "resp" )
+          localdir = 1
+        end
+
+		box.text{ caption="Dst",  text="Sla "..tc:byte( 1 ), fg=white,  bg=0xff6666 }
+		box.text{ caption="Fnc",  text="Fun "..tc:byte( 2 ),  fg=yellow_green, bg=0xff6666 }
+         box.text{ caption="Req",  text="Len "..tc:byte( 3 ),  fg=white, bg=0xff6666 }
+        box.text{ caption="Ref",  text="typ "..tc:byte( 4 ),  fg=yellow_green, bg=0xff6666 }
+
+
+		local filenum = tc:byte(5) * 256 + tc:byte(6)
+		box.text{ caption="Fle",  text="Num "..filenum,  fg=white, bg=0xff6666 }
+
+		local recnum = tc:byte(7) * 256 + tc:byte(8)
+		box.text{ caption="Rec",  text="Num "..recnum,  fg=violet_red, bg=0xff6666 }
+
+		local reclen = tc:byte(9) * 256 + tc:byte(10)
+		box.text{ caption="Rec",  text="Len "..reclen,  fg=white, bg=0xff6666 }
+
+
+		box.text{ caption="Data", text=string.dump( tc:sub(11,-1) ), bg=datacolor }		  
+
+
+
+
+
+end
+
+
+
+
+--[[
+ Function 0x16 Mask Write Register
+	** REQUEST **
+	Device Address				:	1 Byte
+	Function							: 1 Byte = 0x16
+	Reference Address		: 2 Bytes (high,low)
+	And_Mask							: 2 Bytes (high,low)
+	Or_Mask								: 2 Bytes (high,low)
+	** RESPONSE **
+	Device Address				: 1 Byte
+	Function							: 1 Byte = 0x16
+	Reference Address		: 2 Bytes (high,low)
+	And_Mask							: 2 Bytes (high,low)
+	Or_Mask								: 2 Bytes (high,low)
+--]]
+function MaskWriteRegister( tc, tp, dt, dir )
+	if IsResponse( tc, tp, dt, dir ) then
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0xdd3333 }
+
+	else
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+	end
+
+	-- the message content is equal for request and response
+	box.text{ caption="Function", text="Mask Write Register (22)", fg = 0xffffff, bg = steel_blue }
+
+	if #tc >= 8 then
+
+		local address = tc:byte(3) * 256 + tc:byte(4)
+		local and_mask = tc:byte(5) * 256 + tc:byte(6)
+		local or_mask = tc:byte(7) * 256 + tc:byte(8)
+		
+		box.text{ caption="Func Desc", text="Address="..address, fg=white, bg=steel_blue }
+
+		box.text{ caption="AND Mask", text=string.format( "%04X", and_mask ), 
+							fg=white, bg=0x1E90FF }
+
+		box.text{ caption="OR Mask", text=string.format( "%04X", or_mask ), fg=white, bg=0x6E90FF }
+		
+		return 0
+	else
+		TelegramError( "Invalid telegram size: "..#tc )
+		return 1
+	end
+end
+
+--[[
+	Function 0x17 Read/Write Multiple Registers
+	** REQUEST **
+	Device Address				:	1 Byte
+	Function							: 1 Byte = 0x17
+	Read start address		: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity to read			: 2 Bytes (high,low) (1...0x7D=125) 
+	Write start address	: 2 Bytes (high,low) (0...0xFFFF=65535)
+	Quantity to write		: 2 Bytes (high,low) (1...0x79=121
+	Write byte count			: 1 Byte 2 * N
+	Write register value	: N * 2 Bytes
+	N = Quantity to write
+	** RESPONSE **
+	Device Address				: 1 Byte
+	Function							: 1 Byte = 0x17
+	Byte count						: 1 Byte 2 * N
+	Read register value	:	N * 2 Bytes
+	N = Quantity to read
+--]]
+function ReadWriteMultipleRegisters( tc, tp, dt, dir )
+
+	if IsResponse( tc, tp, dt, dir ) then
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Function", text="Read/Write Multiple Register (23)", 
+							fg = 0xffffff, bg = steel_blue}
+
+		box.text{ caption="Func Desc", text="Byte count="..tc:byte( 3 ), 
+							fg = 0xffffff, bg = steel_blue}
+
+		box.text{ caption="Data", text=string.dump( tc:sub( tc:byte(4), -1 ) ),
+							fg=0xffffff, bg=0xFF8000 }
+
+		return 0
+	else
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Function", text="Read/Write Multiple Register (23)", 
+			fg = bg, bg = slate_blue}
+
+		if #tc > 10 then
+
+			local readAddr = tc:byte(3) * 256 + tc:byte(4)
+			local readQuantity = tc:byte(5) * 256 + tc:byte(6)
+			local writeAddr = tc:byte(7) * 256 + tc:byte(8)
+			local writeQuantity = tc:byte(9) * 256 + tc:byte(10)
+
+			box.text{ caption="Func Desc", 
+								text="Read Addr="..readAddr..", Read quantity="..readQuantity..
+								", Write Addr="..writeAddr..", Write quantity="..writeQuantity..
+								", Write byte count="..tc:byte(11),
+								fg = bg, bg = slate_blue}
+
+			box.text{ caption="Data", text=string.dump(tc:sub( tc:byte(11),-1 ) ),
+								fg=0xffffff, bg=0xFF8000 }
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+	Function 0x18 Read FIFO Queue (not yet supported)
+	** REQUEST **
+	Device Address				:	1 Byte
+	Function							: 1 Byte = 0x18
+	FIFO Pointer Address	: 2 Bytes (high,low) (0...0xFFFF=65535)
+	** RESPONSE **
+	Device Address				: 1 Byte
+	Function							: 1 Byte = 0x18
+	Byte count						: 2 Bytes
+	FIFO Count N					: 2 Bytes ( 0...31)
+	FIFO Value Register	:	N * 2 Bytes
+	N = FIFO count
+--]]
+function ReadFifoQueue( tc )
+	if #tc == 4 then
+		DirBox( "Query" )
+
+		box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+		box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+		local address =  tc:byte(3) * 256 + tc:byte(4)
+
+		box.text{ caption="Func Desc", text="FIFO Pointer Address="..address,
+							fg = bg, bg = orange_red }
+		return 0
+	else
+		DirBox( "Response" )
+
+		box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xdd3333 }
+
+		box.text{ caption="Dest", text="Master", fg=0xffffff, bg=0xdd3333 }
+
+		if #tc >= 6 then
+
+			local byteCount = tc:byte(3) * 256 + tc:byte(4)
+			local fifoCount = tc:byte(5) * w56 + tc:byte(6)
+
+			box.text{ caption="Func Desc", text="Byte count="..byteCount..
+								", FIFO count="..fifoCount,
+									fg = white, bg = violet_red }
+
+			box.text{ caption="Data", text=string.dump( tc:sub(7,-1) ), bg=datacolor }
+			return 0
+		else
+			TelegramError( "Invalid telegram size: "..#tc )
+			return 1
+		end
+	end
+end
+
+--[[
+ Function 0x2B Encapsulated Interface Transport
+	** REQUEST **
+	Device Address					:	1 Byte
+	Function								: 1 Byte = 0x2B
+	MEI Type*								: 1 Byte (only type 0x0E=14 is supported)
+	Read device ID code		: 1 Byte (1...4)
+	Object ID								: 1 Byte
+	** RESPONSE **
+	Device Address					: 1 Byte
+	Function								: 1 Byte = 0x2B
+	MEI Type								: 1 Byte (echo of requested type)
+	Read device ID code		: 1 Byte (1...4)
+	Conformity level				: 1 Byte (1,2,3, 0x81, 0x82, 0x83)
+	More follows						: 1 Byte (0 or 0xFF)
+	Next object ID					: 1 Byte (Object ID number)
+	Number of objects			: 1 Byte
+	List of ->
+		Object ID							: 1 Byte
+		Object length N			: 1 Byte
+		Object value					: N Bytes (depending on object ID)
+	*MEI = Modbus Encapsulated Interface
+--]]
+function EncapsulatedInterfaceTransport( tc, tp, dt, dir )
+
+   function GetReadDeviceIdCode( code )
+
+	 local result = {"Basic","Regular","Extended","Specific"}
+
+	 if code >= 1 and code <= 4 then return result[code].." device id" end
+
+	 return ""
+   end
+
+   function GetObjectId( id )
+
+	 local result = {"VendorName","ProductCode","MajorMinorRevision",
+				  "VendorUrl","ProductName","ModelName",
+				  "UserApplicationName"}
+
+	 if id >= 1 and id <= 7 then return result[id] end
+
+	 return ""
+
+   end
+
+	-- a request telegram is always 5 byte long
+   if #tc == 5 then
+	DirBox( "Query" )
+	 box.text{ caption="Source", text="Master", fg=0xffffff, bg=0xff6666 }
+
+	 box.text{ caption="Dest", text="Slave "..tc:byte( 1 ), fg=0xffffff, bg=0xff6666 }
+
+	 box.text{ caption="Function",
+					text="Read Device Identification ("..tc:byte( 2 )..")", 
+					fg = 0x000000, bg = turquoise}
+
+	 box.text{ caption="Func Desc", text="MIME="..tc:byte(3),fg = 0x000000, bg = turquoise}
+
+	 box.text{ caption="Read", text=GetReadDeviceIdCode( tc:byte( 4 ) + 1 ), bg=datacolor }
+
+	 box.text{ caption="Object ID", text=GetObjectId( tc:byte( 5 ) + 1), bg=datacolor }
+
+	return 0
+	else
+		DirBox( "Response" )
+	end
+end
+
+function ErrorResponse( tc )
+	DirBox( "Response" )
+	function GetError( errno )
+
+		local results = {"Illegal Function","Illegal Data Address",
+								"Illegal Data Value","Slave Device Failure",
+								"Acknowledge","Slave Device Busy","",
+								"Memory parity error","","Gateway Path Unavailable",
+								"Gateway Target Device Failed To Response" }
+
+		if errno >= 1 and errno <= 11 then return results[ errno ] end
+
+		return ""
+
+	end
+
+	box.text{ caption="Source", text="Slave "..tc:byte( 1 ), fg=white , bg=0xdd3333 }
+
+	box.text{ caption="Dest", text="Master", fg=white , bg=0xdd3333 }
+
+	box.text{ caption="Error", text=tc:byte( 2 ) % 128, fg=0x888888, bg=0xFFcc44}
+
+	box.text{ caption="Error Desc", text=GetError( tc:byte( 3 ) ), fg=0x888888, bg=0xFFcc44}
+
+	-- handling error frames with additional data payload (not specified by Modbus standard)
+	if #tc > 3 then
+
+		box.text{ caption="Data", text=string.dump( tc:sub(4,-1) ), fg=0xffffff, bg=0xFF8000 }
+			
+	end
+end
+
+function TelegramError( msg )
+	box.text{ caption="Telegram Error!", text=msg, bg=0xFFFF00, fg=0xC00000 }
+end
+
+-- Validate the Modbus RTU CRC16 checksum, chksum_must is the received checksum
+function ChecksumCRC16( tc, chksum_is )
+	local chksum_must = checksum.crc16_modbus( tc )
+	if chksum_must == chksum_is then
+		-- checksum is ok
+		box.text{ caption="Checksum", text=string.format( "OK:%X", chksum_must ), 
+							fg=0xFFFFFF, bg=0x00cc00 }
+	else
+		-- invalid checksum
+		box.text{ caption="Checksum", 
+							text=string.format( "FAILED! Is:%X, must %X", chksum_is, chksum_must ),
+							fg=0xFFFFFF, bg=0x800000 }
+	end
+end
+
+-- Validate the Modbus ASCII LRC checksum, chksum_must is the received checksum
+function ChecksumLRC( tc, chksum_is )
+	local chksum_must = checksum.lrc( tc )
+	if chksum_must == chksum_is then
+		-- checksum ok
+		box.text{ caption="Checksum", text=string.format( "OK:%02X", chksum_must ), 
+							fg=0xFFFFFF, bg=0x00cc00 }
+	else
+		-- invalid checksum
+		box.text{ caption="Checksum", 
+							text=string.format( "FAILED! Is:%02X, must %02X", chksum_is, chksum_must ),
+							fg=0xFFFFFF, bg=0x800000 }
+	end
+end
