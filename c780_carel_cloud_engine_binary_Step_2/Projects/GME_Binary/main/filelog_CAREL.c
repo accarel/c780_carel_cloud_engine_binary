@@ -185,7 +185,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_HEADER_NOTFOUND:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_HEAD_NOTFOUND, ASYNC_LOG);
+    	   //CBOR_SendAsyncResponse(ERROR_HEAD_NOTFOUND, ASYNC_LOG);  // to remove
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -193,7 +193,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_HEADER_VER:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_HEAD_VERSION, ASYNC_LOG);
+    	   //CBOR_SendAsyncResponse(ERROR_HEAD_VERSION, ASYNC_LOG); // to remove
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -201,7 +201,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_MODBUS:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_MODBUS, ASYNC_LOG);
+    	   //CBOR_SendAsyncResponse(ERROR_MODBUS, ASYNC_LOG); // to remove
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -209,7 +209,7 @@ void Dev_LogFile_CAREL(void)
        case LOGFILE_ERR_LOCK:
        {
     	   P_COV_LN;
-    	   CBOR_SendAsyncResponse(ERROR_UNLOCK_FAIL, ASYNC_LOG);
+    	   //CBOR_SendAsyncResponse(ERROR_UNLOCK_FAIL, ASYNC_LOG); // to remove
     	   Dev_LogFile_SetSM(LOGFILE_IDLE);
     	   break;
        }
@@ -293,6 +293,9 @@ static logfile_sm_t FileLog_Full_SM(void)
 	    	}
 	    	else
 	    	{
+	    		actual_data.res = ERROR_UNLOCK_FAIL;
+	    		CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
 	    		Reset_Full_SM();
 	    		ret = LOGFILE_ERR_LOCK;
 	    	}
@@ -311,6 +314,8 @@ static logfile_sm_t FileLog_Full_SM(void)
 			  }while((err == C_FAIL) && (retry++ <= NUM_OF_RETRY_READ));
 
 			if(err == C_FAIL){
+	    		actual_data.res = ERROR_MODBUS;
+	    		CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
 
 				Reset_Full_SM();
 				ret = LOGFILE_ERR_MODBUS;
@@ -325,12 +330,18 @@ static logfile_sm_t FileLog_Full_SM(void)
 			calc_crc = CRC16(&(DevHeader.comp_header[0]), sizeof(DevHeader)-2);
 
 			if(DevHeader.data.Crc != calc_crc){
+	    		actual_data.res = ERROR_HEAD_NOTFOUND;
+	    		CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
 				Reset_Full_SM();
 				ret = LOGFILE_ERR_HEADER_NOTFOUND;
 				break;
 			}
 
 			if(DevHeader.data.Version != 0x0001){
+				actual_data.res = ERROR_HEAD_VERSION;
+				CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
 				Reset_Full_SM();
 				ret = LOGFILE_ERR_HEADER_VER;
 				break;
@@ -374,6 +385,9 @@ static logfile_sm_t FileLog_Full_SM(void)
 				if(err == C_FAIL){
 					P_COV_LN;
 
+					actual_data.res = ERROR_MODBUS;
+					CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
 					Reset_Full_SM();
 					ret = LOGFILE_ERR_MODBUS;
 					break;
@@ -411,6 +425,10 @@ static logfile_sm_t FileLog_Full_SM(void)
 
 			if(err == C_FAIL){
 				P_COV_LN;
+
+				actual_data.res = ERROR_MODBUS;
+				CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
 				Reset_Full_SM();
 				ret = LOGFILE_ERR_MODBUS;
 				break;
@@ -436,7 +454,7 @@ static logfile_sm_t FileLog_Full_SM(void)
 	    		actual_data.file_chunk_len = index_data.actual_chunk;    // 200 or less if is the last chunk to send!!!
 	    		actual_data.file_size = index_data.total_dim_file;
 
-
+	    		actual_data.res = SUCCESS_CMD;
 	    		msg_id = CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
 
 				#ifdef __DEBUG_CBOR_CAREL_LEV_1
@@ -556,6 +574,9 @@ static logfile_sm_t FileLog_Range_SM(void)
 	    	}
 	    	else
 	    	{
+	    		actual_data.res = ERROR_UNLOCK_FAIL;
+	    		CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
 	    		Reset_Full_SM();
 	    		ret = LOGFILE_ERR_LOCK;
 	    	}
@@ -624,6 +645,9 @@ static logfile_sm_t FileLog_Range_SM(void)
 			if(err == C_FAIL){
 				P_COV_LN;
 
+				actual_data.res = ERROR_MODBUS;
+				CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
+
 				Reset_Full_SM();
 				ret = LOGFILE_ERR_MODBUS;
 				break;
@@ -652,6 +676,7 @@ static logfile_sm_t FileLog_Range_SM(void)
 	    		actual_data.file_chunk_len = index_data.actual_chunk;
 	    		actual_data.file_size = index_data.total_dim_file;
 
+	    		actual_data.res = SUCCESS_CMD;
 	    		msg_id = CBOR_SendAsync_FileLog(actual_data, ASYNC_LOG);
 
 				#ifdef __DEBUG_CBOR_CAREL_LEV_1

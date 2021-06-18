@@ -19,6 +19,8 @@
 #include "esp_https_ota.h"
 #endif
 
+#include "gme_https_ota.h"
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
 static const char *TAG = "OTA_IS";
 const esp_partition_t *run_part = NULL;
@@ -131,12 +133,16 @@ C_RES https_ota(c_http_client_config_t* c_config)
 		.event_handler = _ota_http_event_handler,
 		.auth_type = HTTP_AUTH_TYPE_BASIC,
 		.timeout_ms = 30000,
+		.buffer_size = 2048,
 	};
 
 	PRINTF_DEBUG("url : %s\n",config.url);
 
 	//This function manage the ota operation, the checksum validation and the ota partition switch
-	ret = esp_https_ota(&config);
+	//ret = esp_https_ota(&config); // old task (standard library)
+
+    ret = gme_https_ota(&config);
+
 #endif
 	return ret;
 }

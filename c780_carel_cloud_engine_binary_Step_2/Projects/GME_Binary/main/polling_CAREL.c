@@ -953,7 +953,7 @@ static void update_current_previous_tables(RegType_t poll_type){
 		}
 		//IR
 		for(i=0;i<low_n.ir;i++){
-			printf("update_current_previous_tables index:%d\n", i);
+			PRINTF_DEBUG("update_current_previous_tables index:%d\n", i);
 
 			//IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
 			IRLowPollTab.tab[i].c_value.value = 0;
@@ -1683,11 +1683,14 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 	C_BYTE low_trigger = 0;
 	C_BYTE high_trigger = 0;
 	C_BYTE pva_trigger = 0;
+	C_BYTE relax_alarm_polling = 0;
+
 
 	#ifdef __DEBUG_POLLING_CAREL_LEV_1
 	C_UINT32 cronometro;
     #endif
 
+		mb_rw_call_execute();
 
 		if(RUNNING == PollEngine_Status.engine && Mobile_GetCommandMode() == 0)
 		{
@@ -1703,8 +1706,12 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 	//			PRINTF_DEBUG("ALR %X\n", timeout);
                 #endif
 
+				relax_alarm_polling = (get_relax() == true ? 10 : 0);
+#ifdef __DEBUG_POLLING_CAREL_LEV_1
+				PRINTF_DEBUG("relax time %d \r\n", relax_alarm_polling);
+#endif
 				if((Dev_LogFile_GetSM() == LOGFILE_INIT) || (Dev_LogFile_GetSM() == LOGFILE_IDLE))
-				   timestamp.current_alarm = RTC_Get_UTC_Current_Time();  // Polling allarm best effort
+				   timestamp.current_alarm = RTC_Get_UTC_Current_Time() + relax_alarm_polling;  // Polling allarm best effort
 				else
 					timestamp.current_alarm = RTC_Get_UTC_Current_Time() + REDUCE_SPEED_ALARM;  // reduce the polling of alarm during download log
 
@@ -1725,6 +1732,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 				SendOffline(poll_done);
 
 				check_alarms_change();
+
+				set_relax(false);
 			}
 
 			timeout = RTC_Get_UTC_Current_Time();
@@ -1734,6 +1743,8 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 			if(timeout > (timestamp.current_pva + Utilities__GetGWConfigData()->valuesPeriod)  &&  high_trigger == 1) { pva_trigger = 1; }
 
 			if((high_trigger && low_trigger)) {
+
+				mb_rw_call_execute();
 
 				timestamp.current_high = timeout;
 				timestamp.current_low = timeout;
@@ -1768,6 +1779,9 @@ void DoPolling_CAREL(req_set_gw_config_t * polling_times)
 
 			if (high_trigger) {
 				//LOW POLLING
+
+				mb_rw_call_execute();
+
 				timestamp.current_high = timeout;
 
                 #ifdef __DEBUG_POLLING_CAREL_LEV_1

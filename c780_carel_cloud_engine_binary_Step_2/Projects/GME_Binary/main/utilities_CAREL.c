@@ -116,7 +116,7 @@ void Utilities__ReadPNFromNVM(void){
 			strcpy(pn, GW_GSM_PARTNUMBER);
 	}
 	pn[PN_SIZE] = '\0';  //make sure pn string is properly terminated (for correct hello message composition)
-	printf("pn used: %s\n", pn);
+	PRINTF_DEBUG("pn used: %s\n", pn);
 }
 
 /**

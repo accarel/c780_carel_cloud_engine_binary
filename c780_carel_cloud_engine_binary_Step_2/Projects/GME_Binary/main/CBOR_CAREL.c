@@ -1743,17 +1743,15 @@ CborError CBOR_ReqAbort(C_CHAR* cbor_stream, C_UINT16 cbor_len, c_cborreqabort* 
  * @param Pointer to the structure containing received request
  * @return void
  */
-static size_t CBOR_ResFileLogValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT32 f_size, C_UINT32 f_start, C_UINT32 f_length, C_BYTE* f_ans)
+static size_t CBOR_ResFileLogValues(C_CHAR* cbor_response, c_cborhreq* cbor_req, C_UINT32 f_size, C_UINT32 f_start, C_UINT32 f_length, C_BYTE* f_ans, C_INT32 payres)
 {
 	size_t len;
 	CborEncoder encoder, mapEncoder;
 	CborError err;
 
+	cbor_req->res = payres;
 	CBOR_ResHeader(cbor_response, cbor_req, &encoder, &mapEncoder);
 
-	//
-	// TODO...
-	//
 	// encode fsz - elem1
 	err = cbor_encode_text_stringz(&mapEncoder, "fsz");
 	err |= cbor_encode_int(&mapEncoder, (C_UINT32)f_size);
@@ -1769,9 +1767,14 @@ static size_t CBOR_ResFileLogValues(C_CHAR* cbor_response, c_cborhreq* cbor_req,
 	err |= cbor_encode_int(&mapEncoder, (C_UINT32)f_length);
 	DEBUG_ADD(err, "fle");
 
+	// encode res - elemX
+	//err = cbor_encode_text_stringz(&mapEncoder, "erc");
+	//err |= cbor_encode_int(&mapEncoder, (int)payres);
+	//DEBUG_ADD(err, "res");
+
 	// encode ans - elem4
 	err = cbor_encode_text_stringz(&mapEncoder, "ans");
-	err |=  cbor_encode_byte_string(&mapEncoder, f_ans, f_length);    // TODO...da testare!!!
+	err |=  cbor_encode_byte_string(&mapEncoder, f_ans, f_length);
 
 	err |= cbor_encoder_close_container(&encoder, &mapEncoder);
 
@@ -1802,12 +1805,24 @@ int CBOR_SendAsync_FileLog(filelog_info_t data, C_UINT16 numof)
     C_MQTT_TOPIC topic;
     C_INT32 res = C_FAIL;
 
+    if(data.res > 0)
+    {
+    	//error manage
+    	size_t len = CBOR_ResFileLogValues(cbor_response, &async_req[numof], data.file_size, data.file_start, data.file_chunk_len, data.value, data.res);
+
+    	sprintf(topic,"%s", "/upload");
+		res = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
+    }
+    else
+    {
+
     async_req[numof].res = SUCCESS_CMD;
 
-    size_t len = CBOR_ResFileLogValues(cbor_response, &async_req[numof], data.file_size, data.file_start, data.file_chunk_len, data.value);
+    size_t len = CBOR_ResFileLogValues(cbor_response, &async_req[numof], data.file_size, data.file_start, data.file_chunk_len, data.value, data.res);
 
 	sprintf(topic,"%s", "/upload");
 	res = mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_1, NO_RETAIN);
+    }
 
 	if(res == C_FAIL)
 	  return C_FAIL;
@@ -1987,38 +2002,28 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 		case READ_VALUES:
 		case WRITE_VALUES:
 		{
-			c_cborreqrdwrvalues cbor_rwv = {0};
-			cbor_req.res = ERROR_CMD;
-			// following check to be sure we are not asking something on non-configured serial
-			if (GetsmStatus() == GME_IDLE_INTERNET_CONNECTED) {
-				err = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rwv);
-				if (err == C_SUCCESS) {
-					// send modbus command to read/write values
-					// wait modbus response to get result
-					if (cbor_req.cmd == READ_VALUES)
-						cbor_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-					else
-						cbor_req.res = (parse_write_values(cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
-				}
+			if(mb_rw_get_idle())
+			{
+				set_msg_trigger(1);
+
+				c_cborreqrdwrvalues cbor_rwv = {0};
+				cbor_req.res = ERROR_CMD;
+				// following check to be sure we are not asking something on non-configured serial
+				if (GetsmStatus() == GME_IDLE_INTERNET_CONNECTED) {
+
+					err = CBOR_ReqRdWrValues(cbor_stream, cbor_len, &cbor_rwv);
+
+				    if (err == C_SUCCESS) {
+					   // send modbus command to read/write values
+					   // wait modbus response to get result
+
+					  // new function 2021 A.CHIEBAO (to avoid the corruption of the buffer during polling + request from Cloud)
+				      // here we receive the data and we execute the real command (read or write) with the
+				      // following function inside the polling => mb_rw_call_execute()
+					  mb_rw_set_data(cbor_rwv, cbor_req);    // c_cborhreq
+				   }
+			    }
 			}
-			if (cbor_req.res == SUCCESS_CMD)	{
-					#ifdef __DEBUG_CBOR_CAREL_LEV_2
-					PRINTF_DEBUG("OPERATION_SUCCEEDED, PollEngine__Read_COIL_Req x=%s\n", cbor_rwv.val);
-					#endif
-
-					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, cbor_rwv.val);
-			} else {
-					#ifdef __DEBUG_CBOR_CAREL_LEV_1
-					PRINTF_DEBUG("CBOR R/W VALUES OPERATION_FAILED\n");
-					#endif
-					len = CBOR_ResRdWrValues(cbor_response, &cbor_req, cbor_rwv.alias, "0");
-			}
-
-			// send response with result
-			sprintf(topic,"%s%s", "/res/", cbor_req.rto);
-			mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
-			//TODO CPPCHECK valore di ritorno non testato
-
 		}
 		break;
 
@@ -2165,7 +2170,7 @@ int CBOR_ReqTopicParser(C_CHAR* cbor_stream, C_UINT16 cbor_len){
 
 		case RANGE_DOWNLOAD:
 		{
-			// range download of the device log TODO
+			// range download of the device log
 
 			c_cborreqrangefile rangefile_info = {0};
 			cbor_req.res = ERROR_CMD;
@@ -2800,4 +2805,81 @@ C_UINT16 CBOR_GetDid (void)
 {
 	return did;
 }
+
+
+
+
+//******************************
+//******    CHIEBAO     ********
+//******************************
+
+
+static C_BYTE mb_is_idle = true;
+static c_cborreqrdwrvalues act_cbor;
+static c_cborhreq act_req;
+static C_BYTE msg_trigger = 0;
+static C_BOOL relax_pollalarm = 0;
+
+
+C_BYTE mb_rw_get_idle(void)     { return mb_is_idle;  }
+void   mb_rw_set_idle(C_BYTE x) { mb_is_idle = x;     }
+
+C_BYTE get_msg_trigger(void)       { return msg_trigger; }
+void   set_msg_trigger(C_BYTE x)   { msg_trigger = x;    }
+
+void mb_rw_set_data(c_cborreqrdwrvalues cbor_rwv, c_cborhreq req)
+{
+	act_cbor = cbor_rwv;
+	act_req = req;
+}
+
+void mb_rw_execute(c_cborreqrdwrvalues cbor_rwv, c_cborhreq c_req)
+{
+	C_CHAR cbor_response[RESPONSE_SIZE];
+	size_t len = 0;
+	int ret = 0;
+
+	C_MQTT_TOPIC topic;
+
+	if (c_req.cmd == READ_VALUES)
+		c_req.res = (parse_read_values(&cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+	else
+		c_req.res = (parse_write_values(cbor_rwv) == C_SUCCESS) ? SUCCESS_CMD : ERROR_CMD;
+
+
+	if (c_req.res == SUCCESS_CMD)	{
+		len = CBOR_ResRdWrValues(cbor_response, &c_req, cbor_rwv.alias, cbor_rwv.val);
+	} else {
+		len = CBOR_ResRdWrValues(cbor_response, &c_req, cbor_rwv.alias, "0");
+	}
+
+	// send response with result
+	sprintf(topic,"%s%s", "/res/", c_req.rto);
+	mqtt_client_publish((C_SCHAR*)MQTT_GetUuidTopic(topic), (C_SBYTE*)cbor_response, len, QOS_0, NO_RETAIN);
+
+}
+
+
+C_BOOL get_relax(void) 		{ return relax_pollalarm; }
+void   set_relax(C_BOOL r)  { relax_pollalarm = r;    }
+
+void mb_rw_call_execute(void)
+{
+	if(get_msg_trigger())
+	{
+		set_msg_trigger(0);
+		mb_rw_set_idle(false);
+
+		set_relax(true);
+
+		mb_rw_execute(act_cbor, act_req);
+
+		mb_rw_set_idle(true);
+	}
+}
+
+
+
+
+
 

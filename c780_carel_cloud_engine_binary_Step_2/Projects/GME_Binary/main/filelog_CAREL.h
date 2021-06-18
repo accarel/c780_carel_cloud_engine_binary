@@ -71,6 +71,7 @@ typedef struct indx_data{
 
 #pragma pack(1)
 typedef struct filelog_info{
+	C_INT32  res;					// res error
 	C_UINT16 file_reg;				// register to read
 	C_UINT32 file_size;				// total length
 	C_UINT32 file_start;			// file start offset

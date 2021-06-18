@@ -386,6 +386,22 @@ void ResetAbort(void);
 C_BOOL GetAbort(void);
 
 
+//************************************
+
+C_BYTE mb_rw_get_idle(void);
+void   mb_rw_set_idle(C_BYTE x);
+
+C_BYTE get_msg_trigger(void);
+void   set_msg_trigger(C_BYTE x);
+
+void mb_rw_set_data(c_cborreqrdwrvalues cbor_rwv, c_cborhreq req);
+void mb_rw_execute(c_cborreqrdwrvalues cbor_rwv, c_cborhreq c_req);
+
+void mb_rw_call_execute(void);
+
+C_BOOL get_relax(void);
+void   set_relax(C_BOOL r);
+
 
 #ifdef __cplusplus
 }

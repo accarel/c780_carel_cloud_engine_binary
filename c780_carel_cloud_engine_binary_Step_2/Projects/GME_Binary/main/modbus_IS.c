@@ -35,8 +35,8 @@
 
 #include "IO_Port_IS.h"
 
-#define  MODBUS_TIME_OUT     100
-
+#define  MODBUS_TIME_OUT    100
+#define  MFT_DELAY_TIMEOUT  3000
 
 /**
  * @brief xMBMasterPortSerialTxPoll
@@ -202,9 +202,21 @@ void Modbus_Task_Start(void)
  *
  * @return int result
  */
+
+static volatile C_BYTE is_busy_coil = 0;
+
 int app_coil_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
+
+	while(is_busy_coil)
+	{
+	  PRINTF_DEBUG("is busy modbus %d \r\n", is_busy_coil);
+	  Sys__Delay(1000);
+	}
+
+	is_busy_coil++;
+
 #ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
     eMBMasterReqErrCode errorCode = MB_MRE_NO_ERR;
@@ -213,6 +225,9 @@ int app_coil_read(const uint8_t addr, const int index, const int num)
     result = errorCode;
 #endif
     Modbus__Delay();
+
+    is_busy_coil--;
+
     return result;
 }
 
@@ -227,9 +242,20 @@ int app_coil_read(const uint8_t addr, const int index, const int num)
  *
  * @return int result
  */
+
+static volatile C_BYTE is_busy_di = 0;
+
 int app_coil_discrete_input_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
+
+	while(is_busy_di)
+	{
+	  PRINTF_DEBUG("is busy modbus %d \r\n", is_busy_di);
+	  Sys__Delay(1000);
+	}
+
+	is_busy_di++;
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
@@ -239,6 +265,9 @@ int app_coil_discrete_input_read(const uint8_t addr, const int index, const int 
     result = errorCode;
 #endif
     Modbus__Delay();
+
+    is_busy_di--;
+
     return result;
 }
 
@@ -253,9 +282,20 @@ int app_coil_discrete_input_read(const uint8_t addr, const int index, const int 
  *
  * @return int result
  */
+
+static volatile C_BYTE is_busy_hr = 0;
+
 int app_holding_register_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
+
+	while(is_busy_hr)
+	{
+	  PRINTF_DEBUG("is busy modbus %d \r\n", is_busy_hr);
+	  Sys__Delay(1000);
+	}
+
+	is_busy_hr++;
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
@@ -265,6 +305,9 @@ int app_holding_register_read(const uint8_t addr, const int index, const int num
     result = errorCode;
 #endif
     Modbus__Delay();
+
+    is_busy_hr--;
+
     return result;
 }
 
@@ -279,9 +322,20 @@ int app_holding_register_read(const uint8_t addr, const int index, const int num
  *
  * @return int result
  */
+
+static volatile C_BYTE is_busy_ir = 0;
+
 int app_input_register_read(const uint8_t addr, const int index, const int num)
 {
 	C_RES result = C_SUCCESS;
+
+	while(is_busy_ir)
+	{
+	  PRINTF_DEBUG("is busy modbus %d \r\n", is_busy_ir);
+	  Sys__Delay(1000);
+	}
+
+	is_busy_ir++;
 
 #ifdef INCLUDE_PLATFORM_DEPENDENT
     const long timeout = MODBUS_TIME_OUT;
@@ -291,6 +345,9 @@ int app_input_register_read(const uint8_t addr, const int index, const int num)
     result = errorCode;
 #endif
     Modbus__Delay();
+
+    is_busy_ir--;
+
     return result;
 }
 
@@ -382,7 +439,7 @@ C_RES app_report_slave_id_read(const uint8_t addr)
 
 /**
  * @brief app_file_transfer
- *        execute the rfile transfer function
+ *        execute the file transfer function
  *
  * @param  unsigned char* data_tx
  * @param  uint8_t packet_len
@@ -415,6 +472,11 @@ do{
       #ifdef __DEBUG_MODBUS_INTERFACE_LEV_1
       if (errorCode != MB_MRE_NO_ERR) printf("app_file_transfer #1 err %X \r\n", result);
       #endif
+
+
+      if(result == MB_MRE_TIMEDOUT){      // CHIEBAO 20210526
+    	 Sys__Delay(MFT_DELAY_TIMEOUT);
+      }
 
     }while((result != MB_MRE_NO_ERR) && (retrycount < MAX_RETRY)) ;
 
@@ -509,15 +571,16 @@ do{
 
 
 
-/*
+/**
+ * @brief app_file_read
+ *        execute the read file transfer function
  *
- *  TODO WORK IN PROGRESS step 2
+ * @param  unsigned char* data_tx
+ * @param  uint8_t packet_len
+ * @param  unsigned char* data_rx
  *
- *
- * */
-
-
-
+ * @return int result
+ */
 C_RES app_file_read(unsigned char* data_tx, uint8_t packet_len, unsigned char* data_rx)
 {
    //char data_rx[260];
