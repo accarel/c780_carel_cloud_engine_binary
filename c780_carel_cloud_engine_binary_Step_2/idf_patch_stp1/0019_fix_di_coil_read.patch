@@ -1,0 +1,76 @@
+--- esp_modbus_master.c.orig	2020-06-24 02:05:33.219384000 -0700
++++ esp_modbus_master.c	2021-06-23 01:48:17.885659174 -0700
+@@ -245,7 +245,8 @@
+     USHORT usDiscreteInputStart;
+     iNReg = usNDiscrete / 8 + 1;
+ 
+-    pucDiscreteInputBuf = (USHORT*)param_buffer;   //TO DO .. ;
++  
++    pucDiscreteInputBuf = (USHORT*)param_buffer;
+ 
+     DISCRETE_INPUT_START = 0;
+     DISCRETE_INPUT_NDISCRETES = 0xFFFF;
+@@ -270,8 +271,18 @@
+         /* xMBUtilSetBits has bug when ucNBits is zero */
+         if (usNDiscrete != 0)
+         {
+-            xMBUtilSetBits(&pucDiscreteInputBuf[iRegIndex++], iRegBitIndex,
+-                           usNDiscrete, *pucRegBuffer++);
++            //xMBUtilSetBits(&pucDiscreteInputBuf[iRegIndex++], iRegBitIndex,
++            //               usNDiscrete, *pucRegBuffer++);
++
++          //
++	  // NOTE 2021/06/23 A.CHIEBAO
++	  // in our case iNReg is always == 1, we read one COIL per time
++	  //   
++	  param_buffer[0] = 0;
++	  param_buffer[1] = 0;
++
++	  param_buffer[0] = (USHORT)xMBUtilGetBits(pucRegBuffer, 0, 1);
++
+         }
+     }
+     else
+@@ -312,9 +323,8 @@
+ 	COIL_START = 0;
+ 	COIL_NCOILS = 0xFFFF;
+ 
+-
+ 	/* if mode is read,the master will write the received date to buffer. */
+-	eMode = MB_REG_WRITE;
++	//eMode = MB_REG_WRITE;
+ 
+ 	/* it already plus one in modbus function method. */
+ 	usAddress--;
+@@ -329,18 +339,25 @@
+         {
+             /* read current coil values from the protocol stack. */
+         case MB_REG_READ:
++	//
++	// NOTE 2021/06/23 A.CHIEBAO
++	// in our case iNReg is always == 1, we read one COIL per time
++	//
+             while (iNReg > 0)
+             {
+-                *pucRegBuffer++ = xMBUtilGetBits(&pucCoilBuf[iRegIndex++],
+-                                                 iRegBitIndex, 8);
++            	param_buffer[0] = 0;
++            	param_buffer[1] = 0;
++
++            	param_buffer[0] = (USHORT)xMBUtilGetBits(pucRegBuffer, 0, 1);
++
+                 iNReg--;
+             }
+-            pucRegBuffer--;
++            //pucRegBuffer--;
+             /* last coils */
+-            usNCoils = usNCoils % 8;
++            //usNCoils = usNCoils % 8;
+             /* filling zero to high bit */
+-            *pucRegBuffer = *pucRegBuffer << (8 - usNCoils);
+-            *pucRegBuffer = *pucRegBuffer >> (8 - usNCoils);
++            //*pucRegBuffer = *pucRegBuffer << (8 - usNCoils);
++            //*pucRegBuffer = *pucRegBuffer >> (8 - usNCoils);
+             break;
+ 
+         /* write current coil values with new values from the protocol stack. */

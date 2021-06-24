@@ -3,8 +3,15 @@
 
 To enable the MODBUS Read file transfer is necessary to apply this patch to the esp-idf. 
 
-Copy the 5 patch to the folder PATCH inside the project.
+Copy the patch to the folder PATCH inside the project or use directly the complete patch inside the folder 
 
- 
+C:\hwfwdept_proj\c780_carel_cloud_engine_binary\c780_carel_cloud_engine_binary_Step_2\Projects\GME_Binary\patches
+
+
+
+NOTE:
+
+the following patch 0018_fix_ota_2G_pt2.patch are been done and than deleted due to the fatct that we have resolve the problem not in library 
+but directly in the C code.
 
 

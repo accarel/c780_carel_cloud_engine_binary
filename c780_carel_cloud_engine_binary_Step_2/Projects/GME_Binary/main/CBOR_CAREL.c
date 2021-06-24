@@ -2693,11 +2693,11 @@ C_RES parse_read_values(c_cborreqrdwrvalues* cbor_rv){
 		result = PollEngine__Read_COIL_DI_Req(cbor_rv->func ,cbor_rv->addr, &read_value);
 
 		C_UINT16 temp = 0;
-		C_BYTE bit = 0;
+		//C_BYTE bit = 0;
 
-		bit = coil_to_read.Addr % 16;
+		//bit = coil_to_read.Addr % 16;
 
-		temp = read_value & (C_UINT16)(1 << bit);
+		temp = (0x000F)&read_value; //& (C_UINT16)(1 << bit);
 		temp == 0 ? (temp = 0) : (temp = 1);
 		itoa(temp, (C_SCHAR*)cbor_rv->val, 10);
 	}

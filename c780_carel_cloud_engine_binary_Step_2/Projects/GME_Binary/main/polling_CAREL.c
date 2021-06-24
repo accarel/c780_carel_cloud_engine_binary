@@ -1008,9 +1008,9 @@ static void save_coil_di_value(coil_di_low_high_t *arr, void* instance_ptr){
 	uint16_t temp, read_val = 0;
 	uint8_t bit=0;
 
-	bit = arr->info.Addr % 16;
+	//bit = arr->info.Addr % 16;
 	read_val = *((uint16_t*)(instance_ptr));
-	temp = read_val & (uint16_t)(1 << bit);
+	temp = (0x000F)&read_val;                         //& (uint16_t)(1 << bit);
 
 	temp == 0 ? (temp = 0) : (temp = 1);
 	arr->c_value = temp;
@@ -1060,9 +1060,11 @@ static void save_alarm_coil_di_value(coil_di_alarm_tables_t *alarm,  void* insta
 	uint16_t temp, read_val = 0;
 	uint8_t  bit=0;
 
-	bit = alarm->info.Addr % 16;
+	//bit = alarm->info.Addr % 16;
+
 	read_val = *((uint16_t*)(instance_ptr));
-	temp = read_val & (uint16_t)(1 << bit);
+
+	temp = (0x000F)&read_val;    //& (uint16_t)(1 << bit);
 	temp == 0 ? (temp = 0) : (temp = 1);
 
 	if(temp != alarm->data.value){
