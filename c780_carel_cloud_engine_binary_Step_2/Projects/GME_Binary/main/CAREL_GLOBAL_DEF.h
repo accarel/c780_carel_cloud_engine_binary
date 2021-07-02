@@ -110,6 +110,7 @@
 #endif
 
 
+//#define	P_COV_LN_OFF(var)  printf("offline %s\r\n", var)
 
 
 /* ========================================================================== */
@@ -132,7 +133,7 @@
  *
  */
 #define GW_HW_REV  "100"
-#define GW_FW_REV  "101"
+#define GW_FW_REV  "102"
 
 #define GW_SPIFFS_REV  "101"
 

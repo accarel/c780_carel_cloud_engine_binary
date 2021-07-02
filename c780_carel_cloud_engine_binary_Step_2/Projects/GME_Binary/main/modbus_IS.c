@@ -735,5 +735,6 @@ C_UINT16 Modbus__GetAddress(void){
  * @return none
  */
 void Modbus__Delay(void){
-	Sys__Delay(MB_Delay);
+	if(MB_Delay > 0)
+	  Sys__Delay(MB_Delay);
 }

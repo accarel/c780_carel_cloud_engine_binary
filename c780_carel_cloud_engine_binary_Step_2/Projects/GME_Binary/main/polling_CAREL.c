@@ -46,6 +46,8 @@
 
 #define REDUCE_SPEED_ALARM 				(5)  // seconds
 
+#define FILTER_OFFLINE                  (1)
+
 static const char *TAG = "POLLING_CAREL";
 
 static poll_engine_flags_t PollEngine_Status = {
@@ -953,8 +955,6 @@ static void update_current_previous_tables(RegType_t poll_type){
 		}
 		//IR
 		for(i=0;i<low_n.ir;i++){
-			PRINTF_DEBUG("update_current_previous_tables index:%d\n", i);
-
 			//IRLowPollTab.tab[i].p_value.value = IRLowPollTab.tab[i].c_value.value;
 			IRLowPollTab.tab[i].c_value.value = 0;
 			IRLowPollTab.tab[i].p_error = IRLowPollTab.tab[i].error;
@@ -1281,6 +1281,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 	for (uint16_t i = 0; i < ncoil; i++)
 	{
 		errorReq = MB_MRE_NO_ERR;
+		retry = 0;
 		addr = (Coil->reg[i].info.Addr);
 
 		do {
@@ -1307,6 +1308,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
 			P_COV_LN;
+			//P_COV_LN_OFF("P_COIL");
 			return C_FAIL; //this is the start of offline
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1345,6 +1347,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
 			P_COV_LN;
+			//P_COV_LN_OFF("P_DI");
 			return C_FAIL;
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1386,6 +1389,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
 			P_COV_LN;
+			//P_COV_LN_OFF("P_HR");
 			return C_FAIL;
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1427,6 +1431,7 @@ static C_RES DoPolling (coil_di_poll_tables_t *Coil, coil_di_poll_tables_t *Di, 
 		if(is_offline == 2){
 			SetAllErrors(MB_MRE_TIMEDOUT);
 			P_COV_LN;
+			//P_COV_LN_OFF("P_IR");
 			return C_FAIL;
 		}
 		param_buffer[0] = param_buffer[1] = 0;
@@ -1461,7 +1466,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 	for (uint16_t i = 0; i < alarm_n.coil; i++)
 	{
 		errorReq = MB_MRE_NO_ERR;
-
+		retry = 0;
 		addr = (Coil[i].info.Addr);
 		do {
 			errorReq = app_coil_read(Modbus__GetAddress(), addr, 1);
@@ -1489,6 +1494,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		if(is_offline == 2)
 		{
 			P_COV_LN;
+			//P_COV_LN_OFF("A_COIL");
 			return C_FAIL; //this is an offline
 		}
 
@@ -1530,6 +1536,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		if(is_offline == 2)
 		{
 			P_COV_LN;
+		    //P_COV_LN_OFF("A_DI");
 			return C_FAIL; //this is an offline
 		}
 
@@ -1566,6 +1573,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		if(is_offline == 2)
 		{
 			P_COV_LN;
+			//P_COV_LN_OFF("A_HR");
 			return C_FAIL; //this is an offline
 		}
 
@@ -1602,6 +1610,7 @@ static C_RES DoAlarmPolling(coil_di_alarm_tables_t *Coil, coil_di_alarm_tables_t
 		if(is_offline == 2)
 		{
 			P_COV_LN;
+			//P_COV_LN_OFF("A_IR");
 			return C_FAIL; //this is an offline
 		}
 
@@ -1640,26 +1649,53 @@ uint8_t IsForced(PollType_t type)
 static uint32_t timeout = 0;
 static uint32_t start_offline = 0;
 static uint32_t end_offline = 0;
+static C_BYTE   real_offline = 0;
 
 void SendOffline(C_RES poll_done) {
+
+	uint32_t time_tmp;
+
 	if (poll_done == C_FAIL) {
-		Update_Led_Status(LED_STAT_RS485, LED_STAT_OFF);
 		if (start_offline == 0) {
 			start_offline = RTC_Get_UTC_Current_Time();
-			send_cbor_offalarm("", start_offline, 0);
-
+			//send_cbor_offalarm("", start_offline, 0);
+			real_offline = 0;
 			// avoid Modbus engine to stop
-			vMBMasterRunResRelease();
+			//vMBMasterRunResRelease();
 			P_COV_LN;
+		}
+		else if(real_offline == 0) // we enter here after a previously C_FAIL
+		{
+			time_tmp = RTC_Get_UTC_Current_Time();
+
+			// now we check if we are in a spurious offline or in a real offline
+			if((time_tmp - start_offline) > FILTER_OFFLINE)
+			{
+			  Update_Led_Status(LED_STAT_RS485, LED_STAT_OFF);
+
+			  send_cbor_offalarm("", start_offline, 0);
+
+			  real_offline = 1;
+
+			  // avoid Modbus engine to stop
+			  vMBMasterRunResRelease();
+			  P_COV_LN;
+			}
 		}
 	}else{
 		Update_Led_Status(LED_STAT_RS485, LED_STAT_ON);
-		if (start_offline != 0) {
+		if (start_offline != 0 && real_offline) {
 			end_offline = RTC_Get_UTC_Current_Time();
 			send_cbor_offalarm("", start_offline, end_offline);
 			start_offline = end_offline = 0;
 			ForceSending();
 			P_COV_LN;
+		}
+		else
+		{
+			//fake alarm
+			start_offline = end_offline = 0;
+			real_offline = 0;
 		}
 	}
 }
