@@ -6,7 +6,20 @@ Build process has been automatized. To build a release version, from GME_Binary 
 To build a debug version:
 ./build_gme.sh DEBUG
 
+Note that the configuration files are presetted and used by the build_gme.sh  script,
+if you need for some (very good) reason to chenge it take a look to the below instruction.
 
+=============================
+WARNING ! WARNING ! WARNING ! 
+=============================
+
+When you compile in RELEASE remember that the Flash encryption is active, this means that 
+if you havent' set the encryption key inside the ESP32 the device generate a random key 
+so that after that you are UNABLE to reprogram the device via serial port.
+
+
+
+=================================================
 
 To build te RELEASE version of the FW you need to 
 
