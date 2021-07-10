@@ -1411,6 +1411,9 @@ namespace MqttClientSimulatorBinary
 
         }
 
+
+
+
         private void Button_MB_Read_DI_Click(object sender, EventArgs e)
         {
             int value;
@@ -1642,7 +1645,7 @@ namespace MqttClientSimulatorBinary
 
         private void Button_test_set_gw_config_req_Click(object sender, EventArgs e)
         {
-            string textFilePath = @".\cbor_cloud\REQ_SET_GW_CONFIG.cbor";
+            string textFilePath = @".\cbor_cloud\REQ_SET_GW_CONFIG.cbor";             
             PublishTestFile(textFilePath);
         }
 
@@ -2241,7 +2244,7 @@ namespace MqttClientSimulatorBinary
                     //ok timout reached 
                     exitfromloop = false;
                 }
-
+                
                 Application.DoEvents();
             }
 
@@ -2945,6 +2948,101 @@ namespace MqttClientSimulatorBinary
 
 
 
+        }
+
+        private void button7_Click_2(object sender, EventArgs e)
+        {
+            int value;
+            var cbor = CBORObject.NewMap();
+
+            cbor.Add(@"ver", CBOR_PAYLOAD_VER);
+            cbor.Add(@"rto", textBox_Target.Text + @"/di_r_val");
+            value = 6;
+            cbor.Add(@"cmd", value);
+            cbor.Add(@"ali", textBox_Alias_DI.Text);
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_DI_R_Func.Text, out value))
+            {
+                cbor.Add(@"fun", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > fun \r\n");
+            }
+
+            value = 0;
+            if (Int32.TryParse(textBox_MB_Addr_DI.Text, out value))
+            {
+                cbor.Add(@"adr", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > adr \r\n");
+            }
+
+            value = 0;
+            if (Int32.TryParse(@"16", out value))
+            {
+                cbor.Add(@"dim", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > dim \r\n");
+            }
+
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"pos", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > pos \r\n");
+            }
+
+            value = 0;
+            if (Int32.TryParse(@"1", out value))
+            {
+                cbor.Add(@"len", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > len \r\n");
+            }
+
+            cbor.Add(@"a", @"1.0");
+            cbor.Add(@"b", @"1.0");
+
+            value = 0;
+            if (Int32.TryParse(@"0", out value))
+            {
+                cbor.Add("flg", value);
+            }
+            else
+            {
+                textBox_Message.AppendText("Error during conversion of > flg \r\n");
+            }
+
+            // The following converts the map to canonical CBOR
+            byte[] cbor_bytes = cbor.EncodeToBytes(CBOREncodeOptions.DefaultCtap2Canonical);
+
+            try
+            {
+                ushort msgId = client.Publish(val_req_post, cbor_bytes, qos_selected(), false);
+
+            }
+            catch (System.NullReferenceException)
+            {
+                MessageBoxUpdated("MQTT Not Initialized");
+            }
+        }
+
+        private void button_SetGWConfig_Click(object sender, EventArgs e)
+        {
+            FormSetGWConfig frm = new FormSetGWConfig();
+            frm.Show();
+            frm.VisibleChanged += formVisibleChanged;
         }
 
         private void button_Setup_uploadAbort_Click(object sender, EventArgs e)

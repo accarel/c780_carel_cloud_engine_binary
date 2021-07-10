@@ -49,6 +49,7 @@
             this.textBoxMQTT_Server_Port = new System.Windows.Forms.TextBox();
             this.buttonConnect = new System.Windows.Forms.Button();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.button_SetGWConfig = new System.Windows.Forms.Button();
             this.button_Setup_uploadAbort = new System.Windows.Forms.Button();
             this.button_upload_abort = new System.Windows.Forms.Button();
             this.button_decode_cmd17 = new System.Windows.Forms.Button();
@@ -141,6 +142,7 @@
             this.textBox_MB_COIL_Val = new System.Windows.Forms.TextBox();
             this.label22 = new System.Windows.Forms.Label();
             this.groupBox7 = new System.Windows.Forms.GroupBox();
+            this.button7 = new System.Windows.Forms.Button();
             this.groupBox10 = new System.Windows.Forms.GroupBox();
             this.textBox26 = new System.Windows.Forms.TextBox();
             this.button11 = new System.Windows.Forms.Button();
@@ -462,6 +464,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.button_SetGWConfig);
             this.groupBox1.Controls.Add(this.button_Setup_uploadAbort);
             this.groupBox1.Controls.Add(this.button_upload_abort);
             this.groupBox1.Controls.Add(this.button_decode_cmd17);
@@ -492,6 +495,17 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "MQTT Payloads";
             this.groupBox1.Enter += new System.EventHandler(this.groupBox1_Enter);
+            // 
+            // button_SetGWConfig
+            // 
+            this.button_SetGWConfig.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button_SetGWConfig.Location = new System.Drawing.Point(141, 231);
+            this.button_SetGWConfig.Name = "button_SetGWConfig";
+            this.button_SetGWConfig.Size = new System.Drawing.Size(18, 24);
+            this.button_SetGWConfig.TabIndex = 59;
+            this.button_SetGWConfig.Text = "<";
+            this.button_SetGWConfig.UseVisualStyleBackColor = true;
+            this.button_SetGWConfig.Click += new System.EventHandler(this.button_SetGWConfig_Click);
             // 
             // button_Setup_uploadAbort
             // 
@@ -1488,6 +1502,7 @@
             // 
             // groupBox7
             // 
+            this.groupBox7.Controls.Add(this.button7);
             this.groupBox7.Controls.Add(this.groupBox10);
             this.groupBox7.Controls.Add(this.button_MB_Read_DI);
             this.groupBox7.Controls.Add(this.textBox_MB_Addr_DI);
@@ -1504,6 +1519,17 @@
             this.groupBox7.TabIndex = 47;
             this.groupBox7.TabStop = false;
             this.groupBox7.Text = "Modbus Value Req DI";
+            // 
+            // button7
+            // 
+            this.button7.Location = new System.Drawing.Point(100, 143);
+            this.button7.Margin = new System.Windows.Forms.Padding(4);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(85, 23);
+            this.button7.TabIndex = 46;
+            this.button7.Text = "Read";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click_2);
             // 
             // groupBox10
             // 
@@ -2954,6 +2980,8 @@
         private System.Windows.Forms.Label label58;
         private System.Windows.Forms.Label label56;
         private System.Windows.Forms.TextBox textBox_AutoCmdIteration;
+        private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.Button button_SetGWConfig;
     }
 }
 

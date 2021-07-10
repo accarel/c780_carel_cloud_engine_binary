@@ -183,5 +183,6 @@ namespace MqttClientSimulatorBinary
 
             this.Close();
         }
+    
     }
 }
