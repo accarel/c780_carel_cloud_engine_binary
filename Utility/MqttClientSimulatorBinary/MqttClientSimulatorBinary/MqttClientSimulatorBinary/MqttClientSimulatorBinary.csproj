@@ -82,6 +82,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="CRC.cs" />
+    <Compile Include="FormSetGWConfig.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormSetGWConfig.Designer.cs">
+      <DependentUpon>FormSetGWConfig.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormAbortUpload.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -177,6 +183,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form6.resx">
       <DependentUpon>Form6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormSetGWConfig.resx">
+      <DependentUpon>FormSetGWConfig.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormAbortUpload.resx">
       <DependentUpon>FormAbortUpload.cs</DependentUpon>
