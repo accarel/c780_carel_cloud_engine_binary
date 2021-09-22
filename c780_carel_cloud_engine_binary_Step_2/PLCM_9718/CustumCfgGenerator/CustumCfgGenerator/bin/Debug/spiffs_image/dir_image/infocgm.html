@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 <html>
-  <head>
+  <head>  
     <meta name="viewport" content="width=device-width, initial-scale=1">			
 	<link rel="stylesheet" type="text/css" href="style.css" />
 	<link rel="icon" href="fav.ico" />	
   </head>
   
 <span class="verd"><meta name='viewport' content='width=device-width, initial-scale=1'/></span>
-<body onload="getTime();getData()">
 
-<h1>Your browser time:</h1>
-<p id="time"></p>
+<body onload="getTime();getData()">
+   <div class="imgcontainer">
+      <img src="fav.ico" alt="Avatar" class="avatar">	  
+	  <!-- logout part -->
+	  <a href="http://10.10.100.254"><button type="button" style="font-size:15px; float:right; margin-top:10px" class="admin-link-small">logout</button></a>
+   </div>
+
+
+<h1 style = "position:relative; top:5px;">Your browser time:</h1>
+<p id="time" style = "margin-top:20px"></p>
 
 <h1>Info CloudGateMini</h1>
 
-<form action="upload/" method="POST" target="_blank" >
+<form action="/" method="POST" target="_self">
 
 <div id="dbg_info"></div>
 <p>Static Info</p>
@@ -34,12 +41,12 @@
     <div class="question"> Dynamic Info Description </div>
         <div class="list"> 
 		<p> MT (main)</p>
-		<p> 1 = gme_check_files</p>
-		<p> 2 = gme_wifi_config</p>
-		<p> 3 = gme_wait_for_internet</p>
-		<p> 5 = gme_check_gw_config</p>		
-		<p> 6 = gme_wait_for_config_mqtt</p>
-		<p> 10= gme_idle_internet_connect</p><br>
+		<p> 1 = check file system</p>
+		<p> 2 = wifi configuration</p>
+		<p> 3 = wait for internet</p>
+		<p> 5 = gateway configuration</p>		
+		<p> 6 = wait for mqtt configuration</p>
+		<p> 10= idle/connect</p><br>
 		
 		<p> PT (polling)</p>
 		<p> 0 = stopped</p>

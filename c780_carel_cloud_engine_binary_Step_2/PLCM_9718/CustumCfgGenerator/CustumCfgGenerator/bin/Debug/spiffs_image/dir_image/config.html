@@ -15,12 +15,13 @@ window.onunload = function () { null };
 <body onload="ShowHideDiv();sta_dhcp()">
   <div class="imgcontainer">
     <img src="fav.ico" alt="Avatar" class="avatar">
+	
+    <!-- logout part -->
+	<a href="http://10.10.100.254"><button type="button" style="font-size:15px; float:right; margin-top:10px" class="admin-link-small">logout</button></a>
   </div>
 
   <h1 class="imgcontainer">Welcome to <text id="lastmac"></text></h1>
-        
-  <a href="http://10.10.100.254/infocgm.html"><u>Click here for more tecnical details</u></a>
-	
+       	
   <div class="container">
     <div>
       <form id="main_id" action="upload/" method="POST" target="_self">
