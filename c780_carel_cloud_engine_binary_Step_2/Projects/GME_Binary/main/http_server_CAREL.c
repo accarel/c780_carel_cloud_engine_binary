@@ -445,6 +445,8 @@ bool IsLoginDone(void){
 	return login_done;
 }
 
+void SetLoginDone(bool login) { login_done = login; }
+
 void GetLoginUsr(char* tmp_login_usr){
 	size_t len = 0;
 	NVM__ReadString(HTMLLOGIN_USR,tmp_login_usr,&len);

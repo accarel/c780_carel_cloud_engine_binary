@@ -219,8 +219,61 @@ static C_RES http_resp_login_json(httpd_req_t *req)
 	cJSON *html_config;
 	html_config = cJSON_CreateObject();
 
+	char var_status[3] = {0};
+	C_BYTE gw_config_status;
+    C_BYTE global_status;
+
 	strcpy(ap_ssid_temp, HTTPServer__SetAPDefSSID(AP_DEF_SSID));
 	cJSON_AddItemToObject(html_config, "lastmac", cJSON_CreateString(ap_ssid_temp));
+
+	/*  GATEWAY STATUS PART  */
+
+	global_status = 0;
+
+	if(Radio__GetStatus() == DISCONNECTED)
+		strcpy(var_status, "KO");
+	else{
+		strcpy(var_status, "OK");
+		global_status++;
+	}
+	cJSON_AddItemToObject(html_config, "wifi_conn", cJSON_CreateString(var_status));
+
+
+	if(MQTT_GetFlags() == 0)
+		strcpy(var_status, "KO");
+	else
+	{
+		strcpy(var_status, "OK");
+		global_status++;
+	}
+
+	cJSON_AddItemToObject(html_config, "cloud_conn", cJSON_CreateString(var_status));
+
+
+	if(NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status) && CONFIGURED != gw_config_status)
+		strcpy(var_status, "KO");
+	else{
+		strcpy(var_status, "OK");
+		global_status++;
+	}
+	cJSON_AddItemToObject(html_config, "gme_config", cJSON_CreateString(var_status));
+
+	/* global status */
+
+	strcpy(var_status, ((global_status == 3) ? "OK" : "KO"));
+	cJSON_AddItemToObject(html_config, "global_cfg", cJSON_CreateString(var_status));
+
+
+	if(IsOffline() || (CONFIGURED != gw_config_status))
+		strcpy(var_status, "KO");
+	else
+		strcpy(var_status, "OK");
+
+	cJSON_AddItemToObject(html_config, "gme_RS485", cJSON_CreateString(var_status));
+
+
+	/* END GATEWAY STATUS PART */
+
 
 	/* print everything */
 	out = cJSON_Print(html_config);
@@ -237,6 +290,33 @@ static C_RES http_resp_login_json(httpd_req_t *req)
 
     return ESP_OK;
 }
+
+//static C_RES http_resp_login_json(httpd_req_t *req)
+//{
+//    //Get config values into a json struct
+//	char *out;
+//	char ap_ssid_temp[30] = {0};
+//	cJSON *html_config;
+//	html_config = cJSON_CreateObject();
+//
+//	strcpy(ap_ssid_temp, HTTPServer__SetAPDefSSID(AP_DEF_SSID));
+//	cJSON_AddItemToObject(html_config, "lastmac", cJSON_CreateString(ap_ssid_temp));
+//
+//	/* print everything */
+//	out = cJSON_Print(html_config);
+//	PRINTF_DEBUG_SERVER("html_login.json:%s\n", out);
+//
+//    httpd_resp_set_type(req, "application/json");
+//    /* Add file upload form and script which on execution sends a POST request to /upload */
+//
+//    httpd_resp_send_chunk(req, (const char *)out, strlen(out));
+//    httpd_resp_sendstr_chunk(req, NULL);
+//
+//	/* free all objects under root and root itself */
+//	cJSON_Delete(html_config);
+//
+//    return ESP_OK;
+//}
 
 #define HTMLCONF_DBG_INFO	     "dbg_info"
 #define HTMLCONF_DBG_STATIC_INFO "dbg_static"
@@ -378,6 +458,7 @@ static esp_err_t download_get_handler(httpd_req_t *req)
 			return http_resp_login_json(req);
 		}
 		else if (strcmp(filename, "/dbg.json") == 0){
+			SetLoginDone(FALSE);
 			return http_resp_config_json_dbg(req);
 		}
 
@@ -465,7 +546,7 @@ static esp_err_t upload_post_handler(httpd_req_t *req)
         PRINTF_DEBUG_SERVER("config case received\n");
 
         httpd_resp_set_status(req, "303 See Other");
-        httpd_resp_set_hdr(req, "Location", "/config.html");
+        httpd_resp_set_hdr(req, "Location", "/");
     	break;
 
     default:

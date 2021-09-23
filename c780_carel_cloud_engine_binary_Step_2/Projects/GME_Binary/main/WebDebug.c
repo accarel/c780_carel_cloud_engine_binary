@@ -79,13 +79,12 @@ void RetriveDataDebug(C_INT16 type, C_INT32 val)
 
 C_CHAR * ReturnDataDebugBuffer(void)
 {
-		sprintf(response_debug, "%s%d%s%d%s%d%s%d%s%d%s%X %X %X",
+		sprintf(response_debug, "%s%d%s%d%s%d%s%d%s%d",
 				    "MT=", dbgData.dbgMain,
 				"\r\nPT=", dbgData.dbgPolling,
 				"\r\nWT=", dbgData.dbgWifi,
 				"\r\nMQT=",dbgData.dbgMqtt,
-				"\r\nMBE=",dbgData.dbgRtu,
-				"\r\nOTA=",dbgData.dbgOtaStatus, dbgData.dbgOtaConlen, dbgData.dbgOtaTrasflen
+				"\r\nMBE=",dbgData.dbgRtu
 				);
 
         #ifdef __CCL_DEBUG_MODE
@@ -103,8 +102,11 @@ C_CHAR * ReturnDataDebugBuffer(void)
 C_CHAR * ReturnStaticDataDebugBuffer(void)
 {
 	char ntp_tmp[NTP_SERVER_SIZE+1];
+	char spiffs_ver[3];
 
 	GetNtpServer(&ntp_tmp[0]);
+
+	sprintf(spiffs_ver, "%d", getSpiffsVersion());
 
 	sprintf(response_debug, "%s%d%s%s%s%s%s%s%s%s%s%s%s%s",
 			"Utc Time= ", RTC_Get_UTC_Current_Time(),
@@ -113,7 +115,7 @@ C_CHAR * ReturnStaticDataDebugBuffer(void)
 			"\r\nMAC=", Utilities__GetMACAddr(),
 			"\r\nFW Ver.= ", GW_FW_REV,
 			"\r\nHW Ver.= ", GW_HW_REV,
-			"\r\nSpi Ver.= ", GW_SPIFFS_REV
+			"\r\nSpi Ver.= ", spiffs_ver  			//GW_SPIFFS_REV
 			);
 
     #ifdef __CCL_DEBUG_MODE

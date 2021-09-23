@@ -115,6 +115,7 @@ void SetWpsParameters(wifi_config_t wifi_config_temp);
 uint8_t GetSsidSelection(void);
 char* HTTPServer__SetAPDefSSID(const char* default_name);
 bool IsLoginDone(void);
+void SetLoginDone(bool login);
 
 void GetLoginUsr(char*);
 void GetLoginPsw(char*);

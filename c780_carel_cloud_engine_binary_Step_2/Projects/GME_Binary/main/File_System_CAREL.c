@@ -241,6 +241,24 @@ C_RES Check_spiffs_compatibility(void)
 }
 
 
+int getSpiffsVersion(void)
+{
+	uint8_t saved_spiff_ver = 0;
+
+	FILE *file_ptr_1 = NULL;
+
+	uint8_t *dati_1 = (uint8_t *)malloc(sizeof(uint16_t));
+	file_ptr_1 = fopen(CFG_DEF, "rb");
+	fread(dati_1, sizeof(uint8_t), sizeof(uint16_t), file_ptr_1);
+	fclose(file_ptr_1);
+
+	saved_spiff_ver = *dati_1;
+
+	free(dati_1);
+
+	return (int)saved_spiff_ver;
+}
+
 
 /**
  * @brief SaveCfgDefDataToNVM

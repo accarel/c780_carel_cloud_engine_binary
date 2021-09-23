@@ -133,7 +133,7 @@
  *
  */
 #define GW_HW_REV  "100"
-#define GW_FW_REV  "102"
+#define GW_FW_REV  "103"
 
 #define GW_SPIFFS_REV  "101"
 

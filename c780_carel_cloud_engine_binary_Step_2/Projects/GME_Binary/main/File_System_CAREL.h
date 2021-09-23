@@ -39,6 +39,7 @@ char* GetApnPassword(char* tmp_apn_password);
 void decrypt_carel(char data[],int key, int size);
 //void encrypt_carel(char data[],int key, int size);
 
+int getSpiffsVersion();
 
 #ifdef __cplusplus
 }
