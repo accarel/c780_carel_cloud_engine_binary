@@ -380,6 +380,7 @@ void PollEngine__ReadBaudRateFromNVM(void);
 		printf x;\
 
 bool IsOffline(void);
+bool IsRealOffline(void);
 
 #define MB_RESPONSE_TIMEOUT(size) pdMS_TO_TICKS(30 + (2 * ((size << 1) + 8) * 11 * 1000 / PollEngine__GetMBBaudrate()))
 

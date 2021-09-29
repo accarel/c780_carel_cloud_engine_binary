@@ -264,11 +264,15 @@ static C_RES http_resp_login_json(httpd_req_t *req)
 	cJSON_AddItemToObject(html_config, "global_cfg", cJSON_CreateString(var_status));
 
 
-	if(IsOffline() || (CONFIGURED != gw_config_status))
-		strcpy(var_status, "KO");
+	if(global_status != 3 )				// no sense to check previously the offline, first check the configuration
+		strcpy(var_status, "KO");       // no completed configured ---> always KO beacaus there isn't modbus parameter/modbus doesn't start
 	else
-		strcpy(var_status, "OK");
-
+	{
+		if((IsRealOffline() == 1))
+		 strcpy(var_status, "KO");
+		else
+		 strcpy(var_status, "OK");
+	}
 	cJSON_AddItemToObject(html_config, "gme_RS485", cJSON_CreateString(var_status));
 
 

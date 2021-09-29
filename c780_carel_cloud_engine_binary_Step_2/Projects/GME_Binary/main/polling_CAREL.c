@@ -1706,6 +1706,11 @@ bool IsOffline(void) {
 	else return false;
 }
 
+bool IsRealOffline(void)
+{
+	return real_offline;
+}
+
 /**
  * @brief DoPolling_CAREL
  *        function with the timing to apply for low check and high check
