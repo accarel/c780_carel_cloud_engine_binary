@@ -302,9 +302,9 @@ void Carel_Main_Task(void)
         		NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
         		NVM__ReadU8Value(SET_DEVS_CONFIG_NVM, &devs_config_status);
 
-				if(	CONFIGURED == gw_config_status &&			//  restore the comment
-					CONFIGURED == line_config_status &&			//  restore the comment 
-					CONFIGURED == devs_config_status)			//  restore the comment 
+				if(	CONFIGURED == gw_config_status &&			//  
+					CONFIGURED == line_config_status &&			//  
+					CONFIGURED == devs_config_status)			// 
 				{
 					P_COV_LN;
 					sm = GME_REBOOT;
