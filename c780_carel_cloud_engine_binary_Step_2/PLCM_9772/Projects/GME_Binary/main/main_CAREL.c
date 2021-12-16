@@ -301,10 +301,10 @@ void Carel_Main_Task(void)
         		NVM__ReadU8Value(SET_GW_CONFIG_NVM, &gw_config_status);
         		NVM__ReadU8Value(SET_LINE_CONFIG_NVM, &line_config_status);
         		NVM__ReadU8Value(SET_DEVS_CONFIG_NVM, &devs_config_status);
-
-				if(	CONFIGURED == gw_config_status &&			//  only in master branch
-					CONFIGURED == line_config_status &&			//  only in master branch
-					CONFIGURED == devs_config_status)			//  only in master branch
+                // pippo   
+				if(	CONFIGURED == gw_config_status &&			//  only V106 tag
+					CONFIGURED == line_config_status &&			//  only V106 tag
+					CONFIGURED == devs_config_status)			//  only V106 tag
 				{
 					P_COV_LN;
 					sm = GME_REBOOT;
