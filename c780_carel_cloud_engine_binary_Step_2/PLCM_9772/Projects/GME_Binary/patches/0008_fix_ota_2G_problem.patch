@@ -1,0 +1,61 @@
+--- esp_https_ota.c.orig	2021-10-14 01:46:16.624115000 -0700
++++ esp_https_ota.c	2021-10-19 07:40:59.270807000 -0700
+@@ -25,6 +25,8 @@
+ #define DEFAULT_OTA_BUF_SIZE IMAGE_HEADER_SIZE
+ static const char *TAG = "esp_https_ota";
+ 
++static uint32_t dim_tot = 0;   
++
+ typedef enum {
+     ESP_HTTPS_OTA_INIT,
+     ESP_HTTPS_OTA_BEGIN,
+@@ -108,7 +110,7 @@
+             ESP_LOGE(TAG, "Failed to open HTTP connection: %s", esp_err_to_name(err));
+             return err;
+         }
+-        header_ret = esp_http_client_fetch_headers(http_client);
++        header_ret = dim_tot = esp_http_client_fetch_headers(http_client);
+         if (header_ret < 0) {
+             return header_ret;
+         }
+@@ -304,8 +306,15 @@
+             data_read = esp_http_client_read(handle->http_client,
+                                              handle->ota_upgrade_buf,
+                                              handle->ota_upgrade_buf_size);
+-            if (data_read == 0) {
+-                /*
++											 
++											 
++			dim_tot -= data_read;								 
++            if (data_read == 0 && dim_tot == 0) {
++            	ESP_LOGI(TAG, "Connection closed, all data received");
++            }
++            else if(data_read == 0)
++			{ 
++				/*
+                  *  esp_https_ota_is_complete_data_received is added to check whether
+                  *  complete image is received.
+                  */
+@@ -323,12 +332,19 @@
+                 } else if (!is_recv_complete) {
+                     return ESP_ERR_HTTPS_OTA_IN_PROGRESS;
+                 }
+-                ESP_LOGI(TAG, "Connection closed");
++                ESP_LOGI(TAG, "Connection closed, all data received");
+             } else if (data_read > 0) {
+                 return _ota_write(handle, (const void *)handle->ota_upgrade_buf, data_read);
+-            } else {
+-                return ESP_FAIL;
++            } 
++	        else if(dim_tot > 0)
++            {
++				ESP_LOGI(TAG,"the file is not finish, connection error!!!\r\n");	
++				break;
+             }
++			else {
++                return ESP_FAIL;
++            }			
++			
+             handle->state = ESP_HTTPS_OTA_SUCCESS;
+             break;
+          default:

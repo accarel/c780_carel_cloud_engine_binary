@@ -1,0 +1,33 @@
+--- esp_ota_ops.c.orig	2021-10-14 01:46:15.916104000 -0700
++++ esp_ota_ops.c	2021-10-18 07:19:23.894102000 -0700
+@@ -153,17 +153,21 @@
+     }
+ #endif
+ 
+-    if (image_size != OTA_WITH_SEQUENTIAL_WRITES) {
+-        // If input image size is 0 or OTA_SIZE_UNKNOWN, erase entire partition
+-        if ((image_size == 0) || (image_size == OTA_SIZE_UNKNOWN)) {
+-            ret = esp_partition_erase_range(partition, 0, partition->size);
+-        } else {
+-            const int aligned_erase_size = (image_size + SPI_FLASH_SEC_SIZE - 1) & ~(SPI_FLASH_SEC_SIZE - 1);
+-            ret = esp_partition_erase_range(partition, 0, aligned_erase_size);
+-        }
+-        if (ret != ESP_OK) {
++    size_t bytesToDelete = partition->size;
++    if(image_size != 0 && image_size != OTA_SIZE_UNKNOWN)
++    {
++        bytesToDelete = (image_size / SPI_FLASH_SEC_SIZE + 1) * SPI_FLASH_SEC_SIZE;
++    }
++    size_t bytesDeleted = 0;
++    while(bytesDeleted < bytesToDelete)
++    {   //0x10000 seems stable enough without too much overhead, you can do larger or smaller chunks
++        size_t thisBytesToDelete = (bytesDeleted <= (bytesToDelete - 0x10000) ? 0x10000 : bytesToDelete - bytesDeleted);
++        ret = esp_partition_erase_range(partition, bytesDeleted, thisBytesToDelete);
++        if(ret != ESP_OK){
+             return ret;
+         }
++        bytesDeleted+=thisBytesToDelete;
++        vTaskDelay( 10 / portTICK_PERIOD_MS); //Yield
+     }
+ 
+     new_entry = (ota_ops_entry_t *) calloc(sizeof(ota_ops_entry_t), 1);

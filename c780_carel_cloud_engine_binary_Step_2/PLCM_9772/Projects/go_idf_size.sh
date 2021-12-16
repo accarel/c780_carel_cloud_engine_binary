@@ -1,0 +1,1 @@
+python ~/esp/esp-idf/tools/idf_size.py ./build/blink.map 

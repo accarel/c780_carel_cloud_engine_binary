@@ -1,0 +1,301 @@
+--- esp_modbus_master.c.orig	2019-10-31 19:26:29.000000000 -0700
++++ esp_modbus_master.c	2019-10-03 06:00:47.000000000 -0700
+@@ -19,6 +19,15 @@
+ #include "mbc_serial_master.h"      // for create function of the port
+ #include "esp_modbus_callbacks.h"   // for callback functions
+ 
++#include "mbutils.h"				// CHIEBAO A.
++
++
++extern USHORT param_buffer[2];   	// CHIEBAO A.
++extern eMBErrorCode retError;
++
++
++//#define __STRICT_MASTER_MODBUS    // CHIEBAO A.
++
+ // This file implements public API for Modbus master controller. 
+ // These functions are wrappers for interface functions of the controller
+ static mb_master_interface_t* master_interface_ptr = NULL;
+@@ -212,10 +221,13 @@
+     return error;
+ }
+ 
++
+ eMBErrorCode eMBMasterRegDiscreteCB(UCHAR * pucRegBuffer, USHORT usAddress,
+                             USHORT usNDiscrete)
+ {
+     eMBErrorCode error = MB_ENOERR;
++
++#ifdef __STRICT_MASTER_MODBUS
+     MB_MASTER_CHECK((master_interface_ptr != NULL),
+                     ESP_ERR_INVALID_STATE,
+                     "Master interface is not correctly initialized.");
+@@ -223,6 +235,52 @@
+                     ESP_ERR_INVALID_STATE,
+                     "Master interface is not correctly initialized.");
+     error = master_interface_ptr->master_reg_cb_discrete(pucRegBuffer, usAddress, usNDiscrete);
++
++#else
++
++    USHORT iRegIndex, iRegBitIndex, iNReg;
++    UCHAR *pucDiscreteInputBuf;
++    USHORT DISCRETE_INPUT_START;
++    USHORT DISCRETE_INPUT_NDISCRETES;
++    USHORT usDiscreteInputStart;
++    iNReg = usNDiscrete / 8 + 1;
++
++    pucDiscreteInputBuf = (USHORT*)param_buffer;   //TO DO .. ;
++
++    DISCRETE_INPUT_START = 0;
++    DISCRETE_INPUT_NDISCRETES = 0xFFFF;
++
++    /* it already plus one in modbus function method. */
++    usAddress--;
++
++    if ((usAddress >= DISCRETE_INPUT_START) && (usAddress + usNDiscrete <= DISCRETE_INPUT_START + DISCRETE_INPUT_NDISCRETES))
++    {
++        iRegIndex = (USHORT)(usAddress) / 8;
++        iRegBitIndex = (USHORT)(usAddress) % 8;
++
++        /* write current discrete values with new values from the protocol stack. */
++        while (iNReg > 1)
++        {
++            xMBUtilSetBits(&pucDiscreteInputBuf[iRegIndex++], iRegBitIndex, 8,
++                           *pucRegBuffer++);
++            iNReg--;
++        }
++        /* last discrete */
++        usNDiscrete = usNDiscrete % 8;
++        /* xMBUtilSetBits has bug when ucNBits is zero */
++        if (usNDiscrete != 0)
++        {
++            xMBUtilSetBits(&pucDiscreteInputBuf[iRegIndex++], iRegBitIndex,
++                           usNDiscrete, *pucRegBuffer++);
++        }
++    }
++    else
++    {
++    	error = MB_ENOREG;
++    }
++#endif
++
++    retError = error;
+     return error;
+ }
+ 
+@@ -230,6 +288,7 @@
+         USHORT usNCoils, eMBRegisterMode eMode)
+ {
+     eMBErrorCode error = MB_ENOERR;
++#ifdef __STRICT_MASTER_MODBUS
+     MB_MASTER_CHECK((master_interface_ptr != NULL),
+                     ESP_ERR_INVALID_STATE,
+                     "Master interface is not correctly initialized.");
+@@ -238,13 +297,88 @@
+                     "Master interface is not correctly initialized.");
+     error = master_interface_ptr->master_reg_cb_coils(pucRegBuffer, usAddress,
+                                                         usNCoils, eMode);
++#else
++
++	USHORT iRegIndex, iRegBitIndex, iNReg;
++	UCHAR *pucCoilBuf;
++	USHORT COIL_START;
++	USHORT COIL_NCOILS;
++
++
++	iNReg = usNCoils / 8 + 1;
++
++	pucCoilBuf = param_buffer;
++
++	COIL_START = 0;
++	COIL_NCOILS = 0xFFFF;
++
++
++	/* if mode is read,the master will write the received date to buffer. */
++	eMode = MB_REG_WRITE;
++
++	/* it already plus one in modbus function method. */
++	usAddress--;
++
++    if ((usAddress >= COIL_START) && (usAddress + usNCoils <= COIL_START + COIL_NCOILS))
++    {
++        iRegIndex = (USHORT)(usAddress) / 8;
++
++        iRegBitIndex = (USHORT)(usAddress) % 8;
++
++        switch (eMode)
++        {
++            /* read current coil values from the protocol stack. */
++        case MB_REG_READ:
++            while (iNReg > 0)
++            {
++                *pucRegBuffer++ = xMBUtilGetBits(&pucCoilBuf[iRegIndex++],
++                                                 iRegBitIndex, 8);
++                iNReg--;
++            }
++            pucRegBuffer--;
++            /* last coils */
++            usNCoils = usNCoils % 8;
++            /* filling zero to high bit */
++            *pucRegBuffer = *pucRegBuffer << (8 - usNCoils);
++            *pucRegBuffer = *pucRegBuffer >> (8 - usNCoils);
++            break;
++
++        /* write current coil values with new values from the protocol stack. */
++        case MB_REG_WRITE:
++            while (iNReg > 1)
++            {
++                xMBUtilSetBits(&pucCoilBuf[iRegIndex++], iRegBitIndex, 8,
++                               *pucRegBuffer++);
++                iNReg--;
++            }
++            /* last coils */
++            usNCoils = usNCoils % 8;
++            /* xMBUtilSetBits has bug when ucNBits is zero */
++            if (usNCoils != 0)
++            {
++                xMBUtilSetBits(&pucCoilBuf[iRegIndex++], iRegBitIndex, usNCoils, *pucRegBuffer++);
++            }
++            break;
++        }
++    }
++    else
++    {
++    	error = MB_ENOREG;
++    }
++#endif
++
++	retError = error;
+     return error;
+ }
+ 
++
++
+ eMBErrorCode eMBMasterRegHoldingCB(UCHAR * pucRegBuffer, USHORT usAddress,
+         USHORT usNRegs, eMBRegisterMode eMode)
+ {
+     eMBErrorCode error = MB_ENOERR;
++
++#ifdef __STRICT_MASTER_MODBUS
+     MB_MASTER_CHECK((master_interface_ptr != NULL),
+                     ESP_ERR_INVALID_STATE,
+                     "Master interface is not correctly initialized.");
+@@ -253,6 +387,60 @@
+                     "Master interface is not correctly initialized.");
+     error = master_interface_ptr->master_reg_cb_holding(pucRegBuffer, usAddress,
+                                                         usNRegs, eMode);
++#else
++    	    USHORT iRegIndex;
++    	    USHORT *pusRegHoldingBuf;
++    	    USHORT REG_HOLDING_START;
++    	    USHORT REG_HOLDING_NREGS;
++    	    USHORT usRegHoldStart;
++
++    	    pusRegHoldingBuf = param_buffer;
++
++    	    REG_HOLDING_START = 0;
++    	    REG_HOLDING_NREGS = 0xFFFF;
++
++    	    /* if mode is read, the master will write the received date to buffer. */
++    	    eMode = MB_REG_WRITE;
++
++    	    /* it already plus one in modbus function method. */
++    	    usAddress--;
++
++    	    if ((usAddress >= REG_HOLDING_START) && (usAddress + usNRegs <= REG_HOLDING_START + REG_HOLDING_NREGS))
++    	    {
++    	        iRegIndex = 0;		//usAddress-1;
++    	        switch (eMode)
++    	        {
++    	        /* read current register values from the protocol stack. */
++    	        case MB_REG_READ:
++    	            while (usNRegs > 0)
++    	            {
++    	                *pucRegBuffer++ = (UCHAR)(pusRegHoldingBuf[0] >> 8);
++    	                *pucRegBuffer++ = (UCHAR)(pusRegHoldingBuf[0] & 0xFF);
++
++    	                iRegIndex++;
++    	                usNRegs--;
++    	            }
++    	            break;
++    	        /* write current register values with new values from the protocol stack. */
++    	        case MB_REG_WRITE:
++    	            while (usNRegs > 0)
++    	            {
++    	                pusRegHoldingBuf[iRegIndex] = *pucRegBuffer++ << 8;          //usNRegs-1
++    	                pusRegHoldingBuf[iRegIndex]|= *pucRegBuffer++;               // usNRegs-1
++
++    	                iRegIndex++;
++    	                usNRegs--;
++    	            }
++    	            break;
++    	        }
++    	    }
++    	    else
++    	    {
++    	    	error = MB_ENOREG;
++    	    }
++#endif
++
++    retError = error;
+     return error;
+ }
+ 
+@@ -260,6 +448,7 @@
+                                 USHORT usNRegs)
+ {
+     eMBErrorCode error = MB_ENOERR;
++#ifdef __STRICT_MASTER_MODBUS
+     MB_MASTER_CHECK((master_interface_ptr != NULL),
+                     ESP_ERR_INVALID_STATE,
+                     "Master interface is not correctly initialized.");
+@@ -267,5 +456,47 @@
+                     ESP_ERR_INVALID_STATE,
+                     "Master interface is not correctly initialized.");
+     error = master_interface_ptr->master_reg_cb_input(pucRegBuffer, usAddress, usNRegs);
++#else
++
++	USHORT iRegIndex;
++	USHORT *pusRegInputBuf;
++	USHORT REG_INPUT_START;
++	USHORT REG_INPUT_NREGS;
++
++
++	pusRegInputBuf = (USHORT*)param_buffer;
++
++	REG_INPUT_START = 0;
++	REG_INPUT_NREGS = 0xFFFF;
++
++
++	/* it already plus one in modbus function method. */
++	usAddress--;
++
++	if ((usAddress >= REG_INPUT_START) && (usAddress + usNRegs <= REG_INPUT_START + REG_INPUT_NREGS))
++	{
++		iRegIndex = 0;  //usAddress;
++		while (usNRegs > 0)
++		{
++			pusRegInputBuf[iRegIndex] = *pucRegBuffer++ << 8;    // iRegIndex
++			pusRegInputBuf[iRegIndex] |= *pucRegBuffer++;        // iRegIndex
++
++			iRegIndex++;
++			usNRegs--;
++		}
++	}
++	else
++	{
++		error = MB_ENOREG;
++	}
++#endif
++
++	retError = error;
+     return error;
+-}
+\ No newline at end of file
++}
++
++
++
++
++
++

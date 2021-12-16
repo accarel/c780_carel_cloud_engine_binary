@@ -1,0 +1,81 @@
+--- mbfuncother.c.orig	2019-10-31 19:26:30.000000000 -0700
++++ mbfuncother.c	2019-11-19 06:48:14.190858754 -0800
+@@ -37,18 +37,23 @@
+ 
+ /* ----------------------- Modbus includes ----------------------------------*/
+ #include "mb.h"
++#include "mb_m.h"
+ #include "mbframe.h"
+ #include "mbproto.h"
+ #include "mbconfig.h"
+ 
+-#if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
++void SetInfo(UCHAR *Frame, USHORT *Len );
++
++
+ 
+ /* ----------------------- Static variables ---------------------------------*/
+-static UCHAR    ucMBSlaveID[MB_FUNC_OTHER_REP_SLAVEID_BUF];
+-static USHORT   usMBSlaveIDLen;
++//static UCHAR    ucMBSlaveID[MB_FUNC_OTHER_REP_SLAVEID_BUF];
+ 
+-/* ----------------------- Start implementation -----------------------------*/
++CHAR    ucMBSlaveID[256];
++USHORT   usMBSlaveIDLen;
+ 
++/* ----------------------- Start implementation -----------------------------*/
++#if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+ eMBErrorCode
+ eMBSetSlaveID( UCHAR ucSlaveID, BOOL xIsRunning,
+                UCHAR const *pucAdditional, USHORT usAdditionalLen )
+@@ -76,13 +81,46 @@
+     }
+     return eStatus;
+ }
+-
++#endif
+ eMBException
+ eMBFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen )
+ {
+-    memcpy( &pucFrame[MB_PDU_DATA_OFF], &ucMBSlaveID[0], ( size_t )usMBSlaveIDLen );
+-    *usLen = ( USHORT )( MB_PDU_DATA_OFF + usMBSlaveIDLen );
++	// TODO Chiebao
++    usMBSlaveIDLen = *usLen;
++
++    for(int i = 0; i < (usMBSlaveIDLen); i++)  //  + 2 bytes CRC ?!?! TODO Chiebao
++    	ucMBSlaveID[i] =  *(pucFrame+i);
++
++// OLD PART
++//    memcpy( &pucFrame[MB_PDU_DATA_OFF], &ucMBSlaveID[0], ( size_t )usMBSlaveIDLen );
++//   *usLen = ( USHORT )( MB_PDU_DATA_OFF + usMBSlaveIDLen );
++
+     return MB_EX_NONE;
+ }
+ 
+-#endif
++
++eMBMasterReqErrCode
++eMBMAsterReqReportSlaveId(UCHAR ucSndAddr,  LONG lTimeOut)
++{
++    UCHAR                 *ucMBFrame;
++    eMBMasterReqErrCode    eErrStatus = MB_MRE_NO_ERR;
++
++    if ( ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM ) eErrStatus = MB_MRE_ILL_ARG;
++	else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) eErrStatus = MB_MRE_MASTER_BUSY;
++	else
++	{
++		vMBMasterGetPDUSndBuf(&ucMBFrame);
++		vMBMasterSetDestAddress(ucSndAddr);
++		ucMBFrame[MB_PDU_FUNC_OFF] = MB_FUNC_OTHER_REPORT_SLAVEID;
++		vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN );
++		( void ) xMBMasterPortEventPost( EV_MASTER_FRAME_SENT);
++		eErrStatus = eMBMasterWaitRequestFinish( );
++	}
++    return eErrStatus;
++}
++
++
++
++
++
++

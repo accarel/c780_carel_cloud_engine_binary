@@ -1,0 +1,11 @@
+--- mbport.h.orig	2019-12-18 01:35:48.813287623 -0800
++++ mbport.h	2019-12-16 03:35:20.610562249 -0800
+@@ -208,6 +208,8 @@
+ BOOL            xMBTCPPortSendResponse( const UCHAR *pucMBTCPFrame, USHORT usTCPLength );
+ #endif
+ 
++void ClearQueueMB(void);
++
+ #ifdef __cplusplus
+ PR_END_EXTERN_C
+ #endif

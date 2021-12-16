@@ -1,0 +1,11 @@
+--- mbconfig.h.orig	2019-12-12 02:10:19.621478576 -0800
++++ mbconfig.h	2019-12-12 02:10:15.313437136 -0800
+@@ -101,7 +101,7 @@
+ #define MB_FUNC_OTHER_REP_SLAVEID_BUF           ( 32 )
+ 
+ /*! \brief If the <em>Report Slave ID</em> function should be enabled. */
+-#define MB_FUNC_OTHER_REP_SLAVEID_ENABLED       (  CONFIG_FMB_CONTROLLER_SLAVE_ID_SUPPORT )
++#define MB_FUNC_OTHER_REP_SLAVEID_ENABLED       (  1 )  // CONFIG_FMB_CONTROLLER_SLAVE_ID_SUPPORT
+ 
+ /*! \brief If the <em>Read Input Registers</em> function should be enabled. */
+ #define MB_FUNC_READ_INPUT_ENABLED              (  1 )

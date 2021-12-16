@@ -1,0 +1,104 @@
+diff -Naur .include/mbconfig.h .include/mbconfig.h
+--- include/mbconfig.h	2021-10-14 01:46:16.956120000 -0700
++++ include/mbconfig.h	2021-10-18 05:12:44.042448000 -0700
+@@ -117,7 +117,12 @@
+ #define MB_FUNC_OTHER_REP_SLAVEID_BUF           ( 32 )
+ 
+ /*! \brief If the <em>Report Slave ID</em> function should be enabled. */
+-#define MB_FUNC_OTHER_REP_SLAVEID_ENABLED       (  CONFIG_FMB_CONTROLLER_SLAVE_ID_SUPPORT )
++#define MB_FUNC_OTHER_REP_SLAVEID_ENABLED       (  1 )  // CONFIG_FMB_CONTROLLER_SLAVE_ID_SUPPORT
++
++
++
++
++
+ 
+ /*! \brief If the <em>Read Input Registers</em> function should be enabled. */
+ #define MB_FUNC_READ_INPUT_ENABLED              (  1 )
+diff -Naur .functions/mbfuncother.c .functions/mbfuncother.c
+--- functions/mbfuncother.c	2021-10-14 01:46:16.940120000 -0700
++++ functions/mbfuncother.c	2021-10-18 01:41:21.517347000 -0700
+@@ -37,20 +37,22 @@
+ 
+ /* ----------------------- Modbus includes ----------------------------------*/
+ #include "mb.h"
++#include "mb_m.h"
+ #include "mbframe.h"
+ #include "mbproto.h"
+ #include "mbconfig.h"
+ 
+ #if MB_SLAVE_RTU_ENABLED || MB_SLAVE_ASCII_ENABLED || MB_TCP_ENABLED
+ 
+-#if MB_FUNC_OTHER_REP_SLAVEID_ENABLED
+ 
+ /* ----------------------- Static variables ---------------------------------*/
+-static UCHAR    ucMBSlaveID[MB_FUNC_OTHER_REP_SLAVEID_BUF];
+-static USHORT   usMBSlaveIDLen;
+ 
+-/* ----------------------- Start implementation -----------------------------*/
++CHAR    ucMBSlaveID[256];
++USHORT   usMBSlaveIDLen;
++
+ 
++/* ----------------------- Start implementation -----------------------------*/
++#if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+ eMBErrorCode
+ eMBSetSlaveID( UCHAR ucSlaveID, BOOL xIsRunning,
+                UCHAR const *pucAdditional, USHORT usAdditionalLen )
+@@ -78,15 +80,38 @@
+     }
+     return eStatus;
+ }
++#endif
+ 
+ eMBException
+ eMBFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen )
+ {
+-    memcpy( &pucFrame[MB_PDU_DATA_OFF], &ucMBSlaveID[0], ( size_t )usMBSlaveIDLen );
+-    *usLen = ( USHORT )( MB_PDU_DATA_OFF + usMBSlaveIDLen );
++	// TODO Chiebao
++    usMBSlaveIDLen = *usLen;
++
++    for(int i = 0; i < (usMBSlaveIDLen + 2); i++)  //  + 2 bytes CRC
++    	ucMBSlaveID[i] =  *(pucFrame+i);
++
+     return MB_EX_NONE;
+ }
+ 
+ #endif
+ 
+-#endif
++eMBMasterReqErrCode
++eMBMAsterReqReportSlaveId(UCHAR ucSndAddr,  LONG lTimeOut)
++{
++    UCHAR                 *ucMBFrame;
++    eMBMasterReqErrCode    eErrStatus = MB_MRE_NO_ERR;
++
++    if ( ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM ) eErrStatus = MB_MRE_ILL_ARG;
++	else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) eErrStatus = MB_MRE_MASTER_BUSY;
++	else
++	{
++		vMBMasterGetPDUSndBuf(&ucMBFrame);
++		vMBMasterSetDestAddress(ucSndAddr);
++		ucMBFrame[MB_PDU_FUNC_OFF] = MB_FUNC_OTHER_REPORT_SLAVEID;
++		vMBMasterSetPDUSndLength(MB_PDU_SIZE_MIN );
++		( void ) xMBMasterPortEventPost( EV_MASTER_FRAME_SENT);
++		eErrStatus = eMBMasterWaitRequestFinish( );
++	}
++    return eErrStatus;
++}
+#endif
+
+diff -Naur .include/mb_m.h .include/mb_m.h
+--- include/mb_m.h	2021-10-14 01:46:16.944120000 -0700
++++ include/mb_m.h	2021-10-18 01:41:21.517347000 -0700
+@@ -363,6 +363,9 @@
+ eMBMasterReqErrCode
+ eMBMasterReqReadDiscreteInputs( UCHAR ucSndAddr, USHORT usDiscreteAddr, USHORT usNDiscreteIn, LONG lTimeOut );
+ 
++eMBMasterReqErrCode
++eMBMAsterReqReportSlaveId(UCHAR ucSndAddr,  LONG lTimeOut);
++
+ eMBException
+ eMBMasterFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen );
+ eMBException

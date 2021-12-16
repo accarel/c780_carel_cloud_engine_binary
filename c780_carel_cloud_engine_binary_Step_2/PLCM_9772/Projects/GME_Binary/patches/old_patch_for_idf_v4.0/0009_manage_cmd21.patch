@@ -1,0 +1,47 @@
+--- mb.c.orig	2020-06-24 02:29:58.395932664 -0700
++++ mb.c	2020-06-22 08:00:03.189708627 -0700
+@@ -95,6 +95,9 @@
+ #if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+     {MB_FUNC_OTHER_REPORT_SLAVEID, eMBFuncReportSlaveID},
+ #endif
++#if MB_FUNC_FILE_TRANSFER_ENABLED > 0
++    {MB_FUNC_FILE_TRANSFER, eMBFuncFileTransfer},
++#endif
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+     {MB_FUNC_READ_INPUT_REGISTER, eMBFuncReadInputRegister},
+ #endif
+--- mb_m.c.orig	2020-06-24 02:29:58.395932664 -0700
++++ mb_m.c	2020-06-22 08:03:50.503325677 -0700
+@@ -106,6 +106,9 @@
+ #if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+     {MB_FUNC_OTHER_REPORT_SLAVEID, eMBFuncReportSlaveID},
+ #endif
++#if MB_FUNC_FILE_TRANSFER_ENABLED > 0
++    {MB_FUNC_FILE_TRANSFER, eMBFuncFileTransfer},
++#endif
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+     {MB_FUNC_READ_INPUT_REGISTER, eMBMasterFuncReadInputRegister},
+ #endif
+
+--- ./include/mbproto.h.orig	2020-06-24 02:29:58.395932664 -0700
++++ ./include/mbproto.h	2020-06-22 08:01:49.720596643 -0700
+@@ -53,6 +53,7 @@
+ #define MB_FUNC_DIAG_GET_COM_EVENT_CNT        ( 11 )
+ #define MB_FUNC_DIAG_GET_COM_EVENT_LOG        ( 12 )
+ #define MB_FUNC_OTHER_REPORT_SLAVEID          ( 17 )
++#define MB_FUNC_FILE_TRANSFER                 ( 21 )
+ #define MB_FUNC_ERROR                         ( 128 )
+ /* ----------------------- Type definitions ---------------------------------*/
+     typedef enum
+--- ./include/mbfunc.h.orig	2020-06-24 02:29:58.395932664 -0700
++++ ./include/mbfunc.h	2020-06-22 08:03:58.275243588 -0700
+@@ -38,6 +38,9 @@
+     eMBException eMBFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen );
+ #endif
+ 
++#if MB_FUNC_FILE_TRANSFER_ENABLED > 0
++eMBException eMBFuncFileTransfer( UCHAR * pucFrame, USHORT * usLen );
++#endif
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+ eMBException    eMBFuncReadInputRegister( UCHAR * pucFrame, USHORT * usLen );
+ #endif

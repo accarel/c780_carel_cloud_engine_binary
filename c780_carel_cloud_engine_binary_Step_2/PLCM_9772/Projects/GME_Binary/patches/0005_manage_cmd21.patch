@@ -1,0 +1,140 @@
+diff -r -Naur patch_5/functions/mbfuncother.c modify/functions/mbfuncother.c
+--- functions/mbfuncother.c	2021-10-18 06:23:33.445474000 -0700
++++ functions/mbfuncother.c	2021-10-18 23:53:43.292011000 -0700
+@@ -50,6 +50,8 @@
+ CHAR    ucMBSlaveID[256];
+ USHORT   usMBSlaveIDLen;
+ 
++CHAR   ucMBFileTransfer[256];
++USHORT   usMBFileTransferLen;
+ 
+ /* ----------------------- Start implementation -----------------------------*/
+ #if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+@@ -94,7 +96,6 @@
+     return MB_EX_NONE;
+ }
+ 
+-#endif
+ 
+ eMBMasterReqErrCode
+ eMBMAsterReqReportSlaveId(UCHAR ucSndAddr,  LONG lTimeOut)
+@@ -116,4 +117,38 @@
+     return eErrStatus;
+ }
+ 
+-#endif
++
++eMBException
++eMBFuncFileTransfer( UCHAR * pucFrame, USHORT * usLen )
++{
++    usMBFileTransferLen = *usLen;
++
++    for(int i = 0; i < (usMBFileTransferLen + 2); i++) {  //  + 2 bytes CRC
++        ucMBFileTransfer[i] =  *(pucFrame+i);
++    }
++    return MB_EX_NONE;
++}
++
++eMBMasterReqErrCode
++eMBMAsterReqFileTransfer(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen,  LONG lTimeOut)
++{
++    UCHAR                 *ucMBFrame;
++    eMBMasterReqErrCode    eErrStatus = MB_MRE_NO_ERR;
++
++    if ( ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM ) eErrStatus = MB_MRE_ILL_ARG;
++	else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) eErrStatus = MB_MRE_MASTER_BUSY;
++	else
++	{
++		vMBMasterGetPDUSndBuf(&ucMBFrame);
++		vMBMasterSetDestAddress(ucSndAddr);
++		for (USHORT i=0; i<datalen-1; i++)
++			ucMBFrame[i] = databuf[i+1];
++
++		vMBMasterSetPDUSndLength(datalen - 1 - 2);  // -1 for byte ADDR / -2 for bytes CRC
++		xMBMasterPortEventPost( EV_MASTER_FRAME_SENT);
++		eErrStatus = eMBMasterWaitRequestFinish( );
++		printf("eMBMasterWaitRequestFinish eErrStatus %d\n", eErrStatus);
++	}
++    return eErrStatus;
++}
++#endif
+\ No newline at end of file
+diff -r -Naur patch_5/include/mbconfig.h modify/include/mbconfig.h
+--- include/mbconfig.h	2021-10-18 06:05:10.177206000 -0700
++++ include/mbconfig.h	2021-10-18 23:53:43.292011000 -0700
+@@ -119,6 +119,8 @@
+ /*! \brief If the <em>Report Slave ID</em> function should be enabled. */
+ #define MB_FUNC_OTHER_REP_SLAVEID_ENABLED       (  1 )  // CONFIG_FMB_CONTROLLER_SLAVE_ID_SUPPORT
+ 
++/*! \brief If the <em>File Transfer</em> function should be enabled. */
++#define MB_FUNC_FILE_TRANSFER_ENABLED			(  1 )
+ 
+ 
+ 
+diff -r -Naur patch_5/include/mbfunc.h modify/include/mbfunc.h
+--- include/mbfunc.h	2021-10-14 01:46:16.956120000 -0700
++++ include/mbfunc.h	2021-10-18 23:53:43.292011000 -0700
+@@ -38,6 +38,10 @@
+     eMBException eMBFuncReportSlaveID( UCHAR * pucFrame, USHORT * usLen );
+ #endif
+ 
++#if MB_FUNC_FILE_TRANSFER_ENABLED > 0
++eMBException eMBFuncFileTransfer( UCHAR * pucFrame, USHORT * usLen );
++#endif
++
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+ eMBException    eMBFuncReadInputRegister( UCHAR * pucFrame, USHORT * usLen );
+ #endif
+diff -r -Naur patch_5/include/mb_m.h modify/include/mb_m.h
+--- include/mb_m.h	2021-10-18 06:05:10.205203000 -0700
++++ include/mb_m.h	2021-10-18 23:53:43.292011000 -0700
+@@ -340,6 +340,10 @@
+ /*! \ingroup modbus
+  *\brief These Modbus functions are called for user when Modbus run in Master Mode.
+  */
++
++eMBMasterReqErrCode
++eMBMAsterReqFileTransfer(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen, LONG lTimeOut );
++
+ eMBMasterReqErrCode
+ eMBMasterReqReadInputRegister( UCHAR ucSndAddr, USHORT usRegAddr, USHORT usNRegs, LONG lTimeOut );
+ eMBMasterReqErrCode
+diff -r -Naur patch_5/include/mbproto.h modify/include/mbproto.h
+--- include/mbproto.h	2021-10-14 01:46:16.956120000 -0700
++++ include/mbproto.h	2021-10-18 23:53:43.292011000 -0700
+@@ -53,7 +53,8 @@
+ #define MB_FUNC_DIAG_GET_COM_EVENT_CNT        ( 11 )
+ #define MB_FUNC_DIAG_GET_COM_EVENT_LOG        ( 12 )
+ #define MB_FUNC_OTHER_REPORT_SLAVEID          ( 17 )
+-#define MB_FUNC_ERROR                         ( 128u )
++#define MB_FUNC_FILE_TRANSFER                 ( 21 )
++#define MB_FUNC_ERROR                         ( 128 )
+ /* ----------------------- Type definitions ---------------------------------*/
+     typedef enum
+ {
+diff -r -Naur patch_5/mb.c modify/mb.c
+--- mb.c	2021-10-14 01:46:16.956120000 -0700
++++ mb.c	2021-10-18 23:53:43.292011000 -0700
+@@ -97,6 +97,9 @@
+ #if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+     {MB_FUNC_OTHER_REPORT_SLAVEID, eMBFuncReportSlaveID},
+ #endif
++#if MB_FUNC_FILE_TRANSFER_ENABLED > 0
++    {MB_FUNC_FILE_TRANSFER, eMBFuncFileTransfer},
++#endif
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+     {MB_FUNC_READ_INPUT_REGISTER, eMBFuncReadInputRegister},
+ #endif
+diff -r -Naur patch_5/mb_m.c modify/mb_m.c
+--- mb_m.c	2021-10-14 01:46:16.956120000 -0700
++++ mb_m.c	2021-10-18 23:53:43.292011000 -0700
+@@ -115,6 +115,9 @@
+ #if MB_FUNC_OTHER_REP_SLAVEID_ENABLED > 0
+     {MB_FUNC_OTHER_REPORT_SLAVEID, eMBFuncReportSlaveID},
+ #endif
++#if MB_FUNC_FILE_TRANSFER_ENABLED > 0
++    {MB_FUNC_FILE_TRANSFER, eMBFuncFileTransfer},
++#endif
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+     {MB_FUNC_READ_INPUT_REGISTER, eMBMasterFuncReadInputRegister},
+ #endif

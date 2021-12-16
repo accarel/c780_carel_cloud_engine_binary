@@ -1,0 +1,119 @@
+diff -r -Naur patch_7/functions/mbfuncother.c modify/functions/mbfuncother.c
+--- functions/mbfuncother.c	2021-10-19 00:42:30.838215000 -0700
++++ functions/mbfuncother.c	2021-10-19 01:49:36.541447000 -0700
+@@ -151,4 +151,47 @@
+ 	}
+     return eErrStatus;
+ }
+-#endif
+\ No newline at end of file
++
++
++
++/*********************/
++/*  Modbus File Read */
++/*********************/
++
++eMBException eMBFuncReadFileRecord ( UCHAR * pucFrame, USHORT * usLen )
++{
++	// TODO
++	usMBFileTransferLen = *usLen;
++
++	for(int i = 0; i < (usMBFileTransferLen + 2); i++) {  //  + 2 bytes CRC
++		ucMBFileTransfer[i] =  *(pucFrame+i);
++	}
++
++	return MB_EX_NONE;
++}
++
++
++
++eMBMasterReqErrCode eMBMasterReqFileRead(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen,  LONG lTimeOut)
++{
++    UCHAR                 *ucMBFrame;
++    eMBMasterReqErrCode    eErrStatus = MB_MRE_NO_ERR;
++
++    if ( ucSndAddr > MB_MASTER_TOTAL_SLAVE_NUM ) eErrStatus = MB_MRE_ILL_ARG;
++	else if ( xMBMasterRunResTake( lTimeOut ) == FALSE ) eErrStatus = MB_MRE_MASTER_BUSY;
++	else
++	{
++		vMBMasterGetPDUSndBuf(&ucMBFrame);
++		vMBMasterSetDestAddress(ucSndAddr);
++		for (USHORT i=0; i<datalen-1; i++)
++			ucMBFrame[i] = databuf[i+1];
++
++		vMBMasterSetPDUSndLength(datalen - 1);
++		xMBMasterPortEventPost( EV_MASTER_FRAME_SENT);
++		eErrStatus = eMBMasterWaitRequestFinish( );
++		printf("eMBMasterWaitRequestFinish eErrStatus %d\n", eErrStatus);
++	}
++    return eErrStatus;
++}
++
++
+diff -r -Naur patch_7/include/mbconfig.h modify/include/mbconfig.h
+--- include/mbconfig.h	2021-10-19 00:42:30.854215000 -0700
++++ include/mbconfig.h	2021-10-19 01:49:36.541447000 -0700
+@@ -122,9 +122,7 @@
+ /*! \brief If the <em>File Transfer</em> function should be enabled. */
+ #define MB_FUNC_FILE_TRANSFER_ENABLED			(  1 )
+ 
+-
+-
+-
++#define MB_FUNC_FILE_READ_ENABLED				(  1 )
+ 
+ /*! \brief If the <em>Read Input Registers</em> function should be enabled. */
+ #define MB_FUNC_READ_INPUT_ENABLED              (  1 )
+diff -r -Naur patch_7/include/mbfunc.h modify/include/mbfunc.h
+--- include/mbfunc.h	2021-10-19 00:42:30.862215000 -0700
++++ include/mbfunc.h	2021-10-19 01:49:36.541447000 -0700
+@@ -42,6 +42,10 @@
+ eMBException eMBFuncFileTransfer( UCHAR * pucFrame, USHORT * usLen );
+ #endif
+ 
++#if MB_FUNC_FILE_READ_ENABLED > 0
++eMBException eMBFuncReadFileRecord ( UCHAR * pucFrame, USHORT * usLen );
++#endif
++
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+ eMBException    eMBFuncReadInputRegister( UCHAR * pucFrame, USHORT * usLen );
+ #endif
+diff -r -Naur patch_7/include/mb_m.h modify/include/mb_m.h
+--- include/mb_m.h	2021-10-19 00:42:30.862215000 -0700
++++ include/mb_m.h	2021-10-19 01:49:36.541447000 -0700
+@@ -345,6 +345,10 @@
+ eMBMAsterReqFileTransfer(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen, LONG lTimeOut );
+ 
+ eMBMasterReqErrCode
++eMBMasterReqFileRead(UCHAR ucSndAddr, UCHAR* databuf, USHORT datalen,  LONG lTimeOut);
++
++
++eMBMasterReqErrCode
+ eMBMasterReqReadInputRegister( UCHAR ucSndAddr, USHORT usRegAddr, USHORT usNRegs, LONG lTimeOut );
+ eMBMasterReqErrCode
+ eMBMasterReqWriteHoldingRegister( UCHAR ucSndAddr, USHORT usRegAddr, USHORT usRegData, LONG lTimeOut );
+diff -r -Naur patch_7/include/mbproto.h modify/include/mbproto.h
+--- include/mbproto.h	2021-10-19 00:42:30.870214000 -0700
++++ include/mbproto.h	2021-10-19 01:49:36.541447000 -0700
+@@ -53,6 +53,7 @@
+ #define MB_FUNC_DIAG_GET_COM_EVENT_CNT        ( 11 )
+ #define MB_FUNC_DIAG_GET_COM_EVENT_LOG        ( 12 )
+ #define MB_FUNC_OTHER_REPORT_SLAVEID          ( 17 )
++#define MB_FUNC_FILE_READ					  ( 20 )
+ #define MB_FUNC_FILE_TRANSFER                 ( 21 )
+ #define MB_FUNC_ERROR                         ( 128 )
+ /* ----------------------- Type definitions ---------------------------------*/
+diff -r -Naur patch_7/mb_m.c modify/mb_m.c
+--- mb_m.c	2021-10-19 00:42:30.874214000 -0700
++++ mb_m.c	2021-10-19 01:49:36.541447000 -0700
+@@ -118,6 +118,9 @@
+ #if MB_FUNC_FILE_TRANSFER_ENABLED > 0
+     {MB_FUNC_FILE_TRANSFER, eMBFuncFileTransfer},
+ #endif
++#if MB_FUNC_FILE_READ_ENABLED > 0
++    {MB_FUNC_FILE_READ, eMBFuncReadFileRecord},
++#endif
+ #if MB_FUNC_READ_INPUT_ENABLED > 0
+     {MB_FUNC_READ_INPUT_REGISTER, eMBMasterFuncReadInputRegister},
+ #endif

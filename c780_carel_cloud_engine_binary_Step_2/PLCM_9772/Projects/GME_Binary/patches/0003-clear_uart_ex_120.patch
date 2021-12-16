@@ -1,0 +1,24 @@
+diff -r -Naur modbus/include/mbport.h free/modbus/include/mbport.h
+--- modbus/include/mbport.h	2021-10-14 01:46:16.956120000 -0700
++++ modbus/include/mbport.h	2021-10-18 06:43:28.249433000 -0700
+@@ -229,6 +229,7 @@
+ BOOL            xMBTCPPortSendResponse( UCHAR *pucMBTCPFrame, USHORT usTCPLength );
+ 
+ #endif
++void ClearQueueMB(void);
+ 
+ #if MB_MASTER_TCP_ENABLED
+ BOOL            xMBMasterTCPPortInit( USHORT usTCPPort );
+diff -r -Naur free_orig/port/portserial_m.c free/port/portserial_m.c
+--- port/portserial_m.c	2021-10-14 01:46:16.964120000 -0700
++++ port/portserial_m.c	2021-10-29 07:04:47.664866243 -0700
+@@ -279,3 +279,9 @@
+     USHORT usLength = uart_read_bytes(ucUartNumber, (uint8_t*)pucByte, 1, MB_SERIAL_RX_TOUT_TICKS);
+     return (usLength == 1);
+ }
++
++// Clear Uart Queue
++void ClearQueueMB(void){
++    xQueueReset(xMbUartQueue);
++}
++
